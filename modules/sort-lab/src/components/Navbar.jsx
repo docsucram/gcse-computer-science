@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   Sparkles,
   BarChart3,
+  Search,
   Image as ImageIcon,
   Swords,
   BookOpen,
@@ -16,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export default function Navbar({
-  activeView = 'visualizer', // 'visualizer' | 'race' | 'revision'
+  activeView = 'visualizer', // 'visualizer' | 'search' | 'race' | 'revision'
   onViewChange = () => {},
   visualizerMode = 'bars', // 'bars' | 'image'
   onVisualizerModeChange = () => {},
@@ -55,19 +56,19 @@ export default function Navbar({
           <div>
             <div className="flex items-center gap-2">
               <h1 className="font-extrabold text-sm sm:text-base tracking-tight leading-none">
-                Sorting Algorithms
+                Searching &amp; Sorting
               </h1>
               <span className="hidden sm:inline-flex px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 font-bold text-[10px] tracking-wide border border-indigo-500/20">
                 AQA 8525 §3.1
               </span>
             </div>
             <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
-              Interactive GCSE Computer Science Visualizer
+              Interactive GCSE Computer Science Algorithms Lab
             </p>
           </div>
         </div>
 
-        {/* View Switcher Tabs (Visualizer | Race | Revision) */}
+        {/* View Switcher Tabs (Sorting | Searching | Race | Revision) */}
         <nav className={`flex items-center p-1 rounded-xl border text-xs font-semibold ${
           isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'
         }`}>
@@ -82,7 +83,21 @@ export default function Navbar({
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Visualizer</span>
+            <span>Sorting</span>
+          </button>
+
+          <button
+            onClick={() => onViewChange('search')}
+            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+              activeView === 'search'
+                ? 'bg-sky-600 text-white shadow-2xs font-bold'
+                : isDarkMode
+                ? 'text-slate-400 hover:text-slate-200'
+                : 'text-slate-600 hover:text-slate-900 font-medium'
+            }`}
+          >
+            <Search className="w-3.5 h-3.5" />
+            <span>Searching</span>
           </button>
 
           <button
@@ -110,7 +125,7 @@ export default function Navbar({
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Revision Cards</span>
+            <span className="hidden sm:inline">Revision</span>
           </button>
         </nav>
 

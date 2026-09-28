@@ -8,6 +8,7 @@ import ControlsToolbar from './components/ControlsToolbar';
 import QuizModal from './components/QuizModal';
 import RaceMode from './components/RaceMode';
 import RevisionCards from './components/RevisionCards';
+import SearchVisualizer from './components/SearchVisualizer';
 import CustomArrayModal from './components/CustomArrayModal';
 import KeyboardShortcutsModal from './components/KeyboardShortcutsModal';
 
@@ -19,7 +20,7 @@ import confetti from 'canvas-confetti';
 
 export default function App() {
   // Navigation & View State
-  const [activeView, setActiveView] = useState('visualizer'); // 'visualizer' | 'race' | 'revision'
+  const [activeView, setActiveView] = useState('visualizer'); // 'visualizer' | 'search' | 'race' | 'revision'
   const [visualizerMode, setVisualizerMode] = useState('bars'); // 'bars' | 'image'
   const [selectedAlgorithm, setSelectedAlgorithm] = useState('bubble');
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -554,7 +555,16 @@ export default function App() {
           </div>
         )}
 
-        {/* View 2: Split-Screen Race Mode */}
+        {/* View 2: Searching Algorithms Laboratory (Linear vs Binary Search) */}
+        {activeView === 'search' && (
+          <SearchVisualizer
+            isDarkMode={isDarkMode}
+            audioMode={audioMode}
+            onCycleAudio={handleCycleAudio}
+          />
+        )}
+
+        {/* View 3: Split-Screen Race Mode */}
         {activeView === 'race' && (
           <RaceMode
             isDarkMode={isDarkMode}
@@ -563,7 +573,7 @@ export default function App() {
           />
         )}
 
-        {/* View 3: GCSE Revision Cards */}
+        {/* View 4: GCSE Revision Cards */}
         {activeView === 'revision' && (
           <RevisionCards activeAlgorithmId={selectedAlgorithm} isDarkMode={isDarkMode} />
         )}
@@ -574,7 +584,7 @@ export default function App() {
         isDarkMode ? 'border-slate-800 text-slate-500 bg-slate-950/60' : 'border-slate-200 text-slate-500 bg-white/60'
       }`}>
         <p>
-          GCSE Computer Science Sorting Visualizer & Learning Lab • Built for OCR J277, AQA 8525 & Edexcel
+          GCSE Computer Science Searching &amp; Sorting Algorithms Lab • Built for AQA 8525, OCR J277 &amp; Edexcel
         </p>
         <p className="mt-1 text-[11px] text-slate-400">
           Client-side Web Audio synthesis • Zero server dependencies • Optimized for Chromebooks, iPads, and Laptops
