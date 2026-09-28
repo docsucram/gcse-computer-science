@@ -182,14 +182,14 @@
       <!-- Main Workspace 2-Column Grid -->
       <div class="fde-grid">
 
-        <!-- Column 1: Von Neumann Architecture Interactive Diagram -->
+        <!-- Column 1: Von Neumann Architecture Clean 2D Schematic -->
         <div class="panel">
           <div class="panel-title-bar">
             <div class="panel-title-group">
               <span class="badge badge-spec">Hardware Architecture</span>
-              <h3 class="panel-title">CPU &amp; Memory Layout</h3>
+              <h3 class="panel-title">Von Neumann CPU &amp; Memory</h3>
             </div>
-            <span class="badge badge-topic">Von Neumann Model</span>
+            <span class="badge badge-topic">AQA 8525 §3.4.1</span>
           </div>
 
           <!-- Architecture Visual Frame -->
@@ -200,202 +200,158 @@
               <div class="cpu-box">
                 <div class="cpu-box-title">
                   <span>Central Processing Unit (CPU)</span>
-                  <span style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);">Silicon Core</span>
+                  <span class="cpu-subtag">Processing Core</span>
                 </div>
 
-                <!-- 1. System Clock Module (Heartbeat of CPU) -->
-                <div id="clockModule" class="cpu-clock-bar">
-                  <div class="clock-info">
-                    <span class="clock-label">⚡ SYSTEM CLOCK</span>
-                    <span class="clock-freq">2.4 GHz</span>
+                <!-- 1. Top Core Logic Units: CU & ALU -->
+                <div class="core-units-grid">
+                  <!-- Control Unit (CU) -->
+                  <div id="cuBlock" class="component-block" title="Control Unit: Decodes instructions and coordinates CPU operations via control signals">
+                    <div class="component-header">
+                      <span class="component-title">Control Unit (CU)</span>
+                      <span class="badge badge-cu">DECODER</span>
+                    </div>
+                    <div class="component-status">
+                      Decoded: <strong id="cuDecodedText">NONE</strong>
+                    </div>
                   </div>
-                  <div class="clock-wave-container">
-                    <svg class="clock-wave-svg" viewBox="0 0 100 16" fill="none">
-                      <path d="M 0 12 L 12 12 L 12 4 L 24 4 L 24 12 L 36 12 L 36 4 L 48 4 L 48 12 L 60 12 L 60 4 L 72 4 L 72 12 L 84 12 L 84 4 L 96 4 L 96 12 L 100 12" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <div id="clockPulseLed" class="clock-pulse-led" title="Clock Pulse Rising/Falling Edge"></div>
-                  </div>
-                  <div class="clock-telemetry">
-                    <span id="clockTickStatus" class="clock-tick-status">TICK: IDLE</span>
-                    <span id="clockCycleCount" class="clock-cycle-count">Cycle: 0</span>
-                  </div>
-                </div>
 
-                <!-- 2. Control Unit (CU) -->
-                <div id="cuBlock" class="component-block">
-                  <div class="component-header">
-                    <span class="component-title">Control Unit (CU)</span>
-                    <span id="cuStatusBadge" class="badge" style="background: rgba(99, 102, 241, 0.2); color: var(--accent-soft-text); font-size: 10px;">DECODER</span>
-                  </div>
-                  <div class="component-desc">
-                    Decodes instructions, directs data flow, and generates timing signals across control lines.
-                  </div>
-                  <div style="margin-top: 6px; font-size: 11px; font-family: var(--font-mono); color: var(--accent-soft-text);">
-                    Decoded: <strong id="cuDecodedText" style="color: #ffffff;">NONE</strong>
+                  <!-- Arithmetic Logic Unit (ALU) -->
+                  <div id="aluBlock" class="component-block" title="Arithmetic Logic Unit: Performs arithmetic calculations and logical comparisons">
+                    <div class="component-header">
+                      <span class="component-title">ALU</span>
+                      <span class="badge badge-alu">MATH &amp; LOGIC</span>
+                    </div>
+                    <div class="component-status alu-status">
+                      Output: <strong id="aluResultText">0</strong>
+                    </div>
                   </div>
                 </div>
 
-                <!-- 3. Arithmetic Logic Unit (ALU) -->
-                <div id="aluBlock" class="component-block">
-                  <div class="component-header">
-                    <span class="component-title">Arithmetic Logic Unit (ALU)</span>
-                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 10px;">MATH &amp; LOGIC</span>
+                <!-- 2. Core Registers Section (Strictly AQA Core 4) -->
+                <div class="registers-section">
+                  <div class="registers-header">
+                    <span>Registers (AQA Core)</span>
                   </div>
-                  <div class="component-desc">
-                    Executes arithmetic calculations (+, −) and boolean logical comparisons.
-                  </div>
-                  <div style="margin-top: 6px; font-size: 11px; font-family: var(--font-mono); color: #34d399;">
-                    ALU Result: <strong id="aluResultText">0</strong>
-                  </div>
-                </div>
-
-                <!-- 4. Core Registers Section -->
-                <div style="margin-top: 4px; position: relative;">
-                  <div style="font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
-                    <span>Core Registers (AQA §3.4.1)</span>
-                    <span style="font-size: 9px; color: #38bdf8; font-family: var(--font-mono);">Internal Bus</span>
-                  </div>
-
-                  <!-- Floating Internal CPU Bus Value Bubble -->
-                  <div id="bubbleInternalBus" class="internal-bubble"></div>
 
                   <div class="registers-grid">
                     <!-- PC -->
-                    <div id="regPC" class="register-card">
+                    <div id="regPC" class="register-card" title="Program Counter: Holds address of next instruction">
                       <div class="register-name">
                         <span>PC</span>
-                        <span style="font-size: 9px; font-weight: 500; color: var(--text-muted);">Prog Counter</span>
+                        <span class="reg-sublabel">Prog Counter</span>
                       </div>
                       <div id="valPC" class="register-val">00</div>
                     </div>
 
                     <!-- MAR -->
-                    <div id="regMAR" class="register-card">
+                    <div id="regMAR" class="register-card" title="Memory Address Register: Holds memory address to read/write">
                       <div class="register-name">
                         <span>MAR</span>
-                        <span style="font-size: 9px; font-weight: 500; color: var(--text-muted);">Mem Address</span>
+                        <span class="reg-sublabel">Mem Address</span>
                       </div>
                       <div id="valMAR" class="register-val">00</div>
                     </div>
 
                     <!-- MDR -->
-                    <div id="regMDR" class="register-card">
+                    <div id="regMDR" class="register-card" title="Memory Data Register: Holds data/instruction fetched from or written to RAM">
                       <div class="register-name">
                         <span>MDR</span>
-                        <span style="font-size: 9px; font-weight: 500; color: var(--text-muted);">Mem Data</span>
+                        <span class="reg-sublabel">Mem Data</span>
                       </div>
                       <div id="valMDR" class="register-val">---</div>
                     </div>
 
-                    <!-- CIR -->
-                    <div id="regCIR" class="register-card">
-                      <div class="register-name">
-                        <span>CIR</span>
-                        <span style="font-size: 9px; font-weight: 500; color: var(--text-muted);">Cur Instruction</span>
-                      </div>
-                      <div id="valCIR" class="register-val">---</div>
-                    </div>
-
                     <!-- ACC -->
-                    <div id="regACC" class="register-card">
+                    <div id="regACC" class="register-card" title="Accumulator: Stores temporary calculation results from ALU">
                       <div class="register-name">
                         <span>ACC</span>
-                        <span style="font-size: 9px; font-weight: 500; color: var(--text-muted);">Accumulator</span>
+                        <span class="reg-sublabel">Accumulator</span>
                       </div>
                       <div id="valACC" class="register-val">0</div>
                     </div>
                   </div>
                 </div>
 
-                <!-- 5. On-Chip L1 Cache Memory (SRAM) -->
-                <div id="cacheModule" class="cache-box">
-                  <div class="cache-header">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                      <span style="font-size: 11px; font-weight: 800; color: #38bdf8;">L1 CACHE (On-Chip SRAM)</span>
-                      <span id="cacheHitBadge" class="cache-status-badge">IDLE</span>
-                    </div>
-                    <span id="cacheStatsText" style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">Hits: 0 | Misses: 0</span>
-                  </div>
-                  <div class="cache-lines-grid" id="cacheLinesGrid">
-                    <div class="cache-line" id="cacheLine0">
-                      <span class="cache-line-idx">L0</span>
-                      <span class="cache-line-addr" id="cacheAddr0">--</span>
-                      <span class="cache-line-val" id="cacheVal0">Empty</span>
-                    </div>
-                    <div class="cache-line" id="cacheLine1">
-                      <span class="cache-line-idx">L1</span>
-                      <span class="cache-line-addr" id="cacheAddr1">--</span>
-                      <span class="cache-line-val" id="cacheVal1">Empty</span>
-                    </div>
-                    <div class="cache-line" id="cacheLine2">
-                      <span class="cache-line-idx">L2</span>
-                      <span class="cache-line-addr" id="cacheAddr2">--</span>
-                      <span class="cache-line-val" id="cacheVal2">Empty</span>
-                    </div>
-                    <div class="cache-line" id="cacheLine3">
-                      <span class="cache-line-idx">L3</span>
-                      <span class="cache-line-addr" id="cacheAddr3">--</span>
-                      <span class="cache-line-val" id="cacheVal3">Empty</span>
-                    </div>
-                  </div>
-                </div>
-
               </div>
 
-              <!-- System Buses Highway (Circuit Interconnect) -->
+              <!-- System Buses Conduit (Clean Persistent Lines with Directional Arrows) -->
               <div class="buses-conduit">
                 
-                <!-- Address Bus Highway -->
-                <div id="busAddress" class="bus-line bus-highway-amber">
-                  <div class="bus-label">
-                    <span>Address Bus</span>
-                    <span class="bus-spec">Unidirectional (CPU ➔ RAM)</span>
+                <!-- Address Bus: MAR -> RAM (Unidirectional) -->
+                <div id="busAddress" class="bus-line bus-line-address">
+                  <div class="bus-meta">
+                    <span class="bus-name">Address Bus</span>
+                    <span class="bus-type">Unidirectional (CPU ➔ RAM)</span>
                   </div>
-                  <div class="bus-circuit-traces bus-traces-address">
-                    <div class="bus-arrow-flow address-flow">══════════▶</div>
+                  <div class="bus-wire">
+                    <div class="bus-pathway pathway-address">
+                      <span class="wire-trace"></span>
+                      <span class="wire-arrow">▶</span>
+                      <div id="packetAddress" class="bus-packet packet-address"></div>
+                    </div>
                   </div>
-                  <div id="busAddressVal" class="bus-data">Idle</div>
-                  <!-- Floating Dynamic Address Bubble with Number -->
-                  <div id="bubbleAddressBus" class="data-value-bubble bubble-address"></div>
+                  <div class="bus-readout">
+                    <span class="bus-status-tag">ADDR:</span>
+                    <span id="busAddressVal" class="bus-data">Idle</span>
+                  </div>
                 </div>
 
-                <!-- Data Bus Highway -->
-                <div id="busData" class="bus-line bus-highway-emerald">
-                  <div class="bus-label">
-                    <span>Data Bus</span>
-                    <span class="bus-spec">Bidirectional (CPU ⇄ RAM)</span>
+                <!-- Data Bus: MDR <-> RAM (Bidirectional) -->
+                <div id="busData" class="bus-line bus-line-data">
+                  <div class="bus-meta">
+                    <span class="bus-name">Data Bus</span>
+                    <span class="bus-type">Bidirectional (CPU ⇄ RAM)</span>
                   </div>
-                  <div class="bus-circuit-traces bus-traces-data">
-                    <div class="bus-arrow-flow data-flow">◀══════════▶</div>
+                  <div class="bus-wire">
+                    <div class="bus-pathway pathway-data">
+                      <span class="wire-arrow-left">◀</span>
+                      <span class="wire-trace"></span>
+                      <span class="wire-arrow">▶</span>
+                      <div id="packetData" class="bus-packet packet-data"></div>
+                    </div>
                   </div>
-                  <div id="busDataVal" class="bus-data">Idle</div>
-                  <!-- Floating Dynamic Data Bubble with Number / Instruction -->
-                  <div id="bubbleDataBus" class="data-value-bubble bubble-data"></div>
+                  <div class="bus-readout">
+                    <span class="bus-status-tag">DATA:</span>
+                    <span id="busDataVal" class="bus-data">Idle</span>
+                  </div>
                 </div>
 
-                <!-- Control Bus Highway -->
-                <div id="busControl" class="bus-line bus-highway-purple">
-                  <div class="bus-label">
-                    <span>Control Bus</span>
-                    <span class="bus-spec">Control Signals &amp; Clock</span>
+                <!-- Control Bus: CU -> RAM (Control Signals) -->
+                <div id="busControl" class="bus-line bus-line-control">
+                  <div class="bus-meta">
+                    <span class="bus-name">Control Bus</span>
+                    <span class="bus-type">Control Signals (Timing)</span>
                   </div>
-                  <div class="bus-circuit-traces bus-traces-control">
-                    <div class="bus-arrow-flow control-flow">════⚡═════▶</div>
+                  <div class="bus-wire">
+                    <div class="bus-pathway pathway-control">
+                      <span class="wire-trace"></span>
+                      <span class="wire-arrow">⚡▶</span>
+                      <div id="packetControl" class="bus-packet packet-control"></div>
+                    </div>
                   </div>
-                  <div id="busControlVal" class="bus-data">Idle</div>
-                  <!-- Floating Dynamic Control Command Bubble -->
-                  <div id="bubbleControlBus" class="data-value-bubble bubble-control"></div>
+                  <div class="bus-readout">
+                    <span class="bus-status-tag">CTRL:</span>
+                    <span id="busControlVal" class="bus-data">Idle</span>
+                  </div>
                 </div>
 
               </div>
 
-              <!-- RAM (Main Memory) -->
+              <!-- Main Memory (RAM) Subsystem with 32 Addressable Cells -->
               <div class="ram-box">
-                <div class="ram-box-title">
-                  <span>Main Memory (RAM)</span>
-                  <span style="font-size: 10px; color: var(--text-muted);">8 Words</span>
+                <div class="ram-header">
+                  <div class="ram-box-title">
+                    <span>Main Memory (RAM)</span>
+                    <span class="badge badge-ram-stats">Allocated: 8 B | Free: 24 B</span>
+                  </div>
+                  <div class="ram-substats">
+                    <span>Address Range: 00 - 31 (0x00 - 0x1F)</span>
+                    <span style="color: var(--accent-primary);">32 Words</span>
+                  </div>
                 </div>
-                <div style="flex: 1; overflow-y: auto;">
+
+                <div class="ram-table-scroll-wrap" id="ramScrollContainer">
                   <table class="ram-table">
                     <thead>
                       <tr>
@@ -405,7 +361,7 @@
                       </tr>
                     </thead>
                     <tbody id="ramTableBody">
-                      <!-- Dynamically rendered via JS -->
+                      <!-- 32 dynamically rendered rows via JS -->
                     </tbody>
                   </table>
                 </div>
@@ -414,47 +370,92 @@
             </div>
           </div>
 
-          <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted);">
-            <span>Von Neumann Principle: Data and instructions share the same memory and bus structure.</span>
+          <div class="architecture-footnote">
+            <span>Von Neumann Principle: Program instructions and data share the same addressable memory space and buses.</span>
           </div>
         </div>
 
-        <!-- Column 2: Step-by-Step Narrative & Registers Tracing -->
-        <div class="panel">
+        <!-- Column 2: Overhauled Right-Hand Tracer Panel (2 Clear Cards) -->
+        <div class="panel trace-panel">
           <div class="panel-title-bar">
             <div class="panel-title-group">
-              <span class="badge badge-paper1">Trace &amp; Theory</span>
-              <h3 class="panel-title">AQA Mark Scheme Trace</h3>
+              <span class="badge badge-paper1">Live Telemetry</span>
+              <h3 class="panel-title">F-D-E Cycle Execution</h3>
             </div>
-            <span id="stepCounterBadge" class="badge badge-live">Step 1 of 5</span>
+            <span id="stepCounterBadge" class="badge badge-live">Step 1 of 4</span>
           </div>
 
-          <!-- Live Step Narrative Card -->
-          <div class="step-narrative-card">
-            <div id="narrativeStageBadge" class="stage-badge stage-fetch">FETCH STAGE</div>
-            <div id="narrativeTitle" class="narrative-title">Copy Address from PC to MAR</div>
-            <div id="narrativeBody" class="narrative-body">
-              The memory address of the next instruction stored in the Program Counter (PC) is copied into the Memory Address Register (MAR) via the internal bus.
+          <!-- Card 1: Current Action Card -->
+          <div class="action-card">
+            <div class="action-card-header">
+              <div id="narrativeStageBadge" class="stage-badge stage-fetch">FETCH STAGE</div>
+              <span id="cycleInstrTag" class="cycle-instr-tag">Instr: LOAD 05</span>
             </div>
-            <div class="aqa-quote-box">
-              💡 <strong>AQA Exam Phrasing:</strong> <span id="aqaExamQuote">"The address in the PC is copied to the MAR."</span>
+            <h4 id="narrativeTitle" class="action-title">Copy Address from PC to MAR</h4>
+            
+            <div class="narrative-field">
+              <span class="field-label">Plain English:</span>
+              <p id="narrativePlainEnglish" class="field-text">The CPU grabs the instruction address from the Program Counter and copies it into the MAR.</p>
+            </div>
+
+            <div class="aqa-exam-box">
+              <div class="aqa-exam-header">
+                <span>📝 AQA Exam Phrasing (Mark Scheme Requirement):</span>
+              </div>
+              <p id="aqaExamQuote" class="aqa-exam-text">"The contents of the Program Counter (PC) are copied to the Memory Address Register (MAR) via the address bus."</p>
             </div>
           </div>
 
-          <!-- Chronological Step Log -->
-          <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">
-            Execution History Log
-          </div>
-          <div id="traceLogBox" class="trace-log-box">
-            <!-- Populated via JS -->
-          </div>
+          <!-- Card 2: Live Register State Table (4 Rows: PC, MAR, MDR, ACC) -->
+          <div class="register-state-card">
+            <div class="register-state-header">
+              <span class="reg-card-title">Live Register State Watch</span>
+              <span class="badge" style="font-size: 10px;">AQA 8525 §3.4.1</span>
+            </div>
 
-          <!-- Clear log button -->
-          <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
-            <button id="clearLogBtn" class="control-btn" style="font-size: 11px; padding: 4px 10px;">
-              Clear History Log
-            </button>
-            <span style="font-size: 11px; color: var(--text-muted);">Chronological order</span>
+            <div class="register-table-wrap">
+              <table class="register-state-table">
+                <thead>
+                  <tr>
+                    <th>Reg</th>
+                    <th>Name</th>
+                    <th>Denary</th>
+                    <th>Hex</th>
+                    <th>Role / Function</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr id="regRowPC" class="reg-state-row">
+                    <td><span class="reg-tag tag-pc">PC</span></td>
+                    <td class="reg-name-cell">Program Counter</td>
+                    <td id="regDenPC" class="reg-val-cell font-mono">00</td>
+                    <td id="regHexPC" class="reg-hex-cell font-mono">0x00</td>
+                    <td class="reg-role-cell">Holds address of NEXT instruction</td>
+                  </tr>
+                  <tr id="regRowMAR" class="reg-state-row">
+                    <td><span class="reg-tag tag-mar">MAR</span></td>
+                    <td class="reg-name-cell">Mem Address Reg</td>
+                    <td id="regDenMAR" class="reg-val-cell font-mono">00</td>
+                    <td id="regHexMAR" class="reg-hex-cell font-mono">0x00</td>
+                    <td class="reg-role-cell">Holds RAM address to read/write</td>
+                  </tr>
+                  <tr id="regRowMDR" class="reg-state-row">
+                    <td><span class="reg-tag tag-mdr">MDR</span></td>
+                    <td class="reg-name-cell">Mem Data Reg</td>
+                    <td id="regDenMDR" class="reg-val-cell font-mono">---</td>
+                    <td id="regHexMDR" class="reg-hex-cell font-mono">---</td>
+                    <td class="reg-role-cell">Holds data/instruction fetched from RAM</td>
+                  </tr>
+                  <tr id="regRowACC" class="reg-state-row">
+                    <td><span class="reg-tag tag-acc">ACC</span></td>
+                    <td class="reg-name-cell">Accumulator</td>
+                    <td id="regDenACC" class="reg-val-cell font-mono">0</td>
+                    <td id="regHexACC" class="reg-hex-cell font-mono">0x00</td>
+                    <td class="reg-role-cell">Stores temporary calculation results</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
 
         </div>
