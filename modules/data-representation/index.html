@@ -1,0 +1,1356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="GCSE Data Representation & Bitmaps - Interactive pixel grid, colour depth sandbox, binary stream inspector, RLE compressor, and exam mark scheme revision.">
+  <meta name="theme-color" content="#4f46e5">
+  <title>Data Representation &amp; Bitmaps • GCSE Computer Science</title>
+
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+
+  <!-- Preconnect for modern typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./style.css">
+
+  <script>
+    // Immediate theme initialization to prevent flash
+    (function() {
+      try {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <!-- Ambient background glow & grid -->
+  <div class="bg-grid-ambient"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="site-header">
+    <div class="header-container" style="max-width: 1360px;">
+      <!-- Left: Back link & Title -->
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="../../index.html" class="back-link" title="Return to Revision Hub">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Hub
+        </a>
+
+        <div style="height: 18px; width: 1px; background: var(--border-color);"></div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h1 style="font-size: 15px; font-weight: 800; color: var(--text-primary); margin: 0;">
+            Media Representation
+          </h1>
+          <span class="badge badge-topic" style="font-size: 10px;">AQA 8525 §3.3.3 &amp; §3.3.4</span>
+        </div>
+      </div>
+
+      <!-- Center: View Switcher Tabs -->
+      <nav class="view-tabs">
+        <button class="view-tab-btn active" data-tab="visualizer">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>Pixel Grid (Sprites)</span>
+        </button>
+
+        <button class="view-tab-btn" data-tab="photolab">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+          <span>Photo Colour Depth Lab</span>
+        </button>
+
+        <button class="view-tab-btn" data-tab="comparison">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span>Comparison Mode</span>
+        </button>
+
+        <button class="view-tab-btn" data-tab="sound">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2v20M17 5v14M7 9v6M22 8v8M2 11v2"></path>
+          </svg>
+          <span>Sound Sampling</span>
+        </button>
+
+        <button class="view-tab-btn" data-tab="revision">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <span>Revision Cards</span>
+        </button>
+      </nav>
+
+      <!-- Right: Theme Toggle -->
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="themeToggleBtn" class="control-btn" style="padding: 6px 10px;" title="Toggle Dark/Light Mode">
+          <svg id="sunIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="moonIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Module Body -->
+  <main class="module-container">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: VISUALIZER                          -->
+    <!-- ========================================== -->
+    <div id="tab-visualizer" class="tab-view active">
+      <!-- Overview Banner -->
+      <div class="view-banner">
+        <div class="banner-left">
+          <div class="banner-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h2>Interactive Pixel Grid &amp; Binary Inspector</h2>
+            <p>Paint on the grid to see how images are stored as binary, check file size calculations, and see how RLE compression works.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge badge-topic">Formula: Width × Height × Depth</span>
+        </div>
+      </div>
+
+      <!-- Friendly Plain-English Intro Card -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 18px;">
+        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+          <span>🎨</span> How Computers Store Images (Plain English)
+        </div>
+        <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+          Zoom close into any screen and you'll see a grid of coloured squares called <strong>pixels</strong>. In RAM, every single pixel is just a binary number (1s and 0s). The more bits per pixel (<strong>colour depth</strong>), the more colours you get, but the larger the file!
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-size: 12px;">
+          <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <strong style="color: #3b82f6;">1-bit:</strong> 2 colours ($2^1$). Pure Black &amp; White.
+          </div>
+          <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <strong style="color: #10b981;">2-bit:</strong> 4 colours ($2^2$). Classic Game Boy green.
+          </div>
+          <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <strong style="color: #8b5cf6;">4-bit:</strong> 16 colours ($2^4$). Retro arcade / pixel art.
+          </div>
+          <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <strong style="color: #ec4899;">8-bit:</strong> 256 colours ($2^8$). VGA computing.
+          </div>
+        </div>
+      </div>
+
+      <!-- Main 2-Column Workspace -->
+      <div class="workspace-grid">
+
+        <!-- Column 1: Drawing Canvas & Palette -->
+        <div class="panel">
+          <div class="panel-title-bar">
+            <div class="panel-title-group">
+              <span class="badge badge-paper1">Canvas</span>
+              <h3 class="panel-title">Pixel Grid Editor</h3>
+            </div>
+            <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+              Click &amp; Drag to Paint
+            </div>
+          </div>
+
+          <!-- Controls Toolbar -->
+          <div class="toolbar-row">
+            <div class="control-group">
+              <span class="control-label">Grid Size:</span>
+              <select id="gridSizeSelect" class="control-select">
+                <option value="8">8 × 8 (64 px)</option>
+                <option value="16" selected>16 × 16 (256 px)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <span class="control-label">Colour Depth:</span>
+              <div class="btn-group" id="depthButtonGroup" style="display: inline-flex; gap: 4px; flex-wrap: wrap;">
+                <button type="button" class="control-btn depth-btn" data-depth="1" title="1-bit: 2 colours (Monochrome)">1-bit (2 colours)</button>
+                <button type="button" class="control-btn depth-btn" data-depth="2" title="2-bit: 4 colours (Game Boy)">2-bit (4 colours)</button>
+                <button type="button" class="control-btn depth-btn active" data-depth="4" title="4-bit: 16 colours (Classic retro)">4-bit (16 colours)</button>
+                <button type="button" class="control-btn depth-btn" data-depth="8" title="8-bit: 256 colours (VGA)">8-bit (256 colours)</button>
+              </div>
+            </div>
+
+            <div class="control-group">
+              <span class="control-label">Tool:</span>
+              <button id="toolPaintBtn" class="control-btn active" title="Paint Tool">✏️ Paint</button>
+              <button id="toolEraserBtn" class="control-btn" title="Eraser Tool">🧹 Erase</button>
+              <button id="toolFillBtn" class="control-btn" title="Fill Grid">🪣 Fill</button>
+            </div>
+          </div>
+
+          <!-- Quick Starter Sprites Bar (Prominent 1-Click Samples) -->
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <span style="font-size: 11px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+                <span>✨</span> 1-Click Starter Sprites:
+              </span>
+              <span style="font-size: 10.5px; color: var(--text-muted);">(Click any sprite to load instantly into the grid &amp; binary stream)</span>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+              <button class="control-btn preset-btn" data-preset="alien" style="font-weight: 700; background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.3);">👾 Space Invader</button>
+              <button class="control-btn preset-btn" data-preset="heart" style="font-weight: 700; background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.3);">❤️ Pixel Heart</button>
+              <button class="control-btn preset-btn" data-preset="sword" style="font-weight: 700; background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.3);">🗡️ Diamond Sword</button>
+              <button class="control-btn preset-btn" data-preset="mushroom" style="font-weight: 700; background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3);">🍄 Mushroom</button>
+              <button class="control-btn preset-btn" data-preset="pizza">🍕 Pizza</button>
+              <button class="control-btn preset-btn" data-preset="cat">🐱 Cat</button>
+              <button class="control-btn preset-btn" data-preset="rainbow">🌈 Rainbow</button>
+              <button class="control-btn preset-btn" data-preset="clear" style="color: #ef4444;">🧹 Clear</button>
+            </div>
+          </div>
+
+          <!-- Active Colour Palette Bar -->
+          <div style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+            <span class="control-label" style="font-size: 11px;">Active Palette:</span>
+            <span id="activePaletteInfo" style="font-size: 11px; color: var(--accent-soft-text); font-family: var(--font-mono);">
+              Selected: #0000aa (0001)
+            </span>
+          </div>
+          <div id="paletteContainer" class="palette-bar">
+            <!-- Dynamically populated via JS -->
+          </div>
+
+          <!-- Pixel Canvas Container -->
+          <div class="canvas-wrapper">
+            <div id="pixelGrid" class="pixel-grid">
+              <!-- Dynamically populated grid cells -->
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted);">
+            <span>Coordinates: <span id="cellCoordIndicator" class="font-mono">Hover over a pixel</span></span>
+            <span id="cellColorIndicator" class="font-mono">-</span>
+          </div>
+        </div>
+
+        <!-- Column 2: Calculation & Metadata Inspector -->
+        <div class="panel">
+          <div class="panel-title-bar">
+            <div class="panel-title-group">
+              <span class="badge badge-spec">Inspector</span>
+              <h3 class="panel-title">File Size &amp; Metadata</h3>
+            </div>
+            <span class="badge badge-topic">AQA 8525 §3.3</span>
+          </div>
+
+          <!-- Metrics Badges -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <span class="metric-label">Dimensions</span>
+              <span id="metricDimensions" class="metric-value">16 × 16</span>
+              <span id="metricPixels" class="metric-sub">256 pixels</span>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-label">Colour Depth</span>
+              <span id="metricDepth" class="metric-value">4 bits</span>
+              <span id="metricColors" class="metric-sub">16 colours (2⁴)</span>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-label">Raw Bits (W×H×D)</span>
+              <span id="metricRawBits" class="metric-value">1024</span>
+              <span class="metric-sub">256 px × 4 bpp</span>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-label">Bytes (Bits ÷ 8)</span>
+              <span id="metricRawBytes" class="metric-value" style="color: #34d399;">128 B</span>
+              <span class="metric-sub">1,024 ÷ 8</span>
+            </div>
+          </div>
+
+          <!-- Dual Conversion Breakdown: Decimal (kB) vs Binary (KiB) -->
+          <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 16px;">
+            <div style="font-size: 11.5px; font-weight: 700; color: var(--accent-soft-text); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
+              <span>Kilobytes (kB) vs Kibibytes (KiB)</span>
+              <span class="badge badge-topic">Both Accepted</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
+              <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-md); border-left: 3px solid #38bdf8;">
+                <div style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Decimal (SI) • ÷ 1,000</div>
+                <div id="metricKb" style="font-size: 16px; font-weight: 800; font-family: var(--font-mono); color: #38bdf8; margin: 3px 0;">0.128 kB</div>
+                <div style="font-size: 10.5px; color: var(--text-secondary);">1 kB = 1,000 bytes</div>
+              </div>
+
+              <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-md); border-left: 3px solid #a855f7;">
+                <div style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Binary (IEC) • ÷ 1,024</div>
+                <div id="metricKib" style="font-size: 16px; font-weight: 800; font-family: var(--font-mono); color: #c084fc; margin: 3px 0;">0.125 KiB</div>
+                <div style="font-size: 10.5px; color: var(--text-secondary);">1 KiB = 1,024 bytes</div>
+              </div>
+            </div>
+
+            <div style="padding: 10px 12px; border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); font-size: 11px; color: #b45309; line-height: 1.5;">
+              ⚠️ <strong>Exam tip:</strong> Show your working clearly. Either divide by 1,000 or by 1,024, but explicitly write down which one you used so the examiner can give you the marks!
+            </div>
+          </div>
+
+          <!-- Step-by-Step Formula Box -->
+          <div class="formula-box">
+            <div class="formula-header">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              <span>Exam Working:</span>
+            </div>
+
+            <div id="formulaStep1" class="formula-step">
+              1. Pixels = 16 × 16 = <strong>256 pixels</strong>
+            </div>
+            <div id="formulaStep2" class="formula-step">
+              2. Raw Bits = 256 pixels × 4 bits/pixel = <strong>1,024 bits</strong>
+            </div>
+            <div id="formulaStep3" class="formula-step">
+              3. Bytes = 1,024 bits ÷ 8 = <strong>128 Bytes</strong>
+            </div>
+            <div id="formulaStep4" class="formula-step" style="border-left-color: #38bdf8;">
+              4. Size in kB = 128 ÷ 1,000 = <strong>0.128 kB</strong> &nbsp;|&nbsp; in KiB = 128 ÷ 1,024 = <strong>0.125 KiB</strong>
+            </div>
+          </div>
+
+          <!-- Metadata Toggle Switch (AQA Specification) -->
+          <div class="metadata-toggle-card">
+            <div class="toggle-row">
+              <div>
+                <div style="font-weight: 700; font-size: 13px; color: var(--text-primary); margin-bottom: 2px;">
+                  Add Image Metadata (Shipping Label)
+                </div>
+                <div style="font-size: 11.5px; color: var(--text-secondary);">
+                  Data about data: tells the computer the image width, height, and colour depth.
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="metadataToggle">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div id="metadataBreakdown" class="metadata-breakdown">
+              <div style="font-weight: 700; color: var(--accent-soft-text); margin-bottom: 6px;">
+                Image Header Properties:
+              </div>
+              <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+                <span class="meta-chip">Width: <strong id="metaWidthVal">16 px</strong></span>
+                <span class="meta-chip">Height: <strong id="metaHeightVal">16 px</strong></span>
+                <span class="meta-chip">Colour Depth: <strong id="metaDepthVal">4 bpp</strong></span>
+                <span class="meta-chip">Resolution: <strong>72 dpi</strong></span>
+                <span class="meta-chip">File Type: <strong>BMP/PNG</strong></span>
+              </div>
+              <div style="margin-top: 10px; font-size: 11px; color: var(--text-secondary); line-height: 1.5;">
+                📌 <strong>Think of metadata as a shipping label:</strong> Without it, the computer just sees a continuous stream of 1s and 0s and wouldn't know when a row ends or which colour belongs where.
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Final Size Banner -->
+          <div style="padding: 14px 18px; border-radius: var(--radius-lg); background: var(--bg-root); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Stored File Size</span>
+              <div id="finalTotalDisplay" style="font-size: 22px; font-weight: 900; font-family: var(--font-mono); color: var(--text-primary);">
+                128 Bytes (1,024 bits)
+              </div>
+            </div>
+            <span id="finalUnitBadge" class="badge badge-spec" style="font-size: 11px;">RAW SIZE</span>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Bottom Split View Pane: Binary Stream vs RLE Tracer -->
+      <div class="split-pane-grid">
+
+        <!-- Left: Raw Binary Stream -->
+        <div class="panel">
+          <div class="panel-title-bar">
+            <div class="panel-title-group">
+              <span class="badge badge-paper1">Raw Stream</span>
+              <h3 class="panel-title">Binary Stream (Row by Row)</h3>
+            </div>
+            <button id="copyBinaryBtn" class="control-btn" style="font-size: 11px;">
+              📋 Copy Bits
+            </button>
+          </div>
+
+          <p style="font-size: 11.5px; color: var(--text-secondary); margin: 0 0 10px 0;">
+            Stored as bytes (8 bits each). Hover over a byte to see which pixels it represents:
+          </p>
+
+          <div id="binaryStreamOutput" class="stream-output-box">
+            <!-- Populated via JS -->
+          </div>
+
+          <div style="margin-top: 10px; font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between;">
+            <span id="streamByteCount">Byte Count: 128 Bytes</span>
+            <span>Encoding: Left-to-right</span>
+          </div>
+        </div>
+
+        <!-- Right: Run-Length Encoding (RLE) Tracer -->
+        <div class="panel">
+          <div class="panel-title-bar">
+            <div class="panel-title-group">
+              <span class="badge badge-live">Compression</span>
+              <h3 class="panel-title">Run-Length Encoding (RLE)</h3>
+            </div>
+            <span id="rleStatusBadge" class="badge badge-live" style="font-size: 11px;">-</span>
+          </div>
+
+          <p style="font-size: 12px; color: var(--text-secondary); margin: 0 0 8px 0; line-height: 1.5;">
+            <strong>How Run-Length Encoding works:</strong> Instead of repeating individual pixels (e.g. <code>Blue, Blue, Blue, Blue</code>), RLE stores the <em>count</em> and the <em>pixel value</em> (e.g. <code>4, Blue</code>). It's lossless compression—no detail is thrown away!
+          </p>
+
+          <div style="font-size: 11px; color: var(--accent-soft-text); font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+            <span>✨</span> <span>Hover over any RLE block below (or hover over canvas pixels) to highlight the exact run!</span>
+          </div>
+
+          <div id="rleStreamOutput" class="stream-output-box">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- Compression Stats & Meter -->
+          <div class="compression-meter">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700;">
+              <span>Space Saved:</span>
+              <span id="rleRatioDisplay" class="font-mono" style="color: #34d399;">0%</span>
+            </div>
+            <div class="meter-track">
+              <div id="rleMeterFill" class="meter-fill" style="width: 0%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+              <span id="rleOriginalBits">Raw: 1024 bits</span>
+              <span id="rleCompressedBits">Compressed: 0 bits</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 12px; padding: 10px 12px; border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); font-size: 11px; color: #fbbf24;">
+            ⚠️ <strong>Exam tip:</strong> RLE only saves space when there are long runs of the same colour. If colours alternate frequently (like a checkerboard), RLE actually increases file size.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB: PHOTO COLOUR DEPTH LAB (Dedicated)    -->
+    <!-- ========================================== -->
+    <div id="tab-photolab" class="tab-view">
+      <!-- Overview Banner -->
+      <div class="view-banner">
+        <div class="banner-left">
+          <div class="banner-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h2>Photo Colour Depth &amp; Posterization Lab</h2>
+            <p>From 16.7 Million Colours down to 1-Bit: See how colour depth creates colour banding, affects image realism, and calculates true file size.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge badge-topic">AQA 8525 §3.3.3 (Bitmaps)</span>
+        </div>
+      </div>
+
+      <!-- Plain English Concept Card -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid #f59e0b; border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
+        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+          <span>🌈</span> Why Do Real Photos Need Millions of Colours? (Colour Banding Explained)
+        </div>
+        <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 8px 0;">
+          Human eyes can perceive around 10 million distinct colours. In <strong>24-bit True Colour</strong>, computers use 8 bits for Red, 8 for Green, and 8 for Blue (256 &times; 256 &times; 256 = <strong>16,777,216 colours</strong>), allowing buttery-smooth gradients in skies and skin tones.
+        </p>
+        <p style="font-size: 12px; color: #f59e0b; margin: 0; line-height: 1.45;">
+          ⚡ <strong>Look for "Colour Banding" (Posterization):</strong> When you drop to 8-bit, 4-bit, or 2-bit, the computer runs out of intermediate color codes. Smooth sky gradients split into harsh, visible blocks of solid stripes!
+        </p>
+      </div>
+
+      <!-- Interactive Photo Lab Workspace -->
+      <div class="panel" style="margin-bottom: 24px;">
+        <div class="panel-title-bar">
+          <div class="panel-title-group">
+            <span class="badge badge-paper1">Interactive Studio</span>
+            <h3 class="panel-title">Photo Quantization Playground</h3>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input type="file" id="photoLabFileInput" accept="image/*" style="display: none;">
+            <button id="photoLabUploadBtn" class="btn btn-primary" style="font-size: 12px; padding: 6px 14px;">
+              📷 Upload Your Own Photo
+            </button>
+          </div>
+        </div>
+
+        <!-- Controls Toolbar -->
+        <div class="toolbar-row" style="margin-bottom: 16px;">
+          <!-- Sample Selector -->
+          <div class="control-group">
+            <span class="control-label">Sample Photo:</span>
+            <div class="btn-group" id="photoPresetGroup">
+              <button type="button" class="control-btn photo-sample-btn active" data-sample="sunset">🌅 Sunset</button>
+              <button type="button" class="control-btn photo-sample-btn" data-sample="parrot">🦜 Parrot</button>
+              <button type="button" class="control-btn photo-sample-btn" data-sample="car">🏎️ Cyber Car</button>
+              <button type="button" class="control-btn photo-sample-btn" data-sample="dog">🐶 Puppy</button>
+            </div>
+          </div>
+
+          <!-- Colour Depth Selector -->
+          <div class="control-group">
+            <span class="control-label">Target Depth:</span>
+            <div class="btn-group" id="photoDepthGroup">
+              <button type="button" class="control-btn photo-depth-btn" data-depth="1">1-bit (2 col)</button>
+              <button type="button" class="control-btn photo-depth-btn" data-depth="2">2-bit (4 col)</button>
+              <button type="button" class="control-btn photo-depth-btn" data-depth="4">4-bit (16 col)</button>
+              <button type="button" class="control-btn photo-depth-btn active" data-depth="8">8-bit (256 col)</button>
+              <button type="button" class="control-btn photo-depth-btn" data-depth="16">16-bit (65K)</button>
+              <button type="button" class="control-btn photo-depth-btn" data-depth="24">24-bit True Colour (16.7M)</button>
+            </div>
+          </div>
+
+          <!-- Dithering Toggle -->
+          <div class="control-group" style="margin-left: auto;">
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-primary); display: inline-flex; align-items: center; gap: 6px; cursor: pointer;" title="Floyd-Steinberg error diffusion dithering">
+              <input type="checkbox" id="photoDitherToggle" style="accent-color: var(--accent-primary); cursor: pointer;">
+              <span>Enable Dithering (Floyd-Steinberg)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Single Large Image Display Frame (4x size, responsive, multi-aspect-ratio) -->
+        <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 20px;">
+          <!-- Top bar above large image -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span id="photoQuantBadge" class="badge badge-live" style="font-size: 12px; padding: 4px 12px;">8-bit • 256 Colours</span>
+              <span id="photoAspectBadge" style="font-size: 11.5px; color: var(--text-muted); font-family: var(--font-mono);">Aspect: 16:9 Landscape</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button type="button" id="btnPeekOriginal" class="control-btn" style="font-size: 11.5px; padding: 4px 12px; user-select: none;" title="Click or hold to peek at original 24-bit True Colour">
+                👁️ Hold to Peek Original (24-bit)
+              </button>
+            </div>
+          </div>
+
+          <!-- Large Canvas Container (supports wide, square, and portrait aspect ratios) -->
+          <div style="width: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; border-radius: var(--radius-md); background: #09090b; padding: 12px; min-height: 380px;">
+            <canvas id="photoCanvasLarge" width="800" height="560" style="max-width: 100%; height: auto; max-height: 580px; object-fit: contain; border-radius: var(--radius-sm); box-shadow: 0 8px 30px rgba(0,0,0,0.45); image-rendering: auto;"></canvas>
+          </div>
+
+          <!-- Bottom stats row -->
+          <div style="margin-top: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 12.5px;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+              <span id="photoOriginalDim" style="color: var(--text-muted); font-family: var(--font-mono);">800 × 560 px (448,000 pixels)</span>
+              <span id="photoQuantBandingNote" style="color: #f59e0b; font-weight: 600;">Colour Banding: Noticeable in skies &amp; skin</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="color: var(--text-muted);">File Size:</span>
+              <span id="photoQuantSize" style="font-family: var(--font-mono); font-weight: 800; font-size: 13.5px; color: #10b981;">448.0 kB (66.7% saved vs 24-bit)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live File Size Comparison Table (AQA Exam Focus) -->
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <strong style="font-size: 13px; color: var(--text-primary);">📊 AQA File Size Comparison Table (Formula: Width &times; Height &times; Colour Depth)</strong>
+            <span style="font-size: 11px; color: var(--text-muted);">Current Photo: <span id="photoTableDimensions" class="font-mono">400 &times; 280</span></span>
+          </div>
+
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 12.5px; text-align: left;">
+              <thead>
+                <tr style="border-bottom: 2px solid var(--border-color); background: var(--bg-surface);">
+                  <th style="padding: 8px 12px;">Colour Depth</th>
+                  <th style="padding: 8px 12px;">Max Colours</th>
+                  <th style="padding: 8px 12px;">Bytes per Pixel</th>
+                  <th style="padding: 8px 12px;">Total File Size (Bytes / kB)</th>
+                  <th style="padding: 8px 12px;">Space Saved vs 24-bit</th>
+                  <th style="padding: 8px 12px;">Visual Effect</th>
+                </tr>
+              </thead>
+              <tbody id="photoComparisonTableBody">
+                <!-- Dynamically generated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 2: COMPARISON MODE                     -->
+    <!-- ========================================== -->
+    <div id="tab-comparison" class="tab-view">
+      <!-- Overview Banner -->
+      <div class="view-banner">
+        <div class="banner-left">
+          <div class="banner-icon" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h2>Resolution &amp; Colour Depth Comparison</h2>
+            <p>Compare how changing image dimensions and colour depth affects file size and download time.</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">Sample Image:</span>
+          <select id="compareSubjectSelect" class="control-select">
+            <option value="parrot" selected>🦜 Tropical Parrot</option>
+            <option value="sunset">🌅 Sunset Horizon &amp; Lake</option>
+            <option value="arcade">🕹️ Retro Arcade Machine</option>
+            <option value="alien">👾 Space Invader Hero</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Side-by-Side Dual Canvas Cards -->
+      <div class="comparison-grid">
+
+        <!-- Left Pane: Low Spec Image -->
+        <div class="comparison-card">
+          <div class="panel-title-bar">
+            <div class="panel-title-group">
+              <span class="badge badge-paper1">Option A</span>
+              <h3 class="panel-title">Lower Quality</h3>
+            </div>
+            <span class="badge badge-topic">Smaller File</span>
+          </div>
+
+          <div class="toolbar-row" style="margin-bottom: 12px;">
+            <div class="control-group">
+              <span class="control-label">Resolution:</span>
+              <select id="compareResA" class="control-select">
+                <option value="8">8 × 8 (64 px)</option>
+                <option value="16" selected>16 × 16 (256 px)</option>
+                <option value="32">32 × 32 (1,024 px)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <span class="control-label">Colour Depth:</span>
+              <select id="compareDepthA" class="control-select">
+                <option value="1" selected>1-bit (2 colours)</option>
+                <option value="2">2-bit (4 colours)</option>
+                <option value="4">4-bit (16 colours)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="comparison-canvas-frame">
+            <canvas id="compareCanvasA" width="256" height="256"></canvas>
+          </div>
+
+          <!-- Metrics Table A -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <span class="metric-label">Pixels</span>
+              <span id="comparePixelsA" class="metric-value">256</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Max Colours</span>
+              <span id="compareColoursA" class="metric-value">2</span>
+              <span class="metric-sub">2¹</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">File Size</span>
+              <span id="compareBytesA" class="metric-value" style="color: #34d399;">32 B</span>
+              <span id="compareBitsA" class="metric-sub">256 bits</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Pane: High Spec Image -->
+        <div class="comparison-card">
+          <div class="panel-title-bar">
+            <div class="panel-title-group">
+              <span class="badge badge-live">Option B</span>
+              <h3 class="panel-title">Higher Quality</h3>
+            </div>
+            <span class="badge badge-topic">Larger File</span>
+          </div>
+
+          <div class="toolbar-row" style="margin-bottom: 12px;">
+            <div class="control-group">
+              <span class="control-label">Resolution:</span>
+              <select id="compareResB" class="control-select">
+                <option value="16">16 × 16 (256 px)</option>
+                <option value="32" selected>32 × 32 (1,024 px)</option>
+                <option value="64">64 × 64 (4,096 px)</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <span class="control-label">Colour Depth:</span>
+              <select id="compareDepthB" class="control-select">
+                <option value="4">4-bit (16 colours)</option>
+                <option value="8">8-bit (256 colours)</option>
+                <option value="24" selected>24-bit True Colour (16.7M)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="comparison-canvas-frame">
+            <canvas id="compareCanvasB" width="256" height="256"></canvas>
+          </div>
+
+          <!-- Metrics Table B -->
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <span class="metric-label">Pixels</span>
+              <span id="comparePixelsB" class="metric-value">1,024</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Max Colours</span>
+              <span id="compareColoursB" class="metric-value">16.7M</span>
+              <span class="metric-sub">2²⁴</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">File Size</span>
+              <span id="compareBytesB" class="metric-value" style="color: #818cf8;">3,072 B</span>
+              <span id="compareBitsB" class="metric-sub">3 KiB (24,576 bits)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Network Transmission Simulator -->
+      <div class="network-card">
+        <div class="panel-title-bar">
+          <div class="panel-title-group">
+            <span class="badge badge-spec">Transmission</span>
+            <h3 class="panel-title">Download Time Calculator</h3>
+          </div>
+          <button id="simulateTransferBtn" class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;">
+            ▶ Simulate Transfer
+          </button>
+        </div>
+
+        <p style="font-size: 12px; color: var(--text-secondary); margin: 0;">
+          Select a connection speed to see estimated download times (Time = File Size in Bits ÷ Speed in bps):
+        </p>
+
+        <div class="speed-buttons">
+          <button class="speed-btn active" data-speed="56000">56 kbps (Old Dial-up)</button>
+          <button class="speed-btn" data-speed="384000">384 kbps (3G Mobile)</button>
+          <button class="speed-btn" data-speed="10000000">10 Mbps (4G Broadband)</button>
+          <button class="speed-btn" data-speed="100000000">100 Mbps (Full Fibre)</button>
+        </div>
+
+        <div class="network-results-grid">
+          <div style="background: var(--bg-root); padding: 14px; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Option A Download Time</div>
+            <div id="transferTimeA" style="font-size: 20px; font-weight: 800; font-family: var(--font-mono); color: #34d399; margin: 4px 0;">
+              0.005 s
+            </div>
+            <div class="meter-track" style="margin-top: 6px;">
+              <div id="transferBarA" class="meter-fill" style="width: 100%; background: #10b981;"></div>
+            </div>
+          </div>
+
+          <div style="background: var(--bg-root); padding: 14px; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+            <div style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Option B Download Time</div>
+            <div id="transferTimeB" style="font-size: 20px; font-weight: 800; font-family: var(--font-mono); color: #818cf8; margin: 4px 0;">
+              0.439 s
+            </div>
+            <div class="meter-track" style="margin-top: 6px;">
+              <div id="transferBarB" class="meter-fill" style="width: 100%; background: #6366f1;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB: SOUND SAMPLING & QUANTIZATION         -->
+    <!-- ========================================== -->
+    <div id="tab-sound" class="tab-view">
+      <!-- Overview Banner -->
+      <div class="view-banner">
+        <div class="banner-left">
+          <div class="banner-icon" style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2v20M17 5v14M7 9v6M22 8v8M2 11v2"></path>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h2>Sound Sampling &amp; Quantization</h2>
+            <p>How continuous analogue sound waves are measured, digitized, and reconstructed into audio files.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge badge-topic">AQA 8525 §3.3.4 (Sound)</span>
+        </div>
+      </div>
+
+      <!-- Plain English Intro -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid #10b981; border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
+        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+          <span>🌊</span> How Sound is Digitized (Plain English)
+        </div>
+        <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+          Real sound is a smooth, continuous wave of vibrating air molecules. A computer can't store infinity, so an <strong>Analogue-to-Digital Converter (ADC)</strong> measures the wave's height thousands of times per second (<strong>Sample Rate</strong>) and rounds each measurement to the nearest binary number (<strong>Quantization</strong>).
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; font-size: 12px;">
+          <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <strong style="color: #3b82f6;">Sample Rate (Hz):</strong> Frequency of measurements per second. CD = 44,100 Hz (44.1 kHz).
+          </div>
+          <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <strong style="color: #10b981;">Resolution (Bit Depth):</strong> Bits per measurement (2<sup>depth</sup> height levels). CD = 16-bit.
+          </div>
+          <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <strong style="color: #ef4444;">Quantization Error:</strong> The difference between the real wave height and the rounded digital step.
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Waveform Display Panel -->
+      <div class="panel" style="margin-bottom: 24px;">
+        <div class="panel-title-bar">
+          <div class="panel-title-group">
+            <span class="badge badge-paper1">Interactive Canvas</span>
+            <h3 class="panel-title">Waveform Sampling Visualizer (Melody Theremin)</h3>
+          </div>
+          <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
+            Vertical Axis = Musical Pitch (130Hz - 520Hz) • Horizontal Axis = Time (2.0s)
+          </div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 14px 0; line-height: 1.5;">
+          The height of the curve directly controls <strong>musical pitch</strong>! The continuous blue wave produces a smooth pitch glide. The red staircase shows how digital sampling <strong>quantizes</strong> that glide into discrete stair-step notes based on your Bit Depth and Sample Rate.
+        </p>
+
+        <!-- Controls Toolbar -->
+        <div class="toolbar-row" style="margin-bottom: 16px;">
+          <div class="control-group">
+            <span class="control-label">Sample Rate:</span>
+            <div class="btn-group" id="soundRateGroup">
+              <button type="button" class="control-btn sound-rate-btn" data-rate="4">4 Hz (4 Notes)</button>
+              <button type="button" class="control-btn sound-rate-btn active" data-rate="8">8 Hz (8 Notes)</button>
+              <button type="button" class="control-btn sound-rate-btn" data-rate="16">16 Hz (16 Notes)</button>
+              <button type="button" class="control-btn sound-rate-btn" data-rate="32">32 Hz (Rapid Steps)</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <span class="control-label">Bit Depth (Quantization Levels):</span>
+            <div class="btn-group" id="soundDepthGroup">
+              <button type="button" class="control-btn sound-depth-btn" data-depth="1">1-bit (2 Notes)</button>
+              <button type="button" class="control-btn sound-depth-btn" data-depth="2">2-bit (4 Notes)</button>
+              <button type="button" class="control-btn sound-depth-btn active" data-depth="3">3-bit (8 Notes)</button>
+              <button type="button" class="control-btn sound-depth-btn" data-depth="4">4-bit (16 Notes)</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <span class="control-label">Melody Preset:</span>
+            <div class="btn-group" id="soundWaveformGroup">
+              <button type="button" class="control-btn sound-wave-btn active" data-wave="flute" title="Smooth up-and-down slide">🎵 Siren Slide</button>
+              <button type="button" class="control-btn sound-wave-btn" data-wave="chiptune" title="Retro video game arpeggio">👾 8-Bit Mario</button>
+              <button type="button" class="control-btn sound-wave-btn" data-wave="bass" title="Deep synth bass progression">🎸 Synth Bass</button>
+              <button type="button" class="control-btn sound-wave-btn" data-wave="robot" title="Robotic octave jumps">🤖 Robot Beeps</button>
+              <button type="button" class="control-btn sound-wave-btn" data-wave="custom" title="Draw your own melody directly on the canvas!">✏️ Draw Custom</button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <button id="btnPlaySound" class="control-btn" style="background: var(--accent-primary); color: #ffffff; font-weight: 700; padding: 6px 16px;">
+              🔊 Play Melody &amp; Steps (2s)
+            </button>
+          </div>
+        </div>
+
+        <!-- Waveform Canvas -->
+        <div class="sound-canvas-container">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 11.5px;">
+            <span style="color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
+              <span>✏️</span> <strong>Interactive Waveform:</strong> Click &amp; drag anywhere across the canvas to draw your own custom melody!
+            </span>
+            <span id="soundPlayheadStatus" class="badge badge-paper1" style="font-family: var(--font-mono); font-size: 10.5px;">IDLE • CLICK PLAY TO HEAR</span>
+          </div>
+
+          <canvas id="soundWaveCanvas" class="sound-wave-canvas" width="900" height="280" style="cursor: crosshair;"></canvas>
+          
+          <div class="waveform-legend">
+            <div class="legend-item">
+              <span class="legend-swatch" style="background: #3b82f6;"></span>
+              <span style="color: var(--text-secondary);">Continuous Analogue Curve (Smooth Pitch Glide)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch" style="background: #ef4444;"></span>
+              <span style="color: var(--text-secondary);">Quantized Staircase (Stepped Pitch Snapped to Bit Depth)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch" style="background: #f59e0b;"></span>
+              <span style="color: var(--text-secondary);">Sample Points (Triggered at Sample Rate)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-swatch" style="background: rgba(148, 163, 184, 0.4); height: 2px;"></span>
+              <span style="color: var(--text-secondary);">Quantization Pitch Levels</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Voice & Microphone Recording Lab: Real-World Audio Degradation -->
+      <div class="panel" style="margin-bottom: 24px; border-top: 3px solid #ec4899;">
+        <div class="panel-title-bar">
+          <div class="panel-title-group">
+            <span class="badge badge-topic">Real-World Audio Lab</span>
+            <h3 class="panel-title">🎙️ Voice &amp; Microphone Audio Degradation Lab</h3>
+          </div>
+          <span style="font-size: 11px; color: var(--text-muted);">Record your voice, then hear sample rate &amp; bit depth reduction live!</span>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 16px 0; line-height: 1.5;">
+          Test real sound degradation! Record a quick 2-second voice clip (or use a built-in sample). Dial down the <strong>Sample Rate</strong> to hear high frequencies get lost (like speaking on an old landline telephone), and dial down the <strong>Bit Depth</strong> to hear the gritty crunch of retro video games (quantization noise)!
+        </p>
+
+        <!-- Recording & Source Controls -->
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; background: var(--bg-surface-elevated); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+          <button type="button" id="btnRecordVoice" class="btn" style="background: #ef4444; color: #ffffff; font-weight: 800; font-size: 12.5px; padding: 7px 16px; display: flex; align-items: center; gap: 6px;">
+            <span id="recordMicIcon">🔴</span> <span id="recordVoiceText">Record My Voice (2s)</span>
+          </button>
+
+          <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">or choose sample:</span>
+          <button type="button" class="control-btn voice-preset-btn active" data-preset="speech">🗣️ Real Speech ("Computer Science")</button>
+          <button type="button" class="control-btn voice-preset-btn" data-preset="melody">🎹 Retro Chiptune Melody</button>
+          <button type="button" class="control-btn voice-preset-btn" data-preset="drum">🥁 Drum Groove</button>
+
+          <button type="button" id="btnPlayVoice" class="btn btn-primary" style="margin-left: auto; font-size: 13px; padding: 7px 20px; font-weight: 800;">
+            ▶️ Play Processed Audio
+          </button>
+        </div>
+
+        <!-- Voice Degradation Toolbar -->
+        <div class="toolbar-row" style="margin-bottom: 16px;">
+          <!-- Sample Rate -->
+          <div class="control-group">
+            <span class="control-label">Sample Rate (Frequencies Captured):</span>
+            <div class="btn-group" id="voiceRateGroup">
+              <button type="button" class="control-btn voice-rate-btn active" data-rate="44100">44.1 kHz (CD Quality)</button>
+              <button type="button" class="control-btn voice-rate-btn" data-rate="11025">11 kHz (FM Radio)</button>
+              <button type="button" class="control-btn voice-rate-btn" data-rate="8000">8 kHz (Telephone)</button>
+              <button type="button" class="control-btn voice-rate-btn" data-rate="2500">2.5 kHz (Walkie-Talkie)</button>
+            </div>
+          </div>
+
+          <!-- Bit Depth -->
+          <div class="control-group">
+            <span class="control-label">Bit Depth (Amplitude Precision):</span>
+            <div class="btn-group" id="voiceDepthGroup">
+              <button type="button" class="control-btn voice-depth-btn active" data-depth="16">16-bit (Studio)</button>
+              <button type="button" class="control-btn voice-depth-btn" data-depth="8">8-bit (1990s CD-ROM)</button>
+              <button type="button" class="control-btn voice-depth-btn" data-depth="4">4-bit (1980s Arcade)</button>
+              <button type="button" class="control-btn voice-depth-btn" data-depth="2">2-bit (Crunchy)</button>
+              <button type="button" class="control-btn voice-depth-btn" data-depth="1">1-bit (Binary Fuzz)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Waveform & Spectrum Display -->
+        <div style="background: #09090b; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <span style="font-size: 11px; font-weight: 700; color: #a1a1aa; font-family: var(--font-mono); text-transform: uppercase;">
+              Waveform Display (Processed Audio Buffer)
+            </span>
+            <span id="voiceAudioStatus" style="font-size: 11px; font-family: var(--font-mono); color: #10b981;">READY • PRESS PLAY</span>
+          </div>
+          <canvas id="voiceWaveCanvas" width="860" height="150" style="width: 100%; height: 150px; display: block; border-radius: 4px;"></canvas>
+        </div>
+
+        <!-- Live File Size & Quality Feedback -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+          <!-- File Size Counter -->
+          <div style="background: var(--bg-surface-elevated); padding: 14px 18px; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+            <div style="font-size: 11.5px; text-transform: uppercase; font-weight: 700; color: var(--text-muted); margin-bottom: 4px;">
+              Uncompressed File Size (2.0s Audio)
+            </div>
+            <div id="voiceFileSizeDisplay" style="font-family: var(--font-mono); font-size: 22px; font-weight: 900; color: #10b981; margin-bottom: 4px;">
+              176.4 kB (176,400 Bytes)
+            </div>
+            <div id="voiceFileSavings" style="font-size: 12px; color: var(--text-secondary);">
+              Baseline CD Quality (16-bit at 44.1 kHz, Mono)
+            </div>
+          </div>
+
+          <!-- Exam Sound Effect Guide -->
+          <div style="background: rgba(59, 130, 246, 0.08); padding: 14px 18px; border-radius: var(--radius-md); border: 1px solid rgba(59, 130, 246, 0.25);">
+            <div style="font-size: 12px; font-weight: 800; color: #3b82f6; margin-bottom: 4px;">
+              💡 What your ears are hearing (GCSE Exam Rule):
+            </div>
+            <div id="voicePerceptionNote" style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
+              <strong>Full Studio Quality:</strong> Crystal clear reproduction with full treble, rich harmonics, and zero audible background noise.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sound File Size Calculation Panel -->
+      <div class="panel">
+        <div class="panel-title-bar">
+          <div class="panel-title-group">
+            <span class="badge badge-paper1">Formula</span>
+            <h3 class="panel-title">Sound File Size Calculator (AQA §3.3.4)</h3>
+          </div>
+          <span style="font-size: 11px; color: var(--text-muted);">
+            Formula: Rate (Hz) &times; Resolution (bits) &times; Duration (s) &times; Channels
+          </span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 4px;">Audio Duration (seconds):</label>
+            <input type="range" id="soundDurationInput" min="1" max="60" value="10" class="control-select" style="width: 100%;">
+            <div style="font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--text-primary); margin-top: 4px;">
+              <span id="soundDurationLabel">10</span> seconds
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size: 12px; font-weight: 700; color: var(--text-secondary); display: block; margin-bottom: 4px;">Audio Channels:</label>
+            <div class="btn-group" id="soundChannelsGroup">
+              <button type="button" class="control-btn sound-channel-btn active" data-channels="1">Mono (1 ch)</button>
+              <button type="button" class="control-btn sound-channel-btn" data-channels="2">Stereo (2 ch)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="inspector-metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-bottom: 18px;">
+          <div class="metric-card">
+            <span class="metric-label">Sample Rate</span>
+            <span class="metric-value" id="metricSoundRate">8 Hz</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Bit Depth</span>
+            <span class="metric-value" id="metricSoundDepth">3 bits</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Total Raw Bits</span>
+            <span class="metric-value" id="metricSoundBits" style="color: #3b82f6;">240 bits</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-label">Bytes (&divide; 8)</span>
+            <span class="metric-value" id="metricSoundBytes" style="color: #10b981;">30 B</span>
+          </div>
+        </div>
+
+        <!-- Dual Prefix Breakdown & Exam Warning -->
+        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 18px;">
+          <div style="font-weight: 700; font-size: 13px; color: var(--text-primary); margin-bottom: 8px;">
+            Dual Unit Breakdown:
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;">
+            <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-sm); border-left: 3px solid #3b82f6; font-size: 12px;">
+              <strong style="color: #3b82f6;">Decimal (kB):</strong> <span id="soundKbVal">0.03 kB</span>
+              <div style="font-family: var(--font-mono); color: var(--text-muted); font-size: 11px; margin-top: 2px;">Bytes &divide; 1,000</div>
+            </div>
+            <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-sm); border-left: 3px solid #8b5cf6; font-size: 12px;">
+              <strong style="color: #8b5cf6;">Binary (KiB):</strong> <span id="soundKibVal">0.029 KiB</span>
+              <div style="font-family: var(--font-mono); color: var(--text-muted); font-size: 11px; margin-top: 2px;">Bytes &divide; 1,024</div>
+            </div>
+          </div>
+          <div style="font-size: 12px; color: #ca8a04; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.25); padding: 8px 12px; border-radius: var(--radius-sm);">
+            ⚠️ <strong>AQA Mark Scheme Rule:</strong> Remember to multiply by 2 if the question specifies <strong>stereo</strong> sound! Show whether you divided by 1,000 or 1,024.
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- TAB 3: REVISION CARDS & TRAPS              -->
+    <!-- ========================================== -->
+    <div id="tab-revision" class="tab-view">
+      <!-- Overview Banner -->
+      <div class="view-banner">
+        <div class="banner-left">
+          <div class="banner-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h2>Exam Tips &amp; Practice Questions</h2>
+            <p>Key points to remember for your exam, common mistakes, and practice questions with mark schemes.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge badge-topic">AQA 8525 §3.3 Specification Focus</span>
+        </div>
+      </div>
+
+      <!-- Key Exam Revision Cards Section -->
+      <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 14px 0; display: flex; align-items: center; gap: 8px;">
+        <span style="color: #f59e0b;">📌</span> AQA Core Revision Topics &amp; Mark Scheme Rules
+      </h3>
+
+      <!-- Card 1: kB vs KiB -->
+      <div class="trap-card">
+        <div class="trap-header">
+          <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">
+            AQA RULE 1: FILE SIZE &amp; PREFIXES
+          </span>
+          <h4 class="trap-title">Dual Prefix Conventions (kB vs KiB)</h4>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          The formula <code>Width &times; Height &times; Colour Depth</code> yields raw <strong>BITS</strong>. Divide by 8 to obtain <strong>Bytes (B)</strong>.
+          AQA tests both decimal and binary prefix conventions:
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #38bdf8;">
+            <strong style="color: #38bdf8;">Decimal (SI Units):</strong><br>
+            • 1 kB = 1,000 bytes<br>
+            • Bytes &divide; 1,000 = kB
+          </div>
+          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #a855f7;">
+            <strong style="color: #c084fc;">Binary (IEC Units):</strong><br>
+            • 1 KiB = 1,024 bytes<br>
+            • Bytes &divide; 1,024 = KiB
+          </div>
+        </div>
+        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: #fbbf24; line-height: 1.5;">
+          ⚠️ <strong>AQA Mark Scheme Rule:</strong> In arithmetic questions, marks are awarded for dividing by either 1,000 or 1,024, provided your working clearly states which convention you used. Always state your units explicitly!
+        </div>
+      </div>
+
+      <!-- Card 2: Resolution vs Colour Depth -->
+      <div class="trap-card" style="border-left-color: #ec4899;">
+        <div class="trap-header">
+          <span class="badge" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4);">
+            AQA RULE 2: IMAGE PARAMETERS
+          </span>
+          <h4 class="trap-title" style="color: #f472b6;">Resolution vs Colour Depth (Impact &amp; Trade-offs)</h4>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          Be prepared to explain the distinct impacts of changing image resolution versus changing colour depth:
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #ec4899;">
+            <strong style="color: #f472b6;">Increasing Resolution:</strong><br>
+            • Packs more pixels into the image (W × H or DPI).<br>
+            • Results in sharper, crisper detail.<br>
+            • File size increases proportionally to pixel count.
+          </div>
+          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #8b5cf6;">
+            <strong style="color: #a78bfa;">Increasing Colour Depth:</strong><br>
+            • Allocates more bits per pixel ($2^n$ colours).<br>
+            • Allows smoother gradients and realistic shades.<br>
+            • File size increases proportionally to bit depth.
+          </div>
+        </div>
+        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+          💡 <strong>Key Trade-off:</strong> Higher quality requires more memory, greater storage capacity, and longer network transmission / download times.
+        </div>
+      </div>
+
+      <!-- Card 3: Metadata -->
+      <div class="trap-card" style="border-left-color: #6366f1;">
+        <div class="trap-header">
+          <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4);">
+            AQA RULE 3: SPECIFICATION §3.3
+          </span>
+          <h4 class="trap-title" style="color: #818cf8;">Role &amp; Examples of Image Metadata</h4>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          Never write only <em>"metadata is data about data"</em>—that is worth at most 1 mark. For full marks, specify the exact attributes and explain why the computer needs them.
+        </p>
+        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; line-height: 1.6; margin-bottom: 10px;">
+          <div style="color: #818cf8; font-weight: 700; margin-bottom: 4px;">AQA Required Header Attributes:</div>
+          • <strong>Width</strong> and <strong>Height</strong> (in pixels)<br>
+          • <strong>Colour Depth</strong> (bits per pixel, bpp)<br>
+          • <strong>Resolution</strong> (dots/pixels per inch, dpi)<br>
+          • <strong>File Format / Encoding</strong> (e.g. BMP, PNG)
+        </div>
+        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: #34d399; line-height: 1.5;">
+          ✓ <strong>Why Metadata is Essential:</strong> Raw image data is simply a continuous sequence of 1s and 0s. Without metadata, rendering software cannot determine where each row of pixels breaks or how many bits belong to each pixel colour, resulting in corrupt rendering or display failure.
+        </div>
+      </div>
+
+      <!-- Past Paper Questions Section -->
+      <h3 style="font-size: 16px; font-weight: 800; margin: 32px 0 14px 0; display: flex; align-items: center; gap: 8px;">
+        <span>📝</span> AQA Past Paper Style Questions with Mark Schemes
+      </h3>
+
+      <!-- Question 1 -->
+      <div class="qa-card">
+        <div class="qa-header" onclick="this.parentElement.querySelector('.qa-body').classList.toggle('revealed')">
+          <div>
+            <span class="badge badge-paper1" style="font-size: 10px; margin-bottom: 6px;">Calculation • 4 Marks</span>
+            <p class="qa-question">
+              Q1: An image has dimensions of 200 pixels by 150 pixels with a colour depth of 8 bits per pixel.<br>
+              (a) Calculate the file size of the image in bytes. Show your working.<br>
+              (b) State the size of the image in kilobytes (kB) using the decimal convention, or in kibibytes (KiB) using the binary convention.
+            </p>
+          </div>
+          <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; white-space: nowrap;">
+            Reveal Answer ▾
+          </button>
+        </div>
+        <div class="qa-body">
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Calculating total pixels: 200 &times; 150 = 30,000 pixels.</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Calculating total bits: 30,000 &times; 8 bits = 240,000 bits.</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Converting bits to bytes: 240,000 &divide; 8 = <strong>30,000 Bytes</strong>. (Part a answer).</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Conversion to kB or KiB (Part b answer - either accepted if unit stated):<br>
+              • Decimal convention: 30,000 &divide; 1,000 = <strong>30 kB</strong><br>
+              • Binary convention: 30,000 &divide; 1,024 &approx; <strong>29.3 KiB</strong> (or 29.30 KiB)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="qa-card">
+        <div class="qa-header" onclick="this.parentElement.querySelector('.qa-body').classList.toggle('revealed')">
+          <div>
+            <span class="badge badge-paper2" style="font-size: 10px; margin-bottom: 6px;">Theory • 3 Marks</span>
+            <p class="qa-question">
+              Q2: State two items of metadata stored in an image file, and explain why metadata is essential for displaying a bitmap image.
+            </p>
+          </div>
+          <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; white-space: nowrap;">
+            Reveal Answer ▾
+          </button>
+        </div>
+        <div class="qa-body">
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Any two correct metadata properties (Width, Height, Colour Depth, Resolution in DPI, File type).</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Definition / role: Metadata describes the structure and format of the raw binary data.</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Explanation of necessity: Without metadata, software cannot determine where lines break (width/height) or how many bits represent each pixel colour, making it impossible to reconstruct and display the image correctly.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="qa-card">
+        <div class="qa-header" onclick="this.parentElement.querySelector('.qa-body').classList.toggle('revealed')">
+          <div>
+            <span class="badge badge-paper2" style="font-size: 10px; margin-bottom: 6px;">Evaluation • 2 Marks</span>
+            <p class="qa-question">
+              Q3: A digital photograph's colour depth is increased from 8 bits per pixel to 24 bits per pixel.<br>
+              Explain one advantage and one disadvantage of this change.
+            </p>
+          </div>
+          <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; white-space: nowrap;">
+            Reveal Answer ▾
+          </button>
+        </div>
+        <div class="qa-body">
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span><strong>Advantage:</strong> The image will have higher visual fidelity / smoother colour gradients, representing up to 16.7 million colours ($2^{24}$) compared to only 256 colours ($2^8$).</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span><strong>Disadvantage:</strong> The file size will triple (3× larger, 24 bits vs 8 bits per pixel), requiring more storage space and taking longer to transmit or download.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content" style="max-width: 1360px;">
+      <div>
+        <p style="margin: 0 0 4px 0; font-weight: 700; color: var(--text-primary);">
+          Data Representation &amp; Bitmaps
+        </p>
+        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">
+          Module 2 of GCSE Computer Science Revision Portal
+        </p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="../../index.html" style="color: var(--accent-primary); text-decoration: none; font-size: 12.5px; font-weight: 600;">
+          ← Back to Hub Dashboard
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Audio Data & Application Logic -->
+  <script src="./speech-sample.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>

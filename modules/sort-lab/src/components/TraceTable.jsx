@@ -1,0 +1,305 @@
+import React, { useState } from 'react';
+import { Table, Copy, Check } from 'lucide-react';
+
+export default function TraceTable({
+  steps = [],
+  currentStepIndex = 0,
+  onJumpToStep = () => {},
+  isDarkMode = true,
+}) {
+  const [copied, setCopied] = useState(false);
+  const [tableMode, setTableMode] = useState('pass'); // 'pass' | 'aqa_variable'
+
+  // Extract all pass-end steps and initial step
+  const passSteps = steps.filter((s, idx) => idx === 0 || s.isPassEnd);
+
+  // Extract key variable modification steps for AQA Paper 1 variable grid
+  const aqaSteps = steps.filter((s, idx) => {
+    if (idx === 0) return true;
+    return s.type === 'compare' || s.type === 'swap' || s.type === 'shift' || s.type === 'pass-end' || s.type === 'insert';
+  }).slice(0, 100); // capped at 100 steps for smooth rendering
+
+  // Determine which pass step matches or precedes the current step
+  const currentStep = steps[currentStepIndex] || steps[0];
+  const activePass = currentStep?.pass ?? 0;
+
+  const copyToClipboard = (format = 'markdown') => {
+    let text = '';
+    if (tableMode === 'pass') {
+      text += '| Pass | Array State | Comparisons | Swaps / Shifts | Notes |\n';
+      text += '| :--- | :--- | :---: | :---: | :--- |\n';
+      passSteps.forEach((s) => {
+        const passLabel = s.pass === 0 ? 'Initial' : `Pass ${s.pass}`;
+        const arrayStr = `[${s.array.join(', ')}]`;
+        text += `| ${passLabel} | \`${arrayStr}\` | ${s.comparisons} | ${s.swaps} | ${s.explanation.replace(/\|/g, '-')} |\n`;
+      });
+    } else {
+      // AQA Variable Table
+      text += '| Step | Line | j | Condition | temp | swapped | Array State |\n';
+      text += '| :---: | :---: | :---: | :---: | :---: | :---: | :--- |\n';
+      aqaSteps.forEach((s, idx) => {
+        const jVal = s.variables?.j ?? '-';
+        const condVal = s.type === 'compare' ? (s.explanation.includes('True') ? 'True' : 'False') : '-';
+        const tempVal = s.variables?.temp ?? '-';
+        const swappedVal = s.variables?.swapped !== undefined ? (s.variables.swapped ? 'True' : 'False') : '-';
+        const arrayStr = `[${s.array.join(', ')}]`;
+        text += `| ${idx} | ${s.codeLine} | ${jVal} | ${condVal} | ${tempVal} | ${swappedVal} | \`${arrayStr}\` |\n`;
+      });
+    }
+
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
+  return (
+    <div className={`flex flex-col h-full rounded-2xl border transition-colors ${
+      isDarkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+    }`}>
+      {/* Header */}
+      <div className={`flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b text-xs font-semibold ${
+        isDarkMode ? 'border-slate-800 text-slate-300' : 'border-slate-100 text-slate-700'
+      }`}>
+        <div className="flex items-center gap-2">
+          <Table className="w-4 h-4 text-emerald-500" />
+          <span>Trace Table</span>
+        </div>
+
+        {/* View Toggle: Pass-by-Pass vs AQA Variable Grid */}
+        <div className="flex items-center gap-2">
+          <div className={`flex items-center p-0.5 rounded-lg border text-[11px] ${
+            isDarkMode ? 'bg-slate-800/80 border-slate-700/60' : 'bg-slate-100 border-slate-200'
+          }`}>
+            <button
+              onClick={() => setTableMode('pass')}
+              className={`px-2 py-1 rounded-md transition-all ${
+                tableMode === 'pass'
+                  ? 'bg-emerald-600 text-white font-bold shadow-2xs'
+                  : isDarkMode
+                  ? 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Pass-by-Pass
+            </button>
+            <button
+              onClick={() => setTableMode('aqa_variable')}
+              className={`px-2 py-1 rounded-md transition-all ${
+                tableMode === 'aqa_variable'
+                  ? 'bg-emerald-600 text-white font-bold shadow-2xs'
+                  : isDarkMode
+                  ? 'text-slate-400 hover:text-slate-200'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="AQA Paper 1 variable-by-variable mark-scheme grid"
+            >
+              AQA Variable Grid
+            </button>
+          </div>
+
+          <button
+            onClick={() => copyToClipboard('markdown')}
+            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors flex items-center gap-1 ${
+              copied
+                ? 'bg-emerald-500/20 text-emerald-500'
+                : isDarkMode
+                ? 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
+            }`}
+            title="Copy trace table formatted as Markdown for homework or notes"
+          >
+            {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+            {copied ? 'Copied!' : 'Copy'}
+          </button>
+        </div>
+      </div>
+
+      {/* Table Container */}
+      <div className="flex-1 p-3 overflow-auto max-h-[340px]">
+        {tableMode === 'pass' ? (
+          // 1. Pass-by-Pass Table
+          passSteps.length > 0 ? (
+            <table className="w-full text-left text-xs font-mono border-collapse">
+              <thead>
+                <tr className={`border-b ${
+                  isDarkMode ? 'border-slate-800 text-slate-400' : 'border-slate-300 text-slate-800 font-bold bg-slate-50'
+                }`}>
+                  <th className="py-2 px-2.5 font-bold">Pass</th>
+                  <th className="py-2 px-2.5 font-bold">Array State</th>
+                  <th className="py-2 px-2 font-bold text-center">Cmp</th>
+                  <th className="py-2 px-2 font-bold text-center">Swp</th>
+                  <th className="py-2 px-2.5 font-bold">Exam Description</th>
+                </tr>
+              </thead>
+              <tbody>
+                {passSteps.map((s, idx) => {
+                  const isActiveRow = s.pass === activePass;
+                  const stepIdx = steps.indexOf(s);
+
+                  return (
+                    <tr
+                      key={idx}
+                      onClick={() => stepIdx !== -1 && onJumpToStep(stepIdx)}
+                      className={`cursor-pointer border-b transition-colors ${
+                        isActiveRow
+                          ? isDarkMode
+                            ? 'bg-emerald-950/40 text-emerald-200 font-semibold'
+                            : 'bg-emerald-50 text-emerald-950 font-bold'
+                          : isDarkMode
+                          ? 'border-slate-800/60 hover:bg-slate-800/40 text-slate-300'
+                          : 'border-slate-200 hover:bg-slate-50 text-slate-900'
+                      }`}
+                    >
+                      <td className="py-2 px-2.5 whitespace-nowrap">
+                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-bold ${
+                          s.pass === 0
+                            ? isDarkMode ? 'bg-slate-500/10 text-slate-400' : 'bg-slate-100 text-slate-800 border border-slate-300'
+                            : isActiveRow
+                            ? isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
+                            : isDarkMode ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-100 text-indigo-900 border border-indigo-200'
+                        }`}>
+                          {s.pass === 0 ? 'Initial' : `Pass ${s.pass}`}
+                        </span>
+                      </td>
+                      <td className="py-2 px-2.5 whitespace-nowrap">
+                        <div className="flex items-center gap-1">
+                          <span className={isDarkMode ? 'text-slate-400' : 'text-slate-600 font-bold'}>[</span>
+                          {s.array.map((num, i) => {
+                            const isSortedInThisStep = s.sortedIndices?.includes(i);
+                            return (
+                              <span
+                                key={i}
+                                className={`px-1 rounded ${
+                                  isSortedInThisStep
+                                    ? isDarkMode
+                                      ? 'bg-emerald-500/20 text-emerald-400 font-bold'
+                                      : 'bg-emerald-100 text-emerald-900 font-bold'
+                                    : ''
+                                }`}
+                              >
+                                {num}
+                                {i < s.array.length - 1 ? ',' : ''}
+                              </span>
+                            );
+                          })}
+                          <span className={isDarkMode ? 'text-slate-400' : 'text-slate-600 font-bold'}>]</span>
+                        </div>
+                      </td>
+                      <td className={`py-2 px-2 text-center font-bold ${isDarkMode ? 'text-slate-400' : 'text-slate-900'}`}>
+                        {s.comparisons}
+                      </td>
+                      <td className={`py-2 px-2 text-center font-bold ${isDarkMode ? 'text-slate-400' : 'text-slate-900'}`}>
+                        {s.swaps}
+                      </td>
+                      <td className={`py-2 px-2.5 font-sans text-xs max-w-xs truncate ${
+                        isDarkMode ? 'text-slate-400' : 'text-slate-800 font-medium'
+                      }`} title={s.explanation}>
+                        {s.explanation}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <div className={`flex items-center justify-center h-32 text-xs ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
+              Click Start or Step to populate the trace table.
+            </div>
+          )
+        ) : (
+          // 2. AQA Paper 1 Variable Grid Table
+          <table className="w-full text-left text-xs font-mono border-collapse">
+            <thead>
+              <tr className={`border-b ${
+                isDarkMode ? 'border-slate-800 text-slate-400' : 'border-slate-300 text-slate-800 font-bold bg-slate-50'
+              }`}>
+                <th className="py-2 px-2 font-bold text-center">Line</th>
+                <th className="py-2 px-2 font-bold text-center">j</th>
+                <th className="py-2 px-2 font-bold text-center">Condition</th>
+                <th className="py-2 px-2 font-bold text-center">temp</th>
+                <th className="py-2 px-2 font-bold text-center">swapped</th>
+                <th className="py-2 px-2 font-bold">Array State</th>
+              </tr>
+            </thead>
+            <tbody>
+              {aqaSteps.map((s, idx) => {
+                const stepIdx = steps.indexOf(s);
+                const isCurrent = stepIdx === currentStepIndex;
+
+                const jVal = s.variables?.j !== undefined ? s.variables.j : '';
+                const isCompare = s.type === 'compare';
+                const condVal = isCompare ? (s.explanation.includes('True') ? 'True' : 'False') : '';
+                const tempVal = s.variables?.temp !== undefined ? s.variables.temp : '';
+                const swappedVal = s.variables?.swapped !== undefined ? (s.variables.swapped ? 'True' : 'False') : '';
+
+                return (
+                  <tr
+                    key={idx}
+                    onClick={() => stepIdx !== -1 && onJumpToStep(stepIdx)}
+                    className={`cursor-pointer border-b transition-colors ${
+                      isCurrent
+                        ? isDarkMode
+                          ? 'bg-emerald-950/40 text-emerald-200 font-semibold'
+                          : 'bg-emerald-50 text-emerald-950 font-bold'
+                        : isDarkMode
+                        ? 'border-slate-800/60 hover:bg-slate-800/40 text-slate-300'
+                        : 'border-slate-200 hover:bg-slate-50 text-slate-900'
+                    }`}
+                  >
+                    <td className={`py-1.5 px-2 text-center font-bold ${isDarkMode ? 'text-indigo-400' : 'text-indigo-800 font-bold'}`}>
+                      {s.codeLine}
+                    </td>
+                    <td className={`py-1.5 px-2 text-center font-semibold ${isDarkMode ? 'text-amber-300' : 'text-amber-900 font-bold'}`}>
+                      {jVal !== '' ? jVal : '—'}
+                    </td>
+                    <td className="py-1.5 px-2 text-center">
+                      {condVal ? (
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                          condVal === 'True'
+                            ? (isDarkMode ? 'bg-rose-500/20 text-rose-300' : 'bg-rose-100 text-rose-800 border border-rose-300')
+                            : (isDarkMode ? 'bg-slate-700/60 text-slate-300' : 'bg-slate-100 text-slate-800 border border-slate-300')
+                        }`}>
+                          {condVal}
+                        </span>
+                      ) : '—'}
+                    </td>
+                    <td className={`py-1.5 px-2 text-center font-semibold ${isDarkMode ? 'text-purple-300' : 'text-purple-900 font-bold'}`}>
+                      {tempVal !== '' ? tempVal : '—'}
+                    </td>
+                    <td className="py-1.5 px-2 text-center">
+                      {swappedVal !== '' ? (
+                        <span className={`text-[11px] font-bold ${
+                          swappedVal === 'True'
+                            ? (isDarkMode ? 'text-amber-400' : 'text-amber-900 font-bold')
+                            : (isDarkMode ? 'text-slate-500' : 'text-slate-500 font-semibold')
+                        }`}>
+                          {swappedVal}
+                        </span>
+                      ) : '—'}
+                    </td>
+                    <td className={`py-1.5 px-2 whitespace-nowrap ${isDarkMode ? 'text-slate-300' : 'text-slate-800'}`}>
+                      [{s.array.join(', ')}]
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Footer tip */}
+      <div className={`p-2.5 px-4 border-t text-[11px] flex items-center justify-between ${
+        isDarkMode ? 'border-slate-800 bg-slate-950/20 text-slate-400' : 'border-slate-100 bg-slate-50/70 text-slate-600 font-medium'
+      }`}>
+        <span>
+          {tableMode === 'aqa_variable'
+            ? '📝 AQA Paper 1 Rule: Only record variable values in a column when they change!'
+            : '💡 Click any pass row to jump straight to that pass.'}
+        </span>
+        <span className="hidden sm:inline">AQA 8525 & OCR J277 Trace Table</span>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CPU Architecture &amp; LMC • GCSE Computer Science</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💻</text></svg>">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="site-header">
+    <div class="header-container" style="max-width: 1360px;">
+      
+      <!-- Left: Back link & Title -->
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="../../index.html" class="back-link" title="Return to Revision Hub">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Hub
+        </a>
+
+        <div style="height: 18px; width: 1px; background: var(--border-color);"></div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h1 style="font-size: 15px; font-weight: 800; color: var(--text-primary); margin: 0;">
+            CPU Architecture
+          </h1>
+          <span class="badge badge-topic" style="font-size: 10px;">AQA 8525 §3.4.1 (Systems Architecture)</span>
+        </div>
+      </div>
+
+      <!-- Center: Tab Switchers -->
+      <nav class="view-tabs">
+        <button class="view-tab-btn active" data-tab="fde">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"></polyline>
+            <polyline points="1 20 1 14 7 14"></polyline>
+            <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+          </svg>
+          F-D-E Visualizer
+        </button>
+
+        <button class="view-tab-btn" data-tab="perf">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          Performance Sandbox
+        </button>
+
+        <button class="view-tab-btn" data-tab="revision">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          Revision Cards
+        </button>
+      </nav>
+
+      <!-- Right: Theme Toggle -->
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="themeToggleBtn" class="control-btn" style="padding: 6px 10px;" title="Toggle Dark/Light Mode">
+          <svg id="sunIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="moonIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="module-container">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: F-D-E VISUALIZER (Core AQA 8525 §3.4.1)                     -->
+    <!-- =================================================================== -->
+    <div id="tab-fde" class="tab-view active">
+
+      <!-- View Banner -->
+      <div class="view-banner">
+        <div class="banner-left">
+          <div class="banner-icon" style="background: linear-gradient(135deg, #6366f1 0%, #38bdf8 100%);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+              <rect x="9" y="9" width="6" height="6"></rect>
+              <line x1="9" y1="1" x2="9" y2="4"></line>
+              <line x1="15" y1="1" x2="15" y2="4"></line>
+              <line x1="9" y1="20" x2="9" y2="23"></line>
+              <line x1="15" y1="20" x2="15" y2="23"></line>
+              <line x1="20" y1="9" x2="23" y2="9"></line>
+              <line x1="20" y1="14" x2="23" y2="14"></line>
+              <line x1="1" y1="9" x2="4" y2="9"></line>
+              <line x1="1" y1="14" x2="4" y2="14"></line>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h2>Fetch-Decode-Execute Simulator</h2>
+            <p>Watch how instructions travel between RAM, buses, and registers in the Von Neumann architecture.</p>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">Preset Program:</span>
+          <select id="programSelect" class="control-select">
+            <option value="add">Program 1: Add Two Numbers (12 + 8)</option>
+            <option value="sub">Program 2: Subtract Numbers (20 - 7)</option>
+            <option value="store">Program 3: Store Constant (Value 42)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Friendly Plain-English Intro Card: CPU & Registers -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-md); padding: 16px 18px; margin-bottom: 20px;">
+        <div style="font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+          <span>💡</span> The Basics in Plain English: How the CPU Actually Works
+        </div>
+        <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 10px 0;">
+          The <strong>Central Processing Unit (CPU)</strong> is the computer's engine. Every second, it repeats the <strong>Fetch-Decode-Execute</strong> cycle billions of times: fetching an instruction from memory, decoding what it means, and executing it.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; font-size: 12px; line-height: 1.5;">
+          <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <strong style="color: #6366f1;">The Desk Analogy (Registers vs RAM):</strong> RAM is like a massive library down the street—it holds everything, but fetching from it takes time. <strong>Registers</strong> are like sticky notes right on your desk. Ultra-fast, but each only holds one tiny piece of data.
+          </div>
+          <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <strong style="color: #0284c7;">Key Registers to Remember:</strong><br>
+            • <strong>PC (Program Counter):</strong> Address of the NEXT instruction.<br>
+            • <strong>MAR:</strong> Address of where in RAM we are reading/writing.<br>
+            • <strong>MDR:</strong> Holds the actual data/instruction being moved.<br>
+            • <strong>ACC (Accumulator):</strong> Holds temporary calculation results.
+          </div>
+        </div>
+      </div>
+
+      <!-- Playback Controls Bar -->
+      <div class="toolbar-row" style="background: var(--bg-surface); padding: 12px 18px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 20px;">
+        <div class="control-group">
+          <button id="fdeStepBtn" class="btn btn-primary" style="padding: 7px 16px; font-size: 12.5px;">
+            Step Forward ❯
+          </button>
+          <button id="fdePlayBtn" class="control-btn" style="padding: 7px 14px;">
+            ▶ Play
+          </button>
+          <button id="fdeResetBtn" class="control-btn" style="padding: 7px 14px;">
+            ⏮ Reset
+          </button>
+        </div>
+
+        <div class="control-group">
+          <span class="control-label">Speed:</span>
+          <button class="control-btn speed-btn-fde" data-speed="1800">Slow</button>
+          <button class="control-btn speed-btn-fde active" data-speed="1000">Normal</button>
+          <button class="control-btn speed-btn-fde" data-speed="500">Fast</button>
+          <div style="height: 16px; width: 1px; background: var(--border-color); margin: 0 4px;"></div>
+          <span id="cycleStatusBadge" class="badge badge-paper1" style="font-size: 11px;">
+            Cycle 1 • FETCH
+          </span>
+        </div>
+      </div>
+
+      <!-- Main Workspace 2-Column Grid -->
+      <div class="fde-grid">
+
+        <!-- Column 1: Von Neumann Architecture Interactive Diagram -->
+        <div class="panel">
+          <div class="panel-title-bar">
+            <div class="panel-title-group">
+              <span class="badge badge-spec">Hardware Architecture</span>
+              <h3 class="panel-title">CPU &amp; Memory Layout</h3>
+            </div>
+            <span class="badge badge-topic">Von Neumann Model</span>
+          </div>
+
+          <!-- Architecture Visual Frame -->
+          <div class="arch-diagram-card">
+            <div class="cpu-diagram-container">
+
+              <!-- CPU Subsystem -->
+              <div class="cpu-box">
+                <div class="cpu-box-title">
+                  <span>Central Processing Unit (CPU)</span>
+                  <span style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);">Silicon Core</span>
+                </div>
+
+                <!-- Control Unit (CU) -->
+                <div id="cuBlock" class="component-block">
+                  <div class="component-header">
+                    <span class="component-title">Control Unit (CU)</span>
+                    <span id="cuStatusBadge" class="badge" style="background: rgba(99, 102, 241, 0.2); color: var(--accent-soft-text); font-size: 10px;">DECODER</span>
+                  </div>
+                  <div class="component-desc">
+                    Decodes instructions, directs data flow, and generates timing signals across control lines.
+                  </div>
+                  <div style="margin-top: 6px; font-size: 11px; font-family: var(--font-mono); color: var(--accent-soft-text);">
+                    Decoded: <strong id="cuDecodedText" style="color: #ffffff;">NONE</strong>
+                  </div>
+                </div>
+
+                <!-- Arithmetic Logic Unit (ALU) -->
+                <div id="aluBlock" class="component-block">
+                  <div class="component-header">
+                    <span class="component-title">Arithmetic Logic Unit (ALU)</span>
+                    <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-size: 10px;">MATH &amp; LOGIC</span>
+                  </div>
+                  <div class="component-desc">
+                    Executes arithmetic calculations (+, −) and boolean logical comparisons.
+                  </div>
+                  <div style="margin-top: 6px; font-size: 11px; font-family: var(--font-mono); color: #34d399;">
+                    ALU Result: <strong id="aluResultText">0</strong>
+                  </div>
+                </div>
+
+                <!-- Core 4 Registers Section -->
+                <div style="margin-top: 4px;">
+                  <div style="font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px;">
+                    Core Registers (AQA §3.4.1)
+                  </div>
+                  <div class="registers-grid">
+
+                    <!-- PC -->
+                    <div id="regPC" class="register-card">
+                      <div class="register-name">
+                        <span>PC</span>
+                        <span style="font-size: 9px; font-weight: 500; color: var(--text-muted);">Prog Counter</span>
+                      </div>
+                      <div id="valPC" class="register-val">00</div>
+                    </div>
+
+                    <!-- MAR -->
+                    <div id="regMAR" class="register-card">
+                      <div class="register-name">
+                        <span>MAR</span>
+                        <span style="font-size: 9px; font-weight: 500; color: var(--text-muted);">Mem Address</span>
+                      </div>
+                      <div id="valMAR" class="register-val">00</div>
+                    </div>
+
+                    <!-- MDR -->
+                    <div id="regMDR" class="register-card">
+                      <div class="register-name">
+                        <span>MDR</span>
+                        <span style="font-size: 9px; font-weight: 500; color: var(--text-muted);">Mem Data</span>
+                      </div>
+                      <div id="valMDR" class="register-val">---</div>
+                    </div>
+
+                    <!-- CIR (Current Instruction Register) -->
+                    <div id="regCIR" class="register-card">
+                      <div class="register-name">
+                        <span>CIR</span>
+                        <span style="font-size: 9px; font-weight: 500; color: var(--text-muted);">Cur Instruction</span>
+                      </div>
+                      <div id="valCIR" class="register-val">---</div>
+                    </div>
+
+                    <!-- ACC -->
+                    <div id="regACC" class="register-card">
+                      <div class="register-name">
+                        <span>ACC</span>
+                        <span style="font-size: 9px; font-weight: 500; color: var(--text-muted);">Accumulator</span>
+                      </div>
+                      <div id="valACC" class="register-val">0</div>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- System Buses Conduit -->
+              <div class="buses-conduit">
+                
+                <!-- Address Bus -->
+                <div id="busAddress" class="bus-line">
+                  <div class="bus-label">
+                    <span>Address Bus</span>
+                    <span style="font-size: 9px; color: #f59e0b;">CPU ➔ RAM</span>
+                  </div>
+                  <div id="busAddressVal" class="bus-data">Idle</div>
+                  <div id="packetAddress" class="bus-packet-indicator"></div>
+                </div>
+
+                <!-- Data Bus -->
+                <div id="busData" class="bus-line">
+                  <div class="bus-label">
+                    <span>Data Bus</span>
+                    <span style="font-size: 9px; color: #34d399;">CPU ⇄ RAM</span>
+                  </div>
+                  <div id="busDataVal" class="bus-data">Idle</div>
+                  <div id="packetData" class="bus-packet-indicator"></div>
+                </div>
+
+                <!-- Control Bus -->
+                <div id="busControl" class="bus-line">
+                  <div class="bus-label">
+                    <span>Control Bus</span>
+                    <span style="font-size: 9px; color: #a855f7;">Control</span>
+                  </div>
+                  <div id="busControlVal" class="bus-data">Idle</div>
+                  <div id="packetControl" class="bus-packet-indicator"></div>
+                </div>
+
+              </div>
+
+              <!-- RAM (Main Memory) -->
+              <div class="ram-box">
+                <div class="ram-box-title">
+                  <span>Main Memory (RAM)</span>
+                  <span style="font-size: 10px; color: var(--text-muted);">8 Words</span>
+                </div>
+                <div style="flex: 1; overflow-y: auto;">
+                  <table class="ram-table">
+                    <thead>
+                      <tr>
+                        <th>Addr</th>
+                        <th>Contents</th>
+                        <th>Type</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ramTableBody">
+                      <!-- Dynamically rendered via JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-muted);">
+            <span>Von Neumann Principle: Data and instructions share the same memory and bus structure.</span>
+          </div>
+        </div>
+
+        <!-- Column 2: Step-by-Step Narrative & Registers Tracing -->
+        <div class="panel">
+          <div class="panel-title-bar">
+            <div class="panel-title-group">
+              <span class="badge badge-paper1">Trace &amp; Theory</span>
+              <h3 class="panel-title">AQA Mark Scheme Trace</h3>
+            </div>
+            <span id="stepCounterBadge" class="badge badge-live">Step 1 of 5</span>
+          </div>
+
+          <!-- Live Step Narrative Card -->
+          <div class="step-narrative-card">
+            <div id="narrativeStageBadge" class="stage-badge stage-fetch">FETCH STAGE</div>
+            <div id="narrativeTitle" class="narrative-title">Copy Address from PC to MAR</div>
+            <div id="narrativeBody" class="narrative-body">
+              The memory address of the next instruction stored in the Program Counter (PC) is copied into the Memory Address Register (MAR) via the internal bus.
+            </div>
+            <div class="aqa-quote-box">
+              💡 <strong>AQA Exam Phrasing:</strong> <span id="aqaExamQuote">"The address in the PC is copied to the MAR."</span>
+            </div>
+          </div>
+
+          <!-- Chronological Step Log -->
+          <div style="font-size: 11.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">
+            Execution History Log
+          </div>
+          <div id="traceLogBox" class="trace-log-box">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- Clear log button -->
+          <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <button id="clearLogBtn" class="control-btn" style="font-size: 11px; padding: 4px 10px;">
+              Clear History Log
+            </button>
+            <span style="font-size: 11px; color: var(--text-muted);">Chronological order</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: PERFORMANCE SANDBOX (Core AQA 8525 §3.4.1)                  -->
+    <!-- =================================================================== -->
+    <div id="tab-perf" class="tab-view">
+
+      <!-- View Banner -->
+      <div class="view-banner">
+        <div class="banner-left">
+          <div class="banner-icon" style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h2>CPU Performance Factors Sandbox</h2>
+            <p>Explore how clock speed, cache size, and the number of cores affect real-world execution speed.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge badge-topic">AQA 8525 §3.4.1 Core Topic</span>
+        </div>
+      </div>
+
+      <!-- Performance Grid -->
+      <div class="perf-grid">
+
+        <!-- Left: Configuration Controls -->
+        <div class="panel">
+          <div class="panel-title-bar">
+            <div class="panel-title-group">
+              <span class="badge badge-spec">Parameters</span>
+              <h3 class="panel-title">CPU Specifications</h3>
+            </div>
+          </div>
+
+          <!-- Parameter 1: Clock Speed -->
+          <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 14px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <div>
+                <strong style="font-size: 13px; color: var(--text-primary);">1. Clock Speed (GHz)</strong>
+                <div style="font-size: 11.5px; color: var(--text-secondary);">Cycles per second (F-D-E cycles/sec)</div>
+              </div>
+              <span id="clockSpeedValBadge" class="font-mono" style="font-size: 15px; font-weight: 800; color: #38bdf8;">2.5 GHz</span>
+            </div>
+            <input type="range" id="clockSpeedSlider" min="1.0" max="4.0" step="0.5" value="2.5" style="width: 100%; accent-color: #38bdf8; cursor: pointer;">
+            <div style="display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-top: 4px;">
+              <span>1.0 GHz (1B cycles/s)</span>
+              <span>4.0 GHz (4B cycles/s)</span>
+            </div>
+          </div>
+
+          <!-- Parameter 2: Cache Memory -->
+          <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 14px;">
+            <div style="margin-bottom: 8px;">
+              <strong style="font-size: 13px; color: var(--text-primary);">2. Cache Memory Level</strong>
+              <div style="font-size: 11.5px; color: var(--text-secondary);">Extremely fast SRAM built directly on the CPU chip</div>
+            </div>
+            <select id="cacheSelect" class="control-select" style="width: 100%;">
+              <option value="none">No Cache (Fetch from RAM only - High latency)</option>
+              <option value="l1">L1 Cache (64 KB • 1ns latency • Highest hit rate)</option>
+              <option value="l2" selected>L2 Cache (512 KB • 4ns latency • Balanced)</option>
+              <option value="l3">L3 Cache (8 MB • 10ns latency • Shared pool)</option>
+            </select>
+          </div>
+
+          <!-- Parameter 3: Number of Processor Cores -->
+          <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 16px;">
+            <div style="margin-bottom: 8px;">
+              <strong style="font-size: 13px; color: var(--text-primary);">3. Number of CPU Cores</strong>
+              <div style="font-size: 11.5px; color: var(--text-secondary);">Independent processing units sharing the memory bus</div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+              <button class="control-btn core-btn" data-cores="1">1 Core</button>
+              <button class="control-btn core-btn active" data-cores="2">2 Cores</button>
+              <button class="control-btn core-btn" data-cores="4">4 Cores</button>
+              <button class="control-btn core-btn" data-cores="8">8 Cores</button>
+            </div>
+          </div>
+
+          <!-- Workload Selection -->
+          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 16px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+              Select Benchmark Workload:
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button id="taskSequentialBtn" class="control-btn active" style="flex: 1;">
+                Single-Threaded Task
+              </button>
+              <button id="taskParallelBtn" class="control-btn" style="flex: 1;">
+                Parallel Batch Task
+              </button>
+            </div>
+            <div id="workloadDescText" style="margin-top: 8px; font-size: 11.5px; color: var(--text-secondary); line-height: 1.4;">
+              • Sequential tasks cannot be divided across cores. Additional cores will remain idle!
+            </div>
+          </div>
+
+          <button id="runBenchmarkBtn" class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 13px;">
+            ▶ Run Performance Simulation
+          </button>
+        </div>
+
+        <!-- Right: Real-time Simulation Results -->
+        <div class="panel">
+          <div class="panel-title-bar">
+            <div class="panel-title-group">
+              <span class="badge badge-live">Live Benchmark</span>
+              <h3 class="panel-title">Execution Results</h3>
+            </div>
+            <span id="benchmarkStatusBadge" class="badge badge-paper1">Ready</span>
+          </div>
+
+          <!-- Metrics Badges -->
+          <div class="metrics-grid" style="margin-bottom: 16px;">
+            <div class="metric-card">
+              <span class="metric-label">Execution Time</span>
+              <span id="metricExecTime" class="metric-value" style="color: #38bdf8;">-</span>
+              <span class="metric-sub">Lower is faster</span>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-label">Effective Speed</span>
+              <span id="metricSpeedScore" class="metric-value" style="color: #34d399;">-</span>
+              <span class="metric-sub">MIPS Throughput</span>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-label">Cache Hit Rate</span>
+              <span id="metricCacheHit" class="metric-value" style="color: #c084fc;">-</span>
+              <span class="metric-sub">avoided RAM stall</span>
+            </div>
+
+            <div class="metric-card">
+              <span class="metric-label">Power &amp; Heat</span>
+              <span id="metricHeatLevel" class="metric-value" style="color: #fbbf24;">Moderate</span>
+              <span class="metric-sub">Thermal limits</span>
+            </div>
+          </div>
+
+          <!-- Active Cores Workload Bars -->
+          <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
+            Core Utilization:
+          </div>
+          <div id="coresProgressContainer">
+            <!-- Dynamically populated core bars -->
+          </div>
+
+          <!-- AQA Key Summary Callout -->
+          <div style="margin-top: 16px; padding: 12px 14px; border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); font-size: 11.5px; color: #fbbf24; line-height: 1.55;">
+            ⚠️ <strong>AQA Exam Rule (Why 2× cores does NOT mean 2× speed):</strong>
+            <ul style="margin: 4px 0 0 16px; padding: 0;">
+              <li>Software must be written to support parallel multithreading. Sequential algorithms cannot use extra cores.</li>
+              <li>CPU cores must communicate and coordinate, adding management overhead.</li>
+              <li>All cores compete for access to the same shared memory bus and cache.</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =================================================================== -->
+    <!-- TAB 4: REVISION CARDS & EXAM TRAPS (Core AQA 8525 §3.4.1)           -->
+    <!-- =================================================================== -->
+    <div id="tab-revision" class="tab-view">
+
+      <!-- View Banner -->
+      <div class="view-banner">
+        <div class="banner-left">
+          <div class="banner-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h2>CPU Architecture Revision Cards &amp; Exam Traps</h2>
+            <p>Core points to remember for AQA Paper 2 (Systems Architecture), common misconceptions, and mark schemes.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge badge-topic">AQA 8525 §3.4.1 (Paper 2)</span>
+        </div>
+      </div>
+
+      <!-- Revision Cards Section -->
+      <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 14px 0; display: flex; align-items: center; gap: 8px;">
+        <span style="color: #f59e0b;">📌</span> Key Exam Traps &amp; Core Concepts
+      </h3>
+
+      <!-- Card 1: MAR vs MDR -->
+      <div class="trap-card">
+        <div class="trap-header">
+          <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">
+            AQA TRAP 1: REGISTERS
+          </span>
+          <h4 class="trap-title">Never Confuse the MAR and the MDR</h4>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          This is one of the most frequently lost marks on GCSE Computer Science papers. Remember their exact roles:
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #38bdf8;">
+            <strong style="color: #38bdf8;">MAR (Memory Address Register):</strong><br>
+            • Holds the memory <strong>address</strong> (location) where data or an instruction is to be fetched from or written to.<br>
+            • Connected to the <strong>Address Bus</strong>.
+          </div>
+          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #34d399;">
+            <strong style="color: #34d399;">MDR (Memory Data Register):</strong><br>
+            • Holds the <strong>actual data value or instruction</strong> that has been read from RAM or is waiting to be written to RAM.<br>
+            • Connected to the <strong>Data Bus</strong>.
+          </div>
+        </div>
+        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: #fbbf24;">
+          💡 <strong>Memory Hook:</strong> MAR = <strong>A</strong>ddress (where to look); MDR = <strong>D</strong>ata (what was found).
+        </div>
+      </div>
+
+      <!-- Card 2: 3 Factors of Performance -->
+      <div class="trap-card" style="border-left-color: #ec4899;">
+        <div class="trap-header">
+          <span class="badge" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4);">
+            AQA TRAP 2: CPU PERFORMANCE
+          </span>
+          <h4 class="trap-title" style="color: #f472b6;">Why More Cores Does Not Guarantee Faster Performance</h4>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          A common exam question asks why a quad-core CPU will not run four times faster than a single-core CPU:
+        </p>
+        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; line-height: 1.6; margin-bottom: 10px;">
+          • <strong>Software Parallelism:</strong> Many programs are written sequentially (Step 2 depends on Step 1). Extra cores remain idle if software cannot be split into concurrent threads.<br>
+          • <strong>Overhead &amp; Communication:</strong> The operating system must coordinate and synchronise threads across cores, consuming clock cycles.<br>
+          • <strong>Resource Contention:</strong> All cores share the same memory bus and RAM. Accessing RAM creates a bottleneck.
+        </div>
+      </div>
+
+      <!-- Card 3: Von Neumann Architecture -->
+      <div class="trap-card" style="border-left-color: #6366f1;">
+        <div class="trap-header">
+          <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4);">
+            AQA SPECIFICATION §3.4.1
+          </span>
+          <h4 class="trap-title" style="color: #818cf8;">The Stored Program Concept (Von Neumann)</h4>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          The foundation of all modern general-purpose computing systems:
+        </p>
+        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: #34d399; line-height: 1.6;">
+          ✓ <strong>AQA Definition:</strong> In the Von Neumann architecture, both <strong>program instructions and data</strong> are stored together in the <strong>same physical memory (RAM)</strong> and fetched across shared system buses. Instructions are executed sequentially unless an explicit branch occurs.
+        </div>
+      </div>
+
+      <!-- Practice Questions with Mark Schemes -->
+      <h3 style="font-size: 16px; font-weight: 800; margin: 32px 0 14px 0; display: flex; align-items: center; gap: 8px;">
+        <span>📝</span> AQA Past Paper Style Questions with Mark Schemes
+      </h3>
+
+      <!-- Question 1 -->
+      <div class="qa-card">
+        <div class="qa-header" onclick="this.parentElement.querySelector('.qa-body').classList.toggle('revealed')">
+          <div>
+            <span class="badge badge-paper2" style="font-size: 10px; margin-bottom: 6px;">F-D-E Cycle • 4 Marks</span>
+            <p class="qa-question">
+              Q1: Describe the role of the Program Counter (PC) and the Memory Address Register (MAR) during the fetch stage of the fetch-decode-execute cycle.
+            </p>
+          </div>
+          <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; white-space: nowrap;">
+            Reveal Answer ▾
+          </button>
+        </div>
+        <div class="qa-body">
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>The Program Counter (PC) holds the address of the <strong>next</strong> instruction to be fetched from memory.</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>The address stored in the PC is copied into the <strong>Memory Address Register (MAR)</strong>.</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>The PC is incremented by 1 (to point to the subsequent instruction).</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>The MAR places the memory address on the <strong>Address Bus</strong> to locate the instruction in RAM.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="qa-card">
+        <div class="qa-header" onclick="this.parentElement.querySelector('.qa-body').classList.toggle('revealed')">
+          <div>
+            <span class="badge badge-paper2" style="font-size: 10px; margin-bottom: 6px;">Performance • 3 Marks</span>
+            <p class="qa-question">
+              Q2: A computer manufacturer claims that an 8-core CPU will execute programs four times faster than a dual-core (2-core) CPU with the same clock speed. Explain why this claim is not true in practice.
+            </p>
+          </div>
+          <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; white-space: nowrap;">
+            Reveal Answer ▾
+          </button>
+        </div>
+        <div class="qa-body">
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Software may not be optimised for multi-threading / tasks may be sequential where one step requires the result of a previous step.</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Core management / coordination overhead from the operating system reduces efficiency.</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Shared hardware bottlenecks: all cores must share access to memory bus and RAM, causing waiting/stalls.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="qa-card">
+        <div class="qa-header" onclick="this.parentElement.querySelector('.qa-body').classList.toggle('revealed')">
+          <div>
+            <span class="badge badge-paper2" style="font-size: 10px; margin-bottom: 6px;">Hardware • 3 Marks</span>
+            <p class="qa-question">
+              Q3: Explain what cache memory is and why having more cache memory improves CPU performance.
+            </p>
+          </div>
+          <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; white-space: nowrap;">
+            Reveal Answer ▾
+          </button>
+        </div>
+        <div class="qa-body">
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Cache is very fast, small memory located on (or extremely close to) the CPU chip.</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>It stores frequently or recently used instructions and data.</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Accessing cache is much faster than fetching from RAM, reducing CPU idle waiting time.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content" style="max-width: 1360px;">
+      <div>
+        <p style="margin: 0 0 4px 0; font-weight: 700; color: var(--text-primary);">
+          CPU Architecture &amp; LMC
+        </p>
+        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">
+          Module 3 of GCSE Computer Science Revision Portal
+        </p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="../../index.html" style="color: var(--accent-primary); text-decoration: none; font-size: 12.5px; font-weight: 600;">
+          ← Back to Hub Dashboard
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="./app.js"></script>
+</body>
+</html>

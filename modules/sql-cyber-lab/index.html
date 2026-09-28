@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relational Databases &amp; SQL • GCSE Computer Science</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗄️</text></svg>">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="site-header">
+    <div class="header-container" style="max-width: 1360px;">
+      
+      <!-- Left: Back link & Title -->
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="../../index.html" class="back-link" title="Return to Revision Hub">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Hub
+        </a>
+
+        <div style="height: 18px; width: 1px; background: var(--border-color);"></div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <h1 style="font-size: 15px; font-weight: 800; color: var(--text-primary); margin: 0;">
+            Relational Databases &amp; SQL
+          </h1>
+          <span class="badge badge-topic" style="font-size: 10px;">AQA 8525 §3.7 (Section 5)</span>
+        </div>
+      </div>
+
+      <!-- Center: Tab Switchers -->
+      <nav class="view-tabs">
+        <button class="view-tab-btn active" data-tab="sql">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+          </svg>
+          Schema &amp; Query Studio
+        </button>
+
+        <button class="view-tab-btn" data-tab="challenges">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+          Warm-Up &amp; Exam Challenges
+        </button>
+
+        <button class="view-tab-btn" data-tab="revision">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          Revision &amp; Mark Schemes
+        </button>
+      </nav>
+
+      <!-- Right: Theme Toggle -->
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="themeToggleBtn" class="control-btn" style="padding: 6px 10px;" title="Toggle Dark/Light Mode">
+          <svg id="sunIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="moonIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="module-container">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: SQL QUERY STUDIO (Databases §3.7)                            -->
+    <!-- =================================================================== -->
+    <div id="tab-sql" class="tab-view active">
+
+      <!-- View Banner -->
+      <div class="view-banner">
+        <div class="banner-left">
+          <div class="banner-icon" style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h2>Relational Database &amp; SQL Query Workbench</h2>
+            <p>Explore linked relational tables, test AQA SQL queries, and see the step-by-step query execution trace.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge badge-topic">AQA 8525 §3.7 (Databases)</span>
+        </div>
+      </div>
+
+      <!-- CGP-Style Plain-English Intro: Why Relational Databases? -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
+        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+          <span>🗄️</span> Why Do We Need Relational Databases? (No More Duplicate Data!)
+        </div>
+        <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+          Imagine writing a student's full name, address, and form group next to every single exam they ever sit. If Alice takes 10 exams, her details would be repeated 10 times! If she moves house, updating 10 rows risks errors. In a <strong>Relational Database</strong>, we store student details <em>once</em> in the <strong>Students</strong> table, and link their exam results using a <strong>Foreign Key</strong>.
+        </p>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; font-size: 12px; line-height: 1.5;">
+          <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <div style="font-weight: 700; color: #0284c7; margin-bottom: 2px;">📁 Tables &amp; Records</div>
+            <p style="margin: 0; color: var(--text-secondary);">
+              A table holds records (rows) and fields (columns). Separating tables prevents <strong>data redundancy</strong> (unnecessary duplication).
+            </p>
+          </div>
+
+          <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <div style="font-weight: 700; color: #10b981; margin-bottom: 2px;">🔑 Primary vs Foreign Keys</div>
+            <p style="margin: 0; color: var(--text-secondary);">
+              <strong>Primary Key (PK):</strong> Unique ID in its own table.<br>
+              <strong>Foreign Key (FK):</strong> Links back to the PK of another table to connect records.
+            </p>
+          </div>
+
+          <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <div style="font-weight: 700; color: #ec4899; margin-bottom: 2px;">💬 The 4 AQA SQL Commands</div>
+            <div style="color: var(--text-secondary);">
+              <code>SELECT</code> (which columns) • <code>FROM</code> (which table)<br>
+              <code>WHERE</code> (filter condition) • <code>ORDER BY</code> (sort ASC/DESC)
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Relational Schema Two-Table Viewer (Top Panel) -->
+      <div class="panel" style="margin-bottom: 20px;">
+        <div class="panel-title-bar">
+          <div class="panel-title-group">
+            <span class="badge badge-spec">Schema</span>
+            <h3 class="panel-title">Relational Tables &amp; Keys</h3>
+          </div>
+          <div style="display: flex; align-items: center; gap: 12px; font-size: 11.5px;">
+            <span><span class="badge-pk">PK</span> = Primary Key</span>
+            <span><span class="badge-fk">FK</span> = Foreign Key</span>
+          </div>
+        </div>
+
+        <div class="schema-grid">
+          
+          <!-- Table 1: Students -->
+          <div class="table-card">
+            <div class="table-header-bar">
+              <span class="table-name">
+                <span style="color: #38bdf8;">📁 Students</span>
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">(Entity: Student Details)</span>
+              </span>
+              <span id="studentsRowCount" class="badge badge-paper1" style="font-size: 10px;">7 records</span>
+            </div>
+            <div class="schema-table-wrapper">
+              <table class="db-table">
+                <thead>
+                  <tr>
+                    <th>StudentID <span class="badge-pk">PK</span></th>
+                    <th>FirstName</th>
+                    <th>LastName</th>
+                    <th>YearGroup</th>
+                    <th>FormGroup</th>
+                  </tr>
+                </thead>
+                <tbody id="studentsTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Table 2: ExamResults -->
+          <div class="table-card">
+            <div class="table-header-bar">
+              <span class="table-name">
+                <span style="color: #c084fc;">📁 ExamResults</span>
+                <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">(Entity: Assessment Scores)</span>
+              </span>
+              <span id="examResultsRowCount" class="badge badge-paper2" style="font-size: 10px;">8 records</span>
+            </div>
+            <div class="schema-table-wrapper">
+              <table class="db-table">
+                <thead>
+                  <tr>
+                    <th>ResultID <span class="badge-pk">PK</span></th>
+                    <th>StudentID <span class="badge-fk">FK</span></th>
+                    <th>Subject</th>
+                    <th>Grade</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody id="examResultsTableBody">
+                  <!-- Populated via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+
+        <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.5;">
+          🔗 <strong>Relationship:</strong> <code>ExamResults.StudentID</code> <span class="badge-fk">FK</span> links to <code>Students.StudentID</code> <span class="badge-pk">PK</span> (One student can have many exam results).
+        </div>
+      </div>
+
+      <!-- SQL Query Workbench (Middle Panel) -->
+      <div class="sql-workbench">
+        <div class="panel-title-bar">
+          <div class="panel-title-group">
+            <span class="badge badge-live">Query Editor</span>
+            <h3 class="panel-title">AQA SQL Builder</h3>
+          </div>
+          <div style="font-size: 11.5px; color: var(--text-muted); font-family: var(--font-mono);">
+            SELECT • FROM • WHERE • ORDER BY
+          </div>
+        </div>
+
+        <!-- 1-Click Starter Queries -->
+        <div style="margin-bottom: 10px;">
+          <div style="font-size: 11.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+            <span>⚡ 1-Click Starter Queries:</span>
+            <span style="font-size: 10.5px; font-weight: 500; color: var(--text-muted);">(Click any chip to run instantly)</span>
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 7px;">
+            <button class="preset-chip" data-query="SELECT * FROM Students WHERE YearGroup = 11">
+              🎮 Year 11 Students
+            </button>
+            <button class="preset-chip" data-query="SELECT FirstName, LastName, FormGroup FROM Students WHERE FormGroup = '11A' ORDER BY LastName ASC">
+              🎂 Form 11A Alphabetical
+            </button>
+            <button class="preset-chip" data-query="SELECT Subject, Score FROM ExamResults WHERE Score >= 70 AND Subject = 'Computing'">
+              ⭐ Computing Score ≥ 70
+            </button>
+            <button class="preset-chip" data-query="SELECT StudentID, Subject, Grade, Score FROM ExamResults WHERE Grade = '9'">
+              🏆 Grade 9 High Achievers
+            </button>
+            <button class="preset-chip" data-query="SELECT * FROM ExamResults ORDER BY Score DESC">
+              📊 Top Scores (Desc)
+            </button>
+            <button class="preset-chip" data-query="SELECT FirstName, LastName FROM Students">
+              👥 Names Only
+            </button>
+          </div>
+        </div>
+
+        <!-- SQL Editor Text Area -->
+        <textarea id="sqlQueryInput" class="sql-editor-box" spellcheck="false">SELECT * FROM Students WHERE YearGroup = 11</textarea>
+
+        <div class="toolbar-row" style="margin-bottom: 0;">
+          <div class="control-group">
+            <button id="runQueryBtn" class="btn btn-primary" style="padding: 7px 16px; font-size: 13px;">
+              ▶ Run Query
+            </button>
+            <button id="resetTablesBtn" class="control-btn" style="padding: 7px 14px;">
+              ↺ Reset Tables
+            </button>
+          </div>
+
+          <div id="queryStatusText" style="font-size: 12px; font-family: var(--font-mono); color: var(--text-muted);">
+            Ready.
+          </div>
+        </div>
+      </div>
+
+      <!-- Results & Tracer Split View (Bottom Panel) -->
+      <div class="results-split-grid">
+
+        <!-- Left: Results Table -->
+        <div class="panel">
+          <div class="panel-title-bar">
+            <div class="panel-title-group">
+              <span class="badge badge-paper1">Output</span>
+              <h3 class="panel-title">Query Results</h3>
+            </div>
+            <span id="resultCountBadge" class="badge badge-live">0 rows returned</span>
+          </div>
+
+          <div style="max-height: 280px; overflow-x: auto; overflow-y: auto;">
+            <table class="db-table">
+              <thead id="resultsTableHead">
+                <!-- Dynamically generated headers -->
+              </thead>
+              <tbody id="resultsTableBody">
+                <!-- Dynamically generated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right: Execution Tracer Log -->
+        <div class="panel">
+          <div class="panel-title-bar">
+            <div class="panel-title-group">
+              <span class="badge badge-spec">Engine Tracer</span>
+              <h3 class="panel-title">Query Execution Plan</h3>
+            </div>
+            <span class="badge badge-topic">Step-by-Step</span>
+          </div>
+
+          <p style="font-size: 11.5px; color: var(--text-secondary); margin: 0 0 10px 0;">
+            How the database engine parsed and executed your SQL statement:
+          </p>
+
+          <div id="executionTracerBox" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: WARM-UP & EXAM CHALLENGES (CGP Style)                        -->
+    <!-- =================================================================== -->
+    <div id="tab-challenges" class="tab-view">
+
+      <!-- View Banner -->
+      <div class="view-banner">
+        <div class="banner-left">
+          <div class="banner-icon" style="background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h2>SQL Practice: Warm-Up &amp; Exam Questions</h2>
+            <p>Test your query writing skills! Solve real AQA exam challenges, check your results automatically, and view worked mark schemes.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge badge-topic">AQA 8525 §3.7 Questions</span>
+        </div>
+      </div>
+
+      <!-- Challenge Selector Toolbar -->
+      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;">
+        <span style="font-size: 12.5px; font-weight: 700; color: var(--text-primary);">
+          Select Challenge:
+        </span>
+        <div class="btn-group" id="challengeSelectGroup">
+          <button type="button" class="control-btn challenge-tab-btn active" data-challenge="1">Q1: SELECT &amp; WHERE (Warm-Up)</button>
+          <button type="button" class="control-btn challenge-tab-btn" data-challenge="2">Q2: Compound AND Filter</button>
+          <button type="button" class="control-btn challenge-tab-btn" data-challenge="3">Q3: ORDER BY Sorting</button>
+          <button type="button" class="control-btn challenge-tab-btn" data-challenge="4">Q4: Relational Foreign Key</button>
+        </div>
+      </div>
+
+      <!-- Active Challenge Card -->
+      <div class="panel" style="margin-bottom: 20px;">
+        <div class="panel-title-bar">
+          <div class="panel-title-group">
+            <span id="challengeLevelBadge" class="badge badge-live">WARM-UP [2 MARKS]</span>
+            <h3 id="challengeTitle" class="panel-title">Challenge 1: Find All Year 11 Students</h3>
+          </div>
+          <span id="challengeTableHint" style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">Table: Students</span>
+        </div>
+
+        <p id="challengePrompt" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 14px 0;">
+          Write an SQL query to retrieve the <code>FirstName</code> and <code>LastName</code> of all students in <code>YearGroup = 11</code> from the <code>Students</code> table.
+        </p>
+
+        <!-- Target Output Expectation Preview -->
+        <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 14px;">
+          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">
+            Target Output Should Contain:
+          </div>
+          <span id="challengeTargetRows" style="font-size: 12px; font-family: var(--font-mono); color: #38bdf8;">
+            4 rows (Alice Smith, Bob Jones, Daisy Evans, Fiona White)
+          </span>
+        </div>
+
+        <!-- SQL Editor for Challenge -->
+        <div class="query-editor-card" style="margin-bottom: 12px;">
+          <div class="editor-header">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Write Your SQL Query:</span>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button type="button" id="btnFillTemplate" class="control-btn" style="font-size: 11px; padding: 3px 8px;">
+                📝 Load Starter Template
+              </button>
+            </div>
+          </div>
+          <textarea id="challengeSqlInput" class="sql-textarea" rows="3" spellcheck="false" placeholder="SELECT ... FROM ... WHERE ..."></textarea>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; gap: 8px;">
+            <button type="button" id="btnCheckChallenge" class="btn btn-primary" style="padding: 7px 18px; font-size: 12.5px;">
+              ▶ Check My Query
+            </button>
+            <button type="button" id="btnLoadIntoStudio" class="control-btn" style="font-size: 12px;">
+              🔍 Open in Studio Trace
+            </button>
+          </div>
+          <button type="button" id="btnToggleModelAnswer" class="btn btn-secondary" style="font-size: 11.5px; padding: 6px 12px;">
+            💡 Show Worked Model Answer ▾
+          </button>
+        </div>
+
+        <!-- Feedback Box -->
+        <div id="challengeFeedbackBox" style="display: none; margin-top: 14px; padding: 12px 16px; border-radius: var(--radius-md); font-size: 12.5px; line-height: 1.5;">
+        </div>
+
+        <!-- Challenge Result Output Table -->
+        <div id="challengeResultsWrapper" style="display: none; margin-top: 14px; background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px;">
+          <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Your Query Returned:</div>
+          <div style="overflow-x: auto;">
+            <table class="data-table">
+              <thead id="challengeTableHead"></thead>
+              <tbody id="challengeTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- CGP-Style Worked Model Answer & Mark Breakdown -->
+        <div id="challengeModelAnswerBox" style="display: none; margin-top: 16px; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-left: 4px solid #10b981; border-radius: var(--radius-md); padding: 14px 18px;">
+          <div style="font-size: 12.5px; font-weight: 800; color: #10b981; margin-bottom: 6px;">
+            ✓ Official AQA Model Answer:
+          </div>
+          <div id="modelAnswerSql" style="background: var(--bg-root); padding: 8px 12px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 12.5px; color: #38bdf8; margin-bottom: 10px;">
+            SELECT FirstName, LastName FROM Students WHERE YearGroup = 11
+          </div>
+          <div id="modelAnswerMarks" style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            <!-- Marks breakdown -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: REVISION CARDS & EXAM TRAPS (AQA 8525 §3.7 Databases)        -->
+    <!-- =================================================================== -->
+    <div id="tab-revision" class="tab-view">
+
+      <!-- View Banner -->
+      <div class="view-banner">
+        <div class="banner-left">
+          <div class="banner-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #3b82f6 100%);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h2>Relational Database Revision Cards</h2>
+            <p>Key exam traps, relational database definitions, and past-paper questions with mark schemes.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge badge-topic">AQA 8525 §3.7 Specification Focus</span>
+        </div>
+      </div>
+
+      <!-- Revision Cards Section -->
+      <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 14px 0; display: flex; align-items: center; gap: 8px;">
+        <span style="color: #f59e0b;">📌</span> Key Exam Traps &amp; Core Concepts
+      </h3>
+
+      <!-- Trap 1: Primary Key vs Foreign Key -->
+      <div class="trap-card">
+        <div class="trap-header">
+          <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">
+            AQA DEFINITION 1: RELATIONAL KEYS
+          </span>
+          <h4 class="trap-title">Primary Key vs Foreign Key</h4>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          Examiners frequently ask for definitions of primary and foreign keys. Be precise with your wording:
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #fbbf24;">
+            <strong style="color: #fbbf24;">Primary Key (PK):</strong><br>
+            • A field (or attribute) that <strong>uniquely identifies</strong> each individual record in a table.<br>
+            • Example: <code>StudentID</code> in the Students table.
+          </div>
+          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #c084fc;">
+            <strong style="color: #c084fc;">Foreign Key (FK):</strong><br>
+            • An attribute in one table that is the <strong>primary key of another table</strong>, used to establish a link/relationship between the two tables.<br>
+            • Example: <code>ExamResults.StudentID</code>.
+          </div>
+        </div>
+        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: #fbbf24;">
+          ⚠️ <strong>Mark Scheme Tip:</strong> Never say a foreign key is just "a key in another table". You must state it is a primary key from one table placed into another to create a relationship.
+        </div>
+      </div>
+
+      <!-- Trap 2: Why Relational Databases? -->
+      <div class="trap-card" style="border-left-color: #10b981;">
+        <div class="trap-header">
+          <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
+            AQA TRAP 2: DATA INTEGRITY
+          </span>
+          <h4 class="trap-title" style="color: #34d399;">Why Split Data into Multiple Tables? (Flat File vs Relational)</h4>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          A classic 3-mark question: <em>"Explain one advantage of using a relational database rather than a flat-file database."</em>
+        </p>
+        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; line-height: 1.6;">
+          ✓ <strong>Reduces Data Redundancy:</strong> Data is not duplicated unnecessarily across multiple rows.<br>
+          ✓ <strong>Prevents Update Inconsistencies:</strong> If Alice changes form room, it is updated in <em>one place only</em> (in the Students table), rather than across 10 different exam entries.<br>
+          ✓ <strong>Smaller File Size &amp; Faster Queries:</strong> Less duplicate text means less storage used.
+        </div>
+      </div>
+
+      <!-- Trap 3: Quotes on Strings vs Numbers -->
+      <div class="trap-card" style="border-left-color: #6366f1;">
+        <div class="trap-header">
+          <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4);">
+            AQA TRAP 3: SQL SYNTAX RULES
+          </span>
+          <h4 class="trap-title" style="color: #818cf8;">Quotes Around Strings vs Numbers</h4>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          In SQL, text and character data types must always be wrapped in single quotes (<code>'Computing'</code> or <code>'11A'</code>). Numeric integers (such as <code>Score &gt;= 80</code> or <code>YearGroup = 11</code>) must <strong>not</strong> have quotes.
+        </p>
+        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; font-family: var(--font-mono); line-height: 1.6;">
+          <span style="color: #10b981;">✓ Correct:</span> WHERE Subject = 'Computing' AND Score &gt;= 80<br>
+          <span style="color: #ef4444;">✗ Wrong:</span> WHERE Subject = Computing AND Score &gt;= '80'
+        </div>
+      </div>
+
+      <!-- Practice Questions with Mark Schemes -->
+      <h3 style="font-size: 16px; font-weight: 800; margin: 32px 0 14px 0; display: flex; align-items: center; gap: 8px;">
+        <span>📝</span> AQA Past Paper Style Questions with Mark Schemes
+      </h3>
+
+      <!-- Question 1 -->
+      <div class="qa-card">
+        <div class="qa-header" onclick="this.parentElement.querySelector('.qa-body').classList.toggle('revealed')">
+          <div>
+            <span class="badge badge-paper2" style="font-size: 10px; margin-bottom: 6px;">Databases • 1 Mark</span>
+            <p class="qa-question">
+              Q1: Define what is meant by a foreign key in a relational database.
+            </p>
+          </div>
+          <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; white-space: nowrap;">
+            Reveal Answer ▾
+          </button>
+        </div>
+        <div class="qa-body">
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>A primary key from one table that is included in another table to establish a link/relationship between the two tables.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="qa-card">
+        <div class="qa-header" onclick="this.parentElement.querySelector('.qa-body').classList.toggle('revealed')">
+          <div>
+            <span class="badge badge-paper2" style="font-size: 10px; margin-bottom: 6px;">Relational Design • 2 Marks</span>
+            <p class="qa-question">
+              Q2: State two reasons why a school would use a relational database with separate Students and ExamResults tables rather than a single flat-file spreadsheet.
+            </p>
+          </div>
+          <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; white-space: nowrap;">
+            Reveal Answer ▾
+          </button>
+        </div>
+        <div class="qa-body">
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Any one from: Prevents data redundancy / reduces duplication of student records.</span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span>Any one from: Avoids update anomalies / if student details change, they only need to be updated in one place (the Students table).</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="qa-card">
+        <div class="qa-header" onclick="this.parentElement.querySelector('.qa-body').classList.toggle('revealed')">
+          <div>
+            <span class="badge badge-paper2" style="font-size: 10px; margin-bottom: 6px;">SQL Syntax • 3 Marks</span>
+            <p class="qa-question">
+              Q3: Write an SQL statement to retrieve the subject and score of all exam results from the <code>ExamResults</code> table where the score is greater than 80, ordered by score from highest to lowest.
+            </p>
+          </div>
+          <button class="btn btn-secondary" style="font-size: 11px; padding: 4px 10px; white-space: nowrap;">
+            Reveal Answer ▾
+          </button>
+        </div>
+        <div class="qa-body">
+          <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 12.5px; color: #38bdf8; margin-bottom: 10px;">
+            SELECT Subject, Score FROM ExamResults WHERE Score &gt; 80 ORDER BY Score DESC
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span><code>SELECT Subject, Score FROM ExamResults</code></span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span><code>WHERE Score &gt; 80</code></span>
+          </div>
+          <div class="mark-scheme-step">
+            <span class="mark-badge">[1 mark]</span>
+            <span><code>ORDER BY Score DESC</code></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content" style="max-width: 1360px;">
+      <div>
+        <p style="margin: 0 0 4px 0; font-weight: 700; color: var(--text-primary);">
+          SQL &amp; Cyber Security
+        </p>
+        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">
+          Module 4 of GCSE Computer Science Revision Portal
+        </p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="../../index.html" style="color: var(--accent-primary); text-decoration: none; font-size: 12.5px; font-weight: 600;">
+          ← Back to Hub Dashboard
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="./app.js"></script>
+</body>
+</html>
