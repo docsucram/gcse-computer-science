@@ -23,7 +23,8 @@ import {
   generateLinearSearchSteps,
   generateBinarySearchSteps,
   LINEAR_PSEUDOCODE,
-  BINARY_PSEUDOCODE
+  BINARY_PSEUDOCODE,
+  SEARCH_ALGORITHMS
 } from '../services/searchingEngine';
 import { soundManager } from '../utils/audio';
 
@@ -308,7 +309,7 @@ export default function SearchVisualizer({
           <div className="mt-4 p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-between gap-3 text-xs text-amber-300">
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
-              <span><strong>AQA Exam Prerequisite:</strong> Binary Search requires the list to be in <strong>SORTED order</strong>. Halving logic fails on unsorted data!</span>
+              <span><strong>Prerequisite:</strong> Binary Search requires the list to be in <strong>SORTED order</strong>. Halving logic fails on unsorted data!</span>
             </div>
             <button
               onClick={sortCurrentArray}
@@ -316,6 +317,101 @@ export default function SearchVisualizer({
             >
               Sort Array Now
             </button>
+          </div>
+        )}
+      </div>
+
+      {/* 1.5 Algorithm Concept & How It Works Explainer Card */}
+      <div className={`p-4 sm:p-5 rounded-2xl border transition-colors ${
+        isDarkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+      }`}>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <span className="p-1.5 rounded-lg bg-sky-500/10 text-sky-400 shrink-0">
+              <Info className="w-4 h-4" />
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className={`text-sm font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>
+                  {searchAlgorithm === 'dual' ? 'Linear vs Binary Search: How They Work' : `How ${SEARCH_ALGORITHMS[searchAlgorithm]?.name} Works:`}
+                </h3>
+                {searchAlgorithm !== 'dual' && (
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20 font-bold">
+                    {SEARCH_ALGORITHMS[searchAlgorithm]?.timeComplexity}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-slate-400 font-medium mt-0.5">
+                {searchAlgorithm === 'dual'
+                  ? 'Compare sequential linear scanning against logarithmic midpoint halving'
+                  : SEARCH_ALGORITHMS[searchAlgorithm]?.analogy}
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setIsExplainerCollapsed(!isExplainerCollapsed)}
+            className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors flex items-center gap-1 shrink-0 ${
+              isDarkMode ? 'border-slate-800 bg-slate-950 text-slate-400 hover:text-white' : 'border-slate-200 bg-slate-100 text-slate-700'
+            }`}
+          >
+            <span>{isExplainerCollapsed ? 'Show' : 'Hide'}</span>
+            {isExplainerCollapsed ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
+          </button>
+        </div>
+
+        {!isExplainerCollapsed && (
+          <div className="mt-3.5 pt-3.5 border-t border-slate-800/80 flex flex-col gap-3">
+            {searchAlgorithm !== 'dual' ? (
+              <>
+                <p className={`text-xs sm:text-[13px] leading-relaxed m-0 ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                  {SEARCH_ALGORITHMS[searchAlgorithm]?.description}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 mt-1">
+                  {SEARCH_ALGORITHMS[searchAlgorithm]?.rules.map((rule, rIdx) => (
+                    <div
+                      key={rIdx}
+                      className={`p-2.5 rounded-xl border text-[11.5px] leading-snug flex items-start gap-2 ${
+                        isDarkMode ? 'bg-slate-950/60 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-200 text-slate-700'
+                      }`}
+                    >
+                      <span className="w-4 h-4 rounded-full bg-sky-500/20 text-sky-400 font-bold font-mono text-[10px] flex items-center justify-center shrink-0 mt-0.5">
+                        {rIdx + 1}
+                      </span>
+                      <span>{rule}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={`p-3.5 rounded-xl border ${
+                  isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                }`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <strong className="text-xs font-bold text-indigo-400">Linear Search</strong>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">O(n)</span>
+                  </div>
+                  <p className={`text-xs leading-relaxed mb-2 ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                    {SEARCH_ALGORITHMS.linear.description}
+                  </p>
+                  <span className="text-[11px] text-indigo-300 font-medium">✓ Works on any list, no sorting required.</span>
+                </div>
+
+                <div className={`p-3.5 rounded-xl border ${
+                  isDarkMode ? 'bg-slate-950/60 border-slate-800' : 'bg-slate-50 border-slate-200'
+                }`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <strong className="text-xs font-bold text-sky-400">Binary Search</strong>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/10 text-sky-300 border border-sky-500/20">O(log n)</span>
+                  </div>
+                  <p className={`text-xs leading-relaxed mb-2 ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+                    {SEARCH_ALGORITHMS.binary.description}
+                  </p>
+                  <span className="text-[11px] text-amber-300 font-medium">⚠️ Prerequisite: List must be in sorted order!</span>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -689,7 +785,7 @@ export default function SearchVisualizer({
                 }`}>
                   {currentStep.isFound ? 'Target Found in Array!' : currentStep.type === 'not_found' ? 'Search Finished: Target Not Present' : `Step ${currentStepIndex + 1}`}
                 </h4>
-                <p className="text-xs sm:text-[13px] text-slate-300 mt-1 leading-relaxed">
+                <p className="text-xs sm:text-[13px] text-slate-300 mt-1 leading-relaxed whitespace-pre-line">
                   {currentStep.explanation}
                 </p>
                 {currentStep.quote && (
@@ -762,7 +858,7 @@ export default function SearchVisualizer({
                 );
               })}
             </div>
-            <p className="text-[11px] text-slate-400 mt-2 font-mono">
+            <p className="text-[11px] text-slate-300 mt-2 font-mono whitespace-pre-line">
               {currentBinaryStep.explanation || 'Initialising search interval...'}
             </p>
           </div>
@@ -813,7 +909,7 @@ export default function SearchVisualizer({
                 );
               })}
             </div>
-            <p className="text-[11px] text-slate-400 mt-2 font-mono">
+            <p className="text-[11px] text-slate-300 mt-2 font-mono whitespace-pre-line">
               {currentLinearStep.explanation || 'Initialising sequential pointer...'}
             </p>
           </div>
@@ -829,7 +925,7 @@ export default function SearchVisualizer({
           }`}>
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                {searchAlgorithm === 'binary' ? 'Binary Search Pseudocode (AQA)' : 'Linear Search Pseudocode (AQA)'}
+                {searchAlgorithm === 'binary' ? 'Binary Search Pseudocode' : 'Linear Search Pseudocode'}
               </span>
               <span className="text-[10px] font-mono text-sky-400">Line {currentStep.codeLine || 1}</span>
             </div>

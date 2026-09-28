@@ -1,6 +1,38 @@
 // GCSE Computer Science Searching Algorithms Engine (AQA 8525 §3.1.1)
 // Generates step-by-step trace states for Linear Search and Binary Search
 
+export const SEARCH_ALGORITHMS = {
+  binary: {
+    id: 'binary',
+    name: 'Binary Search',
+    analogy: '📖 Like opening a dictionary right in the middle!',
+    description: 'Binary Search is an ultra-fast algorithm for finding an item in a SORTED list. Instead of checking every item one by one from the start, it jumps straight to the middle item. If your target is smaller, it throws away the entire right half of the list; if larger, it throws away the entire left half. By repeatedly cutting the remaining items in half, it can find any number in a list of 1,000 items in just 10 checks!',
+    rules: [
+      'The list MUST be sorted beforehand for the halving logic to work.',
+      'Find the midpoint of the active range: (Low + High) / 2 (rounded down).',
+      'Check: If array[mid] == target, match found!',
+      'If target > array[mid], eliminate the left half (Low = mid + 1).',
+      'If target < array[mid], eliminate the right half (High = mid - 1).'
+    ],
+    timeComplexity: 'O(log n) - Logarithmic',
+    spaceComplexity: 'O(1) - In-place'
+  },
+  linear: {
+    id: 'linear',
+    name: 'Linear Search',
+    analogy: '🔍 Like checking through a shuffled deck of cards one by one!',
+    description: 'Linear Search is the most straightforward search method. It starts at the very beginning of the list (index 0) and inspects every item sequentially until it either finds the target number or reaches the end of the list. It works on ANY list (sorted or unsorted), but can be slow on huge datasets because in the worst case, every single item must be examined.',
+    rules: [
+      'Works on ANY list — no sorting needed.',
+      'Start at index 0 and inspect each element in order.',
+      'If array[i] == target, match found! Return index immediately.',
+      'If not found after checking the whole list, return -1.'
+    ],
+    timeComplexity: 'O(n) - Linear',
+    spaceComplexity: 'O(1) - In-place'
+  }
+};
+
 export const LINEAR_PSEUDOCODE = [
   { line: 1, text: 'function linearSearch(arr, target):', note: 'Define linear search function with array and target' },
   { line: 2, text: '    for i = 0 to length(arr) - 1:', note: 'Loop through array sequentially from start to finish' },
@@ -46,7 +78,7 @@ export function generateLinearSearchSteps(array, target) {
     comparisonsCount: 0,
     codeLine: 2,
     quote: 'Linear search starts at index 0 and inspects each item sequentially.',
-    explanation: `Starting Linear Search for target ${targetNum}. We will examine items one by one starting at index 0.`,
+    explanation: `Start at the beginning of the list (index 0).\nTarget number to find: ${targetNum}.\nWe will check each item one by one.`,
     variables: { i: 0, target: targetNum, comparisons: 0, found: false }
   });
 
@@ -74,8 +106,8 @@ export function generateLinearSearchSteps(array, target) {
         ? 'Target found! Return index immediately.'
         : 'If current element does not match, advance to next index.',
       explanation: isMatch
-        ? `FOUND! Element at index ${i} has value ${val}, which matches target ${targetNum}! Required ${comparisons} comparison(s).`
-        : `Checking index ${i}: Value is ${val}. Does ${val} == ${targetNum}? No. Advance to index ${i + 1}.`,
+        ? `Checking item at index ${i}: Value is ${val}.\nIs this the target number (${targetNum})?: Yes!\nMatch found at index ${i} after ${comparisons} check(s).`
+        : `Checking item at index ${i}: Value is ${val}.\nIs this the target number (${targetNum})?: No.\nMoving on to index ${i + 1}.`,
       variables: {
         i,
         'arr[i]': val,
@@ -106,7 +138,7 @@ export function generateLinearSearchSteps(array, target) {
       comparisonsCount: comparisons,
       codeLine: 7,
       quote: 'If all elements have been checked without a match, return -1.',
-      explanation: `TARGET NOT FOUND! Examined all ${array.length} elements without finding ${targetNum}. Returns -1 after ${comparisons} comparison(s).`,
+      explanation: `Checked every item in the list from index 0 to ${array.length - 1}.\nIs the target number (${targetNum}) in the list?: No.\nTarget not found after ${comparisons} check(s).`,
       variables: {
         i: array.length,
         target: targetNum,
@@ -153,7 +185,7 @@ export function generateBinarySearchSteps(array, target) {
     comparisonsCount: 0,
     codeLine: 2,
     quote: 'Binary search sets low = 0 and high = length - 1.',
-    explanation: `Initialise pointers: Low = 0, High = ${high}. The list must be SORTED. Search interval spans all ${array.length} items.`,
+    explanation: `Set the search range across the whole list: from index 0 to ${high}.\n(The list must be sorted in order).\nTarget number to find: ${targetNum}.`,
     variables: { low, high, mid: '—', target: targetNum, comparisons: 0, found: false }
   });
 
@@ -179,7 +211,7 @@ export function generateBinarySearchSteps(array, target) {
       comparisonsCount: comparisons,
       codeLine: 5,
       quote: 'Calculate midpoint: mid = floor((low + high) / 2).',
-      explanation: `Midpoint calculated: floor((${low} + ${high}) / 2) = ${mid}. Checking value array[${mid}] = ${midVal}.`,
+      explanation: `Find the midpoint of the list: (${low} + ${high}) / 2 = ${mid}.\nChecking value array[${mid}] = ${midVal}.\nIs this the target number?: ${midVal === targetNum ? 'Yes!' : 'No.'}`,
       variables: { low, high, mid, 'arr[mid]': midVal, target: targetNum, comparisons, found: false }
     });
 
@@ -202,7 +234,7 @@ export function generateBinarySearchSteps(array, target) {
         comparisonsCount: comparisons,
         codeLine: 7,
         quote: 'Match found! Returns index mid directly.',
-        explanation: `FOUND! array[${mid}] = ${midVal}, which equals target ${targetNum}! Binary search found the item in only ${comparisons} comparison(s).`,
+        explanation: `Match found!\narray[${mid}] = ${midVal}, which matches target number ${targetNum}.\nFound in only ${comparisons} check(s)!`,
         variables: { low, high, mid, 'arr[mid]': midVal, target: targetNum, comparisons, found: true }
       });
       found = true;
@@ -229,7 +261,7 @@ export function generateBinarySearchSteps(array, target) {
         comparisonsCount: comparisons,
         codeLine: 9,
         quote: 'If arr[mid] < target, target is in the upper half. Set low = mid + 1.',
-        explanation: `Target ${targetNum} > Midpoint ${midVal}. Because array is sorted, target CANNOT be in the left half! Discarding indices ${oldLow}..${oldMid}. New Low = ${low}.`,
+        explanation: `Is the target number (${targetNum}) bigger than ${midVal}? Yes.\nBecause the list is sorted, the target cannot be in the left half.\nDiscard indexes ${oldLow} to ${oldMid}. Now search between index ${low} and ${high}.`,
         variables: { low, high, mid: oldMid, 'arr[mid]': midVal, target: targetNum, comparisons, found: false }
       });
     } else {
@@ -254,7 +286,7 @@ export function generateBinarySearchSteps(array, target) {
         comparisonsCount: comparisons,
         codeLine: 11,
         quote: 'If arr[mid] > target, target is in the lower half. Set high = mid - 1.',
-        explanation: `Target ${targetNum} < Midpoint ${midVal}. Target CANNOT be in the right half! Discarding indices ${oldMid}..${oldHigh}. New High = ${high}.`,
+        explanation: `Is the target number (${targetNum}) smaller than ${midVal}? Yes.\nBecause the list is sorted, the target cannot be in the right half.\nDiscard indexes ${oldMid} to ${oldHigh}. Now search between index ${low} and ${high}.`,
         variables: { low, high, mid: oldMid, 'arr[mid]': midVal, target: targetNum, comparisons, found: false }
       });
     }
@@ -276,7 +308,7 @@ export function generateBinarySearchSteps(array, target) {
       comparisonsCount: comparisons,
       codeLine: 14,
       quote: 'If low > high, pointers have crossed. The target is not present in the list.',
-      explanation: `TARGET NOT FOUND! Pointers crossed (Low = ${low} > High = ${high}). All possible intervals eliminated. Returns -1 after ${comparisons} comparison(s).`,
+      explanation: `The search pointers have crossed (Low = ${low} is now greater than High = ${high}).\nEvery possible position has been checked.\nIs the target number (${targetNum}) in the list?: No.`,
       variables: { low, high, mid: '—', target: targetNum, comparisons, found: false }
     });
   }
