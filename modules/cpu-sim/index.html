@@ -203,7 +203,25 @@
                   <span style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono);">Silicon Core</span>
                 </div>
 
-                <!-- Control Unit (CU) -->
+                <!-- 1. System Clock Module (Heartbeat of CPU) -->
+                <div id="clockModule" class="cpu-clock-bar">
+                  <div class="clock-info">
+                    <span class="clock-label">⚡ SYSTEM CLOCK</span>
+                    <span class="clock-freq">2.4 GHz</span>
+                  </div>
+                  <div class="clock-wave-container">
+                    <svg class="clock-wave-svg" viewBox="0 0 100 16" fill="none">
+                      <path d="M 0 12 L 12 12 L 12 4 L 24 4 L 24 12 L 36 12 L 36 4 L 48 4 L 48 12 L 60 12 L 60 4 L 72 4 L 72 12 L 84 12 L 84 4 L 96 4 L 96 12 L 100 12" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div id="clockPulseLed" class="clock-pulse-led" title="Clock Pulse Rising/Falling Edge"></div>
+                  </div>
+                  <div class="clock-telemetry">
+                    <span id="clockTickStatus" class="clock-tick-status">TICK: IDLE</span>
+                    <span id="clockCycleCount" class="clock-cycle-count">Cycle: 0</span>
+                  </div>
+                </div>
+
+                <!-- 2. Control Unit (CU) -->
                 <div id="cuBlock" class="component-block">
                   <div class="component-header">
                     <span class="component-title">Control Unit (CU)</span>
@@ -217,7 +235,7 @@
                   </div>
                 </div>
 
-                <!-- Arithmetic Logic Unit (ALU) -->
+                <!-- 3. Arithmetic Logic Unit (ALU) -->
                 <div id="aluBlock" class="component-block">
                   <div class="component-header">
                     <span class="component-title">Arithmetic Logic Unit (ALU)</span>
@@ -231,13 +249,17 @@
                   </div>
                 </div>
 
-                <!-- Core 4 Registers Section -->
-                <div style="margin-top: 4px;">
-                  <div style="font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px;">
-                    Core Registers (AQA §3.4.1)
+                <!-- 4. Core Registers Section -->
+                <div style="margin-top: 4px; position: relative;">
+                  <div style="font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+                    <span>Core Registers (AQA §3.4.1)</span>
+                    <span style="font-size: 9px; color: #38bdf8; font-family: var(--font-mono);">Internal Bus</span>
                   </div>
-                  <div class="registers-grid">
 
+                  <!-- Floating Internal CPU Bus Value Bubble -->
+                  <div id="bubbleInternalBus" class="internal-bubble"></div>
+
+                  <div class="registers-grid">
                     <!-- PC -->
                     <div id="regPC" class="register-card">
                       <div class="register-name">
@@ -265,7 +287,7 @@
                       <div id="valMDR" class="register-val">---</div>
                     </div>
 
-                    <!-- CIR (Current Instruction Register) -->
+                    <!-- CIR -->
                     <div id="regCIR" class="register-card">
                       <div class="register-name">
                         <span>CIR</span>
@@ -282,43 +304,87 @@
                       </div>
                       <div id="valACC" class="register-val">0</div>
                     </div>
+                  </div>
+                </div>
 
+                <!-- 5. On-Chip L1 Cache Memory (SRAM) -->
+                <div id="cacheModule" class="cache-box">
+                  <div class="cache-header">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span style="font-size: 11px; font-weight: 800; color: #38bdf8;">L1 CACHE (On-Chip SRAM)</span>
+                      <span id="cacheHitBadge" class="cache-status-badge">IDLE</span>
+                    </div>
+                    <span id="cacheStatsText" style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">Hits: 0 | Misses: 0</span>
+                  </div>
+                  <div class="cache-lines-grid" id="cacheLinesGrid">
+                    <div class="cache-line" id="cacheLine0">
+                      <span class="cache-line-idx">L0</span>
+                      <span class="cache-line-addr" id="cacheAddr0">--</span>
+                      <span class="cache-line-val" id="cacheVal0">Empty</span>
+                    </div>
+                    <div class="cache-line" id="cacheLine1">
+                      <span class="cache-line-idx">L1</span>
+                      <span class="cache-line-addr" id="cacheAddr1">--</span>
+                      <span class="cache-line-val" id="cacheVal1">Empty</span>
+                    </div>
+                    <div class="cache-line" id="cacheLine2">
+                      <span class="cache-line-idx">L2</span>
+                      <span class="cache-line-addr" id="cacheAddr2">--</span>
+                      <span class="cache-line-val" id="cacheVal2">Empty</span>
+                    </div>
+                    <div class="cache-line" id="cacheLine3">
+                      <span class="cache-line-idx">L3</span>
+                      <span class="cache-line-addr" id="cacheAddr3">--</span>
+                      <span class="cache-line-val" id="cacheVal3">Empty</span>
+                    </div>
                   </div>
                 </div>
 
               </div>
 
-              <!-- System Buses Conduit -->
+              <!-- System Buses Highway (Circuit Interconnect) -->
               <div class="buses-conduit">
                 
-                <!-- Address Bus -->
-                <div id="busAddress" class="bus-line">
+                <!-- Address Bus Highway -->
+                <div id="busAddress" class="bus-line bus-highway-amber">
                   <div class="bus-label">
                     <span>Address Bus</span>
-                    <span style="font-size: 9px; color: #f59e0b;">CPU ➔ RAM</span>
+                    <span class="bus-spec">Unidirectional (CPU ➔ RAM)</span>
+                  </div>
+                  <div class="bus-circuit-traces bus-traces-address">
+                    <div class="bus-arrow-flow address-flow">══════════▶</div>
                   </div>
                   <div id="busAddressVal" class="bus-data">Idle</div>
-                  <div id="packetAddress" class="bus-packet-indicator"></div>
+                  <!-- Floating Dynamic Address Bubble with Number -->
+                  <div id="bubbleAddressBus" class="data-value-bubble bubble-address"></div>
                 </div>
 
-                <!-- Data Bus -->
-                <div id="busData" class="bus-line">
+                <!-- Data Bus Highway -->
+                <div id="busData" class="bus-line bus-highway-emerald">
                   <div class="bus-label">
                     <span>Data Bus</span>
-                    <span style="font-size: 9px; color: #34d399;">CPU ⇄ RAM</span>
+                    <span class="bus-spec">Bidirectional (CPU ⇄ RAM)</span>
+                  </div>
+                  <div class="bus-circuit-traces bus-traces-data">
+                    <div class="bus-arrow-flow data-flow">◀══════════▶</div>
                   </div>
                   <div id="busDataVal" class="bus-data">Idle</div>
-                  <div id="packetData" class="bus-packet-indicator"></div>
+                  <!-- Floating Dynamic Data Bubble with Number / Instruction -->
+                  <div id="bubbleDataBus" class="data-value-bubble bubble-data"></div>
                 </div>
 
-                <!-- Control Bus -->
-                <div id="busControl" class="bus-line">
+                <!-- Control Bus Highway -->
+                <div id="busControl" class="bus-line bus-highway-purple">
                   <div class="bus-label">
                     <span>Control Bus</span>
-                    <span style="font-size: 9px; color: #a855f7;">Control</span>
+                    <span class="bus-spec">Control Signals &amp; Clock</span>
+                  </div>
+                  <div class="bus-circuit-traces bus-traces-control">
+                    <div class="bus-arrow-flow control-flow">════⚡═════▶</div>
                   </div>
                   <div id="busControlVal" class="bus-data">Idle</div>
-                  <div id="packetControl" class="bus-packet-indicator"></div>
+                  <!-- Floating Dynamic Control Command Bubble -->
+                  <div id="bubbleControlBus" class="data-value-bubble bubble-control"></div>
                 </div>
 
               </div>

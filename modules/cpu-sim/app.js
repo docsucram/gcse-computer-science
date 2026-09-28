@@ -133,7 +133,76 @@
     playSpeedMs: 1000,
     isHalted: false,
     historyLog: [],
+    clockCycle: 0,
+    cache: [
+      { addr: '--', val: 'Empty' },
+      { addr: '--', val: 'Empty' },
+      { addr: '--', val: 'Empty' },
+      { addr: '--', val: 'Empty' }
+    ],
+    cacheHits: 0,
+    cacheMisses: 0,
   };
+
+  function checkCache(addrStr) {
+    return fdeState.cache.findIndex(line => line.addr === addrStr);
+  }
+
+  function insertIntoCache(addrStr, valStr) {
+    const existing = checkCache(addrStr);
+    if (existing !== -1) {
+      fdeState.cache[existing].val = valStr;
+      return existing;
+    }
+    const replaceIdx = (fdeState.cacheHits + fdeState.cacheMisses) % 4;
+    fdeState.cache[replaceIdx] = { addr: addrStr, val: valStr };
+    return replaceIdx;
+  }
+
+  function renderCacheDOM(highlightIdx = -1, status = 'IDLE') {
+    const badge = document.getElementById('cacheHitBadge');
+    const stats = document.getElementById('cacheStatsText');
+    if (badge) {
+      badge.textContent = status;
+      badge.className = 'cache-status-badge' + (status === 'HIT' ? ' cache-hit' : (status === 'MISS' ? ' cache-miss' : ''));
+    }
+    if (stats) {
+      stats.textContent = `Hits: ${fdeState.cacheHits} | Misses: ${fdeState.cacheMisses}`;
+    }
+    for (let i = 0; i < 4; i++) {
+      const lineEl = document.getElementById(`cacheLine${i}`);
+      const addrEl = document.getElementById(`cacheAddr${i}`);
+      const valEl = document.getElementById(`cacheVal${i}`);
+      if (lineEl && fdeState.cache[i]) {
+        if (addrEl) addrEl.textContent = fdeState.cache[i].addr;
+        if (valEl) valEl.textContent = fdeState.cache[i].val;
+        if (i === highlightIdx) {
+          lineEl.classList.add('active-cache-line');
+        } else {
+          lineEl.classList.remove('active-cache-line');
+        }
+      }
+    }
+  }
+
+  function pulseClock(actionName = 'PULSE') {
+    fdeState.clockCycle++;
+    const led = document.getElementById('clockPulseLed');
+    const tickStatus = document.getElementById('clockTickStatus');
+    const cycleCount = document.getElementById('clockCycleCount');
+
+    if (tickStatus) tickStatus.textContent = `TICK: ${actionName}`;
+    if (cycleCount) cycleCount.textContent = `Cycle: ${fdeState.clockCycle}`;
+
+    if (led) {
+      led.classList.remove('clock-ticking');
+      void led.offsetWidth;
+      led.classList.add('clock-ticking');
+      setTimeout(() => {
+        led.classList.remove('clock-ticking');
+      }, 350);
+    }
+  }
 
   // Micro-step generator based on current instruction (AQA 8525 Full F-D-E Cycle with CIR)
   function generateMicroStepsForInstruction(pcVal) {
@@ -158,169 +227,286 @@
 
     const steps = [];
 
-    // Step 1: Fetch A (PC -> MAR)
+    // Step 1: Fetch 1 (PC -> MAR)
     steps.push({
       stage: 'FETCH',
       title: 'Fetch 1: Copy PC Address to MAR',
-      body: `The address stored in the Program Counter (${pcStr}) is placed on the Address Bus and copied into the Memory Address Register (MAR).`,
+      body: `The address stored in the Program Counter (${pcStr}) is placed onto the internal bus and copied into the Memory Address Register (MAR).`,
       quote: 'The address in the PC is copied to the MAR.',
-      activeElements: { source: 'regPC', target: 'regMAR', bus: 'busAddress', busText: `Addr: ${pcStr}`, packet: { bus: 'busAddress', dir: 'to-ram' } },
+      activeElements: { source: 'regPC', target: 'regMAR' },
+      internalBubble: `PC ➔ MAR [Addr: ${pcStr}]`,
       action: () => {
         fdeState.mar = pcStr;
       }
     });
 
-    // Step 2: Fetch B (PC Increments)
+    // Step 2: Fetch 2 (PC Increments)
     steps.push({
       stage: 'FETCH',
       title: 'Fetch 2: Increment Program Counter',
-      body: `The Program Counter (PC) increments by 1 (now ${nextPcStr}) so it points to the subsequent instruction in memory for the next cycle.`,
+      body: `The Program Counter (PC) increments by 1 (now ${nextPcStr}) so it immediately points to the next sequential instruction in memory for the subsequent cycle.`,
       quote: 'The PC is incremented by 1.',
-      activeElements: { source: 'regPC', target: null, bus: null },
+      activeElements: { target: 'regPC' },
+      internalBubble: `PC++ [${nextPcStr}]`,
       action: () => {
         fdeState.pc = pcVal + 1;
       }
     });
 
-    // Step 3: Fetch C (RAM[MAR] -> MDR via Data Bus)
-    steps.push({
-      stage: 'FETCH',
-      title: 'Fetch 3: Fetch Instruction from RAM to MDR',
-      body: `The Control Unit sends a memory read signal. The instruction stored at RAM address ${pcStr} ("${ramEntry.val}") is transferred across the Data Bus into the MDR.`,
-      quote: 'The instruction at the address in MAR is fetched from RAM into the MDR.',
-      activeElements: { source: `ram-row-${pcStr}`, target: 'regMDR', bus: 'busData', busText: `Data: ${ramEntry.val}`, controlText: 'READ', packet: { bus: 'busData', dir: 'to-cpu' } },
-      action: () => {
-        fdeState.mdr = ramEntry.val;
-      }
-    });
+    // Step 3: Fetch 3 (L1 Cache Check & Address Bus / Memory Read)
+    const cachedIdx = checkCache(pcStr);
+    if (cachedIdx !== -1) {
+      // CACHE HIT
+      steps.push({
+        stage: 'FETCH',
+        title: `Fetch 3: L1 Cache HIT at Address ${pcStr}`,
+        body: `L1 SRAM Cache HIT! Address ${pcStr} was found on-chip in Cache Line L${cachedIdx}. The instruction ("${fdeState.cache[cachedIdx].val}") is retrieved instantly with 0 wait states, bypassing the slower external RAM bus!`,
+        quote: 'Data retrieved directly from cache without external RAM access.',
+        activeElements: { source: 'cacheModule', target: 'regMDR' },
+        internalBubble: `CACHE HIT L${cachedIdx} ➔ MDR`,
+        action: () => {
+          fdeState.cacheHits++;
+          fdeState.mdr = fdeState.cache[cachedIdx].val;
+          renderCacheDOM(cachedIdx, 'HIT');
+        }
+      });
+    } else {
+      // CACHE MISS: External Address Bus + Control Signal
+      steps.push({
+        stage: 'FETCH',
+        title: `Fetch 3: Cache MISS - Address Placed on Bus`,
+        body: `Address ${pcStr} is NOT in L1 Cache (MISS). The MAR places address ${pcStr} onto the Address Bus towards RAM. Simultaneously, the Control Unit pulses MEM_READ on the Control Bus.`,
+        quote: 'The address in MAR is sent along the Address Bus; CU signals MEM_READ.',
+        activeElements: { source: 'regMAR', target: `ram-row-${pcStr}`, bus: 'busAddress' },
+        addrBubble: { text: `[Addr: ${pcStr}]`, dir: 'to-ram' },
+        ctrlBubble: { text: `[MEM_READ ⚡]`, dir: 'to-ram' },
+        busText: `Addr: ${pcStr}`,
+        controlText: 'MEM_READ',
+        action: () => {
+          fdeState.cacheMisses++;
+          renderCacheDOM(-1, 'MISS');
+        }
+      });
 
-    // Step 4: Fetch D (MDR -> CIR)
+      // Step 4: Fetch 4 (Data Bus delivers instruction to MDR & L1 Cache)
+      steps.push({
+        stage: 'FETCH',
+        title: 'Fetch 4: Instruction Returns on Data Bus to MDR',
+        body: `RAM places the requested instruction ("${ramEntry.val}") onto the bidirectional Data Bus. It travels into the MDR and is also saved into fast L1 Cache so repeated access won't stall the CPU.`,
+        quote: 'The instruction at the address in MAR is fetched from RAM into the MDR.',
+        activeElements: { source: `ram-row-${pcStr}`, target: 'regMDR', bus: 'busData' },
+        dataBubble: { text: `[Data: "${ramEntry.val}"]`, dir: 'to-cpu' },
+        busText: `Data: "${ramEntry.val}"`,
+        action: () => {
+          fdeState.mdr = ramEntry.val;
+          const insertedIdx = insertIntoCache(pcStr, ramEntry.val);
+          renderCacheDOM(insertedIdx, 'IDLE');
+        }
+      });
+    }
+
+    // Step 5: Fetch 5 (MDR -> CIR)
     steps.push({
       stage: 'FETCH',
-      title: 'Fetch 4: Copy Instruction from MDR to CIR',
-      body: `The instruction held in the MDR ("${ramEntry.val}") is copied directly into the Current Instruction Register (CIR) so the MDR is freed up to fetch subsequent data operands.`,
+      title: 'Fetch 5: Copy Instruction from MDR to CIR',
+      body: `The instruction held in the MDR ("${ramEntry.val}") is copied across the internal CPU bus into the Current Instruction Register (CIR). The MDR is now freed up to hold data operands during execution.`,
       quote: 'The instruction in MDR is copied to the Current Instruction Register (CIR).',
-      activeElements: { source: 'regMDR', target: 'regCIR', bus: null },
+      activeElements: { source: 'regMDR', target: 'regCIR' },
+      internalBubble: `MDR ➔ CIR [${ramEntry.val}]`,
       action: () => {
         fdeState.cir = ramEntry.val;
       }
     });
 
-    // Step 5: Decode (CIR -> CU)
+    // Step 6: Decode (CIR -> CU)
     steps.push({
       stage: 'DECODE',
       title: 'Decode: Control Unit Decodes Opcode in CIR',
-      body: `The instruction in the CIR ("${ramEntry.val}") is decoded by the Control Unit (CU). The CU splits it into opcode (${opcode}) and operand address (${operand || 'None'}).`,
+      body: `The Control Unit (CU) decodes the instruction in the CIR. It splits it into opcode (${opcode}) and operand (${operand || 'None'}), preparing the appropriate internal circuits for execution.`,
       quote: 'The instruction in the CIR is decoded by the Control Unit.',
-      activeElements: { source: 'regCIR', target: 'cuBlock', bus: null },
+      activeElements: { source: 'regCIR', target: 'cuBlock' },
+      internalBubble: `CU Decodes [${opcode}]`,
       action: () => {
         fdeState.decodedOpcode = opcode;
         fdeState.decodedOperand = operand;
       }
     });
 
-    // Step 6+: Execute based on Opcode
+    // Step 7+: Execute based on Opcode
     if (opcode === 'LOAD') {
+      const dataVal = fdeState.ram[parseInt(operand, 10)]?.val || '0';
       steps.push({
         stage: 'EXECUTE',
         title: `Execute 1: Place Operand Address ${operand} on MAR`,
-        body: `To load the value from memory address ${operand}, the address ${operand} is placed into the MAR and sent along the Address Bus.`,
+        body: `To load data from memory address ${operand}, the Control Unit loads the address ${operand} into the MAR.`,
         quote: 'Address of operand placed on MAR for reading.',
-        activeElements: { source: 'cuBlock', target: 'regMAR', bus: 'busAddress', busText: `Addr: ${operand}`, packet: { bus: 'busAddress', dir: 'to-ram' } },
+        activeElements: { source: 'cuBlock', target: 'regMAR' },
+        internalBubble: `CU ➔ MAR [Addr: ${operand}]`,
         action: () => {
           fdeState.mar = operand;
         }
       });
       steps.push({
         stage: 'EXECUTE',
-        title: `Execute 2: Load Data into Accumulator (ACC)`,
-        body: `The data at RAM address ${operand} is fetched across the Data Bus into the MDR, and then loaded directly into the Accumulator (ACC).`,
-        quote: 'Data loaded from RAM into the Accumulator register.',
-        activeElements: { source: `ram-row-${operand}`, target: 'regACC', bus: 'busData', busText: `Data: ${fdeState.ram[parseInt(operand, 10)]?.val || '0'}`, controlText: 'READ', packet: { bus: 'busData', dir: 'to-cpu' } },
+        title: `Execute 2: Fetch Data via Address & Data Buses`,
+        body: `Address ${operand} is sent on the Address Bus. RAM places value "${dataVal}" on the Data Bus, which flows into the MDR and into L1 Cache.`,
+        quote: 'Data fetched from RAM into the MDR across the Data Bus.',
+        activeElements: { source: `ram-row-${operand}`, target: 'regMDR', bus: 'busData' },
+        addrBubble: { text: `[Addr: ${operand}]`, dir: 'to-ram' },
+        dataBubble: { text: `[Data: "${dataVal}"]`, dir: 'to-cpu' },
+        ctrlBubble: { text: `[MEM_READ ⚡]`, dir: 'to-ram' },
+        busText: `Data: "${dataVal}"`,
+        controlText: 'MEM_READ',
         action: () => {
-          const val = parseInt(fdeState.ram[parseInt(operand, 10)]?.val || '0', 10);
-          fdeState.mdr = val.toString();
-          fdeState.acc = val;
+          fdeState.mdr = dataVal;
+          const insertedIdx = insertIntoCache(operand, dataVal);
+          renderCacheDOM(insertedIdx, 'IDLE');
+        }
+      });
+      steps.push({
+        stage: 'EXECUTE',
+        title: `Execute 3: Copy Data into Accumulator (ACC)`,
+        body: `The value in MDR (${dataVal}) is copied into the Accumulator (ACC) register ready for arithmetic processing.`,
+        quote: 'Data loaded from MDR into the Accumulator register.',
+        activeElements: { source: 'regMDR', target: 'regACC' },
+        internalBubble: `MDR ➔ ACC [${dataVal}]`,
+        action: () => {
+          fdeState.acc = parseInt(dataVal, 10);
         }
       });
     } else if (opcode === 'ADD') {
+      const addOperandVal = parseInt(fdeState.ram[parseInt(operand, 10)]?.val || '0', 10);
       steps.push({
         stage: 'EXECUTE',
-        title: `Execute 1: Fetch Operand from Address ${operand}`,
-        body: `The address ${operand} is sent to MAR. The number is fetched across the Data Bus into the MDR to be added by the ALU.`,
-        quote: 'Operand address copied to MAR; data fetched into MDR.',
-        activeElements: { source: 'cuBlock', target: 'regMAR', bus: 'busAddress', busText: `Addr: ${operand}`, packet: { bus: 'busAddress', dir: 'to-ram' } },
+        title: `Execute 1: Send Operand Address ${operand} to MAR`,
+        body: `Address ${operand} is placed into the MAR to fetch the number to be added.`,
+        quote: 'Operand address copied to MAR.',
+        activeElements: { source: 'cuBlock', target: 'regMAR' },
+        internalBubble: `CU ➔ MAR [Addr: ${operand}]`,
         action: () => {
           fdeState.mar = operand;
         }
       });
       steps.push({
         stage: 'EXECUTE',
-        title: `Execute 2: ALU Adds Operand to Accumulator`,
-        body: `The ALU adds the value in MDR to the value in the Accumulator. The result (${fdeState.acc} + ${fdeState.ram[parseInt(operand, 10)]?.val}) is stored in the ACC.`,
-        quote: 'ALU performs arithmetic addition and stores result in Accumulator.',
-        activeElements: { source: 'aluBlock', target: 'regACC', bus: 'busData', busText: `Data: ${fdeState.ram[parseInt(operand, 10)]?.val || '0'}`, controlText: 'READ', packet: { bus: 'busData', dir: 'to-cpu' } },
+        title: `Execute 2: Fetch Addend Value (${addOperandVal}) to MDR`,
+        body: `Value ${addOperandVal} is fetched across the Data Bus from address ${operand} into the MDR, and cached in L1.`,
+        quote: 'Addend value fetched into MDR via Data Bus.',
+        activeElements: { source: `ram-row-${operand}`, target: 'regMDR', bus: 'busData' },
+        addrBubble: { text: `[Addr: ${operand}]`, dir: 'to-ram' },
+        dataBubble: { text: `[Data: "${addOperandVal}"]`, dir: 'to-cpu' },
+        ctrlBubble: { text: `[MEM_READ ⚡]`, dir: 'to-ram' },
+        busText: `Data: "${addOperandVal}"`,
+        controlText: 'MEM_READ',
         action: () => {
-          const addVal = parseInt(fdeState.ram[parseInt(operand, 10)]?.val || '0', 10);
-          fdeState.mdr = addVal.toString();
-          fdeState.acc += addVal;
+          fdeState.mdr = addOperandVal.toString();
+          const insertedIdx = insertIntoCache(operand, addOperandVal.toString());
+          renderCacheDOM(insertedIdx, 'IDLE');
+        }
+      });
+      steps.push({
+        stage: 'EXECUTE',
+        title: `Execute 3: ALU Adds MDR (${addOperandVal}) to Accumulator`,
+        body: `The ALU adds the value in MDR (${addOperandVal}) to the Accumulator. The result is stored back into the Accumulator (ACC).`,
+        quote: 'ALU performs arithmetic addition and stores result in Accumulator.',
+        activeElements: { source: 'aluBlock', target: 'regACC' },
+        internalBubble: `ALU: ADD ➔ ACC`,
+        action: () => {
+          fdeState.acc += addOperandVal;
         }
       });
     } else if (opcode === 'SUB') {
+      const subOperandVal = parseInt(fdeState.ram[parseInt(operand, 10)]?.val || '0', 10);
       steps.push({
         stage: 'EXECUTE',
-        title: `Execute 1: Fetch Operand from Address ${operand}`,
-        body: `The address ${operand} is sent to MAR. The value to subtract is fetched across the Data Bus into the MDR.`,
-        quote: 'Operand address copied to MAR; data fetched into MDR.',
-        activeElements: { source: 'cuBlock', target: 'regMAR', bus: 'busAddress', busText: `Addr: ${operand}`, packet: { bus: 'busAddress', dir: 'to-ram' } },
+        title: `Execute 1: Send Operand Address ${operand} to MAR`,
+        body: `Address ${operand} is placed into the MAR to fetch the number to subtract.`,
+        quote: 'Operand address copied to MAR.',
+        activeElements: { source: 'cuBlock', target: 'regMAR' },
+        internalBubble: `CU ➔ MAR [Addr: ${operand}]`,
         action: () => {
           fdeState.mar = operand;
         }
       });
       steps.push({
         stage: 'EXECUTE',
-        title: `Execute 2: ALU Subtracts Operand from Accumulator`,
-        body: `The ALU subtracts the value in MDR from the Accumulator. The result is stored back in the Accumulator (ACC).`,
-        quote: 'ALU performs subtraction and stores result in Accumulator.',
-        activeElements: { source: 'aluBlock', target: 'regACC', bus: 'busData', busText: `Data: ${fdeState.ram[parseInt(operand, 10)]?.val || '0'}`, controlText: 'READ', packet: { bus: 'busData', dir: 'to-cpu' } },
+        title: `Execute 2: Fetch Subtrahend (${subOperandVal}) to MDR`,
+        body: `Value ${subOperandVal} travels across the Data Bus into the MDR, and is cached in L1.`,
+        quote: 'Subtrahend value fetched into MDR via Data Bus.',
+        activeElements: { source: `ram-row-${operand}`, target: 'regMDR', bus: 'busData' },
+        addrBubble: { text: `[Addr: ${operand}]`, dir: 'to-ram' },
+        dataBubble: { text: `[Data: "${subOperandVal}"]`, dir: 'to-cpu' },
+        ctrlBubble: { text: `[MEM_READ ⚡]`, dir: 'to-ram' },
+        busText: `Data: "${subOperandVal}"`,
+        controlText: 'MEM_READ',
         action: () => {
-          const subVal = parseInt(fdeState.ram[parseInt(operand, 10)]?.val || '0', 10);
-          fdeState.mdr = subVal.toString();
-          fdeState.acc -= subVal;
+          fdeState.mdr = subOperandVal.toString();
+          const insertedIdx = insertIntoCache(operand, subOperandVal.toString());
+          renderCacheDOM(insertedIdx, 'IDLE');
+        }
+      });
+      steps.push({
+        stage: 'EXECUTE',
+        title: `Execute 3: ALU Subtracts MDR (${subOperandVal}) from ACC`,
+        body: `The ALU subtracts the value in MDR (${subOperandVal}) from the Accumulator. The result is stored back into the Accumulator (ACC).`,
+        quote: 'ALU performs subtraction and stores result in Accumulator.',
+        activeElements: { source: 'aluBlock', target: 'regACC' },
+        internalBubble: `ALU: SUB ➔ ACC`,
+        action: () => {
+          fdeState.acc -= subOperandVal;
         }
       });
     } else if (opcode === 'STORE') {
       steps.push({
         stage: 'EXECUTE',
         title: `Execute 1: Set Destination Address ${operand} on MAR`,
-        body: `The target destination address ${operand} is loaded into the MAR to prepare for writing data to RAM.`,
+        body: `The destination address ${operand} is loaded into the MAR to prepare for writing data to RAM.`,
         quote: 'Destination address placed on MAR.',
-        activeElements: { source: 'cuBlock', target: 'regMAR', bus: 'busAddress', busText: `Addr: ${operand}`, packet: { bus: 'busAddress', dir: 'to-ram' } },
+        activeElements: { source: 'cuBlock', target: 'regMAR' },
+        internalBubble: `CU ➔ MAR [Addr: ${operand}]`,
         action: () => {
           fdeState.mar = operand;
+        }
+      });
+      steps.push({
+        stage: 'EXECUTE',
+        title: `Execute 2: Copy Accumulator Value to MDR`,
+        body: `The calculated value in the Accumulator (${fdeState.acc}) is copied across the internal bus into the MDR in preparation for transmission across the Data Bus.`,
+        quote: 'Value in Accumulator copied into MDR.',
+        activeElements: { source: 'regACC', target: 'regMDR' },
+        internalBubble: `ACC ➔ MDR [${fdeState.acc}]`,
+        action: () => {
           fdeState.mdr = fdeState.acc.toString();
         }
       });
       steps.push({
         stage: 'EXECUTE',
-        title: `Execute 2: Write Accumulator Value to RAM`,
-        body: `The value in the Accumulator (${fdeState.acc}) is written into RAM at address ${operand} via the Data Bus. The Control Unit pulses WRITE.`,
+        title: `Execute 3: Write MDR Value to RAM Address ${operand}`,
+        body: `The Data Bus carries "${fdeState.acc}" from CPU to RAM. The Control Unit pulses MEM_WRITE. RAM updates cell ${operand} with the new value.`,
         quote: 'Value in MDR written into memory location specified by MAR.',
-        activeElements: { source: 'regACC', target: `ram-row-${operand}`, bus: 'busData', busText: `Data: ${fdeState.acc}`, controlText: 'WRITE', packet: { bus: 'busData', dir: 'to-ram' } },
+        activeElements: { source: 'regMDR', target: `ram-row-${operand}`, bus: 'busData' },
+        addrBubble: { text: `[Addr: ${operand}]`, dir: 'to-ram' },
+        dataBubble: { text: `[Data: "${fdeState.acc}"]`, dir: 'to-ram' },
+        ctrlBubble: { text: `[MEM_WRITE ⚡]`, dir: 'to-ram' },
+        busText: `Data: "${fdeState.acc}"`,
+        controlText: 'MEM_WRITE',
         action: () => {
           const targetIdx = parseInt(operand, 10);
           if (fdeState.ram[targetIdx]) {
             fdeState.ram[targetIdx].val = fdeState.acc.toString();
           }
+          const insertedIdx = insertIntoCache(operand, fdeState.acc.toString());
+          renderCacheDOM(insertedIdx, 'IDLE');
         }
       });
     } else if (opcode === 'HLT') {
       steps.push({
         stage: 'EXECUTE',
         title: 'Execute: Stop Instruction Execution',
-        body: 'The HLT instruction signals the Control Unit to stop the fetch-decode-execute cycle. Program execution terminates.',
+        body: 'The HLT instruction signals the Control Unit to halt the clock pulses. Program execution terminates cleanly.',
         quote: 'The CPU stops executing instructions.',
-        activeElements: { source: 'cuBlock', target: null, bus: null },
+        activeElements: { source: 'cuBlock', target: null },
+        internalBubble: 'CU: HALT SIGNAL',
         action: () => {
           fdeState.isHalted = true;
           fdeState.isPlaying = false;
@@ -344,6 +530,15 @@
     fdeState.decodedOpcode = 'NONE';
     fdeState.decodedOperand = '';
     fdeState.isHalted = false;
+    fdeState.clockCycle = 0;
+    fdeState.cache = [
+      { addr: '--', val: 'Empty' },
+      { addr: '--', val: 'Empty' },
+      { addr: '--', val: 'Empty' },
+      { addr: '--', val: 'Empty' }
+    ];
+    fdeState.cacheHits = 0;
+    fdeState.cacheMisses = 0;
     fdeState.microSteps = generateMicroStepsForInstruction(0);
     fdeState.currentMicroStepIndex = 0;
     fdeState.historyLog = [];
@@ -352,6 +547,13 @@
     updateRegistersDOM();
     updateStepNarrativeDOM();
     renderHistoryLogDOM();
+    renderCacheDOM(-1, 'IDLE');
+    clearActiveGlows();
+
+    const tickStatus = document.getElementById('clockTickStatus');
+    const cycleCount = document.getElementById('clockCycleCount');
+    if (tickStatus) tickStatus.textContent = 'TICK: IDLE';
+    if (cycleCount) cycleCount.textContent = 'Cycle: 0';
   }
 
   function renderRAMTable() {
@@ -410,10 +612,22 @@
       el.classList.remove('active-source', 'active-target');
     });
     document.querySelectorAll('.bus-line').forEach(el => el.classList.remove('bus-active'));
-    document.querySelectorAll('.bus-packet-indicator').forEach(el => {
-      el.classList.remove('packet-to-ram', 'packet-to-cpu');
-    });
     document.querySelectorAll('.ram-row').forEach(el => el.classList.remove('active-ram-read', 'active-ram-write'));
+
+    // Clear dynamic bus bubbles
+    ['bubbleAddressBus', 'bubbleDataBus', 'bubbleControlBus'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) {
+        b.classList.remove('glide-to-ram', 'glide-to-cpu');
+        b.textContent = '';
+      }
+    });
+
+    const bInternal = document.getElementById('bubbleInternalBus');
+    if (bInternal) {
+      bInternal.classList.remove('active');
+      bInternal.textContent = '';
+    }
 
     const bAddr = document.getElementById('busAddressVal');
     const bData = document.getElementById('busDataVal');
@@ -454,6 +668,9 @@
     clearActiveGlows();
     if (!step) return;
 
+    // Pulse System Clock on every microstep
+    pulseClock(step.stage);
+
     const act = step.activeElements || {};
 
     if (act.source) {
@@ -462,6 +679,10 @@
         if (srcEl.classList.contains('register-card')) srcEl.classList.add('active-source');
         else if (srcEl.classList.contains('component-block')) srcEl.classList.add('active-glow');
         else if (srcEl.classList.contains('ram-row')) srcEl.classList.add('active-ram-read');
+        else if (act.source === 'cacheModule') {
+          const cacheBox = document.getElementById('cacheModule');
+          if (cacheBox) cacheBox.classList.add('active-glow');
+        }
       }
     }
 
@@ -479,31 +700,63 @@
       if (busEl) busEl.classList.add('bus-active');
     }
 
-    if (act.packet) {
-      let packetEl = null;
-      if (act.packet.bus === 'busAddress') packetEl = document.getElementById('packetAddress');
-      else if (act.packet.bus === 'busData') packetEl = document.getElementById('packetData');
-      else if (act.packet.bus === 'busControl') packetEl = document.getElementById('packetControl');
+    // Dynamic Address Bus Gliding Bubble
+    if (step.addrBubble) {
+      const bAddr = document.getElementById('bubbleAddressBus');
+      const busAddress = document.getElementById('busAddress');
+      if (bAddr) {
+        bAddr.textContent = step.addrBubble.text;
+        void bAddr.offsetWidth; // Force CSS reflow to restart animation
+        bAddr.classList.add(step.addrBubble.dir === 'to-ram' ? 'glide-to-ram' : 'glide-to-cpu');
+      }
+      if (busAddress) busAddress.classList.add('bus-active');
+    }
 
-      if (packetEl) {
-        packetEl.classList.remove('packet-to-ram', 'packet-to-cpu');
-        void packetEl.offsetWidth; // force reflow for smooth re-trigger
-        packetEl.classList.add(act.packet.dir === 'to-ram' ? 'packet-to-ram' : 'packet-to-cpu');
+    // Dynamic Data Bus Gliding Bubble
+    if (step.dataBubble) {
+      const bData = document.getElementById('bubbleDataBus');
+      const busData = document.getElementById('busData');
+      if (bData) {
+        bData.textContent = step.dataBubble.text;
+        void bData.offsetWidth;
+        bData.classList.add(step.dataBubble.dir === 'to-ram' ? 'glide-to-ram' : 'glide-to-cpu');
+      }
+      if (busData) busData.classList.add('bus-active');
+    }
+
+    // Dynamic Control Bus Gliding Bubble
+    if (step.ctrlBubble) {
+      const bCtrl = document.getElementById('bubbleControlBus');
+      const busControl = document.getElementById('busControl');
+      if (bCtrl) {
+        bCtrl.textContent = step.ctrlBubble.text;
+        void bCtrl.offsetWidth;
+        bCtrl.classList.add(step.ctrlBubble.dir === 'to-ram' ? 'glide-to-ram' : 'glide-to-cpu');
+      }
+      if (busControl) busControl.classList.add('bus-active');
+    }
+
+    // Dynamic Internal Bus Bubble
+    if (step.internalBubble) {
+      const bInternal = document.getElementById('bubbleInternalBus');
+      if (bInternal) {
+        bInternal.textContent = step.internalBubble;
+        bInternal.classList.add('active');
       }
     }
 
-    if (act.busText && act.bus === 'busAddress') {
+    if (step.busText && (step.addrBubble || act.bus === 'busAddress')) {
       const bAddr = document.getElementById('busAddressVal');
-      if (bAddr) bAddr.textContent = act.busText;
+      if (bAddr) bAddr.textContent = step.busText;
     }
-    if (act.busText && act.bus === 'busData') {
+    if (step.busText && (step.dataBubble || act.bus === 'busData')) {
       const bData = document.getElementById('busDataVal');
-      if (bData) bData.textContent = act.busText;
+      if (bData) bData.textContent = step.busText;
     }
-    if (act.controlText) {
+    if (step.controlText) {
       const bCtrl = document.getElementById('busControlVal');
       const busControl = document.getElementById('busControl');
-      if (bCtrl) bCtrl.textContent = act.controlText;
+      if (bCtrl) bCtrl.textContent = step.controlText;
       if (busControl) busControl.classList.add('bus-active');
     }
   }
