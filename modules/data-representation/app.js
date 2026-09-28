@@ -1753,7 +1753,7 @@
         const idx = Math.max(0, Math.min(soundState.customWavePoints.length - 1, Math.floor(t * (soundState.customWavePoints.length - 1))));
         return soundState.customWavePoints[idx];
       } else if (soundState.waveform === 'chiptune') {
-        // 8-Bit Mario arpeggio contour (8 notes across 2.0s)
+        // 8-Bit chiptune arpeggio contour (8 notes across 2.0s)
         const notes = [0.15, 0.45, 0.72, 0.95, 0.72, 0.45, 0.85, 0.30];
         const step = Math.min(notes.length - 1, Math.floor(t * notes.length));
         return notes[step] * 2 - 1;
@@ -2516,7 +2516,7 @@
       }
     }
 
-    // Exam Explanations (AQA §3.3.4 Plain English)
+    // Audio Explanations (AQA §3.3.4)
     const rateExplanations = {
       44100: 'Full Treble & Clarity (All frequencies up to 22 kHz preserved)',
       11025: 'Muffled Treble (Frequencies above 5.5 kHz cut off, sounds like FM radio)',

@@ -12,7 +12,7 @@ Designed with an edutainment philosophy — turning abstract syllabus concepts i
 
 ### 1. 📊 Sorting Algorithms Lab (AQA §3.1 / OCR 2.1)
 - **Visualizers**: Bubble Sort, Merge Sort, and Linear / Binary Search.
-- **Features**: Step-by-step playback, comparisons vs. swaps telemetry counters, plain-English step explanations, and an interactive step-by-step decision quiz.
+- **Features**: Step-by-step playback, comparisons vs. swaps telemetry counters, intuitive step explanations, and an interactive step-by-step decision quiz.
 
 ### 2. 📋 Trace Tables & Algorithm Tracing Lab (AQA §3.1.1 & §3.2)
 - **Features**: Live line-by-line code execution engine with synchronized memory state watchers.

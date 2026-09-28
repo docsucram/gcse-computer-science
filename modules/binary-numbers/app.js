@@ -1656,7 +1656,7 @@
   }
 
   function updateStorageImpact() {
-    const text = (DOM.textEncoderInput && DOM.textEncoderInput.value) ? DOM.textEncoderInput.value : 'GCSE 2026';
+    const text = (DOM.textEncoderInput && DOM.textEncoderInput.value) ? DOM.textEncoderInput.value : 'Hello 👾';
     const container = document.getElementById('storageImpactBars');
     if (!container) return;
 
@@ -1805,7 +1805,7 @@
         if (workingsBox) {
           workingsBox.innerHTML = `
             <div style="font-weight: 800; color: #10b981; font-size: 14px; margin-bottom: 8px;">
-              ✓ Step-by-Step Exam Solution:
+              ✓ Step-by-Step Working:
             </div>
             <div style="display: grid; gap: 6px;">
               <div><strong>Step 1 (Find distance):</strong> <code>'${target}'</code> is letter #${targetPos} in the alphabet. Distance from 'A' = ${targetPos} - 1 = <strong>+${diff}</strong>.</div>

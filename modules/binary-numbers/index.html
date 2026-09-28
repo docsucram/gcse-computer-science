@@ -153,12 +153,12 @@
         </div>
       </div>
 
-      <!-- Plain English Intro -->
+      <!-- Binary Explainer Card -->
       <details class="explainer-card">
         <summary>
           <div class="summary-left">
             <span>⚡</span>
-            <span>Why Binary? (Plain English)</span>
+            <span>Why Computers Use Binary</span>
           </div>
           <span class="summary-toggle-pill"></span>
         </summary>
@@ -1259,37 +1259,37 @@
       </div>
 
       <!-- ============================================================= -->
-      <!-- SEPARATE DEDICATED SECTION: THE STORAGE MYSTERY & CONSOLE TRAP  -->
+      <!-- SEPARATE DEDICATED SECTION: THE STORAGE MYSTERY                 -->
       <!-- ============================================================= -->
       <div class="panel" style="margin-bottom: 24px; border-top: 3px solid #6366f1;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
             <span class="badge badge-topic">Deep Dive &amp; Real World</span>
-            <h3 class="panel-title">📦 Deep Dive: Why Do Both kB and KiB Exist? (The Hard Drive &amp; Console Storage Mystery)</h3>
+            <h3 class="panel-title">📦 Deep Dive: Why Do Both kB and KiB Exist? (The Hard Drive Storage Mystery)</h3>
           </div>
           <span style="font-size: 11px; color: var(--text-muted);">The secret behind "missing" gigabytes</span>
         </div>
 
-        <!-- Plain English Explanation Card -->
+        <!-- Explainer Card -->
         <div style="background: rgba(99, 102, 241, 0.07); border-left: 4px solid #6366f1; border-radius: var(--radius-sm); padding: 14px 18px; margin-bottom: 18px; font-size: 13.5px; line-height: 1.6;">
           <h4 style="margin: 0 0 6px 0; font-size: 14px; font-weight: 800; color: #6366f1;">
-            Why does a 1,000 GB drive show as 931 GB on Windows or PlayStation?
+            Why does a 1,000 GB drive show as 931 GB in your operating system?
           </h4>
           <p style="margin: 0 0 10px 0; color: var(--text-secondary);">
             <strong>1. Hardware Manufacturers sell in Decimal (SI):</strong> Hard drive and SSD makers count in standard everyday powers of 10. To them, <strong>1 GB = 1,000,000,000 bytes</strong> (10&sup9;).
           </p>
           <p style="margin: 0 0 10px 0; color: var(--text-secondary);">
-            <strong>2. Operating Systems calculate in Binary (IEC):</strong> Because computer memory (RAM) is wired in powers of 2, Windows and consoles address storage using 1,024-byte multipliers: <strong>1 GiB = 1,073,741,824 bytes</strong> (2&sup3;&sup0;).
+            <strong>2. Operating Systems calculate in Binary (IEC):</strong> Because computer memory (RAM) is wired in powers of 2, operating systems address storage using 1,024-byte multipliers: <strong>1 GiB = 1,073,741,824 bytes</strong> (2&sup3;&sup0;).
           </p>
           <p style="margin: 0; color: var(--text-secondary);">
             <strong>The Result:</strong> When you plug in a 1,000 GB drive, Windows divides the 1,000,000,000,000 bytes by 1,073,741,824. The drive isn't faulty or secretly robbed of space &mdash; it's simply a difference between base-10 and base-2 math!
           </p>
         </div>
 
-        <!-- Interactive Hard Drive & Console Storage Calculator -->
+        <!-- Interactive Hard Drive & SSD Storage Calculator -->
         <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px;">
           <div style="font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-            <span>🎮</span> Live Hard Drive &amp; Console Calculator:
+            <span>💾</span> Live Storage Drive Capacity Calculator:
           </div>
 
           <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px;">
@@ -1300,9 +1300,9 @@
             <!-- Quick Presets -->
             <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-left: 8px;">
               <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Presets:</span>
-              <button type="button" class="control-btn storage-preset-btn" data-gb="500" style="padding: 2px 8px; font-size: 11.5px;">PS4 (500 GB)</button>
-              <button type="button" class="control-btn storage-preset-btn" data-gb="825" style="padding: 2px 8px; font-size: 11.5px;">PS5 (825 GB)</button>
-              <button type="button" class="control-btn storage-preset-btn" data-gb="1000" style="padding: 2px 8px; font-size: 11.5px;">1 TB PC (1000 GB)</button>
+              <button type="button" class="control-btn storage-preset-btn" data-gb="256" style="padding: 2px 8px; font-size: 11.5px;">256 GB SSD</button>
+              <button type="button" class="control-btn storage-preset-btn" data-gb="512" style="padding: 2px 8px; font-size: 11.5px;">512 GB SSD</button>
+              <button type="button" class="control-btn storage-preset-btn" data-gb="1000" style="padding: 2px 8px; font-size: 11.5px;">1 TB Drive</button>
               <button type="button" class="control-btn storage-preset-btn" data-gb="2000" style="padding: 2px 8px; font-size: 11.5px;">2 TB External</button>
             </div>
           </div>
@@ -1355,7 +1355,7 @@
         </div>
 
         <div style="margin-bottom: 14px;">
-          <textarea id="textEncoderInput" rows="2" class="control-select" style="width: 100%; padding: 12px; font-family: var(--font-mono); font-size: 15px; resize: vertical;" placeholder="Type a message here...">GCSE 2026</textarea>
+          <textarea id="textEncoderInput" rows="2" class="control-select" style="width: 100%; padding: 12px; font-family: var(--font-mono); font-size: 15px; resize: vertical;" placeholder="Type a message here...">Hello 👾</textarea>
         </div>
 
         <div style="margin-bottom: 14px; display: flex; gap: 8px; flex-wrap: wrap;">
@@ -1372,18 +1372,18 @@
               <span style="font-size: 13px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
                 <span>💾</span> Encoded Binary Stream Output:
               </span>
-              <span class="badge badge-paper1" id="encoderByteStats">9 Characters • 9 Bytes (72 bits)</span>
+              <span class="badge badge-paper1" id="encoderByteStats">8 Characters • 10 Bytes (80 bits)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <button type="button" class="control-btn" id="btnCopyBinary" style="padding: 4px 10px; font-size: 11.5px; font-weight: 600;">📋 Copy Binary</button>
             </div>
           </div>
 
-          <div id="fullBinaryOutputBox" class="full-binary-box">01000111 01000011 01010011 01000101 00100000 00110010 00110000 00110010 00110110</div>
+          <div id="fullBinaryOutputBox" class="full-binary-box">01001000 01100101 01101100 01101100 01101111 00100000 11110000 10011111 10011001 10101110</div>
 
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 11.5px; color: var(--text-muted); flex-wrap: wrap; gap: 6px;">
             <span>Bytes separated by spaces for clarity. Hardware stores this as a continuous bitstream.</span>
-            <span id="fullHexOutputLabel" style="font-family: var(--font-mono); color: #6366f1; font-weight: 700;">Hex: 47 43 53 45 20 32 30 32 36</span>
+            <span id="fullHexOutputLabel" style="font-family: var(--font-mono); color: #6366f1; font-weight: 700;">Hex: 48 65 6C 6C 6F 20 F0 9F 99 BE</span>
           </div>
         </div>
 
@@ -1397,14 +1397,14 @@
       </div>
 
       <!-- ============================================================= -->
-      <!-- CHARACTER SETS LAB: INTERACTIVE EXAM CRACKERS                  -->
+      <!-- CHARACTER SETS LAB: INTERACTIVE EXPLORATION                     -->
       <!-- ============================================================= -->
 
       <!-- Lab 1: The "+32" Bit 5 Case-Flipper Visualizer -->
       <div class="panel" style="margin-bottom: 24px; border-top: 3px solid #8b5cf6;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <span class="badge badge-topic">ASCII Magic</span>
+            <span class="badge badge-topic">ASCII Discovery</span>
             <h3 class="panel-title">🔤 The ASCII "+32" Case-Flipper (The Bit 5 Secret)</h3>
           </div>
           <span style="font-size: 11px; color: var(--text-muted);">How computers flip case with a single bit</span>
@@ -1467,18 +1467,18 @@
         </div>
       </div>
 
-      <!-- Lab 2: GCSE Exam Letter Offset Calculator -->
+      <!-- Lab 2: Character Offset Calculator -->
       <div class="panel" style="margin-bottom: 24px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <span class="badge badge-paper1">Guaranteed Exam Question</span>
-            <h3 class="panel-title">📐 Letter Offset Exam Solver</h3>
+            <span class="badge badge-paper1">Sequential Offsets</span>
+            <h3 class="panel-title">📐 Character Offset Calculator</h3>
           </div>
           <span style="font-size: 11px; color: var(--text-muted);">"If 'A' is 65, what is the code for..."</span>
         </div>
 
         <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-bottom: 14px;">
-          GCSE exam boards regularly test whether you understand that character sets are strictly sequential. You don't need to memorize the whole ASCII table &mdash; only calculate the alphabetic distance!
+          Character sets like ASCII are arranged in strict alphabetical order. You don't need to memorize every ASCII number &mdash; just calculate the alphabetical distance!
         </p>
 
         <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px;">
@@ -1579,10 +1579,10 @@
         </div>
       </div>
 
-      <!-- Plain English Intro -->
+      <!-- Huffman Explainer Card -->
       <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
         <div style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
-          <span>⚡</span> Why Huffman Coding? (Plain English)
+          <span>⚡</span> Why Huffman Coding Works
         </div>
         <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
           Standard ASCII allocates a fixed <strong>8 bits (1 byte)</strong> for every character, whether it's common like 'E' or rare like 'Z'.
@@ -1605,21 +1605,21 @@
       <!-- Main Interactive Huffman Workspace (2 Columns) -->
       <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 24px;">
         
-        <!-- Top Toolbar: Input Text & 1-Click Exam Presets -->
+        <!-- Top Toolbar: Input Text & Quick Presets -->
         <div class="panel" style="margin-bottom: 0;">
           <div class="panel-title-bar">
             <h3 class="panel-title">1. Input Text &amp; Presets</h3>
-            <span id="huffmanCharCountBadge" class="badge badge-topic">8 Characters</span>
+            <span id="huffmanCharCountBadge" class="badge badge-topic">6 Characters</span>
           </div>
 
           <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 12px;">
             <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
-              <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary);">1-Click Exam Presets:</span>
-              <button type="button" class="control-btn huffman-preset-btn active" data-preset="AQA EXAM">📝 "AQA EXAM"</button>
+              <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary);">Quick Presets:</span>
+              <button type="button" class="control-btn huffman-preset-btn active" data-preset="BANANA">🍌 "BANANA"</button>
+              <button type="button" class="control-btn huffman-preset-btn" data-preset="ABRACADABRA">🪄 "ABRACADABRA"</button>
               <button type="button" class="control-btn huffman-preset-btn" data-preset="MISSISSIPPI">🌊 "MISSISSIPPI"</button>
-              <button type="button" class="control-btn huffman-preset-btn" data-preset="BANANA">🍌 "BANANA"</button>
-              <button type="button" class="control-btn huffman-preset-btn" data-preset="TEACHER">👩‍🏫 "TEACHER"</button>
-              <button type="button" class="control-btn huffman-preset-btn" data-preset="SCIENCE">🔬 "SCIENCE"</button>
+              <button type="button" class="control-btn huffman-preset-btn" data-preset="SUPERNOVA">✨ "SUPERNOVA"</button>
+              <button type="button" class="control-btn huffman-preset-btn" data-preset="COFFEE BEAN">☕ "COFFEE BEAN"</button>
             </div>
 
             <button type="button" id="btnResetHuffmanText" class="control-btn" style="font-size: 11.5px; padding: 4px 10px;">
@@ -1628,7 +1628,7 @@
           </div>
 
           <div style="display: flex; gap: 10px;">
-            <input type="text" id="huffmanTextInput" value="AQA EXAM" maxlength="40" placeholder="Type any word or sentence..." class="control-input" style="flex: 1; font-family: var(--font-mono); font-size: 14px; font-weight: 700; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-root); color: var(--text-primary);">
+            <input type="text" id="huffmanTextInput" value="BANANA" maxlength="40" placeholder="Type any word or sentence..." class="control-input" style="flex: 1; font-family: var(--font-mono); font-size: 14px; font-weight: 700; padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-root); color: var(--text-primary);">
           </div>
         </div>
 
@@ -1664,7 +1664,7 @@
             </div>
           </div>
 
-          <!-- Right: Codebook, Stream & Exam Compression Calculations -->
+          <!-- Right: Codebook, Stream & Compression Calculations -->
           <div class="panel">
             <div class="panel-title-bar">
               <div class="panel-title-group">
@@ -1695,13 +1695,13 @@
             <!-- Storage Comparison Stats -->
             <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-size: 11.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">GCSE Storage Formula:</span>
-                <span id="huffmanBitRatio" style="font-family: var(--font-mono); font-size: 13px; font-weight: 800; color: #34d399;">20 bits vs 64 bits</span>
+                <span style="font-size: 11.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Storage Comparison:</span>
+                <span id="huffmanBitRatio" style="font-family: var(--font-mono); font-size: 13px; font-weight: 800; color: #34d399;">9 bits vs 48 bits</span>
               </div>
 
               <!-- Storage Bar -->
               <div style="width: 100%; height: 10px; background: var(--bg-surface-elevated); border-radius: 5px; overflow: hidden; margin-bottom: 8px; display: flex;">
-                <div id="huffmanMeterBar" style="height: 100%; width: 31%; background: #34d399; transition: width 300ms ease;"></div>
+                <div id="huffmanMeterBar" style="height: 100%; width: 19%; background: #34d399; transition: width 300ms ease;"></div>
               </div>
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11.5px; font-family: var(--font-mono);">

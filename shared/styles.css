@@ -378,7 +378,7 @@ body {
   }
 }
 
-/* Reusable Collapsible Plain English Cards */
+/* Reusable Collapsible Explainer Cards */
 details.explainer-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
