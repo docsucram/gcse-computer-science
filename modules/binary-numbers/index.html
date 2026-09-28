@@ -154,25 +154,31 @@
       </div>
 
       <!-- Plain English Intro -->
-      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
-        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
-          <span>⚡</span> Why Binary? (Plain English)
+      <details class="explainer-card">
+        <summary>
+          <div class="summary-left">
+            <span>⚡</span>
+            <span>Why Binary? (Plain English)</span>
+          </div>
+          <span class="summary-toggle-pill"></span>
+        </summary>
+        <div class="explainer-content">
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+            A computer processor contains billions of microscopic electronic switches called <strong>transistors</strong>. A switch can only be <strong>ON (1)</strong> or <strong>OFF (0)</strong>. Because of this physical reality, all computer data—from games to streaming video—is stored as binary 1s and 0s!
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; font-size: 12px;">
+            <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <strong style="color: #3b82f6;">Binary (Base 2):</strong> Uses only 0 and 1. Place values double: 128, 64, 32, 16, 8, 4, 2, 1.
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <strong style="color: #10b981;">Hexadecimal (Base 16):</strong> Uses 0-9 and A-F. Shorthand for humans because 1 hex digit = 4 bits (1 nibble).
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <strong style="color: #ef4444;">Two's Complement:</strong> How computers store negative numbers. Flip the bits and add 1!
+            </div>
+          </div>
         </div>
-        <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
-          A computer processor contains billions of microscopic electronic switches called <strong>transistors</strong>. A switch can only be <strong>ON (1)</strong> or <strong>OFF (0)</strong>. Because of this physical reality, all computer data—from games to streaming video—is stored as binary 1s and 0s!
-        </p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; font-size: 12px;">
-          <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <strong style="color: #3b82f6;">Binary (Base 2):</strong> Uses only 0 and 1. Place values double: 128, 64, 32, 16, 8, 4, 2, 1.
-          </div>
-          <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <strong style="color: #10b981;">Hexadecimal (Base 16):</strong> Uses 0-9 and A-F. Shorthand for humans because 1 hex digit = 4 bits (1 nibble).
-          </div>
-          <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <strong style="color: #ef4444;">Two's Complement:</strong> How computers store negative numbers. Flip the bits and add 1!
-          </div>
-        </div>
-      </div>
+      </details>
 
       <!-- Register Container -->
       <div class="register-container">

@@ -70,6 +70,10 @@ export default function App() {
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
+  // Mobile layout state
+  const [mobileInspectorTab, setMobileInspectorTab] = useState('pseudocode'); // 'pseudocode' | 'table' | 'both'
+  const [isExplainerCollapsed, setIsExplainerCollapsed] = useState(false);
+
   // Playback timer ref
   const playTimerRef = useRef(null);
 
@@ -421,11 +425,11 @@ export default function App() {
                     </div>
 
                     {/* Right: How It Works Explainer */}
-                    <div className={`flex-1 p-3.5 rounded-xl border flex items-start gap-3 transition-colors ${
+                    <div className={`flex-1 p-3.5 rounded-xl border flex flex-col transition-colors ${
                       isDarkMode ? 'bg-slate-950/60 border-slate-800/80' : 'bg-indigo-50/50 border-indigo-100'
                     }`}>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className={`text-xs font-extrabold ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
                             How {currentAlgo.name} Works:
                           </span>
@@ -438,12 +442,22 @@ export default function App() {
                             ({currentAlgo.category})
                           </span>
                         </div>
-                        <p className={`text-xs sm:text-[12.5px] leading-relaxed m-0 ${
+                        <button
+                          onClick={() => setIsExplainerCollapsed(!isExplainerCollapsed)}
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors ${
+                            isDarkMode ? 'border-slate-700 hover:bg-slate-800 text-slate-400' : 'border-slate-200 hover:bg-slate-100 text-slate-600'
+                          }`}
+                        >
+                          {isExplainerCollapsed ? 'Show' : 'Hide'}
+                        </button>
+                      </div>
+                      {!isExplainerCollapsed && (
+                        <p className={`text-xs sm:text-[12.5px] leading-relaxed m-0 mt-1.5 ${
                           isDarkMode ? 'text-slate-300' : 'text-slate-700'
                         }`}>
                           {currentAlgo.description}
                         </p>
-                      </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -477,20 +491,65 @@ export default function App() {
             />
 
             {/* 4. Side-by-Side: Pseudocode Tracer & Trace Table */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <PseudocodeTracer
-                algorithmId={selectedAlgorithm}
-                activeLine={currentStep.codeLine}
-                variables={currentStep.variables}
-                explanation={currentStep.explanation}
-                isDarkMode={isDarkMode}
-              />
-              <TraceTable
-                steps={steps}
-                currentStepIndex={currentStepIndex}
-                onJumpToStep={(idx) => executeStep(idx)}
-                isDarkMode={isDarkMode}
-              />
+            <div className="flex flex-col gap-3">
+              {/* Mobile Inspection Switcher Pill */}
+              <div className={`flex lg:hidden items-center justify-between p-1.5 rounded-xl border text-xs ${
+                isDarkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
+              }`}>
+                <span className={`text-[11px] font-bold px-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Inspect:</span>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => setMobileInspectorTab('pseudocode')}
+                    className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
+                      mobileInspectorTab === 'pseudocode'
+                        ? 'bg-indigo-600 text-white shadow-2xs'
+                        : isDarkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Code & Variables
+                  </button>
+                  <button
+                    onClick={() => setMobileInspectorTab('table')}
+                    className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
+                      mobileInspectorTab === 'table'
+                        ? 'bg-emerald-600 text-white shadow-2xs'
+                        : isDarkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Trace Table
+                  </button>
+                  <button
+                    onClick={() => setMobileInspectorTab('both')}
+                    className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
+                      mobileInspectorTab === 'both'
+                        ? 'bg-slate-700 text-white shadow-2xs'
+                        : isDarkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Both
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className={mobileInspectorTab === 'table' ? 'hidden lg:block' : 'block'}>
+                  <PseudocodeTracer
+                    algorithmId={selectedAlgorithm}
+                    activeLine={currentStep.codeLine}
+                    variables={currentStep.variables}
+                    explanation={currentStep.explanation}
+                    isDarkMode={isDarkMode}
+                  />
+                </div>
+                <div className={mobileInspectorTab === 'pseudocode' ? 'hidden lg:block' : 'block'}>
+                  <TraceTable
+                    steps={steps}
+                    currentStepIndex={currentStepIndex}
+                    onJumpToStep={(idx) => executeStep(idx)}
+                    isDarkMode={isDarkMode}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}

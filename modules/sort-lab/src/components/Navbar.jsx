@@ -57,7 +57,7 @@ export default function Navbar({
               <h1 className="font-extrabold text-sm sm:text-base tracking-tight leading-none">
                 Sorting Algorithms
               </h1>
-              <span className="px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 font-bold text-[10px] tracking-wide border border-indigo-500/20">
+              <span className="hidden sm:inline-flex px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 font-bold text-[10px] tracking-wide border border-indigo-500/20">
                 AQA 8525 §3.1
               </span>
             </div>

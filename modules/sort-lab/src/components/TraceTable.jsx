@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Copy, Check } from 'lucide-react';
+import { Table, Copy, Check, ChevronDown, ChevronUp } from 'lucide-react';
 
 export default function TraceTable({
   steps = [],
@@ -9,6 +9,7 @@ export default function TraceTable({
 }) {
   const [copied, setCopied] = useState(false);
   const [tableMode, setTableMode] = useState('pass'); // 'pass' | 'aqa_variable'
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   // Extract all pass-end steps and initial step
   const passSteps = steps.filter((s, idx) => idx === 0 || s.isPassEnd);
@@ -112,11 +113,25 @@ export default function TraceTable({
             {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
             {copied ? 'Copied!' : 'Copy'}
           </button>
+
+          {/* Collapse Toggle Button */}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className={`p-1.5 rounded-lg border text-xs transition-colors flex items-center gap-1 ${
+              isDarkMode ? 'border-slate-700 hover:bg-slate-800 text-slate-400' : 'border-slate-200 hover:bg-slate-100 text-slate-600'
+            }`}
+            title={isCollapsed ? 'Expand Trace Table' : 'Collapse Trace Table'}
+          >
+            {isCollapsed ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
+            <span className="text-[10px] font-semibold">{isCollapsed ? 'Expand' : 'Collapse'}</span>
+          </button>
         </div>
       </div>
 
-      {/* Table Container */}
-      <div className="flex-1 p-3 overflow-auto max-h-[340px]">
+      {!isCollapsed && (
+        <>
+          {/* Table Container */}
+          <div className="flex-1 p-3 overflow-auto max-h-[340px]">
         {tableMode === 'pass' ? (
           // 1. Pass-by-Pass Table
           passSteps.length > 0 ? (
@@ -300,6 +315,8 @@ export default function TraceTable({
         </span>
         <span className="hidden sm:inline">AQA 8525 & OCR J277 Trace Table</span>
       </div>
+        </>
+      )}
     </div>
   );
 }

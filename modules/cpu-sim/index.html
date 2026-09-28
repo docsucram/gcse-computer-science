@@ -126,26 +126,32 @@
       </div>
 
       <!-- Friendly Plain-English Intro Card: CPU & Registers -->
-      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-md); padding: 16px 18px; margin-bottom: 20px;">
-        <div style="font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
-          <span>💡</span> The Basics in Plain English: How the CPU Actually Works
-        </div>
-        <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 10px 0;">
-          The <strong>Central Processing Unit (CPU)</strong> is the computer's engine. Every second, it repeats the <strong>Fetch-Decode-Execute</strong> cycle billions of times: fetching an instruction from memory, decoding what it means, and executing it.
-        </p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; font-size: 12px; line-height: 1.5;">
-          <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <strong style="color: #6366f1;">The Desk Analogy (Registers vs RAM):</strong> RAM is like a massive library down the street—it holds everything, but fetching from it takes time. <strong>Registers</strong> are like sticky notes right on your desk. Ultra-fast, but each only holds one tiny piece of data.
+      <details class="explainer-card">
+        <summary>
+          <div class="summary-left">
+            <span>💡</span>
+            <span>The Basics in Plain English: How the CPU Actually Works</span>
           </div>
-          <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <strong style="color: #0284c7;">Key Registers to Remember:</strong><br>
-            • <strong>PC (Program Counter):</strong> Address of the NEXT instruction.<br>
-            • <strong>MAR:</strong> Address of where in RAM we are reading/writing.<br>
-            • <strong>MDR:</strong> Holds the actual data/instruction being moved.<br>
-            • <strong>ACC (Accumulator):</strong> Holds temporary calculation results.
+          <span class="summary-toggle-pill"></span>
+        </summary>
+        <div class="explainer-content">
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 10px 0;">
+            The <strong>Central Processing Unit (CPU)</strong> is the computer's engine. Every second, it repeats the <strong>Fetch-Decode-Execute</strong> cycle billions of times: fetching an instruction from memory, decoding what it means, and executing it.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; font-size: 12px; line-height: 1.5;">
+            <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <strong style="color: #6366f1;">The Desk Analogy (Registers vs RAM):</strong> RAM is like a massive library down the street—it holds everything, but fetching from it takes time. <strong>Registers</strong> are like sticky notes right on your desk. Ultra-fast, but each only holds one tiny piece of data.
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <strong style="color: #0284c7;">Key Registers to Remember:</strong><br>
+              • <strong>PC (Program Counter):</strong> Address of the NEXT instruction.<br>
+              • <strong>MAR:</strong> Address of where in RAM we are reading/writing.<br>
+              • <strong>MDR:</strong> Holds the actual data/instruction being moved.<br>
+              • <strong>ACC (Accumulator):</strong> Holds temporary calculation results.
+            </div>
           </div>
         </div>
-      </div>
+      </details>
 
       <!-- Playback Controls Bar -->
       <div class="toolbar-row" style="background: var(--bg-surface); padding: 12px 18px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 20px;">
