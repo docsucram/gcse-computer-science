@@ -478,7 +478,6 @@
     renderRAMTable();
     updateRegistersDOM();
     updateStepNarrativeDOM();
-    clearActiveGlows();
   }
 
   function renderRAMTable() {
@@ -626,42 +625,857 @@
     }
   }
 
-  function clearActiveGlows() {
-    const canvas = document.getElementById('motherboardCanvas');
-    if (canvas) canvas.classList.remove('focus-mode');
+  // =========================================================================
+  // 2.2 CANVAS MOTHERBOARD RENDERER & VISUAL SYSTEM (Concept Art Aligned)
+  // =========================================================================
 
-    document.querySelectorAll('.hw-node').forEach(el => {
-      el.classList.remove('active-source', 'active-target', 'active-glow', 'active-inc');
+  let canvasCtx = null;
+  let animFrameId = null;
+  let animTime = 0;
+  let hoveredKey = null;
+
+  function initCanvasMotherboard() {
+    const canvas = document.getElementById('cpuMotherboardCanvas');
+    if (!canvas) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = 1060 * dpr;
+    canvas.height = 520 * dpr;
+    canvasCtx = canvas.getContext('2d');
+    canvasCtx.scale(dpr, dpr);
+
+    function getMousePos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = 1060 / rect.width;
+      const scaleY = 520 / rect.height;
+      return {
+        x: (e.clientX - rect.left) * scaleX,
+        y: (e.clientY - rect.top) * scaleY
+      };
+    }
+
+    const HIT_ZONES = [
+      { key: 'cu',          x: 35,  y: 55,  w: 190, h: 96 },
+      { key: 'alu',         x: 240, y: 55,  w: 195, h: 96 },
+      { key: 'pc',          x: 48,  y: 228, w: 90,  h: 145 },
+      { key: 'mar',         x: 146, y: 228, w: 90,  h: 145 },
+      { key: 'mdr',         x: 244, y: 228, w: 90,  h: 145 },
+      { key: 'acc',         x: 342, y: 228, w: 90,  h: 145 },
+      { key: 'bus-address', x: 475, y: 65,  w: 250, h: 72 },
+      { key: 'bus-data',    x: 475, y: 215, w: 250, h: 72 },
+      { key: 'bus-control', x: 475, y: 365, w: 250, h: 72 },
+      { key: 'ram',         x: 748, y: 15,  w: 295, h: 490 }
+    ];
+
+    canvas.addEventListener('mousemove', (e) => {
+      const pos = getMousePos(e);
+      let foundKey = null;
+
+      for (const zone of HIT_ZONES) {
+        if (pos.x >= zone.x && pos.x <= zone.x + zone.w && pos.y >= zone.y && pos.y <= zone.y + zone.h) {
+          foundKey = zone.key;
+          break;
+        }
+      }
+
+      hoveredKey = foundKey;
+      if (foundKey) {
+        canvas.style.cursor = 'pointer';
+        showInspector(foundKey, pos.x);
+      } else {
+        canvas.style.cursor = 'default';
+        hideInspector();
+      }
     });
-    document.querySelectorAll('.component-block, .hardware-card').forEach(el => el.classList.remove('active-glow'));
-    document.querySelectorAll('.register-card, .register-block').forEach(el => {
-      el.classList.remove('active-source', 'active-target');
-    });
-    document.querySelectorAll('.internal-bus-wire').forEach(el => el.classList.remove('active-wire'));
-    document.querySelectorAll('.bus-line, .highway-bus').forEach(el => el.classList.remove('bus-active'));
-    document.querySelectorAll('.ram-row').forEach(el => el.classList.remove('active-ram-read', 'active-ram-write'));
-    document.querySelectorAll('.ram-slot').forEach(el => el.classList.remove('active-slot-read', 'active-slot-write'));
 
-    const incBadge = document.getElementById('pcIncrementBadge');
-    if (incBadge) incBadge.style.display = 'none';
-
-    // Clear dynamic bus packets
-    ['packetAddress', 'packetData', 'packetControl'].forEach(id => {
-      const p = document.getElementById(id);
-      if (p) p.classList.remove('packet-to-ram', 'packet-to-cpu');
+    canvas.addEventListener('mouseleave', () => {
+      hoveredKey = null;
+      canvas.style.cursor = 'default';
+      hideInspector();
     });
 
-    ['packetAddressVal', 'packetDataVal', 'packetControlVal'].forEach(id => {
-      const valEl = document.getElementById(id);
-      if (valEl) valEl.textContent = '';
-    });
+    startCanvasLoop();
+  }
 
-    const bAddr = document.getElementById('busAddressVal');
-    const bData = document.getElementById('busDataVal');
-    const bCtrl = document.getElementById('busControlVal');
-    if (bAddr) bAddr.textContent = '';
-    if (bData) bData.textContent = '';
-    if (bCtrl) bCtrl.textContent = '';
+  function startCanvasLoop() {
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+
+    function loop() {
+      animTime += 0.022;
+      drawCanvasMotherboard();
+      animFrameId = requestAnimationFrame(loop);
+    }
+    animFrameId = requestAnimationFrame(loop);
+  }
+
+  function drawRoundRect(ctx, x, y, w, h, r) {
+    if (w < 2 * r) r = w / 2;
+    if (h < 2 * r) r = h / 2;
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  function drawCanvasMotherboard() {
+    if (!canvasCtx) return;
+    const ctx = canvasCtx;
+    const isDark = document.documentElement.classList.contains('dark');
+
+    // Theme Color Palette
+    const cBgRoot       = isDark ? '#090d16' : '#f8fafc';
+    const cCardBg       = isDark ? '#111827' : '#ffffff';
+    const cCardElevated = isDark ? '#1f2937' : '#f1f5f9';
+    const cBorder       = isDark ? '#374151' : '#e2e8f0';
+    const cTextPrimary  = isDark ? '#f9fafb' : '#0f172a';
+    const cTextSecondary= isDark ? '#9ca3af' : '#475569';
+    const cTextMuted    = isDark ? '#6b7280' : '#94a3b8';
+
+    const cAmber   = '#f59e0b';
+    const cEmerald = '#10b981';
+    const cPurple  = '#a855f7';
+    const cBlue    = '#38bdf8';
+    const cPink    = '#ec4899';
+
+    // Clear viewport
+    ctx.clearRect(0, 0, 1060, 520);
+
+    // Canvas Substrate Frame
+    drawRoundRect(ctx, 4, 4, 1052, 512, 16);
+    ctx.fillStyle = cBgRoot;
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = cBorder;
+    ctx.stroke();
+
+    const currStep = fdeState.microSteps[fdeState.currentMicroStepIndex] || {};
+    const act = currStep.activeElements || {};
+    const hasFocus = !!currStep.stage;
+
+    // Helper: Component Active state check
+    const isNodeActive = (key) => {
+      if (!currStep.stage) return false;
+      if (act.source === key || act.target === key || act.secondaryTarget === key) return true;
+      if (key === 'regPC' && currStep.isIncrement) return true;
+      return false;
+    };
+
+    // Helper: Dim opacity in focus mode
+    const getDimAlpha = (isActive) => (hasFocus ? (isActive ? 1.0 : 0.35) : 1.0);
+
+    // =========================================================================
+    // 1. CPU SILICON DIE (Left)
+    // =========================================================================
+    ctx.save();
+    ctx.globalAlpha = 1.0;
+
+    // CPU Housing
+    drawRoundRect(ctx, 20, 15, 430, 490, 16);
+    ctx.fillStyle = cCardBg;
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = cBorder;
+    ctx.stroke();
+
+    // CPU Header
+    ctx.beginPath();
+    ctx.arc(36, 32, 4, 0, Math.PI * 2);
+    ctx.fillStyle = cBlue;
+    ctx.fill();
+
+    ctx.font = 'bold 11px Inter, system-ui, sans-serif';
+    ctx.fillStyle = cTextPrimary;
+    ctx.textAlign = 'left';
+    ctx.fillText('CENTRAL PROCESSING UNIT (CPU)', 48, 36);
+
+    ctx.font = '10px JetBrains Mono, monospace';
+    ctx.fillStyle = cTextMuted;
+    ctx.textAlign = 'right';
+    ctx.fillText('Von Neumann Core', 435, 36);
+
+    // Divider under CPU header
+    ctx.beginPath();
+    ctx.moveTo(20, 46);
+    ctx.lineTo(450, 46);
+    ctx.strokeStyle = cBorder;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // -------------------------------------------------------------------------
+    // Control Unit (CU)
+    // -------------------------------------------------------------------------
+    const cuActive = isNodeActive('cuBlock');
+    ctx.globalAlpha = getDimAlpha(cuActive);
+
+    drawRoundRect(ctx, 35, 55, 190, 96, 10);
+    ctx.fillStyle = cuActive ? (isDark ? 'rgba(168, 85, 247, 0.16)' : 'rgba(168, 85, 247, 0.12)') : cCardElevated;
+    ctx.fill();
+    ctx.lineWidth = cuActive ? 2 : 1.5;
+    ctx.strokeStyle = cuActive ? cPurple : (hoveredKey === 'cu' ? cBlue : cBorder);
+    if (cuActive) {
+      ctx.shadowColor = cPurple;
+      ctx.shadowBlur = 12;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // CU Tag Pill
+    drawRoundRect(ctx, 165, 62, 52, 16, 4);
+    ctx.fillStyle = isDark ? 'rgba(168, 85, 247, 0.25)' : 'rgba(168, 85, 247, 0.2)';
+    ctx.fill();
+    ctx.font = 'bold 9px JetBrains Mono, monospace';
+    ctx.fillStyle = cPurple;
+    ctx.textAlign = 'center';
+    ctx.fillText('DECODER', 191, 74);
+
+    // CU Title & Value
+    ctx.font = 'bold 11px Inter, system-ui, sans-serif';
+    ctx.fillStyle = cTextPrimary;
+    ctx.textAlign = 'left';
+    ctx.fillText('Control Unit (CU)', 44, 74);
+
+    ctx.font = '10px Inter, system-ui, sans-serif';
+    ctx.fillStyle = cTextSecondary;
+    ctx.fillText('Decoded Instruction:', 44, 98);
+
+    ctx.font = 'bold 13.5px JetBrains Mono, monospace';
+    ctx.fillStyle = cuActive ? cPurple : cTextPrimary;
+    const cuText = (fdeState.decodedOpcode === '---' || fdeState.decodedOpcode === 'NONE')
+      ? 'NONE'
+      : `${fdeState.decodedOpcode} ${fdeState.decodedOperand || ''}`;
+    ctx.fillText(cuText, 44, 118);
+
+    ctx.font = '8.5px Inter, system-ui, sans-serif';
+    ctx.fillStyle = cTextMuted;
+    ctx.fillText('Directs timing & control signals', 44, 138);
+
+    // -------------------------------------------------------------------------
+    // Arithmetic Logic Unit (ALU)
+    // -------------------------------------------------------------------------
+    const aluActive = isNodeActive('aluBlock');
+    ctx.globalAlpha = getDimAlpha(aluActive);
+
+    drawRoundRect(ctx, 240, 55, 195, 96, 10);
+    ctx.fillStyle = aluActive ? (isDark ? 'rgba(16, 185, 129, 0.16)' : 'rgba(16, 185, 129, 0.12)') : cCardElevated;
+    ctx.fill();
+    ctx.lineWidth = aluActive ? 2 : 1.5;
+    ctx.strokeStyle = aluActive ? cEmerald : (hoveredKey === 'alu' ? cBlue : cBorder);
+    if (aluActive) {
+      ctx.shadowColor = cEmerald;
+      ctx.shadowBlur = 12;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // ALU Tag Pill
+    drawRoundRect(ctx, 355, 62, 72, 16, 4);
+    ctx.fillStyle = isDark ? 'rgba(16, 185, 129, 0.25)' : 'rgba(16, 185, 129, 0.2)';
+    ctx.fill();
+    ctx.font = 'bold 9px JetBrains Mono, monospace';
+    ctx.fillStyle = cEmerald;
+    ctx.textAlign = 'center';
+    ctx.fillText('CALCULATOR', 391, 74);
+
+    // ALU Title & Value
+    ctx.font = 'bold 11px Inter, system-ui, sans-serif';
+    ctx.fillStyle = cTextPrimary;
+    ctx.textAlign = 'left';
+    ctx.fillText('Arithmetic Logic Unit (ALU)', 248, 74);
+
+    ctx.font = '10px Inter, system-ui, sans-serif';
+    ctx.fillStyle = cTextSecondary;
+    ctx.fillText('Math Output:', 248, 98);
+
+    ctx.font = 'bold 15px JetBrains Mono, monospace';
+    ctx.fillStyle = aluActive ? cEmerald : cTextPrimary;
+    ctx.fillText(fdeState.acc.toString(), 248, 118);
+
+    ctx.font = '8.5px Inter, system-ui, sans-serif';
+    ctx.fillStyle = cTextMuted;
+    ctx.fillText('Executes arithmetic & logic', 248, 138);
+
+    // Downward trace label: Opcode to CU ➔
+    ctx.globalAlpha = 0.8;
+    ctx.font = 'bold 9px Inter, system-ui, sans-serif';
+    ctx.fillStyle = cTextMuted;
+    ctx.textAlign = 'center';
+    ctx.fillText('Opcode to CU ➔', 130, 180);
+
+    // Arrow down
+    ctx.beginPath();
+    ctx.moveTo(130, 184);
+    ctx.lineTo(130, 194);
+    ctx.strokeStyle = cBorder;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // -------------------------------------------------------------------------
+    // INTERNAL REGISTERS (AQA CORE) CONTAINER
+    // -------------------------------------------------------------------------
+    ctx.globalAlpha = 1.0;
+    drawRoundRect(ctx, 35, 198, 400, 292, 12);
+    ctx.fillStyle = isDark ? '#141c2c' : '#f8fafc';
+    ctx.fill();
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = cBorder;
+    ctx.stroke();
+
+    ctx.font = 'bold 10px JetBrains Mono, monospace';
+    ctx.fillStyle = cTextMuted;
+    ctx.textAlign = 'left';
+    ctx.fillText('INTERNAL REGISTERS (AQA CORE)', 48, 216);
+
+    // 4 Registers: PC, MAR, MDR, ACC
+    const REG_LIST = [
+      { id: 'regPC',  key: 'pc',  x: 48,  tag: 'PC',  name: 'Prog Counter', color: cBlue,    val: fdeState.pc.toString().padStart(2, '0') },
+      { id: 'regMAR', key: 'mar', x: 146, tag: 'MAR', name: 'Mem Address',  color: cAmber,   val: fdeState.mar },
+      { id: 'regMDR', key: 'mdr', x: 244, tag: 'MDR', name: 'Mem Data',     color: cEmerald, val: fdeState.mdr },
+      { id: 'regACC', key: 'acc', x: 342, tag: 'ACC', name: 'Accumulator',  color: cPink,    val: fdeState.acc.toString() }
+    ];
+
+    for (const reg of REG_LIST) {
+      const active = isNodeActive(reg.id);
+      const isInc = reg.id === 'regPC' && currStep.isIncrement;
+      ctx.globalAlpha = getDimAlpha(active || isInc);
+
+      drawRoundRect(ctx, reg.x, 228, 90, 145, 8);
+      ctx.fillStyle = active || isInc
+        ? (isDark ? 'rgba(56, 189, 248, 0.16)' : 'rgba(56, 189, 248, 0.12)')
+        : cCardBg;
+      ctx.fill();
+
+      ctx.lineWidth = active || isInc ? 2.5 : 1.5;
+      ctx.strokeStyle = isInc ? cEmerald : (active ? reg.color : (hoveredKey === reg.key ? cBlue : cBorder));
+      if (active || isInc) {
+        ctx.shadowColor = isInc ? cEmerald : reg.color;
+        ctx.shadowBlur = 14;
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Color accent tab on left of card
+      ctx.beginPath();
+      ctx.moveTo(reg.x + 3, 235);
+      ctx.lineTo(reg.x + 3, 260);
+      ctx.strokeStyle = reg.color;
+      ctx.lineWidth = 3.5;
+      ctx.stroke();
+
+      // Register Tag
+      ctx.font = 'bold 13px JetBrains Mono, monospace';
+      ctx.fillStyle = reg.color;
+      ctx.textAlign = 'left';
+      ctx.fillText(reg.tag, reg.x + 12, 248);
+
+      // Info Icon
+      ctx.font = '10px sans-serif';
+      ctx.fillStyle = cTextMuted;
+      ctx.textAlign = 'right';
+      ctx.fillText('ℹ️', reg.x + 82, 246);
+
+      // Register Big Value
+      ctx.font = 'bold 19px JetBrains Mono, monospace';
+      ctx.fillStyle = active || isInc ? reg.color : cTextPrimary;
+      ctx.textAlign = 'center';
+      ctx.fillText(reg.val, reg.x + 45, 290);
+
+      // PC Increment Badge
+      if (isInc) {
+        drawRoundRect(ctx, reg.x + 16, 304, 58, 16, 4);
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
+        ctx.fill();
+        ctx.font = 'bold 8.5px JetBrains Mono, monospace';
+        ctx.fillStyle = cEmerald;
+        ctx.textAlign = 'center';
+        ctx.fillText('+1 (Next)', reg.x + 45, 315);
+      }
+
+      // Register Subtitle
+      ctx.font = '8.5px Inter, system-ui, sans-serif';
+      ctx.fillStyle = cTextMuted;
+      ctx.textAlign = 'center';
+      ctx.fillText(reg.name, reg.x + 45, 355);
+    }
+
+    // Badge between MDR and ACC: ALU ⇄ ACC
+    ctx.globalAlpha = 0.85;
+    drawRoundRect(ctx, 220, 395, 80, 18, 4);
+    ctx.fillStyle = cCardElevated;
+    ctx.fill();
+    ctx.strokeStyle = cBorder;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.font = 'bold 8.5px JetBrains Mono, monospace';
+    ctx.fillStyle = cPink;
+    ctx.textAlign = 'center';
+    ctx.fillText('ALU ⇄ ACC', 260, 407);
+
+    ctx.restore();
+
+    // =========================================================================
+    // 2. MIDDLE SYSTEM BUSES HIGHWAY
+    // =========================================================================
+    const BUS_TRACKS = [
+      {
+        id: 'busAddress', key: 'bus-address', y: 65,  name: 'ADDRESS BUS', sub: 'Unidirectional (CPU ➔ RAM)',
+        color: cAmber, text: currStep.busAddressVal ? `ADDR: ${currStep.busAddressVal}` : 'ADDR: Idle'
+      },
+      {
+        id: 'busData',    key: 'bus-data',    y: 215, name: 'DATA BUS',    sub: 'Bidirectional (CPU ⇄ RAM)',
+        color: cEmerald, text: currStep.busDataVal ? `DATA: "${currStep.busDataVal}"` : 'DATA: Idle'
+      },
+      {
+        id: 'busControl', key: 'bus-control', y: 365, name: 'CONTROL BUS', sub: 'Control Signals & Timing',
+        color: cPurple, text: currStep.busControlVal ? `CTRL: ${currStep.busControlVal}` : 'CTRL: Idle'
+      }
+    ];
+
+    for (const b of BUS_TRACKS) {
+      const active = act.bus === b.id || act.secondaryBus === b.id || (b.id === 'busControl' && !!currStep.busControlVal);
+      ctx.save();
+      ctx.globalAlpha = getDimAlpha(active);
+
+      drawRoundRect(ctx, 475, b.y, 250, 72, 10);
+      ctx.fillStyle = active
+        ? (isDark ? 'rgba(30, 41, 59, 0.95)' : '#ffffff')
+        : cCardBg;
+      ctx.fill();
+      ctx.lineWidth = active ? 2 : 1.5;
+      ctx.strokeStyle = active ? b.color : (hoveredKey === b.key ? cBlue : cBorder);
+      if (active) {
+        ctx.shadowColor = b.color;
+        ctx.shadowBlur = 12;
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Bus Badge Title
+      ctx.font = 'bold 10px JetBrains Mono, monospace';
+      ctx.fillStyle = b.color;
+      ctx.textAlign = 'left';
+      ctx.fillText(b.name, 488, b.y + 22);
+
+      // Bus Subtitle Direction
+      ctx.font = '8px JetBrains Mono, monospace';
+      ctx.fillStyle = cTextMuted;
+      ctx.textAlign = 'right';
+      ctx.fillText(b.sub, 715, b.y + 22);
+
+      // Bus Central Trace Channel
+      ctx.beginPath();
+      ctx.moveTo(488, b.y + 44);
+      ctx.lineTo(712, b.y + 44);
+      ctx.strokeStyle = active ? b.color : cBorder;
+      ctx.lineWidth = active ? 4 : 2.5;
+      if (active) {
+        ctx.shadowColor = b.color;
+        ctx.shadowBlur = 8;
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Status Readout
+      ctx.font = 'bold 9.5px JetBrains Mono, monospace';
+      ctx.fillStyle = active ? cTextPrimary : cTextMuted;
+      ctx.textAlign = 'left';
+      ctx.fillText(b.text, 488, b.y + 63);
+
+      ctx.restore();
+    }
+
+    // =========================================================================
+    // 3. MAIN MEMORY (RAM) (Right)
+    // =========================================================================
+    ctx.save();
+    const ramActive = !!act.ramRow || act.source === 'ram' || act.target === 'ram';
+    ctx.globalAlpha = 1.0;
+
+    drawRoundRect(ctx, 748, 15, 295, 490, 16);
+    ctx.fillStyle = cCardBg;
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = cBorder;
+    ctx.stroke();
+
+    // RAM Header
+    ctx.font = 'bold 11px Inter, system-ui, sans-serif';
+    ctx.fillStyle = cEmerald;
+    ctx.textAlign = 'left';
+    ctx.fillText('MAIN MEMORY (RAM)', 764, 36);
+
+    ctx.font = '10px JetBrains Mono, monospace';
+    ctx.fillStyle = cTextMuted;
+    ctx.textAlign = 'right';
+    ctx.fillText('Active Slots (00 – 07)', 1028, 36);
+
+    // Divider under header
+    ctx.beginPath();
+    ctx.moveTo(748, 46);
+    ctx.lineTo(1043, 46);
+    ctx.strokeStyle = cBorder;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Table Column Headers
+    ctx.font = 'bold 9px JetBrains Mono, monospace';
+    ctx.fillStyle = cTextMuted;
+    ctx.textAlign = 'left';
+    ctx.fillText('ADDR', 764, 60);
+    ctx.fillText('CONTENT', 835, 60);
+    ctx.textAlign = 'right';
+    ctx.fillText('TYPE', 1025, 60);
+
+    // 8 Active RAM Slots
+    const targetAddrStr = act.ramRow ? act.ramRow.toString().padStart(2, '0') : null;
+
+    for (let i = 0; i < 8; i++) {
+      const row = fdeState.ram[i] || { addr: i.toString().padStart(2, '0'), val: '0', type: 'Empty' };
+      const rowY = 70 + i * 48;
+      const isRowActive = targetAddrStr === row.addr;
+      const isWrite = isRowActive && currStep.stage === 'EXECUTE' && currStep.busControlVal === 'MEM_WRITE';
+
+      ctx.globalAlpha = getDimAlpha(isRowActive);
+
+      drawRoundRect(ctx, 760, rowY, 270, 42, 6);
+      ctx.fillStyle = isRowActive
+        ? (isWrite ? (isDark ? 'rgba(245, 158, 11, 0.25)' : '#fef3c7') : (isDark ? 'rgba(56, 189, 248, 0.25)' : '#e0f2fe'))
+        : cCardElevated;
+      ctx.fill();
+
+      ctx.lineWidth = isRowActive ? 2 : 1;
+      ctx.strokeStyle = isRowActive ? (isWrite ? cAmber : cBlue) : cBorder;
+      if (isRowActive) {
+        ctx.shadowColor = isWrite ? cAmber : cBlue;
+        ctx.shadowBlur = 14;
+      }
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Address
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
+      ctx.fillStyle = isRowActive ? (isWrite ? cAmber : cBlue) : cTextSecondary;
+      ctx.textAlign = 'left';
+      ctx.fillText(row.addr, 772, rowY + 25);
+
+      // Formatted Value
+      const displayVal = formatRamValue(row.val, row.type, fdeState.ramViewFormat);
+      ctx.font = 'bold 12px JetBrains Mono, monospace';
+      if (row.type === 'Instruction') ctx.fillStyle = isDark ? '#a5b4fc' : '#4f46e5';
+      else if (row.type === 'Result') ctx.fillStyle = cEmerald;
+      else if (row.type === 'Data')   ctx.fillStyle = cBlue;
+      else ctx.fillStyle = cTextMuted;
+      ctx.fillText(displayVal, 835, rowY + 25);
+
+      // Type Badge
+      drawRoundRect(ctx, 980, rowY + 12, 44, 18, 4);
+      ctx.fillStyle = isDark ? '#1e293b' : '#ffffff';
+      ctx.fill();
+      ctx.strokeStyle = cBorder;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.font = 'bold 8px JetBrains Mono, monospace';
+      ctx.fillStyle = row.type === 'Instruction' ? '#818cf8' : (row.type === 'Result' ? cEmerald : (row.type === 'Data' ? cBlue : cTextMuted));
+      ctx.textAlign = 'center';
+      ctx.fillText(row.type === 'Instruction' ? 'INSTR' : (row.type === 'Result' ? 'RESULT' : (row.type === 'Data' ? 'DATA' : 'EMPTY')), 1002, rowY + 24);
+    }
+
+    ctx.restore();
+
+    // =========================================================================
+    // 4. CONTINUOUS CURVED PIPELINE WIRES & ANIMATED PACKETS (Concept Art Exact)
+    // =========================================================================
+    ctx.save();
+
+    // -------------------------------------------------------------------------
+    // Pipe 1: Internal PC -> MAR (Golden loop under registers)
+    // -------------------------------------------------------------------------
+    const isStep1 = currStep.stage === 'FETCH' && act.internalWire === 'wirePCtoMAR';
+    ctx.globalAlpha = getDimAlpha(isStep1);
+
+    ctx.beginPath();
+    ctx.moveTo(93, 373);
+    ctx.lineTo(93, 440);
+    ctx.arcTo(93, 450, 103, 450, 10);
+    ctx.lineTo(181, 450);
+    ctx.arcTo(191, 450, 191, 440, 10);
+    ctx.lineTo(191, 373);
+
+    ctx.strokeStyle = isStep1 ? cAmber : cBorder;
+    ctx.lineWidth = isStep1 ? 6 : 3;
+    if (isStep1) {
+      ctx.shadowColor = cAmber;
+      ctx.shadowBlur = 12;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Animated Capsule on PC -> MAR
+    if (isStep1) {
+      const loopT = (animTime * 1.5) % 1;
+      // Interpolate along the U-tube path
+      let px = 93, py = 400;
+      if (loopT < 0.35) {
+        py = 373 + (loopT / 0.35) * 77;
+        px = 93;
+      } else if (loopT < 0.65) {
+        px = 93 + ((loopT - 0.35) / 0.3) * 98;
+        py = 450;
+      } else {
+        px = 191;
+        py = 450 - ((loopT - 0.65) / 0.35) * 77;
+      }
+      drawCapsulePacket(ctx, px, py, fdeState.mar, cAmber);
+    }
+
+    // -------------------------------------------------------------------------
+    // Pipe 2: Address Bus Wire (MAR -> Address Bus -> Target RAM Row)
+    // -------------------------------------------------------------------------
+    const isAddrBusActive = act.bus === 'busAddress' || act.secondaryBus === 'busAddress';
+    ctx.globalAlpha = getDimAlpha(isAddrBusActive);
+
+    const targetRowIdx = targetAddrStr ? parseInt(targetAddrStr, 10) : 0;
+    const safeRowIdx = isNaN(targetRowIdx) ? 0 : Math.min(Math.max(targetRowIdx, 0), 7);
+    const ramTargetY = 70 + safeRowIdx * 48 + 21;
+
+    ctx.beginPath();
+    ctx.moveTo(191, 228);
+    // Curve out of CPU to Address Bus entry
+    ctx.bezierCurveTo(191, 101, 380, 101, 475, 101);
+    // Through Address Bus
+    ctx.lineTo(725, 101);
+    // Curve directly into target RAM Row
+    ctx.bezierCurveTo(738, 101, 742, ramTargetY, 760, ramTargetY);
+
+    ctx.strokeStyle = isAddrBusActive ? cAmber : cBorder;
+    ctx.lineWidth = isAddrBusActive ? 6.5 : 2.5;
+    if (isAddrBusActive) {
+      ctx.shadowColor = cAmber;
+      ctx.shadowBlur = 14;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Animated Capsule along Address Wire
+    if (isAddrBusActive) {
+      const glideT = (animTime * 1.2) % 1;
+      let px, py;
+      if (glideT < 0.35) {
+        // Curve 1: MAR to Address Bus
+        const t = glideT / 0.35;
+        px = Math.pow(1 - t, 2) * 191 + 2 * (1 - t) * t * 300 + Math.pow(t, 2) * 475;
+        py = Math.pow(1 - t, 2) * 228 + 2 * (1 - t) * t * 101 + Math.pow(t, 2) * 101;
+      } else if (glideT < 0.7) {
+        // Straight through Address Bus
+        const t = (glideT - 0.35) / 0.35;
+        px = 475 + t * 250;
+        py = 101;
+      } else {
+        // Curve 2: Address Bus into RAM Row
+        const t = (glideT - 0.7) / 0.3;
+        px = 725 + t * 35;
+        py = (1 - t) * 101 + t * ramTargetY;
+      }
+      drawCapsulePacket(ctx, px, py, fdeState.mar, cAmber);
+    }
+
+    // -------------------------------------------------------------------------
+    // Pipe 3: Data Bus Wire (Target RAM Row -> Data Bus -> MDR)
+    // -------------------------------------------------------------------------
+    const isDataBusActive = act.bus === 'busData' || act.secondaryBus === 'busData';
+    ctx.globalAlpha = getDimAlpha(isDataBusActive);
+
+    const isMemWrite = currStep.stage === 'EXECUTE' && currStep.busControlVal === 'MEM_WRITE';
+
+    ctx.beginPath();
+    ctx.moveTo(760, ramTargetY);
+    // Curve into Data Bus right port
+    ctx.bezierCurveTo(742, ramTargetY, 738, 251, 725, 251);
+    // Straight through Data Bus
+    ctx.lineTo(475, 251);
+    // Curve into CPU and down into MDR top
+    ctx.bezierCurveTo(390, 251, 289, 175, 289, 228);
+
+    ctx.strokeStyle = isDataBusActive ? cEmerald : cBorder;
+    ctx.lineWidth = isDataBusActive ? 6.5 : 2.5;
+    if (isDataBusActive) {
+      ctx.shadowColor = cEmerald;
+      ctx.shadowBlur = 14;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Animated Capsule along Data Wire
+    if (isDataBusActive) {
+      let glideT = (animTime * 1.2) % 1;
+      if (isMemWrite) glideT = 1 - glideT; // Reverse direction for write
+
+      let px, py;
+      if (glideT < 0.3) {
+        const t = glideT / 0.3;
+        px = 760 - t * 35;
+        py = (1 - t) * ramTargetY + t * 251;
+      } else if (glideT < 0.7) {
+        const t = (glideT - 0.3) / 0.4;
+        px = 725 - t * 250;
+        py = 251;
+      } else {
+        const t = (glideT - 0.7) / 0.3;
+        px = Math.pow(1 - t, 2) * 475 + 2 * (1 - t) * t * 350 + Math.pow(t, 2) * 289;
+        py = Math.pow(1 - t, 2) * 251 + 2 * (1 - t) * t * 190 + Math.pow(t, 2) * 228;
+      }
+      drawCapsulePacket(ctx, px, py, fdeState.mdr, cEmerald);
+    }
+
+    // -------------------------------------------------------------------------
+    // Pipe 4: Control Bus Wire (CU -> Control Bus -> RAM)
+    // -------------------------------------------------------------------------
+    const isCtrlBusActive = !!currStep.busControlVal;
+    ctx.globalAlpha = getDimAlpha(isCtrlBusActive);
+
+    ctx.beginPath();
+    ctx.moveTo(130, 151);
+    ctx.bezierCurveTo(130, 401, 380, 401, 475, 401);
+    ctx.lineTo(725, 401);
+    ctx.bezierCurveTo(738, 401, 745, 460, 760, 460);
+
+    ctx.strokeStyle = isCtrlBusActive ? cPurple : cBorder;
+    ctx.lineWidth = isCtrlBusActive ? 5.5 : 2;
+    if (isCtrlBusActive) {
+      ctx.shadowColor = cPurple;
+      ctx.shadowBlur = 12;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    if (isCtrlBusActive) {
+      const glideT = (animTime * 1.3) % 1;
+      const px = 475 + glideT * 250;
+      const py = 401;
+      drawCapsulePacket(ctx, px, py, currStep.busControlVal || 'MEM_READ', cPurple);
+    }
+
+    ctx.restore();
+  }
+
+  // Draw 3D-styled Data Capsule Packet
+  function drawCapsulePacket(ctx, x, y, label, color) {
+    ctx.save();
+    ctx.font = 'bold 9.5px JetBrains Mono, monospace';
+    const textW = Math.max(ctx.measureText(label).width + 14, 38);
+    const capH = 18;
+    const rx = x - textW / 2;
+    const ry = y - capH / 2;
+
+    drawRoundRect(ctx, rx, ry, textW, capH, 9);
+    ctx.fillStyle = color;
+    ctx.shadowColor = color;
+    ctx.shadowBlur = 12;
+    ctx.fill();
+
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#ffffff';
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, x, y);
+
+    ctx.restore();
+  }
+
+  // Render Mini Step Flow Widget (From Concept Art)
+  function renderMiniStepFlow(step) {
+    const container = document.getElementById('miniStepFlowWidget');
+    if (!container || !step) return;
+
+    const pcStr = fdeState.pc.toString().padStart(2, '0');
+    const marStr = fdeState.mar;
+    const mdrStr = fdeState.mdr;
+    let html = '';
+
+    if (step.stage === 'FETCH') {
+      if (step.activeElements && step.activeElements.internalWire === 'wirePCtoMAR') {
+        // Fetch 1: PC -> MAR
+        html = `
+          <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">PC</span><span class="mini-flow-node-val">${pcStr}</span></div>
+          <div class="mini-flow-wire"><span class="mini-flow-packet">${pcStr}</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">MAR</span><span class="mini-flow-node-val">${pcStr}</span></div>
+        `;
+      } else if (step.isIncrement) {
+        // Fetch 3: PC = PC + 1
+        const oldPc = Math.max(0, fdeState.pc - 1).toString().padStart(2, '0');
+        html = `
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">PC (Old)</span><span class="mini-flow-node-val">${oldPc}</span></div>
+          <div class="mini-flow-wire wire-teal"><span class="mini-flow-packet">+1 (INC)</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">PC (New)</span><span class="mini-flow-node-val">${pcStr}</span></div>
+        `;
+      } else {
+        // Fetch 2: RAM -> MDR
+        html = `
+          <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">MAR</span><span class="mini-flow-node-val">${marStr}</span></div>
+          <div class="mini-flow-wire"><span class="mini-flow-packet">ADDR ${marStr}</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">RAM</span><span class="mini-flow-node-val">${mdrStr}</span></div>
+          <div class="mini-flow-wire wire-teal"><span class="mini-flow-packet">${mdrStr}</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
+        `;
+      }
+    } else if (step.stage === 'DECODE') {
+      html = `
+        <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
+        <div class="mini-flow-wire wire-purple"><span class="mini-flow-packet">OPCODE</span></div>
+        <span class="mini-flow-arrow">➔</span>
+        <div class="mini-flow-node highlight-purple"><span class="mini-flow-node-tag">CU</span><span class="mini-flow-node-val">${fdeState.decodedOpcode} ${fdeState.decodedOperand || ''}</span></div>
+      `;
+    } else if (step.stage === 'EXECUTE') {
+      const op = fdeState.decodedOpcode;
+      if (op === 'LOAD') {
+        html = `
+          <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">RAM</span><span class="mini-flow-node-val">${mdrStr}</span></div>
+          <div class="mini-flow-wire wire-teal"><span class="mini-flow-packet">${mdrStr}</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
+        `;
+      } else if (op === 'ADD' || op === 'SUB') {
+        html = `
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">ALU</span><span class="mini-flow-node-val">${op}</span></div>
+          <div class="mini-flow-wire wire-teal"><span class="mini-flow-packet">RESULT</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
+        `;
+      } else if (op === 'STORE') {
+        html = `
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
+          <div class="mini-flow-wire"><span class="mini-flow-packet">WRITE</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">RAM</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
+        `;
+      } else {
+        html = `
+          <div class="mini-flow-node highlight-purple"><span class="mini-flow-node-tag">CU</span><span class="mini-flow-node-val">HLT</span></div>
+          <div class="mini-flow-wire wire-purple"><span class="mini-flow-packet">HALT_SIG</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-purple"><span class="mini-flow-node-tag">CPU</span><span class="mini-flow-node-val">HALTED</span></div>
+        `;
+      }
+    }
+
+    container.innerHTML = html;
   }
 
   function updateStepNarrativeDOM() {
@@ -708,155 +1522,8 @@
     if (cycleStatusBadge) {
       cycleStatusBadge.textContent = `Cycle ${fdeState.cycleCount} • ${currentStep.stage}`;
     }
-  }
 
-  function applyMicroStepVisuals(step) {
-    clearActiveGlows();
-    if (!step) return;
-
-    const canvas = document.getElementById('motherboardCanvas');
-    if (canvas) canvas.classList.add('focus-mode');
-
-    const act = step.activeElements || {};
-
-    if (act.source) {
-      const srcEl = document.getElementById(act.source);
-      if (srcEl) {
-        if (srcEl.classList.contains('hw-node') || srcEl.classList.contains('register-card') || srcEl.classList.contains('register-block')) {
-          srcEl.classList.add('active-source');
-        } else if (srcEl.classList.contains('component-block') || srcEl.classList.contains('hardware-card')) {
-          srcEl.classList.add('active-glow');
-        } else if (srcEl.classList.contains('ram-row')) {
-          srcEl.classList.add('active-ram-read');
-        }
-      }
-      if (act.source.startsWith('ram-row-')) {
-        const addr = act.source.replace('ram-row-', '');
-        const slotEl = document.getElementById(`ram-slot-${addr}`);
-        if (slotEl) slotEl.classList.add('active-slot-read');
-      }
-    }
-
-    if (act.target) {
-      const tgtEl = document.getElementById(act.target);
-      if (tgtEl) {
-        if (tgtEl.classList.contains('hw-node') || tgtEl.classList.contains('register-card') || tgtEl.classList.contains('register-block')) {
-          tgtEl.classList.add('active-target');
-        } else if (tgtEl.classList.contains('component-block') || tgtEl.classList.contains('hardware-card')) {
-          tgtEl.classList.add('active-glow');
-        } else if (tgtEl.classList.contains('ram-row')) {
-          tgtEl.classList.add('active-ram-write');
-        }
-      }
-      if (act.target.startsWith('ram-row-')) {
-        const addr = act.target.replace('ram-row-', '');
-        const slotEl = document.getElementById(`ram-slot-${addr}`);
-        if (slotEl) slotEl.classList.add('active-slot-write');
-      }
-    }
-
-    if (act.secondaryTarget) {
-      const secEl = document.getElementById(act.secondaryTarget);
-      if (secEl && (secEl.classList.contains('hw-node') || secEl.classList.contains('register-card') || secEl.classList.contains('register-block'))) {
-        secEl.classList.add('active-target');
-      }
-    }
-
-    if (act.internalWire) {
-      const wireEl = document.getElementById(act.internalWire);
-      if (wireEl) wireEl.classList.add('active-wire');
-    }
-
-    if (act.ramRow) {
-      const isWrite = step.stage === 'EXECUTE' && step.busControlVal === 'MEM_WRITE';
-      const slotEl = document.getElementById(`ram-slot-${act.ramRow}`);
-      if (slotEl) {
-        slotEl.classList.add(isWrite ? 'active-slot-write' : 'active-slot-read');
-      }
-      const rowEl = document.getElementById(`ram-row-${act.ramRow}`);
-      if (rowEl) {
-        rowEl.classList.add(isWrite ? 'active-ram-write' : 'active-ram-read');
-      }
-    }
-
-    if (step.isIncrement) {
-      const pcNode = document.getElementById('regPC');
-      if (pcNode) pcNode.classList.add('active-inc');
-      const incBadge = document.getElementById('pcIncrementBadge');
-      if (incBadge) incBadge.style.display = 'inline-block';
-    }
-
-    if (act.bus) {
-      const busEl = document.getElementById(act.bus);
-      if (busEl) busEl.classList.add('bus-active');
-    }
-    if (act.secondaryBus) {
-      const secBusEl = document.getElementById(act.secondaryBus);
-      if (secBusEl) secBusEl.classList.add('bus-active');
-    }
-
-    // Dynamic Bus Packet Glide Animation
-    if (step.packetDir) {
-      if (step.packetDir.bus === 'address') {
-        const p = document.getElementById('packetAddress');
-        const b = document.getElementById('busAddress');
-        const pVal = document.getElementById('packetAddressVal');
-        if (pVal) pVal.textContent = step.packetDir.val || '';
-        if (p) p.classList.add(step.packetDir.dir === 'to-ram' ? 'packet-to-ram' : 'packet-to-cpu');
-        if (b) b.classList.add('bus-active');
-      } else if (step.packetDir.bus === 'data') {
-        const p = document.getElementById('packetData');
-        const b = document.getElementById('busData');
-        const pVal = document.getElementById('packetDataVal');
-        if (pVal) pVal.textContent = step.packetDir.val || '';
-        if (p) p.classList.add(step.packetDir.dir === 'to-ram' ? 'packet-to-ram' : 'packet-to-cpu');
-        if (b) b.classList.add('bus-active');
-      }
-    }
-
-    // Bus Status Packet Value Fillers
-    if (step.busAddressVal) {
-      const p = document.getElementById('packetAddress');
-      const pVal = document.getElementById('packetAddressVal');
-      const b = document.getElementById('busAddress');
-      if (pVal && (!step.packetDir || step.packetDir.bus !== 'address')) {
-        pVal.textContent = step.busAddressVal.replace('Addr: ', '');
-        if (p) p.classList.add('packet-to-ram');
-      }
-      if (b) b.classList.add('bus-active');
-    }
-    if (step.busDataVal) {
-      const p = document.getElementById('packetData');
-      const pVal = document.getElementById('packetDataVal');
-      const b = document.getElementById('busData');
-      if (pVal && (!step.packetDir || step.packetDir.bus !== 'data')) {
-        pVal.textContent = step.busDataVal;
-        const dir = (step.stage === 'EXECUTE' && step.busControlVal === 'MEM_WRITE') ? 'packet-to-ram' : 'packet-to-cpu';
-        if (p) p.classList.add(dir);
-      }
-      if (b) b.classList.add('bus-active');
-    }
-    if (step.busControlVal) {
-      const bCtrl = document.getElementById('busControl');
-      const p = document.getElementById('packetControl');
-      const pCtrlVal = document.getElementById('packetControlVal');
-      if (pCtrlVal) pCtrlVal.textContent = step.busControlVal;
-      if (bCtrl) bCtrl.classList.add('bus-active');
-      if (p) p.classList.add('packet-to-ram');
-    }
-
-    // RAM Auto-scroll to active row
-    const targetRow = document.getElementById(`ram-row-${fdeState.mar}`);
-    const scrollWrap = document.getElementById('ramScrollContainer');
-    if (targetRow && scrollWrap) {
-      const rowTop = targetRow.offsetTop;
-      const wrapHeight = scrollWrap.clientHeight;
-      const rowHeight = targetRow.clientHeight;
-      scrollWrap.scrollTo({
-        top: Math.max(0, rowTop - (wrapHeight / 2) + (rowHeight / 2)),
-        behavior: 'smooth'
-      });
-    }
+    renderMiniStepFlow(currentStep);
   }
 
   function stepForwardFDE() {
@@ -870,10 +1537,6 @@
 
     // Execute step action
     currentStep.action();
-    applyMicroStepVisuals(currentStep);
-    updateRegistersDOM();
-    updateStepNarrativeDOM();
-    renderRAMTable();
 
     // Advance to next microstep
     fdeState.currentMicroStepIndex++;
@@ -882,6 +1545,9 @@
     if (fdeState.currentMicroStepIndex >= fdeState.microSteps.length) {
       if (fdeState.isHalted) {
         pauseFDE();
+        updateRegistersDOM();
+        renderRAMTable();
+        updateStepNarrativeDOM();
         return;
       }
       // Generate next instruction's micro-steps
@@ -889,6 +1555,10 @@
       fdeState.microSteps = generateMicroStepsForInstruction(fdeState.pc);
       fdeState.currentMicroStepIndex = 0;
     }
+
+    updateRegistersDOM();
+    renderRAMTable();
+    updateStepNarrativeDOM();
   }
 
   function playFDE() {
@@ -974,6 +1644,7 @@
       });
     });
 
+    initCanvasMotherboard();
     initComponentInspector();
     resetFDE();
   }
@@ -982,9 +1653,9 @@
   // 2.5 INTERACTIVE COMPONENT HOVER & CLICK INSPECTOR
   // =========================================================================
 
-  function initComponentInspector() {
+  function showInspector(key, mouseX) {
+    currentlyInspectedKey = key;
     const card = document.getElementById('componentInspectorCard');
-    const closeBtn = document.getElementById('closeInspectorBtn');
     const iconEl = document.getElementById('inspectorIcon');
     const nameEl = document.getElementById('inspectorName');
     const nickEl = document.getElementById('inspectorNickname');
@@ -992,23 +1663,37 @@
     const valEl = document.getElementById('inspectorLiveValue');
 
     if (!card) return;
+    const data = COMPONENT_DETAILS[key];
+    if (!data) return;
 
-    function showInspector(key) {
-      currentlyInspectedKey = key;
-      const data = COMPONENT_DETAILS[key];
-      if (!data) return;
-      if (iconEl) iconEl.textContent = data.icon;
-      if (nameEl) nameEl.textContent = data.name;
-      if (nickEl) nickEl.textContent = data.nickname;
-      if (roleEl) roleEl.textContent = data.role;
-      if (valEl) valEl.textContent = data.getValue();
-      card.style.display = 'block';
+    if (iconEl) iconEl.textContent = data.icon;
+    if (nameEl) nameEl.textContent = data.name;
+    if (nickEl) nickEl.textContent = data.nickname;
+    if (roleEl) roleEl.textContent = data.role;
+    if (valEl) valEl.textContent = data.getValue();
+
+    if (mouseX !== undefined && mouseX !== null) {
+      if (mouseX > 530) {
+        card.style.left = '16px';
+        card.style.right = 'auto';
+      } else {
+        card.style.right = '16px';
+        card.style.left = 'auto';
+      }
     }
 
-    function hideInspector() {
-      currentlyInspectedKey = null;
-      card.style.display = 'none';
-    }
+    card.style.display = 'block';
+  }
+
+  function hideInspector() {
+    currentlyInspectedKey = null;
+    const card = document.getElementById('componentInspectorCard');
+    if (card) card.style.display = 'none';
+  }
+
+  function initComponentInspector() {
+    const card = document.getElementById('componentInspectorCard');
+    const closeBtn = document.getElementById('closeInspectorBtn');
 
     if (closeBtn) {
       closeBtn.addEventListener('click', hideInspector);
@@ -1025,7 +1710,7 @@
     });
 
     document.addEventListener('click', (e) => {
-      if (!card.contains(e.target) && !e.target.closest('[data-inspect]')) {
+      if (card && !card.contains(e.target) && !e.target.closest('[data-inspect]')) {
         hideInspector();
       }
     });
