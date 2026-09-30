@@ -242,9 +242,27 @@
           </div>
         </div>
 
-        <!-- The Motherboard Canvas Viewport -->
-        <div class="canvas-viewport" style="position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-surface); margin: 12px 0;">
+        <!-- The Motherboard Canvas Viewport (Edge-to-edge, flush, no inner border box) -->
+        <div class="canvas-viewport" style="position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; border: none; margin: 0; padding: 0; background: var(--bg-surface);">
           <canvas id="cpuMotherboardCanvas" width="1060" height="520" class="motherboard-render-canvas" style="display: block; width: 100%; height: auto;"></canvas>
+
+          <!-- Component Inspector Tooltip (Restored on component hover) -->
+          <div id="componentInspectorCard" class="component-tooltip" style="display: none; position: absolute; top: 12px; z-index: 50; max-width: 260px;">
+            <div class="tooltip-header">
+              <span id="inspectorIcon" class="tooltip-icon">🔍</span>
+              <div>
+                <h5 id="inspectorName" class="tooltip-title">Program Counter (PC)</h5>
+                <span id="inspectorNickname" class="tooltip-nick">"The Bookmark"</span>
+              </div>
+            </div>
+            <ul id="inspectorBullets" class="tooltip-bullets">
+              <!-- Injected dynamically -->
+            </ul>
+            <div class="tooltip-value-row">
+              <span class="tooltip-val-label">Live Status:</span>
+              <strong id="inspectorLiveValue" class="tooltip-val font-mono">00</strong>
+            </div>
+          </div>
         </div>
 
         <!-- In-Diagram Step Storyline & Spotlight Callout (Placed BELOW Schematic) -->

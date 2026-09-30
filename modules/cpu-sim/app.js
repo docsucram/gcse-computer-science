@@ -783,18 +783,45 @@
     }
 
     const HIT_ZONES = [
-      { key: 'pc',          x: 41,  y: 64,  w: 68,  h: 86 },
-      { key: 'mar',         x: 115, y: 64,  w: 68,  h: 86 },
-      { key: 'mdr',         x: 189, y: 64,  w: 68,  h: 86 },
-      { key: 'cir',         x: 263, y: 64,  w: 68,  h: 86 },
-      { key: 'acc',         x: 337, y: 64,  w: 68,  h: 86 },
-      { key: 'alu',         x: 430, y: 45,  w: 285, h: 112 },
-      { key: 'cu',          x: 35,  y: 365, w: 380, h: 125 },
-      { key: 'bus-address', x: 74,  y: 183, w: 671, h: 30 },
-      { key: 'bus-data',    x: 222, y: 243, w: 523, h: 30 },
-      { key: 'bus-control', x: 225, y: 303, w: 520, h: 30 },
-      { key: 'ram',         x: 745, y: 15,  w: 298, h: 490 }
+      { key: 'pc',          x: 30,  y: 42,  w: 96,  h: 96 },
+      { key: 'mar',         x: 138, y: 42,  w: 96,  h: 96 },
+      { key: 'mdr',         x: 246, y: 42,  w: 96,  h: 96 },
+      { key: 'cir',         x: 354, y: 42,  w: 96,  h: 96 },
+      { key: 'acc',         x: 462, y: 42,  w: 96,  h: 96 },
+      { key: 'alu',         x: 578, y: 42,  w: 150, h: 96 },
+      { key: 'cu',          x: 30,  y: 360, w: 500, h: 135 },
+      { key: 'bus-address', x: 78,  y: 181, w: 682, h: 28 },
+      { key: 'bus-data',    x: 294, y: 236, w: 466, h: 28 },
+      { key: 'bus-control', x: 220, y: 291, w: 540, h: 28 },
+      { key: 'ram',         x: 760, y: 15,  w: 280, h: 490 }
     ];
+
+    canvas.addEventListener('mousemove', (e) => {
+      const pos = getMousePos(e);
+      let foundKey = null;
+
+      for (const zone of HIT_ZONES) {
+        if (pos.x >= zone.x && pos.x <= zone.x + zone.w && pos.y >= zone.y && pos.y <= zone.y + zone.h) {
+          foundKey = zone.key;
+          break;
+        }
+      }
+
+      hoveredKey = foundKey;
+      if (foundKey) {
+        canvas.style.cursor = 'pointer';
+        showInspector(foundKey, pos.x);
+      } else {
+        canvas.style.cursor = 'default';
+        hideInspector();
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      hoveredKey = null;
+      canvas.style.cursor = 'default';
+      hideInspector();
+    });
 
     startCanvasLoop();
   }
@@ -808,9 +835,6 @@
       const dt = Math.min((now - lastTimestamp) / 1000, 0.1);
       lastTimestamp = now;
 
-      // Base speed: 1 full calm cycle every 2.8 seconds at Normal speed (1000ms playSpeedMs)
-      // Slow speed (2000ms): 1 cycle every 4.8 seconds
-      // Fast speed (500ms): 1 cycle every 1.4 seconds
       let speedMult = 1.0;
       if (fdeState.playSpeedMs >= 1800) speedMult = 0.58;
       else if (fdeState.playSpeedMs <= 600) speedMult = 1.9;
@@ -857,13 +881,9 @@
     // Clear viewport
     ctx.clearRect(0, 0, 1060, 520);
 
-    // Subtle motherboard substrate background
-    drawRoundRect(ctx, 4, 4, 1052, 512, 12);
+    // Clean substrate fill (no nested border lines)
     ctx.fillStyle = cBgRoot;
-    ctx.fill();
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = cBorder;
-    ctx.stroke();
+    ctx.fillRect(0, 0, 1060, 520);
 
     const isInitial = fdeState.isInitialState;
     const currStep = isInitial ? {} : (fdeState.microSteps[fdeState.currentMicroStepIndex] || {});
