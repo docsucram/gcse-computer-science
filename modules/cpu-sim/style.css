@@ -608,18 +608,17 @@
 .canvas-viewport {
   position: relative;
   width: 100%;
-  display: flex;
-  justify-content: center;
+  display: block;
+  overflow: hidden;
 }
 
 .motherboard-render-canvas {
   width: 100%;
-  max-width: 1060px;
+  max-width: none;
   height: auto;
   aspect-ratio: 1060 / 520;
   display: block;
-  border-radius: 12px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 .chip-header {
