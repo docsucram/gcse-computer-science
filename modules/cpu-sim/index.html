@@ -223,11 +223,11 @@
                   <span id="inspectorNickname" class="tooltip-nick">"The Bookmark"</span>
                 </div>
               </div>
-              <p id="inspectorRole" class="tooltip-text">
-                Holds the memory address of the NEXT instruction to be fetched from RAM.
-              </p>
+              <ul id="inspectorBullets" class="tooltip-bullets">
+                <!-- Injected dynamically -->
+              </ul>
               <div class="tooltip-value-row">
-                <span class="tooltip-val-label">Live Value:</span>
+                <span class="tooltip-val-label">Live Status:</span>
                 <strong id="inspectorLiveValue" class="tooltip-val font-mono">00</strong>
               </div>
             </div>
@@ -250,9 +250,9 @@
                 <span id="narrativeStageBadge" class="stage-badge stage-fetch">FETCH STAGE</span>
                 <h4 id="narrativeTitle" class="storyline-title">Fetch 1: Copy PC Address to MAR</h4>
               </div>
-              <p id="narrativePlainEnglish" class="storyline-text">
-                The CPU copies the memory address from the Program Counter (00) into the Memory Address Register (MAR) across the internal bus.
-              </p>
+              <ul id="narrativeBullets" class="storyline-bullets">
+                <!-- Injected dynamically with punchy key takeaways -->
+              </ul>
             </div>
 
             <!-- Mini Step Flow Widget (Visual Micro-Action Preview) -->
