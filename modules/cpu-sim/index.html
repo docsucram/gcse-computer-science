@@ -114,15 +114,6 @@
             <p>Watch how instructions travel between RAM, buses, and registers in the Von Neumann architecture.</p>
           </div>
         </div>
-
-        <div class="control-group">
-          <span class="control-label">Preset Program:</span>
-          <select id="programSelect" class="control-select">
-            <option value="add">Program 1: Add Two Numbers (12 + 8)</option>
-            <option value="sub">Program 2: Subtract Numbers (20 - 7)</option>
-            <option value="store">Program 3: Store Constant (Value 42)</option>
-          </select>
-        </div>
       </div>
 
       <!-- Friendly Intro Card: CPU & Registers -->
@@ -145,17 +136,67 @@
             <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
               <strong style="color: #0284c7;">Key Registers to Remember:</strong><br>
               • <strong>PC (Program Counter):</strong> Address of the NEXT instruction.<br>
-              • <strong>MAR:</strong> Address of where in RAM we are reading/writing.<br>
-              • <strong>MDR:</strong> Holds the actual data/instruction being moved.<br>
+              • <strong>MAR:</strong> Address in RAM we are reading/writing.<br>
+              • <strong>MDR:</strong> Holds data/instruction fetched from or sent to RAM.<br>
+              • <strong>CIR:</strong> Holds instruction currently being decoded and executed.<br>
               • <strong>ACC (Accumulator):</strong> Holds temporary calculation results.
             </div>
           </div>
         </div>
       </details>
 
+      <!-- Choose Programme & Custom RAM Card (Directly under How CPU Works) -->
+      <div class="program-selector-card">
+        <div class="program-selector-header">
+          <div class="selector-label-group">
+            <span class="selector-icon">🎯</span>
+            <div>
+              <h4 class="selector-heading">Choose Programme</h4>
+              <p class="selector-subheading">Select a pre-built GCSE assembly program or customize instructions and data in RAM.</p>
+            </div>
+          </div>
+          <div class="selector-actions">
+            <select id="programSelect" class="control-select-large">
+              <option value="add">Program 1: Add Two Numbers (12 + 8 ➔ ACC)</option>
+              <option value="sub">Program 2: Subtract Numbers (20 - 7 ➔ ACC)</option>
+              <option value="store">Program 3: Store Constant (Value 42 ➔ RAM 04)</option>
+              <option value="custom">🛠️ Custom Programme (User Defined)</option>
+            </select>
+            <button id="openCustomRamBtn" class="btn btn-secondary btn-custom-ram">
+              ✏️ Edit RAM / Custom Programme
+            </button>
+          </div>
+        </div>
+
+        <!-- Custom RAM Editor Drawer (Expandable) -->
+        <div id="customRamDrawer" class="custom-ram-drawer" style="display: none;">
+          <div class="drawer-header">
+            <span class="drawer-title">🛠️ Custom RAM Assembly Configuration (Slots 00 – 07)</span>
+            <span class="drawer-hint">Configure instructions (00–03) and memory data (04–07). Instructions execute sequentially from 00 until HLT.</span>
+          </div>
+          <div id="customRamGrid" class="custom-ram-grid">
+            <!-- Dynamically populated -->
+          </div>
+          <div class="drawer-footer">
+            <button id="applyCustomRamBtn" class="btn btn-primary" style="padding: 7px 18px; font-size: 12.5px;">
+              Apply to RAM & Reset
+            </button>
+            <button id="resetDefaultsRamBtn" class="btn btn-secondary" style="padding: 7px 14px; font-size: 12px;">
+              Restore Default (Program 1)
+            </button>
+            <button id="closeCustomRamBtn" class="btn btn-ghost" style="padding: 7px 12px; font-size: 12px;">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
       <!-- Playback Controls Bar -->
       <div class="toolbar-row" style="background: var(--bg-surface); padding: 12px 18px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 20px;">
         <div class="control-group">
+          <button id="fdeStepBackBtn" class="control-btn" style="padding: 7px 14px;" disabled title="Rewind to previous microstep">
+            ❮ Step Back
+          </button>
           <button id="fdeStepBtn" class="btn btn-primary" style="padding: 7px 16px; font-size: 12.5px;">
             Step Forward ❯
           </button>
@@ -319,6 +360,13 @@
                       <td id="regDenMDR" class="reg-val-cell font-mono">---</td>
                       <td id="regHexMDR" class="reg-hex-cell font-mono">---</td>
                       <td class="reg-role-cell">Holds data/instruction fetched from RAM</td>
+                    </tr>
+                    <tr id="regRowCIR" class="reg-state-row">
+                      <td><span class="reg-tag tag-cir" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3);">CIR</span></td>
+                      <td class="reg-name-cell">Current Instr Reg</td>
+                      <td id="regDenCIR" class="reg-val-cell font-mono">---</td>
+                      <td id="regHexCIR" class="reg-hex-cell font-mono">---</td>
+                      <td class="reg-role-cell">Holds active instruction while decoded & executed</td>
                     </tr>
                     <tr id="regRowACC" class="reg-state-row">
                       <td><span class="reg-tag tag-acc">ACC</span></td>

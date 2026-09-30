@@ -96,6 +96,20 @@
   }
 
   const BASE_PROGRAMS = {
+    custom: {
+      name: 'Custom User Programme',
+      desc: 'User-configured assembly instructions and memory data',
+      ram: [
+        { addr: '00', val: 'LOAD 05', type: 'Instruction' },
+        { addr: '01', val: 'ADD 06',  type: 'Instruction' },
+        { addr: '02', val: 'STORE 07',type: 'Instruction' },
+        { addr: '03', val: 'HLT',     type: 'Instruction' },
+        { addr: '04', val: '0',       type: 'Empty' },
+        { addr: '05', val: '10',      type: 'Data' },
+        { addr: '06', val: '5',       type: 'Data' },
+        { addr: '07', val: '0',       type: 'Result' }
+      ]
+    },
     add: {
       name: 'Add Two Numbers (12 + 8)',
       ram: [
@@ -145,6 +159,7 @@
     pc: 0,
     mar: '00',
     mdr: '---',
+    cir: '---',
     acc: 0,
     decodedOpcode: 'NONE',
     decodedOperand: '',
@@ -155,7 +170,7 @@
     playSpeedMs: 1000,
     isHalted: false,
     cycleCount: 1,
-    prevRegisters: { pc: null, mar: null, mdr: null, acc: null }
+    prevRegisters: { pc: null, mar: null, mdr: null, cir: null, acc: null }
   };
 
   const OPCODES_HEX_BIN = {
@@ -227,9 +242,20 @@
       bullets: [
         '<strong>Temporary buffer</strong> holding data or instructions from RAM',
         '<strong>Connected directly</strong> to the bidirectional Data Bus',
-        '<strong>Passes opcodes to CU</strong> and numerical data to ALU / ACC'
+        '<strong>Passes instructions to CIR</strong> and numerical data to ALU / ACC'
       ],
       getValue: () => `Contents: "${fdeState.mdr}"`
+    },
+    cir: {
+      name: 'Current Instruction Register (CIR)',
+      nickname: 'The Active Instruction',
+      icon: '📋',
+      bullets: [
+        '<strong>Holds active instruction</strong> while being decoded and executed',
+        '<strong>Receives instruction from MDR</strong> immediately after the fetch',
+        '<strong>Splits into Opcode</strong> (what to do) and <strong>Operand</strong> (data/address)'
+      ],
+      getValue: () => `Instruction: "${fdeState.cir}"`
     },
     acc: {
       name: 'Accumulator (ACC)',
@@ -315,46 +341,26 @@
   // Micro-step generator strictly aligned with AQA 8525 §3.4.1:
   // Distinct 5 steps: Fetch 1 (PC->MAR), Fetch 2 (RAM->MDR), Fetch 3 (PC++), Decode, Execute
   function generateMicroStepsForInstruction(pcVal) {
-    const ramEntry = fdeState.ram[pcVal];
-    if (!ramEntry || ramEntry.type !== 'Instruction' || fdeState.isHalted) {
-      return [
-        {
-          stage: 'HALTED',
-          title: 'Execution Complete (CPU Halted)',
-          instrTag: 'HLT',
-          bullets: [
-            '<strong>Halt instruction reached:</strong> CPU has stopped the F-D-E cycle',
-            '<strong>Program finished:</strong> Final computation results remain stored in RAM and ACC',
-            '<strong>System standby:</strong> Click <strong>Reset</strong> to restart or choose another program'
-          ],
-          examTakeaway: 'The CPU stops executing instructions when a HLT instruction or program end is reached.',
-          action: () => {
-            fdeState.isHalted = true;
-          }
-        }
-      ];
-    }
-
-    const tokens = ramEntry.val.trim().split(/\s+/);
-    const opcode = tokens[0].toUpperCase();
-    const operand = tokens[1] || '';
-    const pcStr = pcVal.toString().padStart(2, '0');
-    const nextPcStr = (pcVal + 1).toString().padStart(2, '0');
-    const instrDisplay = `Instr: ${ramEntry.val}`;
-
     const steps = [];
+    const ramEntry = fdeState.ram[pcVal] || { addr: pcVal.toString().padStart(2, '0'), val: 'HLT', type: 'Instruction' };
+    const parts = ramEntry.val.trim().split(/\s+/);
+    const opcode = parts[0].toUpperCase();
+    const operand = parts[1] !== undefined ? parts[1].padStart(2, '0') : '';
+    const pcStr = pcVal.toString().padStart(2, '0');
+    const nextPcVal = (pcVal + 1) % 32;
+    const nextPcStr = nextPcVal.toString().padStart(2, '0');
+    const instrDisplay = `${opcode} ${operand}`.trim();
 
-    // STEP 1: Fetch 1 (PC -> MAR)
+    // STEP 1: Fetch 1 (PC -> Address Bus -> MAR)
     steps.push({
       stage: 'FETCH',
       title: 'Fetch 1: Copy PC Address to MAR',
       instrTag: instrDisplay,
       bullets: [
-        `<strong>Program Counter holds:</strong> Address ${pcStr} (points to next instruction in RAM)`,
-        `<strong>Address Bus:</strong> Address ${pcStr} placed onto the Address Bus and latched into MAR`,
-        '<strong>Target Locked:</strong> Prepares the Memory Address Register for RAM lookup'
+        `<strong>Address Bus:</strong> Address ${pcStr} is sent across the Address Bus into the Memory Address Register (MAR)`,
+        `<strong>MAR Armed:</strong> Holds address ${pcStr} of the next instruction or value to be fetched or stored`
       ],
-      examTakeaway: 'The contents of the Program Counter (PC) are copied to the MAR via the Address Bus.',
+      examTakeaway: 'The address held in the Program Counter (PC) is copied to the Memory Address Register (MAR) via the Address Bus.',
       activeElements: { source: 'regPC', target: 'regMAR', bus: 'busAddress' },
       action: () => {
         fdeState.mar = pcStr;
@@ -363,17 +369,18 @@
       }
     });
 
-    // STEP 2: Fetch 2 (Memory Read from RAM into MDR)
+    // STEP 2: Fetch 2 (RAM Lookup via Address Bus & Copy to MDR via Data Bus)
     steps.push({
       stage: 'FETCH',
       title: 'Fetch 2: RAM Lookup & Copy to MDR',
       instrTag: instrDisplay,
       bullets: [
-        `<strong>Address Bus:</strong> Transmits memory address ${pcStr} from MAR to RAM`,
-        '<strong>Control Bus:</strong> Control Unit pulses MEM_READ command to RAM',
-        `<strong>Data Bus:</strong> RAM finds instruction "${ramEntry.val}" and returns it into MDR`
+        `<strong>Address Bus:</strong> Sends memory address ${pcStr} from MAR to RAM`,
+        '<strong>Control Bus:</strong> Control Unit sends MEM_READ command across Control Bus to RAM',
+        `<strong>Data Bus:</strong> RAM retrieves "${ramEntry.val}" and returns it down Data Bus into the Memory Data Register (MDR)`,
+        '<strong>MDR Buffer:</strong> Holds values and instructions ready for CPU processing'
       ],
-      examTakeaway: 'The instruction at the memory address in MAR is copied to the MDR via the Data Bus.',
+      examTakeaway: 'The instruction at the address in MAR is sent along the Data Bus and stored in the Memory Data Register (MDR).',
       activeElements: { source: 'regMAR', target: 'regMDR', bus: 'busAddress', secondaryBus: 'busData', ramRow: pcStr },
       busAddressVal: `Addr: ${pcStr}`,
       busDataVal: `${ramEntry.val}`,
@@ -391,29 +398,45 @@
       instrTag: instrDisplay,
       bullets: [
         `<strong>PC Advances:</strong> Program Counter increments by 1 (${pcStr} ➔ ${nextPcStr})`,
-        '<strong>Sequencing:</strong> Primes PC to point to the next instruction for the subsequent cycle',
-        '<strong>AQA Key Mark:</strong> Distinct mark awarded for stating PC = PC + 1'
+        '<strong>Sequencing:</strong> Ensures the CPU is ready to fetch the next sequential instruction',
+        '<strong>AQA & OCR Key Mark:</strong> Distinct mark awarded for stating PC = PC + 1 before Fetch finishes'
       ],
-      examTakeaway: 'The Program Counter is incremented by 1 (PC ← PC + 1).',
+      examTakeaway: 'Before completing the Fetch stage, the Program Counter is incremented by 1 (PC ← PC + 1).',
       activeElements: { target: 'regPC' },
       isIncrement: true,
       action: () => {
-        fdeState.pc = pcVal + 1;
+        fdeState.pc = nextPcVal;
       }
     });
 
-    // STEP 4: Decode (CU decodes MDR)
+    // STEP 4: Decode 1 (Copy Instruction from MDR to CIR)
     steps.push({
       stage: 'DECODE',
-      title: 'Decode: Control Unit Decodes Instruction in MDR',
+      title: 'Decode 1: Copy Instruction from MDR to CIR',
       instrTag: instrDisplay,
       bullets: [
-        `<strong>Instruction Passed:</strong> MDR sends "${ramEntry.val}" to the Control Unit`,
-        `<strong>Decoded into Parts:</strong> Opcode (${opcode}) and Operand (${operand || 'None'})`,
-        '<strong>Hardware Setup:</strong> CU activates internal control lines ready for execution'
+        `<strong>Instruction Latched:</strong> As it is an instruction, "${ramEntry.val}" is automatically copied from MDR into the Current Instruction Register (CIR)`,
+        '<strong>CIR Active:</strong> Current Instruction Register holds the active instruction ready for decoding',
+        '<strong>MDR Available:</strong> Frees MDR to receive data values during execution'
       ],
-      examTakeaway: 'The instruction held in the Memory Data Register (MDR) is decoded by the Control Unit (CU).',
-      activeElements: { source: 'regMDR', target: 'cuBlock', internalWire: 'wireMDRtoExecution' },
+      examTakeaway: 'The instruction in the MDR is copied to the Current Instruction Register (CIR) ready to be decoded.',
+      activeElements: { source: 'regMDR', target: 'regCIR', internalWire: 'wireMDRtoCIR' },
+      action: () => {
+        fdeState.cir = ramEntry.val;
+      }
+    });
+
+    // STEP 5: Decode 2 (Control Unit Decodes Instruction in CIR)
+    steps.push({
+      stage: 'DECODE',
+      title: 'Decode 2: Control Unit Decodes Instruction in CIR',
+      instrTag: instrDisplay,
+      bullets: [
+        `<strong>Decoded into Parts:</strong> CU decodes CIR ("${ramEntry.val}") into Opcode (${opcode}: what to do) and Operand (${operand || 'None'}: address/data)`,
+        '<strong>Centre of Operations:</strong> CU activates internal timing circuits and prepares execution signals'
+      ],
+      examTakeaway: 'The Control Unit (CU) decodes the instruction in CIR into opcode (operation) and operand (data/address).',
+      activeElements: { source: 'regCIR', target: 'cuBlock' },
       busControlVal: 'DECODE_OP',
       action: () => {
         fdeState.decodedOpcode = opcode;
@@ -421,7 +444,7 @@
       }
     });
 
-    // STEP 5: Execute (Opcode action)
+    // STEP 6: Execute Stage
     if (opcode === 'LOAD') {
       const dataVal = fdeState.ram[parseInt(operand, 10)]?.val || '0';
       steps.push({
@@ -442,7 +465,7 @@
         action: () => {
           fdeState.mar = operand;
           fdeState.mdr = dataVal;
-          fdeState.acc = parseInt(dataVal, 10);
+          fdeState.acc = parseInt(dataVal, 10) || 0;
         }
       });
     } else if (opcode === 'ADD') {
@@ -542,12 +565,15 @@
 
   function resetFDE() {
     pauseFDE();
+    fdeHistory.length = 0;
+    updateStepBackButton();
     const prog = BASE_PROGRAMS[fdeState.selectedProgram] || BASE_PROGRAMS.add;
     fdeState.ram = build32CellRAM(prog.ram);
     fdeState.isInitialState = true;
     fdeState.pc = 0;
     fdeState.mar = '00';
     fdeState.mdr = '---';
+    fdeState.cir = '---';
     fdeState.acc = 0;
     fdeState.decodedOpcode = 'NONE';
     fdeState.decodedOperand = '';
@@ -674,6 +700,9 @@
     const mdrInt = parseInt(fdeState.mdr, 10);
     const mdrHex = !isNaN(mdrInt) ? '0x' + mdrInt.toString(16).toUpperCase().padStart(2, '0') : '---';
 
+    const cirDen = fdeState.cir || '---';
+    const cirHex = '---';
+
     const accDen = fdeState.acc.toString();
     const accHex = '0x' + (fdeState.acc >= 0 ? fdeState.acc.toString(16).toUpperCase().padStart(2, '0') : fdeState.acc.toString(16).toUpperCase());
 
@@ -698,6 +727,7 @@
     checkAndUpdateRow('regRowPC', 'regDenPC', 'regHexPC', pcDen, pcHex, 'pc', fdeState.pc);
     checkAndUpdateRow('regRowMAR', 'regDenMAR', 'regHexMAR', marDen, marHex, 'mar', fdeState.mar);
     checkAndUpdateRow('regRowMDR', 'regDenMDR', 'regHexMDR', mdrDen, mdrHex, 'mdr', fdeState.mdr);
+    checkAndUpdateRow('regRowCIR', 'regDenCIR', 'regHexCIR', cirDen, cirHex, 'cir', fdeState.cir);
     checkAndUpdateRow('regRowACC', 'regDenACC', 'regHexACC', accDen, accHex, 'acc', fdeState.acc);
 
     // Refresh live inspector readout if currently open
@@ -737,14 +767,15 @@
     }
 
     const HIT_ZONES = [
-      { key: 'pc',          x: 45,  y: 64,  w: 82,  h: 86 },
-      { key: 'mar',         x: 139, y: 64,  w: 82,  h: 86 },
-      { key: 'mdr',         x: 233, y: 64,  w: 82,  h: 86 },
-      { key: 'acc',         x: 327, y: 64,  w: 82,  h: 86 },
+      { key: 'pc',          x: 41,  y: 64,  w: 68,  h: 86 },
+      { key: 'mar',         x: 115, y: 64,  w: 68,  h: 86 },
+      { key: 'mdr',         x: 189, y: 64,  w: 68,  h: 86 },
+      { key: 'cir',         x: 263, y: 64,  w: 68,  h: 86 },
+      { key: 'acc',         x: 337, y: 64,  w: 68,  h: 86 },
       { key: 'alu',         x: 430, y: 45,  w: 285, h: 112 },
       { key: 'cu',          x: 35,  y: 365, w: 380, h: 125 },
-      { key: 'bus-address', x: 86,  y: 183, w: 659, h: 30 },
-      { key: 'bus-data',    x: 274, y: 243, w: 471, h: 30 },
+      { key: 'bus-address', x: 74,  y: 183, w: 671, h: 30 },
+      { key: 'bus-data',    x: 222, y: 243, w: 523, h: 30 },
       { key: 'bus-control', x: 225, y: 303, w: 520, h: 30 },
       { key: 'ram',         x: 745, y: 15,  w: 298, h: 490 }
     ];
@@ -862,8 +893,6 @@
     const getDimAlpha = (isActive) => (isInitial ? 1.0 : (hasFocus ? (isActive ? 1.0 : 0.32) : 1.0));
 
     // Smooth gliding progress with destination latch/dwell
-    // 0.00 to 0.78: smooth cubic ease-in-out transit
-    // 0.78 to 1.00: arrived at destination, calm latch & pulse glow
     function getGlideProgress(timeVal) {
       const cycleT = timeVal % 1;
       if (cycleT < 0.78) {
@@ -888,7 +917,7 @@
     ctx.fillStyle = cCardBg;
     ctx.fill();
     ctx.lineWidth = 2;
-    ctx.strokeStyle = (hoveredKey && ['pc', 'mar', 'mdr', 'acc', 'alu', 'cu'].includes(hoveredKey)) ? cBlue : cBorder;
+    ctx.strokeStyle = (hoveredKey && ['pc', 'mar', 'mdr', 'cir', 'acc', 'alu', 'cu'].includes(hoveredKey)) ? cBlue : cBorder;
     ctx.stroke();
 
     // CPU Header
@@ -917,6 +946,7 @@
 
     // -------------------------------------------------------------------------
     // 1.1 INTERNAL REGISTERS CONTAINER (Top Left)
+    // Houses 5 Registers: PC, MAR, MDR, CIR, ACC
     // -------------------------------------------------------------------------
     drawRoundRect(ctx, 35, 48, 380, 110, 10);
     ctx.fillStyle = isDark ? '#141c2c' : '#f8fafc';
@@ -925,19 +955,18 @@
     ctx.strokeStyle = cBorder;
     ctx.stroke();
 
-    ctx.font = 'bold 9.5px JetBrains Mono, monospace';
+    ctx.font = 'bold 9px JetBrains Mono, monospace';
     ctx.fillStyle = cTextMuted;
     ctx.textAlign = 'left';
-    ctx.fillText('INTERNAL REGISTERS (AQA CORE)', 48, 62);
+    ctx.fillText('INTERNAL REGISTERS (AQA & OCR CORE)', 44, 62);
 
-    // 4 Core Registers: PC, MAR, MDR, ACC
-    // Note: PC and MAR tap into the Address Bus (Amber).
-    // MDR and ACC tap into Data / ALU paths (Emerald/Pink).
+    // 5 Core Registers
     const REG_LIST = [
-      { id: 'regPC',  key: 'pc',  x: 45,  pinX: 86,  tag: 'PC',  name: 'Prog Counter', color: cAmber,   val: fdeState.pc.toString().padStart(2, '0') },
-      { id: 'regMAR', key: 'mar', x: 139, pinX: 180, tag: 'MAR', name: 'Mem Address',  color: cAmber,   val: fdeState.mar },
-      { id: 'regMDR', key: 'mdr', x: 233, pinX: 274, tag: 'MDR', name: 'Mem Data',     color: cEmerald, val: fdeState.mdr },
-      { id: 'regACC', key: 'acc', x: 327, pinX: 368, tag: 'ACC', name: 'Accumulator',  color: cPink,    val: fdeState.acc.toString() }
+      { id: 'regPC',  key: 'pc',  x: 41,  pinX: 74,  tag: 'PC',  name: 'Prog Counter',  color: cAmber,   val: fdeState.pc.toString().padStart(2, '0') },
+      { id: 'regMAR', key: 'mar', x: 115, pinX: 148, tag: 'MAR', name: 'Mem Address',   color: cAmber,   val: fdeState.mar },
+      { id: 'regMDR', key: 'mdr', x: 189, pinX: 222, tag: 'MDR', name: 'Mem Data',      color: cEmerald, val: fdeState.mdr },
+      { id: 'regCIR', key: 'cir', x: 263, pinX: 296, tag: 'CIR', name: 'Current Instr', color: cPurple,  val: fdeState.cir || '---' },
+      { id: 'regACC', key: 'acc', x: 337, pinX: 370, tag: 'ACC', name: 'Accumulator',   color: cPink,    val: fdeState.acc.toString() }
     ];
 
     for (const reg of REG_LIST) {
@@ -945,7 +974,7 @@
       const isInc = reg.id === 'regPC' && currStep.isIncrement;
       ctx.globalAlpha = getDimAlpha(active || isInc);
 
-      drawRoundRect(ctx, reg.x, 68, 82, 82, 8);
+      drawRoundRect(ctx, reg.x, 68, 68, 82, 8);
       ctx.fillStyle = active || isInc
         ? (isDark ? 'rgba(56, 189, 248, 0.16)' : 'rgba(56, 189, 248, 0.12)')
         : cCardBg;
@@ -960,44 +989,49 @@
       ctx.stroke();
       ctx.shadowBlur = 0;
 
-      // Color accent tab on register
+      // Color accent tab
       ctx.beginPath();
       ctx.moveTo(reg.x + 3, 73);
       ctx.lineTo(reg.x + 3, 93);
       ctx.strokeStyle = reg.color;
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 2.5;
       ctx.stroke();
 
       // Tag
-      ctx.font = 'bold 11px JetBrains Mono, monospace';
+      ctx.font = 'bold 10px JetBrains Mono, monospace';
       ctx.fillStyle = reg.color;
       ctx.textAlign = 'left';
-      ctx.fillText(reg.tag, reg.x + 10, 84);
+      ctx.fillText(reg.tag, reg.x + 8, 84);
 
       // Info icon
-      ctx.font = '9px sans-serif';
+      ctx.font = '8px sans-serif';
       ctx.fillStyle = cTextMuted;
       ctx.textAlign = 'right';
-      ctx.fillText('ℹ️', reg.x + 75, 83);
+      ctx.fillText('ℹ️', reg.x + 62, 83);
 
-      // Value
-      ctx.font = 'bold 15px JetBrains Mono, monospace';
+      // Big Value
+      ctx.font = 'bold 12.5px JetBrains Mono, monospace';
       ctx.fillStyle = active || isInc ? reg.color : cTextPrimary;
       ctx.textAlign = 'center';
-      ctx.fillText(reg.val, reg.x + 41, 114);
+      const maxValW = 60;
+      let displayVal = reg.val;
+      if (ctx.measureText(displayVal).width > maxValW) {
+        displayVal = displayVal.slice(0, 7) + '..';
+      }
+      ctx.fillText(displayVal, reg.x + 34, 114);
 
-      // PC Increment status badge
+      // Status badge or register role
       if (isInc) {
-        drawRoundRect(ctx, reg.x + 12, 122, 58, 14, 3);
+        drawRoundRect(ctx, reg.x + 6, 122, 56, 14, 3);
         ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
         ctx.fill();
-        ctx.font = 'bold 8px JetBrains Mono, monospace';
+        ctx.font = 'bold 7.5px JetBrains Mono, monospace';
         ctx.fillStyle = cEmerald;
-        ctx.fillText('+1 (Next)', reg.x + 41, 132);
+        ctx.fillText('+1 (Next)', reg.x + 34, 132);
       } else {
-        ctx.font = '8px Inter, system-ui, sans-serif';
+        ctx.font = '7.5px Inter, system-ui, sans-serif';
         ctx.fillStyle = cTextMuted;
-        ctx.fillText(reg.name, reg.x + 41, 134);
+        ctx.fillText(reg.name, reg.x + 34, 134);
       }
 
       // External Pin Terminal at bottom of Register
@@ -1060,7 +1094,7 @@
     // Dedicated Internal Data Bus Bridge: ACC ⇄ ALU
     const isAccAluActive = aluActive || isNodeActive('regACC');
     ctx.beginPath();
-    ctx.moveTo(409, 109);
+    ctx.moveTo(405, 109);
     ctx.lineTo(430, 109);
     ctx.strokeStyle = isAccAluActive ? cEmerald : cBorder;
     ctx.lineWidth = isAccAluActive ? 3.5 : 2;
@@ -1072,7 +1106,7 @@
     ctx.shadowBlur = 0;
 
     // Small ALU ⇄ ACC Bridge Badge
-    drawRoundRect(ctx, 396, 101, 46, 16, 4);
+    drawRoundRect(ctx, 395, 101, 46, 16, 4);
     ctx.fillStyle = cCardBg;
     ctx.fill();
     ctx.strokeStyle = isAccAluActive ? cEmerald : cBorder;
@@ -1081,7 +1115,7 @@
     ctx.font = 'bold 7px JetBrains Mono, monospace';
     ctx.fillStyle = isAccAluActive ? cEmerald : cTextMuted;
     ctx.textAlign = 'center';
-    ctx.fillText('ACC⇄ALU', 419, 112);
+    ctx.fillText('ACC⇄ALU', 418, 112);
 
     // -------------------------------------------------------------------------
     // 1.3 CONTROL UNIT (CU) (Bottom Left)
@@ -1253,7 +1287,7 @@
 
     // -------------------------------------------------------------------------
     // 3.1 ADDRESS BUS TRUNK (Amber: PC ➔ MAR ➔ RAM)
-    // Spans from under PC (x=86) across to RAM dock (x=745)
+    // Starts directly under PC (x=74) and extends across to RAM dock (x=745)
     // -------------------------------------------------------------------------
     const isStep1 = !isInitial && currStep.stage === 'FETCH' && act.target === 'regMAR' && act.source === 'regPC';
     const isStep2 = !isInitial && currStep.stage === 'FETCH' && act.source === 'regMAR';
@@ -1262,8 +1296,8 @@
 
     ctx.globalAlpha = getDimAlpha(isAddrBusActive);
 
-    // Highway Corridor Ribbon (from PC tap x=86 across to RAM dock x=745)
-    drawRoundRect(ctx, 86, 183, 659, 30, 6);
+    // Highway Corridor Ribbon
+    drawRoundRect(ctx, 74, 183, 671, 30, 6);
     ctx.fillStyle = isAddrBusActive
       ? (isDark ? 'rgba(245, 158, 11, 0.2)' : 'rgba(245, 158, 11, 0.14)')
       : (isDark ? 'rgba(245, 158, 11, 0.05)' : 'rgba(245, 158, 11, 0.04)');
@@ -1279,7 +1313,7 @@
 
     // Center conductive copper trace across whole Address Bus
     ctx.beginPath();
-    ctx.moveTo(86, 198);
+    ctx.moveTo(74, 198);
     ctx.lineTo(745, 198);
     ctx.strokeStyle = isAddrBusActive ? cAmber : (isDark ? '#785315' : '#fcd34d');
     ctx.lineWidth = isAddrBusActive ? 3.5 : 2;
@@ -1301,8 +1335,8 @@
 
     // PC Branch Drop-Line (Vertical from PC pin down to Address Bus)
     ctx.beginPath();
-    ctx.moveTo(86, 150);
-    ctx.lineTo(86, 198);
+    ctx.moveTo(74, 150);
+    ctx.lineTo(74, 198);
     ctx.strokeStyle = isStep1 ? cAmber : (isAddrBusActive ? cAmber : cBorder);
     ctx.lineWidth = isStep1 ? 3.5 : 2;
     if (isStep1) {
@@ -1312,9 +1346,9 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder T-junction dot at PC tap (x=86, y=198)
+    // Solder T-junction dot at PC tap (x=74, y=198)
     ctx.beginPath();
-    ctx.arc(86, 198, 4.5, 0, Math.PI * 2);
+    ctx.arc(74, 198, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = (isStep1 || isAddrBusActive) ? cAmber : (isDark ? '#785315' : '#fcd34d');
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
@@ -1323,8 +1357,8 @@
 
     // MAR Branch Drop-Line (Vertical from MAR pin down to Address Bus)
     ctx.beginPath();
-    ctx.moveTo(180, 150);
-    ctx.lineTo(180, 198);
+    ctx.moveTo(148, 150);
+    ctx.lineTo(148, 198);
     ctx.strokeStyle = isAddrBusActive ? cAmber : cBorder;
     ctx.lineWidth = isAddrBusActive ? 3.5 : 2;
     if (isAddrBusActive) {
@@ -1334,9 +1368,9 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder T-junction dot at MAR tap (x=180, y=198)
+    // Solder T-junction dot at MAR tap (x=148, y=198)
     ctx.beginPath();
-    ctx.arc(180, 198, 4.5, 0, Math.PI * 2);
+    ctx.arc(148, 198, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = isAddrBusActive ? cAmber : (isDark ? '#785315' : '#fcd34d');
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
@@ -1350,34 +1384,30 @@
     ctx.fill();
     ctx.stroke();
 
-    // --- ANIMATION: STEP 1 (PC ➔ MAR along the Address Bus) ---
+    // --- ANIMATION: STEP 1 (PC ➔ MAR along Address Bus) ---
     if (isStep1) {
       const g = getGlideProgress(animTime);
       let px, py;
       const pcStr = fdeState.pc.toString().padStart(2, '0');
 
       if (g.progress <= 0.25) {
-        // 1. Drop down vertical branch from PC pin (86, 150) to Address Bus (86, 198)
         const t = g.progress / 0.25;
-        px = 86;
+        px = 74;
         py = 150 + t * 48;
       } else if (g.progress <= 0.75) {
-        // 2. Glide along Address Bus highway trunk from PC tap (86, 198) to MAR tap (180, 198)
         const t = (g.progress - 0.25) / 0.50;
-        px = 86 + t * 94;
+        px = 74 + t * 74;
         py = 198;
       } else {
-        // 3. Rise up vertical branch from Address Bus (180, 198) into MAR pin (180, 150)
         const t = (g.progress - 0.75) / 0.25;
-        px = 180;
+        px = 148;
         py = 198 - t * 48;
       }
       drawCapsulePacket(ctx, px, py, pcStr, cAmber, g.isArrived);
     }
 
-    // --- ANIMATION: STEP 2 or EXECUTE (MAR ➔ RAM along the Address Bus) ---
+    // --- ANIMATION: STEP 2 or EXECUTE (MAR ➔ RAM along Address Bus) ---
     if (isStep2 || isExecuteAddr) {
-      // Trace from Address Bus Dock into Target RAM Row
       ctx.beginPath();
       ctx.moveTo(745, 198);
       ctx.bezierCurveTo(752, 198, 754, ramTargetY, 756, ramTargetY);
@@ -1391,17 +1421,14 @@
       const g = getGlideProgress(animTime);
       let px, py;
       if (g.progress <= 0.15) {
-        // 1. Drop down from MAR pin to Address Bus
         const t = g.progress / 0.15;
-        px = 180;
+        px = 148;
         py = 150 + t * 48;
       } else if (g.progress <= 0.85) {
-        // 2. Across Address Bus trunk to RAM Dock
         const t = (g.progress - 0.15) / 0.70;
-        px = 180 + t * 565;
+        px = 148 + t * 597;
         py = 198;
       } else {
-        // 3. Into target RAM row
         const t = (g.progress - 0.85) / 0.15;
         px = 745 + t * 11;
         py = (1 - t) * 198 + t * ramTargetY;
@@ -1411,12 +1438,12 @@
 
     // -------------------------------------------------------------------------
     // 3.2 DATA BUS TRUNK (Emerald: Bidirectional MDR ⇄ RAM ⇄ ALU)
+    // Starts directly under MDR (x=222) across to RAM dock (x=745)
     // -------------------------------------------------------------------------
     const isDataBusActive = !isInitial && (act.bus === 'busData' || act.secondaryBus === 'busData');
     ctx.globalAlpha = getDimAlpha(isDataBusActive);
 
-    // Highway Corridor Ribbon (from MDR pin x=274 across to RAM dock x=745)
-    drawRoundRect(ctx, 274, 243, 471, 30, 6);
+    drawRoundRect(ctx, 222, 243, 523, 30, 6);
     ctx.fillStyle = isDataBusActive
       ? (isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.14)')
       : (isDark ? 'rgba(16, 185, 129, 0.05)' : 'rgba(16, 185, 129, 0.04)');
@@ -1432,7 +1459,7 @@
 
     // Center conductive trace
     ctx.beginPath();
-    ctx.moveTo(274, 258);
+    ctx.moveTo(222, 258);
     ctx.lineTo(745, 258);
     ctx.strokeStyle = isDataBusActive ? cEmerald : (isDark ? '#1b5e39' : '#6ee7b7');
     ctx.lineWidth = isDataBusActive ? 3.5 : 2;
@@ -1454,8 +1481,8 @@
 
     // MDR Branch Drop-Line (Vertical from MDR pin down to Data Bus)
     ctx.beginPath();
-    ctx.moveTo(274, 150);
-    ctx.lineTo(274, 258);
+    ctx.moveTo(222, 150);
+    ctx.lineTo(222, 258);
     ctx.strokeStyle = isDataBusActive ? cEmerald : cBorder;
     ctx.lineWidth = isDataBusActive ? 3.5 : 2;
     if (isDataBusActive) {
@@ -1465,9 +1492,9 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder T-junction dot at MDR tap (274, 258)
+    // Solder T-junction dot at MDR tap (222, 258)
     ctx.beginPath();
-    ctx.arc(274, 258, 4.5, 0, Math.PI * 2);
+    ctx.arc(222, 258, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = isDataBusActive ? cEmerald : (isDark ? '#1b5e39' : '#6ee7b7');
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
@@ -1503,37 +1530,56 @@
     ctx.fill();
     ctx.stroke();
 
-    // Decoder Opcode Line: from MDR tap down into CU top
-    const isDecodeActive = !isInitial && currStep.stage === 'DECODE';
+    // --- DECODE 1: MDR ➔ CIR Direct Transfer Bridge ---
+    const isDecode1Active = !isInitial && currStep.stage === 'DECODE' && act.target === 'regCIR';
     ctx.beginPath();
-    ctx.moveTo(274, 258);
-    ctx.lineTo(274, 365);
-    ctx.strokeStyle = isDecodeActive ? cPurple : cBorder;
-    ctx.lineWidth = isDecodeActive ? 3.5 : 1.5;
-    if (isDecodeActive) {
+    ctx.moveTo(257, 109);
+    ctx.lineTo(263, 109);
+    ctx.strokeStyle = isDecode1Active ? cPurple : cBorder;
+    ctx.lineWidth = isDecode1Active ? 3.5 : 1.5;
+    if (isDecode1Active) {
       ctx.shadowColor = cPurple;
       ctx.shadowBlur = 10;
     }
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder dot at CU decoder terminal
+    if (isDecode1Active) {
+      const g = getGlideProgress(animTime);
+      const px = 222 + g.progress * 74;
+      drawCapsulePacket(ctx, px, 109, fdeState.mdr, cPurple, g.isArrived);
+    }
+
+    // --- DECODE 2: CIR ➔ CU Decoder Line ---
+    const isDecode2Active = !isInitial && currStep.stage === 'DECODE' && act.source === 'regCIR';
     ctx.beginPath();
-    ctx.arc(274, 365, 3.5, 0, Math.PI * 2);
-    ctx.fillStyle = isDecodeActive ? cPurple : cBorder;
+    ctx.moveTo(296, 150);
+    ctx.lineTo(296, 365);
+    ctx.strokeStyle = isDecode2Active ? cPurple : cBorder;
+    ctx.lineWidth = isDecode2Active ? 3.5 : 1.5;
+    if (isDecode2Active) {
+      ctx.shadowColor = cPurple;
+      ctx.shadowBlur = 10;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Solder dots at CIR decoder line
+    ctx.beginPath();
+    ctx.arc(296, 365, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = isDecode2Active ? cPurple : cBorder;
     ctx.fill();
 
     // Opcode label on decoder line
     ctx.font = 'bold 8px JetBrains Mono, monospace';
-    ctx.fillStyle = isDecodeActive ? cPurple : cTextMuted;
+    ctx.fillStyle = isDecode2Active ? cPurple : cTextMuted;
     ctx.textAlign = 'left';
-    ctx.fillText('Opcode to CU Decoder ➔', 280, 312);
+    ctx.fillText('CIR to CU Decoder ➔', 302, 312);
 
-    // Sliding Opcode Capsule down into CU
-    if (isDecodeActive) {
+    if (isDecode2Active) {
       const g = getGlideProgress(animTime);
-      const py = 258 + g.progress * 107;
-      drawCapsulePacket(ctx, 274, py, fdeState.mdr, cPurple, g.isArrived);
+      const py = 150 + g.progress * 215;
+      drawCapsulePacket(ctx, 296, py, fdeState.cir || fdeState.mdr, cPurple, g.isArrived);
     }
 
     // Trace from Data Bus to Active RAM Row
@@ -1556,19 +1602,16 @@
 
       let px, py;
       if (p < 0.15) {
-        // Curve from RAM Row into Data Bus
         const t = p / 0.15;
         px = 756 - t * 11;
         py = (1 - t) * ramTargetY + t * 258;
       } else if (p < 0.85) {
-        // Across Data Bus trunk
         const t = (p - 0.15) / 0.70;
-        px = 745 - t * 471;
+        px = 745 - t * 523;
         py = 258;
       } else {
-        // Travel up branch into MDR
         const t = (p - 0.85) / 0.15;
-        px = 274;
+        px = 222;
         py = 258 - t * 108;
       }
       drawCapsulePacket(ctx, px, py, fdeState.mdr, cEmerald, g.isArrived);
@@ -1580,7 +1623,6 @@
     const isCtrlBusActive = !isInitial && !!currStep.busControlVal;
     ctx.globalAlpha = getDimAlpha(isCtrlBusActive);
 
-    // Highway Ribbon Corridor (from CU pin x=225 across to RAM dock x=745)
     drawRoundRect(ctx, 225, 303, 520, 30, 6);
     ctx.fillStyle = isCtrlBusActive
       ? (isDark ? 'rgba(168, 85, 247, 0.2)' : 'rgba(168, 85, 247, 0.14)')
@@ -1673,12 +1715,10 @@
       const g = getGlideProgress(animTime);
       let px, py;
       if (g.progress <= 0.20) {
-        // Travel up from CU pin (225, 365) to Control Bus (225, 318)
         const t = g.progress / 0.20;
         px = 225;
         py = 365 - t * 47;
       } else {
-        // Travel across Control Bus to RAM
         const t = (g.progress - 0.20) / 0.80;
         px = 225 + t * 520;
         py = 318;
@@ -1689,7 +1729,7 @@
     ctx.restore();
   }
 
-  // Draw 3D-styled Data Capsule Packet with high legibility and arrival dwell
+  // Draw 3D-styled Data Capsule Packet
   function drawCapsulePacket(ctx, x, y, label, color, isArrived = false) {
     ctx.save();
     ctx.font = 'bold 9.5px JetBrains Mono, monospace';
@@ -1698,29 +1738,24 @@
     const rx = x - textW / 2;
     const ry = y - capH / 2;
 
-    // Glowing halo
     ctx.shadowColor = color;
     ctx.shadowBlur = isArrived ? 16 : 10;
 
-    // Capsule pill body
     drawRoundRect(ctx, rx, ry, textW, capH, capH / 2);
     ctx.fillStyle = color;
     ctx.fill();
 
-    // Highlight border
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = isArrived ? 2 : 1.5;
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // High contrast text inside pill
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(label, x, y);
     ctx.restore();
   }
-
   // Render Mini Step Flow Widget (From Concept Art)
   function renderMiniStepFlow(step) {
     const container = document.getElementById('miniStepFlowWidget');
@@ -1729,11 +1764,12 @@
     const pcStr = fdeState.pc.toString().padStart(2, '0');
     const marStr = fdeState.mar;
     const mdrStr = fdeState.mdr;
+    const cirStr = fdeState.cir || '---';
     let html = '';
 
     if (step.stage === 'FETCH') {
       if (step.activeElements && step.activeElements.target === 'regMAR' && step.activeElements.source === 'regPC') {
-        // Fetch 1: PC -> MAR
+        // Fetch 1: PC -> Address Bus -> MAR
         html = `
           <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">PC</span><span class="mini-flow-node-val">${pcStr}</span></div>
           <div class="mini-flow-wire wire-gold"><span class="mini-flow-packet">ADDR ${pcStr}</span></div>
@@ -1750,10 +1786,10 @@
           <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">PC (New)</span><span class="mini-flow-node-val">${pcStr}</span></div>
         `;
       } else {
-        // Fetch 2: RAM -> MDR
+        // Fetch 2: MAR -> RAM -> MDR
         html = `
           <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">MAR</span><span class="mini-flow-node-val">${marStr}</span></div>
-          <div class="mini-flow-wire"><span class="mini-flow-packet">ADDR ${marStr}</span></div>
+          <div class="mini-flow-wire wire-gold"><span class="mini-flow-packet">ADDR ${marStr}</span></div>
           <span class="mini-flow-arrow">➔</span>
           <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">RAM</span><span class="mini-flow-node-val">${mdrStr}</span></div>
           <div class="mini-flow-wire wire-teal"><span class="mini-flow-packet">${mdrStr}</span></div>
@@ -1762,12 +1798,23 @@
         `;
       }
     } else if (step.stage === 'DECODE') {
-      html = `
-        <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
-        <div class="mini-flow-wire wire-purple"><span class="mini-flow-packet">OPCODE</span></div>
-        <span class="mini-flow-arrow">➔</span>
-        <div class="mini-flow-node highlight-purple"><span class="mini-flow-node-tag">CU</span><span class="mini-flow-node-val">${fdeState.decodedOpcode} ${fdeState.decodedOperand || ''}</span></div>
-      `;
+      if (step.activeElements && step.activeElements.target === 'regCIR') {
+        // Decode 1: MDR -> CIR
+        html = `
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
+          <div class="mini-flow-wire wire-purple"><span class="mini-flow-packet">${mdrStr}</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-purple"><span class="mini-flow-node-tag">CIR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
+        `;
+      } else {
+        // Decode 2: CIR -> CU
+        html = `
+          <div class="mini-flow-node highlight-purple"><span class="mini-flow-node-tag">CIR</span><span class="mini-flow-node-val">${cirStr}</span></div>
+          <div class="mini-flow-wire wire-purple"><span class="mini-flow-packet">OPCODE</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-purple"><span class="mini-flow-node-tag">CU</span><span class="mini-flow-node-val">${fdeState.decodedOpcode} ${fdeState.decodedOperand || ''}</span></div>
+        `;
+      }
     } else if (step.stage === 'EXECUTE') {
       const op = fdeState.decodedOpcode;
       if (op === 'LOAD') {
@@ -1777,7 +1824,7 @@
           <span class="mini-flow-arrow">➔</span>
           <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
           <span class="mini-flow-arrow">➔</span>
-          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
+          <div class="mini-flow-node highlight-pink"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
         `;
       } else if (op === 'ADD' || op === 'SUB') {
         html = `
@@ -1786,11 +1833,11 @@
           <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">ALU</span><span class="mini-flow-node-val">${op}</span></div>
           <div class="mini-flow-wire wire-teal"><span class="mini-flow-packet">RESULT</span></div>
           <span class="mini-flow-arrow">➔</span>
-          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
+          <div class="mini-flow-node highlight-pink"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
         `;
       } else if (op === 'STORE') {
         html = `
-          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
+          <div class="mini-flow-node highlight-pink"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
           <span class="mini-flow-arrow">➔</span>
           <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
           <div class="mini-flow-wire"><span class="mini-flow-packet">WRITE</span></div>
@@ -1802,11 +1849,10 @@
           <div class="mini-flow-node highlight-purple"><span class="mini-flow-node-tag">CU</span><span class="mini-flow-node-val">HLT</span></div>
           <div class="mini-flow-wire wire-purple"><span class="mini-flow-packet">HALT_SIG</span></div>
           <span class="mini-flow-arrow">➔</span>
-          <div class="mini-flow-node highlight-purple"><span class="mini-flow-node-tag">CPU</span><span class="mini-flow-node-val">HALTED</span></div>
+          <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">CPU</span><span class="mini-flow-node-val">STOP</span></div>
         `;
       }
     }
-
     container.innerHTML = html;
   }
 
@@ -1907,6 +1953,62 @@
     renderMiniStepFlow(currentStep);
   }
 
+  
+  const fdeHistory = [];
+
+  function saveFdeSnapshot() {
+    fdeHistory.push({
+      pc: fdeState.pc,
+      mar: fdeState.mar,
+      mdr: fdeState.mdr,
+      cir: fdeState.cir,
+      acc: fdeState.acc,
+      decodedOpcode: fdeState.decodedOpcode,
+      decodedOperand: fdeState.decodedOperand,
+      currentMicroStepIndex: fdeState.currentMicroStepIndex,
+      microSteps: [...fdeState.microSteps],
+      cycleCount: fdeState.cycleCount,
+      isHalted: fdeState.isHalted,
+      isInitialState: fdeState.isInitialState,
+      ram: JSON.parse(JSON.stringify(fdeState.ram))
+    });
+    updateStepBackButton();
+  }
+
+  function stepBackFDE() {
+    if (fdeHistory.length === 0) return;
+    pauseFDE();
+    const prev = fdeHistory.pop();
+    fdeState.pc = prev.pc;
+    fdeState.mar = prev.mar;
+    fdeState.mdr = prev.mdr;
+    fdeState.cir = prev.cir;
+    fdeState.acc = prev.acc;
+    fdeState.decodedOpcode = prev.decodedOpcode;
+    fdeState.decodedOperand = prev.decodedOperand;
+    fdeState.currentMicroStepIndex = prev.currentMicroStepIndex;
+    fdeState.microSteps = prev.microSteps;
+    fdeState.cycleCount = prev.cycleCount;
+    fdeState.isHalted = prev.isHalted;
+    fdeState.isInitialState = prev.isInitialState;
+    fdeState.ram = prev.ram;
+
+    updateStepBackButton();
+    updateRegistersDOM();
+    renderRAMTable();
+    updateStepNarrativeDOM();
+  }
+
+  function updateStepBackButton() {
+    const btn = document.getElementById('fdeStepBackBtn');
+    if (btn) {
+      const isDisabled = fdeHistory.length === 0 || fdeState.isInitialState;
+      btn.disabled = isDisabled;
+      btn.style.opacity = isDisabled ? '0.45' : '1.0';
+      btn.style.cursor = isDisabled ? 'not-allowed' : 'pointer';
+    }
+  }
+
   function stepForwardFDE() {
     if (fdeState.isHalted) {
       pauseFDE();
@@ -1914,6 +2016,7 @@
     }
 
     if (fdeState.isInitialState) {
+      saveFdeSnapshot();
       fdeState.isInitialState = false;
       const currentStep = fdeState.microSteps[0];
       if (currentStep) {
@@ -1925,6 +2028,8 @@
       return;
     }
 
+    // Save snapshot before advancing
+    saveFdeSnapshot();
     // Advance to next microstep
     fdeState.currentMicroStepIndex++;
 
@@ -1980,8 +2085,140 @@
     }
   }
 
+  
+  function initCustomRamEditor() {
+    const grid = document.getElementById('customRamGrid');
+    const openBtn = document.getElementById('openCustomRamBtn');
+    const closeBtn = document.getElementById('closeCustomRamBtn');
+    const drawer = document.getElementById('customRamDrawer');
+    const applyBtn = document.getElementById('applyCustomRamBtn');
+    const resetDefaultsBtn = document.getElementById('resetDefaultsRamBtn');
+
+    if (!grid) return;
+
+    function renderCustomGrid() {
+      grid.innerHTML = '';
+      const prog = BASE_PROGRAMS.custom || BASE_PROGRAMS.add;
+      const ramData = prog.ram;
+
+      for (let i = 0; i < 8; i++) {
+        const item = ramData[i] || { addr: i.toString().padStart(2, '0'), val: '0', type: 'Empty' };
+        const isInstr = i < 4;
+        const card = document.createElement('div');
+        card.className = 'custom-ram-card';
+
+        const top = document.createElement('div');
+        top.className = 'custom-ram-card-top';
+        top.innerHTML = `
+          <span class="custom-ram-addr">Slot ${item.addr}</span>
+          <span class="custom-ram-badge ${isInstr ? 'badge-instr' : 'badge-data'}">${isInstr ? 'INSTRUCTION' : 'DATA'}</span>
+        `;
+        card.appendChild(top);
+
+        const inputs = document.createElement('div');
+        inputs.className = 'custom-ram-inputs';
+
+        if (isInstr) {
+          const parts = (item.val || 'HLT').trim().split(/\s+/);
+          const currentOp = parts[0].toUpperCase();
+          const currentOperand = parts[1] || '05';
+
+          const opSelect = document.createElement('select');
+          opSelect.id = `custom-op-${i}`;
+          opSelect.className = 'custom-ram-select';
+          ['LOAD', 'ADD', 'SUB', 'STORE', 'HLT'].forEach(op => {
+            const opt = document.createElement('option');
+            opt.value = op;
+            opt.textContent = op;
+            if (op === currentOp) opt.selected = true;
+            opSelect.appendChild(opt);
+          });
+
+          const operandSelect = document.createElement('select');
+          operandSelect.id = `custom-operand-${i}`;
+          operandSelect.className = 'custom-ram-select';
+          for (let a = 0; a < 8; a++) {
+            const addrStr = a.toString().padStart(2, '0');
+            const opt = document.createElement('option');
+            opt.value = addrStr;
+            opt.textContent = addrStr;
+            if (addrStr === currentOperand) opt.selected = true;
+            operandSelect.appendChild(opt);
+          }
+
+          opSelect.addEventListener('change', () => {
+            operandSelect.style.display = opSelect.value === 'HLT' ? 'none' : 'inline-block';
+          });
+          operandSelect.style.display = currentOp === 'HLT' ? 'none' : 'inline-block';
+
+          inputs.appendChild(opSelect);
+          inputs.appendChild(operandSelect);
+        } else {
+          const numInput = document.createElement('input');
+          numInput.type = 'number';
+          numInput.id = `custom-data-${i}`;
+          numInput.className = 'custom-ram-input';
+          numInput.value = parseInt(item.val, 10) || 0;
+          inputs.appendChild(numInput);
+        }
+
+        card.appendChild(inputs);
+        grid.appendChild(card);
+      }
+    }
+
+    if (openBtn) {
+      openBtn.addEventListener('click', () => {
+        const isShown = drawer.style.display === 'block';
+        drawer.style.display = isShown ? 'none' : 'block';
+        if (!isShown) renderCustomGrid();
+      });
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        drawer.style.display = 'none';
+      });
+    }
+
+    if (resetDefaultsBtn) {
+      resetDefaultsBtn.addEventListener('click', () => {
+        BASE_PROGRAMS.custom.ram = JSON.parse(JSON.stringify(BASE_PROGRAMS.add.ram));
+        renderCustomGrid();
+      });
+    }
+
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        const newRam = [];
+        for (let i = 0; i < 8; i++) {
+          const addrStr = i.toString().padStart(2, '0');
+          if (i < 4) {
+            const opEl = document.getElementById(`custom-op-${i}`);
+            const operandEl = document.getElementById(`custom-operand-${i}`);
+            const op = opEl ? opEl.value : 'HLT';
+            const operand = (op !== 'HLT' && operandEl) ? operandEl.value : '';
+            const valStr = operand ? `${op} ${operand}` : op;
+            newRam.push({ addr: addrStr, val: valStr, type: 'Instruction' });
+          } else {
+            const dataEl = document.getElementById(`custom-data-${i}`);
+            const val = dataEl ? dataEl.value.toString() : '0';
+            newRam.push({ addr: addrStr, val: val, type: (i === 7 ? 'Result' : 'Data') });
+          }
+        }
+        BASE_PROGRAMS.custom.ram = newRam;
+        fdeState.selectedProgram = 'custom';
+        const progSelect = document.getElementById('programSelect');
+        if (progSelect) progSelect.value = 'custom';
+        drawer.style.display = 'none';
+        resetFDE();
+      });
+    }
+  }
+
   function initFDE() {
     const progSelect = document.getElementById('programSelect');
+    const stepBackBtn = document.getElementById('fdeStepBackBtn');
     const stepBtn = document.getElementById('fdeStepBtn');
     const playBtn = document.getElementById('fdePlayBtn');
     const resetBtn = document.getElementById('fdeResetBtn');
@@ -1991,6 +2228,13 @@
       progSelect.addEventListener('change', (e) => {
         fdeState.selectedProgram = e.target.value;
         resetFDE();
+      });
+    }
+
+    if (stepBackBtn) {
+      stepBackBtn.addEventListener('click', () => {
+        pauseFDE();
+        stepBackFDE();
       });
     }
 
