@@ -163,6 +163,7 @@
     acc: 0,
     decodedOpcode: 'NONE',
     decodedOperand: '',
+    aluOutput: null,
     currentMicroStepIndex: 0,
     microSteps: [],
     isPlaying: false,
@@ -449,31 +450,36 @@
       bullets: [
         `<strong>Decoding:</strong> The Control Unit decodes ${instrDisplay}.`,
         `<strong>Meaning:</strong> This means "${decodeMeaning}"`,
-        '<strong>Control Signals:</strong> The Control Unit prepares the internal execution circuits and buses.'
+        '<strong>Control Signals:</strong> The Control Unit prepares internal circuits (Control Bus remains idle until execution).'
       ],
       examTakeaway: 'The Control Unit (CU) decodes the instruction to determine what operation to perform and which memory address to access.',
       activeElements: { source: 'regCIR', target: 'cuBlock' },
-      busControlVal: 'DECODE_OP',
+      busControlVal: null,
       action: () => {
         fdeState.decodedOpcode = opcode;
         fdeState.decodedOperand = operand;
       }
     });
 
-    // STEP 6: Execute Stage
+    // -------------------------------------------------------------------------
+    // STEP 6+: Execute Stage (Decomposed into atomic microsteps)
+    // -------------------------------------------------------------------------
     if (opcode === 'LOAD') {
       const dataVal = fdeState.ram[parseInt(operand, 10)]?.val || '0';
+
+      // Execute 1: Fetch Value from RAM to MDR
       steps.push({
         stage: 'EXECUTE',
-        title: `Execute: Load Value from RAM Address ${operand} into ACC`,
+        subStep: 'fetch-data',
+        title: `Execute 1: Fetch Value from RAM Address ${operand} into MDR`,
         instrTag: instrDisplay,
         bullets: [
-          `<strong>Address Sent:</strong> MAR sends address ${operand} along Address Bus to RAM; Control Unit signals MEM_READ.`,
-          `<strong>Data Retrieved:</strong> Value ${dataVal} travels across Data Bus into the Memory Data Register (MDR).`,
-          `<strong>Stored in ACC:</strong> Value ${dataVal} is copied from MDR directly into the Accumulator (ACC).`
+          `<strong>Address Bus:</strong> MAR sends address ${operand} to RAM; Control Unit signals MEM_READ.`,
+          `<strong>Data Bus:</strong> RAM retrieves value "${dataVal}" and transfers it down the Data Bus.`,
+          `<strong>MDR Buffer:</strong> Memory Data Register receives and stores "${dataVal}".`
         ],
-        examTakeaway: 'Data at the specified memory address is fetched via MDR and copied into the Accumulator (ACC).',
-        activeElements: { source: 'regMAR', intermediate: 'regMDR', target: 'regACC', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand },
+        examTakeaway: 'Data at the specified memory address is fetched via the Data Bus and held temporarily in the MDR.',
+        activeElements: { source: 'regMAR', intermediate: 'regMDR', target: 'regMDR', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand },
         busAddressVal: `Addr: ${operand}`,
         busDataVal: `${dataVal}`,
         busControlVal: 'MEM_READ',
@@ -481,22 +487,45 @@
         action: () => {
           fdeState.mar = operand;
           fdeState.mdr = dataVal;
+        }
+      });
+
+      // Execute 2: Copy MDR to ACC
+      steps.push({
+        stage: 'EXECUTE',
+        subStep: 'save-acc',
+        title: `Execute 2: Copy Value (${dataVal}) from MDR into Accumulator (ACC)`,
+        instrTag: instrDisplay,
+        bullets: [
+          `<strong>Internal Transfer:</strong> Value "${dataVal}" is copied from the MDR directly into the Accumulator (ACC).`,
+          `<strong>ACC Updated:</strong> Accumulator now holds ${dataVal} as its active working value.`,
+          `<strong>Execution Complete:</strong> Instruction LOAD ${operand} has finished. Ready for next cycle.`
+        ],
+        examTakeaway: 'The value held in the MDR is copied directly into the Accumulator (ACC).',
+        activeElements: { source: 'regMDR', target: 'regACC' },
+        action: () => {
           fdeState.acc = parseInt(dataVal, 10) || 0;
         }
       });
+
     } else if (opcode === 'ADD') {
       const addOperandVal = parseInt(fdeState.ram[parseInt(operand, 10)]?.val || '0', 10);
+      const startAcc = fdeState.acc;
+      const calcTotal = startAcc + addOperandVal;
+
+      // Execute 1: Fetch Operand Data from RAM to MDR
       steps.push({
         stage: 'EXECUTE',
-        title: `Execute: ALU Adds Memory Value (${addOperandVal}) to Accumulator`,
+        subStep: 'fetch-data',
+        title: `Execute 1: Fetch Operand Data from RAM Address ${operand} into MDR`,
         instrTag: instrDisplay,
         bullets: [
-          `<strong>Data Retrieved:</strong> Value ${addOperandVal} is fetched from RAM address ${operand} into the MDR.`,
-          `<strong>ALU Calculation:</strong> The ALU adds MDR (${addOperandVal}) to existing ACC (${fdeState.acc}) to get ${fdeState.acc + addOperandVal}.`,
-          `<strong>Total Saved:</strong> The result (${fdeState.acc + addOperandVal}) is stored back in the Accumulator (ACC).`
+          `<strong>Address Bus:</strong> MAR sends address ${operand} to RAM; Control Unit signals MEM_READ across Control Bus.`,
+          `<strong>Data Bus:</strong> RAM retrieves value ${addOperandVal} and sends it along the Data Bus into MDR.`,
+          `<strong>MDR Buffer:</strong> The Memory Data Register (MDR) holds ${addOperandVal} ready for the ALU.`
         ],
-        examTakeaway: 'The ALU adds the MDR contents to the Accumulator (ACC) and stores the result back in ACC.',
-        activeElements: { source: 'regMAR', intermediate: 'regMDR', secondaryTarget: 'aluBlock', target: 'regACC', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand },
+        examTakeaway: 'Before adding, the CPU must fetch the operand from RAM via the Address and Data buses into the MDR.',
+        activeElements: { source: 'regMAR', intermediate: 'regMDR', target: 'regMDR', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand },
         busAddressVal: `Addr: ${operand}`,
         busDataVal: `${addOperandVal}`,
         busControlVal: 'MEM_READ',
@@ -504,22 +533,65 @@
         action: () => {
           fdeState.mar = operand;
           fdeState.mdr = addOperandVal.toString();
-          fdeState.acc += addOperandVal;
         }
       });
-    } else if (opcode === 'SUB') {
-      const subOperandVal = parseInt(fdeState.ram[parseInt(operand, 10)]?.val || '0', 10);
+
+      // Execute 2: ALU Adds MDR to Accumulator
       steps.push({
         stage: 'EXECUTE',
-        title: `Execute: ALU Subtracts Memory Value (${subOperandVal}) from Accumulator`,
+        subStep: 'alu-calc',
+        title: `Execute 2: ALU Adds MDR (${addOperandVal}) to Accumulator (${startAcc})`,
         instrTag: instrDisplay,
         bullets: [
-          `<strong>Data Retrieved:</strong> Value ${subOperandVal} is fetched from RAM address ${operand} into the MDR.`,
-          `<strong>ALU Calculation:</strong> The ALU subtracts MDR (${subOperandVal}) from existing ACC (${fdeState.acc}) to get ${fdeState.acc - subOperandVal}.`,
-          `<strong>Total Saved:</strong> The result (${fdeState.acc - subOperandVal}) is stored back in the Accumulator (ACC).`
+          `<strong>Inputs to ALU:</strong> The ALU receives operand ${addOperandVal} from MDR and current total ${startAcc} from Accumulator.`,
+          `<strong>ALU Arithmetic:</strong> Arithmetic adder circuitry computes: ${startAcc} + ${addOperandVal} = ${calcTotal}.`,
+          `<strong>Control Unit Command:</strong> Control Unit signals the ALU across internal circuits to perform addition.`
         ],
-        examTakeaway: 'The ALU subtracts the MDR contents from the Accumulator (ACC) and stores the result back in ACC.',
-        activeElements: { source: 'regMAR', intermediate: 'regMDR', secondaryTarget: 'aluBlock', target: 'regACC', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand },
+        examTakeaway: 'The Arithmetic Logic Unit (ALU) performs the addition of the MDR contents and the Accumulator.',
+        activeElements: { source: 'regMDR', secondaryTarget: 'regACC', target: 'aluBlock', bus: 'busData' },
+        busDataVal: `${addOperandVal}`,
+        action: () => {
+          fdeState.aluOutput = calcTotal.toString();
+        }
+      });
+
+      // Execute 3: Total Saved into Accumulator
+      steps.push({
+        stage: 'EXECUTE',
+        subStep: 'save-acc',
+        title: `Execute 3: Total Result (${calcTotal}) Saved into Accumulator (ACC)`,
+        instrTag: instrDisplay,
+        bullets: [
+          `<strong>Result Stored:</strong> The calculation result (${calcTotal}) is transferred across the internal bridge into the Accumulator.`,
+          `<strong>ACC Updated:</strong> Accumulator value updates from ${startAcc} to ${calcTotal}.`,
+          `<strong>Execution Complete:</strong> Instruction ADD ${operand} finished. Ready for next cycle.`
+        ],
+        examTakeaway: 'The result of any calculation performed by the ALU is stored back in the Accumulator (ACC).',
+        activeElements: { source: 'aluBlock', target: 'regACC' },
+        action: () => {
+          fdeState.acc = calcTotal;
+          fdeState.aluOutput = null;
+        }
+      });
+
+    } else if (opcode === 'SUB') {
+      const subOperandVal = parseInt(fdeState.ram[parseInt(operand, 10)]?.val || '0', 10);
+      const startAcc = fdeState.acc;
+      const calcTotal = startAcc - subOperandVal;
+
+      // Execute 1: Fetch Operand Data from RAM to MDR
+      steps.push({
+        stage: 'EXECUTE',
+        subStep: 'fetch-data',
+        title: `Execute 1: Fetch Operand Data from RAM Address ${operand} into MDR`,
+        instrTag: instrDisplay,
+        bullets: [
+          `<strong>Address Bus:</strong> MAR sends address ${operand} to RAM; Control Unit signals MEM_READ across Control Bus.`,
+          `<strong>Data Bus:</strong> RAM retrieves value ${subOperandVal} and sends it along the Data Bus into MDR.`,
+          `<strong>MDR Buffer:</strong> The Memory Data Register (MDR) holds ${subOperandVal} ready for the ALU.`
+        ],
+        examTakeaway: 'Before subtracting, the CPU must fetch the operand from RAM via the Address and Data buses into the MDR.',
+        activeElements: { source: 'regMAR', intermediate: 'regMDR', target: 'regMDR', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand },
         busAddressVal: `Addr: ${operand}`,
         busDataVal: `${subOperandVal}`,
         busControlVal: 'MEM_READ',
@@ -527,34 +599,93 @@
         action: () => {
           fdeState.mar = operand;
           fdeState.mdr = subOperandVal.toString();
-          fdeState.acc -= subOperandVal;
         }
       });
-    } else if (opcode === 'STORE') {
+
+      // Execute 2: ALU Subtracts MDR from Accumulator
       steps.push({
         stage: 'EXECUTE',
-        title: `Execute: Store Accumulator (${fdeState.acc}) to RAM Address ${operand}`,
+        subStep: 'alu-calc',
+        title: `Execute 2: ALU Subtracts MDR (${subOperandVal}) from Accumulator (${startAcc})`,
         instrTag: instrDisplay,
         bullets: [
-          `<strong>Target Address:</strong> MAR is set to address ${operand} via the Address Bus.`,
-          `<strong>Data Prepared:</strong> The Accumulator value (${fdeState.acc}) is copied into the MDR.`,
-          `<strong>Written to Memory:</strong> Control Unit sends MEM_WRITE signal; ${fdeState.acc} is stored in RAM slot ${operand}.`
+          `<strong>Inputs to ALU:</strong> The ALU receives operand ${subOperandVal} from MDR and current value ${startAcc} from Accumulator.`,
+          `<strong>ALU Arithmetic:</strong> Arithmetic circuitry computes: ${startAcc} - ${subOperandVal} = ${calcTotal}.`,
+          `<strong>Control Unit Command:</strong> Control Unit signals the ALU across internal circuits to perform subtraction.`
         ],
-        examTakeaway: 'The contents of the Accumulator (ACC) are copied to MDR and written to the address in MAR.',
-        activeElements: { source: 'regACC', intermediate: 'regMDR', secondaryTarget: 'regMAR', target: `ram-row-${operand}`, bus: 'busAddress', secondaryBus: 'busData', ramRow: operand },
+        examTakeaway: 'The Arithmetic Logic Unit (ALU) performs the subtraction of the MDR contents from the Accumulator.',
+        activeElements: { source: 'regMDR', secondaryTarget: 'regACC', target: 'aluBlock', bus: 'busData' },
+        busDataVal: `${subOperandVal}`,
+        action: () => {
+          fdeState.aluOutput = calcTotal.toString();
+        }
+      });
+
+      // Execute 3: Total Saved into Accumulator
+      steps.push({
+        stage: 'EXECUTE',
+        subStep: 'save-acc',
+        title: `Execute 3: Total Result (${calcTotal}) Saved into Accumulator (ACC)`,
+        instrTag: instrDisplay,
+        bullets: [
+          `<strong>Result Stored:</strong> The calculation result (${calcTotal}) is transferred across the internal bridge into the Accumulator.`,
+          `<strong>ACC Updated:</strong> Accumulator value updates from ${startAcc} to ${calcTotal}.`,
+          `<strong>Execution Complete:</strong> Instruction SUB ${operand} finished. Ready for next cycle.`
+        ],
+        examTakeaway: 'The result of any calculation performed by the ALU is stored back in the Accumulator (ACC).',
+        activeElements: { source: 'aluBlock', target: 'regACC' },
+        action: () => {
+          fdeState.acc = calcTotal;
+          fdeState.aluOutput = null;
+        }
+      });
+
+    } else if (opcode === 'STORE') {
+      const storeVal = fdeState.acc;
+
+      // Execute 1: Copy ACC to MDR
+      steps.push({
+        stage: 'EXECUTE',
+        subStep: 'store-prepare',
+        title: `Execute 1: Copy Accumulator Value (${storeVal}) into MDR`,
+        instrTag: instrDisplay,
+        bullets: [
+          `<strong>Prepare Data:</strong> The current value in the Accumulator (${storeVal}) is copied into the Memory Data Register (MDR).`,
+          `<strong>Buffer Armed:</strong> MDR holds ${storeVal} ready to be placed on the Data Bus for writing.`
+        ],
+        examTakeaway: 'Before storing to memory, data from the Accumulator is placed into the MDR.',
+        activeElements: { source: 'regACC', target: 'regMDR' },
+        action: () => {
+          fdeState.mdr = storeVal.toString();
+        }
+      });
+
+      // Execute 2: Write MDR Value to RAM Address
+      steps.push({
+        stage: 'EXECUTE',
+        subStep: 'store-write',
+        title: `Execute 2: Write Value (${storeVal}) from MDR to RAM Address ${operand}`,
+        instrTag: instrDisplay,
+        bullets: [
+          `<strong>Target Address:</strong> MAR places target address ${operand} onto the Address Bus.`,
+          `<strong>Control Bus Command:</strong> Control Unit sends MEM_WRITE command signal along the Control Bus.`,
+          `<strong>Written to RAM:</strong> Value ${storeVal} travels across the Data Bus and is saved in RAM slot ${operand}.`
+        ],
+        examTakeaway: 'The contents of the MDR are sent across the Data Bus and stored at the RAM address in MAR.',
+        activeElements: { source: 'regMAR', intermediate: 'regMDR', target: `ram-row-${operand}`, bus: 'busAddress', secondaryBus: 'busData', ramRow: operand },
         busAddressVal: `Addr: ${operand}`,
-        busDataVal: `${fdeState.acc}`,
+        busDataVal: `${storeVal}`,
         busControlVal: 'MEM_WRITE',
-        packetDir: { bus: 'data', dir: 'to-ram', val: fdeState.acc },
+        packetDir: { bus: 'data', dir: 'to-ram', val: storeVal },
         action: () => {
           fdeState.mar = operand;
-          fdeState.mdr = fdeState.acc.toString();
           const targetIdx = parseInt(operand, 10);
           if (fdeState.ram[targetIdx]) {
-            fdeState.ram[targetIdx].val = fdeState.acc.toString();
+            fdeState.ram[targetIdx].val = storeVal.toString();
           }
         }
       });
+
     } else if (opcode === 'HLT') {
       steps.push({
         stage: 'EXECUTE',
@@ -593,6 +724,7 @@
     fdeState.acc = 0;
     fdeState.decodedOpcode = 'NONE';
     fdeState.decodedOperand = '';
+    fdeState.aluOutput = null;
     fdeState.isHalted = false;
     fdeState.cycleCount = 1;
     fdeState.prevRegisters = { pc: null, mar: null, mdr: null, acc: null };
@@ -948,11 +1080,11 @@
     // 1.1 SPACIOUS REGISTER BANK (Top Row: PC, MAR, MDR, CIR, ACC)
     // -------------------------------------------------------------------------
     const REG_LIST = [
-      { id: 'regPC',  x: 30,  w: 96, pinX: 88,  pinCtrlX: 54, tag: 'PC',  name: 'Prog Counter',  color: cAmber,   val: fdeState.pc.toString().padStart(2, '0') },
-      { id: 'regMAR', x: 138, w: 96, pinX: 186, tag: 'MAR', name: 'Mem Address',   color: cAmber,   val: fdeState.mar },
-      { id: 'regMDR', x: 246, w: 96, pinX: 294, tag: 'MDR', name: 'Mem Data',      color: cEmerald, val: fdeState.mdr },
-      { id: 'regCIR', x: 354, w: 96, pinX: 402, tag: 'CIR', name: 'Current Instr', color: cPurple,  val: fdeState.cir || '---' },
-      { id: 'regACC', x: 462, w: 96, pinX: 510, tag: 'ACC', name: 'Accumulator',   color: cPink,    val: fdeState.acc.toString() }
+      { id: 'regPC',  x: 30,  w: 96, pinX: 88,  pinCtrlX: 54, tag: 'PC',  line1: 'Program Counter', line2: '',         color: cAmber,   val: fdeState.pc.toString().padStart(2, '0') },
+      { id: 'regMAR', x: 138, w: 96, pinX: 186,               tag: 'MAR', line1: 'Memory Address',  line2: 'Register', color: cAmber,   val: fdeState.mar },
+      { id: 'regMDR', x: 246, w: 96, pinX: 294,               tag: 'MDR', line1: 'Memory Data',     line2: 'Register', color: cEmerald, val: fdeState.mdr },
+      { id: 'regCIR', x: 354, w: 96, pinX: 402,               tag: 'CIR', line1: 'Current Instr',   line2: 'Register', color: cPurple,  val: fdeState.cir || '---' },
+      { id: 'regACC', x: 462, w: 96, pinX: 510,               tag: 'ACC', line1: 'Accumulator',     line2: '',         color: cPink,    val: fdeState.acc.toString() }
     ];
 
     for (const reg of REG_LIST) {
@@ -979,25 +1111,30 @@
       // Color accent tab
       ctx.beginPath();
       ctx.moveTo(reg.x + 3, 47);
-      ctx.lineTo(reg.x + 3, 72);
+      ctx.lineTo(reg.x + 3, 76);
       ctx.strokeStyle = reg.color;
       ctx.lineWidth = 3;
       ctx.stroke();
 
-      // Tag
-      ctx.font = 'bold 11px JetBrains Mono, monospace';
+      // Tag (e.g. PC, MAR, MDR, CIR, ACC)
+      ctx.font = 'bold 12px JetBrains Mono, monospace';
       ctx.fillStyle = reg.color;
       ctx.textAlign = 'left';
-      ctx.fillText(reg.tag, reg.x + 10, 60);
+      ctx.fillText(reg.tag, reg.x + 10, 56);
 
-      // Name
-      ctx.font = '8.5px Inter, system-ui, sans-serif';
-      ctx.fillStyle = cTextMuted;
-      ctx.textAlign = 'right';
-      ctx.fillText(reg.name, reg.x + reg.w - 8, 60);
+      // Full Name moved cleanly UNDER Tag
+      ctx.font = '8px Inter, system-ui, sans-serif';
+      ctx.fillStyle = cTextSecondary;
+      ctx.textAlign = 'left';
+      if (reg.line2) {
+        ctx.fillText(reg.line1, reg.x + 10, 67);
+        ctx.fillText(reg.line2, reg.x + 10, 77);
+      } else {
+        ctx.fillText(reg.line1, reg.x + 10, 70);
+      }
 
       // Big Value
-      ctx.font = 'bold 14px JetBrains Mono, monospace';
+      ctx.font = 'bold 15px JetBrains Mono, monospace';
       ctx.fillStyle = active || isInc ? reg.color : cTextPrimary;
       ctx.textAlign = 'center';
       const maxValW = reg.w - 16;
@@ -1005,20 +1142,26 @@
       if (ctx.measureText(displayVal).width > maxValW) {
         displayVal = displayVal.slice(0, 8) + '..';
       }
-      ctx.fillText(displayVal, reg.x + reg.w / 2, 92);
+      ctx.fillText(displayVal, reg.x + reg.w / 2, 97);
 
       // Status badge or role
       if (isInc) {
-        drawRoundRect(ctx, reg.x + 16, 108, 64, 16, 3);
+        drawRoundRect(ctx, reg.x + 14, 110, 68, 16, 3);
         ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
         ctx.fill();
         ctx.font = 'bold 8px JetBrains Mono, monospace';
         ctx.fillStyle = cEmerald;
-        ctx.fillText('+1 (Next)', reg.x + reg.w / 2, 119);
+        ctx.textAlign = 'center';
+        ctx.fillText('+1 (Next)', reg.x + reg.w / 2, 121);
       } else {
-        ctx.font = '8px JetBrains Mono, monospace';
+        const roleLabel = reg.id === 'regPC' ? 'Pointer' : (reg.id === 'regMAR' ? 'Address' : (reg.id === 'regMDR' ? 'Buffer' : (reg.id === 'regCIR' ? 'Active' : 'Working')));
+        drawRoundRect(ctx, reg.x + 16, 110, 64, 15, 3);
+        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)';
+        ctx.fill();
+        ctx.font = '7.5px JetBrains Mono, monospace';
         ctx.fillStyle = cTextMuted;
-        ctx.fillText(reg.id === 'regPC' ? 'Pointer' : (reg.id === 'regMAR' ? 'Address' : (reg.id === 'regMDR' ? 'Buffer' : (reg.id === 'regCIR' ? 'Active' : 'Working'))), reg.x + reg.w / 2, 118);
+        ctx.textAlign = 'center';
+        ctx.fillText(roleLabel, reg.x + reg.w / 2, 121);
       }
 
       // Pin terminal dots at bottom of Register
@@ -1080,7 +1223,7 @@
 
     ctx.font = 'bold 16px JetBrains Mono, monospace';
     ctx.fillStyle = aluActive ? cEmerald : cTextPrimary;
-    ctx.fillText(fdeState.acc.toString(), 588, 102);
+    ctx.fillText(fdeState.aluOutput || fdeState.acc.toString(), 588, 102);
 
     ctx.font = '8px Inter, system-ui, sans-serif';
     ctx.fillStyle = cTextMuted;
@@ -1350,7 +1493,7 @@
 
     // Live Readout at right end
     ctx.textAlign = 'right';
-    ctx.fillText(isAddrBusActive ? `ADDR: ${fdeState.mar}` : 'ADDR BUS', 750, 200);
+    ctx.fillText(isAddrBusActive ? `ADDR: ${fdeState.mar}` : 'ADDR BUS', 742, 200);
 
     // PC Branch Drop-Line (Vertical from PC pin down to Address Bus)
     ctx.beginPath();
@@ -1495,7 +1638,7 @@
 
     // Live Readout at right end
     ctx.textAlign = 'right';
-    ctx.fillText(isDataBusActive ? `DATA: "${fdeState.mdr}"` : 'DATA BUS', 750, 255);
+    ctx.fillText(isDataBusActive ? `DATA: "${fdeState.mdr}"` : 'DATA BUS', 742, 255);
 
     // MDR Branch Drop-Line (Vertical from MDR pin down to Data Bus)
     ctx.beginPath();
@@ -1635,6 +1778,51 @@
       drawCapsulePacket(ctx, px, py, fdeState.mdr, cEmerald, g.isArrived);
     }
 
+    // --- EXECUTE 2 (ADD / SUB): MDR ➔ ALU along Data Bus ---
+    const isAluCalcActive = !isInitial && currStep.subStep === 'alu-calc';
+    if (isAluCalcActive) {
+      const g = getGlideProgress(animTime);
+      let px, py;
+      if (g.progress <= 0.20) {
+        const t = g.progress / 0.20;
+        px = 294;
+        py = 138 + t * 112;
+      } else if (g.progress <= 0.80) {
+        const t = (g.progress - 0.20) / 0.60;
+        px = 294 + t * 336;
+        py = 250;
+      } else {
+        const t = (g.progress - 0.80) / 0.20;
+        px = 630;
+        py = 250 - t * 112;
+      }
+      drawCapsulePacket(ctx, px, py, fdeState.mdr, cEmerald, g.isArrived);
+    }
+
+    // --- EXECUTE 3 (ADD / SUB): ALU ➔ ACC across internal bridge ---
+    const isAluToAcc = !isInitial && currStep.subStep === 'save-acc' && ['ADD', 'SUB'].includes(fdeState.decodedOpcode);
+    if (isAluToAcc) {
+      const g = getGlideProgress(animTime);
+      const px = 578 - g.progress * 68;
+      drawCapsulePacket(ctx, px, 88, fdeState.acc.toString(), cEmerald, g.isArrived);
+    }
+
+    // --- EXECUTE 2 (LOAD): MDR ➔ ACC internal transfer ---
+    const isLoadToAcc = !isInitial && currStep.subStep === 'save-acc' && fdeState.decodedOpcode === 'LOAD';
+    if (isLoadToAcc) {
+      const g = getGlideProgress(animTime);
+      const px = 294 + g.progress * 216;
+      drawCapsulePacket(ctx, px, 88, fdeState.acc.toString(), cEmerald, g.isArrived);
+    }
+
+    // --- EXECUTE 1 (STORE): ACC ➔ MDR internal transfer ---
+    const isStorePrep = !isInitial && currStep.subStep === 'store-prepare';
+    if (isStorePrep) {
+      const g = getGlideProgress(animTime);
+      const px = 510 - g.progress * 216;
+      drawCapsulePacket(ctx, px, 88, fdeState.mdr, cEmerald, g.isArrived);
+    }
+
     // -------------------------------------------------------------------------
     // 3.3 CONTROL BUS TRUNK (Purple: Commands & Timing CU ➔ PC, RAM & ALU)
     // -------------------------------------------------------------------------
@@ -1676,7 +1864,7 @@
 
     // Live Readout at right end
     ctx.textAlign = 'right';
-    ctx.fillText(isCtrlBusActive ? `CMD: ${currStep.busControlVal || 'READ'}` : 'CTRL BUS', 750, 310);
+    ctx.fillText(isCtrlBusActive ? `CMD: ${currStep.busControlVal || 'READ'}` : 'CTRL BUS', 742, 310);
 
     // PC Control Branch (Vertical from PC pin down to Control Bus) - Dedicated track to left of Address Bus!
     const isIncStep = isCtrlBusActive && currStep.busControlVal === 'INC_PC';
@@ -1889,32 +2077,43 @@
       }
     } else if (step.stage === 'EXECUTE') {
       const op = fdeState.decodedOpcode;
-      if (op === 'LOAD') {
+      const sub = step.subStep;
+
+      if (sub === 'fetch-data') {
         html = `
-          <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">RAM</span><span class="mini-flow-node-val">${mdrStr}</span></div>
-          <div class="mini-flow-wire wire-teal"><span class="mini-flow-packet">${mdrStr}</span></div>
+          <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">RAM</span><span class="mini-flow-node-val">${fdeState.decodedOperand || 'MEM'}</span></div>
+          <div class="mini-flow-wire wire-teal"><span class="mini-flow-packet">DATA ${mdrStr}</span></div>
           <span class="mini-flow-arrow">➔</span>
           <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
+        `;
+      } else if (sub === 'alu-calc') {
+        html = `
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
+          <span class="mini-flow-arrow">+</span>
+          <div class="mini-flow-node highlight-pink"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">ALU</span><span class="mini-flow-node-val">${fdeState.aluOutput || op}</span></div>
+        `;
+      } else if (sub === 'save-acc') {
+        html = `
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">${op === 'LOAD' ? 'MDR' : 'ALU'}</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
+          <div class="mini-flow-wire wire-teal"><span class="mini-flow-packet">SAVE</span></div>
           <span class="mini-flow-arrow">➔</span>
           <div class="mini-flow-node highlight-pink"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
         `;
-      } else if (op === 'ADD' || op === 'SUB') {
+      } else if (sub === 'store-prepare') {
         html = `
-          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
-          <span class="mini-flow-arrow">➔</span>
-          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">ALU</span><span class="mini-flow-node-val">${op}</span></div>
-          <div class="mini-flow-wire wire-teal"><span class="mini-flow-packet">RESULT</span></div>
-          <span class="mini-flow-arrow">➔</span>
           <div class="mini-flow-node highlight-pink"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
+          <div class="mini-flow-wire wire-teal"><span class="mini-flow-packet">BUFFER</span></div>
+          <span class="mini-flow-arrow">➔</span>
+          <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
         `;
-      } else if (op === 'STORE') {
+      } else if (sub === 'store-write') {
         html = `
-          <div class="mini-flow-node highlight-pink"><span class="mini-flow-node-tag">ACC</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
-          <span class="mini-flow-arrow">➔</span>
           <div class="mini-flow-node highlight-teal"><span class="mini-flow-node-tag">MDR</span><span class="mini-flow-node-val">${mdrStr}</span></div>
-          <div class="mini-flow-wire"><span class="mini-flow-packet">WRITE</span></div>
+          <div class="mini-flow-wire wire-teal"><span class="mini-flow-packet">MEM_WRITE</span></div>
           <span class="mini-flow-arrow">➔</span>
-          <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">RAM</span><span class="mini-flow-node-val">${fdeState.acc}</span></div>
+          <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">RAM [${fdeState.decodedOperand}]</span><span class="mini-flow-node-val">${mdrStr}</span></div>
         `;
       } else {
         html = `
@@ -2037,6 +2236,7 @@
       acc: fdeState.acc,
       decodedOpcode: fdeState.decodedOpcode,
       decodedOperand: fdeState.decodedOperand,
+      aluOutput: fdeState.aluOutput,
       currentMicroStepIndex: fdeState.currentMicroStepIndex,
       microSteps: [...fdeState.microSteps],
       cycleCount: fdeState.cycleCount,
@@ -2058,6 +2258,7 @@
     fdeState.acc = prev.acc;
     fdeState.decodedOpcode = prev.decodedOpcode;
     fdeState.decodedOperand = prev.decodedOperand;
+    fdeState.aluOutput = prev.aluOutput;
     fdeState.currentMicroStepIndex = prev.currentMicroStepIndex;
     fdeState.microSteps = prev.microSteps;
     fdeState.cycleCount = prev.cycleCount;
