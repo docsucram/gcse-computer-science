@@ -140,6 +140,7 @@
   let fdeState = {
     selectedProgram: 'add',
     ram: [],
+    ramViewFormat: 'mnemonic', // 'mnemonic' | 'hex' | 'binary'
     pc: 0,
     mar: '00',
     mdr: '---',
@@ -156,6 +157,45 @@
     prevRegisters: { pc: null, mar: null, mdr: null, acc: null }
   };
 
+  const OPCODES_HEX_BIN = {
+    'LOAD':  { hex: '1', bin: '0001' },
+    'ADD':   { hex: '2', bin: '0010' },
+    'SUB':   { hex: '3', bin: '0011' },
+    'STORE': { hex: '4', bin: '0100' },
+    'HLT':   { hex: 'F', bin: '1111' }
+  };
+
+  function formatRamValue(val, type, format) {
+    if (!val) return '0';
+    if (format === 'mnemonic') return val;
+
+    if (type === 'Instruction') {
+      const parts = val.trim().split(/\s+/);
+      const op = parts[0].toUpperCase();
+      const addr = parts[1] !== undefined ? parseInt(parts[1], 10) : 0;
+      const opData = OPCODES_HEX_BIN[op] || { hex: '0', bin: '0000' };
+      const addrHex = (isNaN(addr) ? 0 : (addr & 0xF)).toString(16).toUpperCase();
+      const addrBin = (isNaN(addr) ? 0 : (addr & 0xF)).toString(2).padStart(4, '0');
+
+      if (format === 'hex') {
+        return `0x${opData.hex}${addrHex}`;
+      } else if (format === 'binary') {
+        return `${opData.bin} ${addrBin}`;
+      }
+    } else {
+      // Data or Result numerical value
+      const num = parseInt(val, 10);
+      const safeNum = isNaN(num) ? 0 : num;
+      if (format === 'hex') {
+        return '0x' + (safeNum >= 0 ? safeNum.toString(16).toUpperCase().padStart(2, '0') : '00');
+      } else if (format === 'binary') {
+        const binStr = (safeNum >= 0 ? safeNum.toString(2).padStart(8, '0') : '00000000');
+        return `${binStr.slice(0, 4)} ${binStr.slice(4)}`;
+      }
+    }
+    return val;
+  }
+
   const COMPONENT_DETAILS = {
     pc: {
       name: 'Program Counter (PC)',
@@ -168,14 +208,14 @@
       name: 'Memory Address Register (MAR)',
       nickname: '"The Address Tag"',
       icon: '🏷️',
-      role: 'Holds the exact memory address in RAM that is currently being read from or written to. The CPU outputs this address down the Address Bus.',
+      role: 'Holds the exact memory address in RAM that is currently being read from or written to. Directly connected to the Address Bus.',
       getValue: () => `Address: ${fdeState.mar}`
     },
     mdr: {
       name: 'Memory Data Register (MDR)',
       nickname: '"The In / Out Tray"',
       icon: '📥',
-      role: 'Acts as the temporary holding buffer for the actual data value or instruction fetched from RAM (Read) or about to be stored in RAM (Write). Connected directly to the Data Bus.',
+      role: 'Acts as the temporary buffer for data or instructions fetched from RAM (Read) or about to be stored in RAM (Write). Directly connected to the Data Bus.',
       getValue: () => `Contents: "${fdeState.mdr}"`
     },
     acc: {
@@ -204,35 +244,35 @@
       nickname: '"One-Way Address Highway"',
       icon: '🛣️',
       role: 'A unidirectional physical pathway that transmits memory addresses from the CPU (MAR) to RAM. Data never travels backward on this bus.',
-      getValue: () => `Current Signal: ${document.getElementById('busAddressVal')?.textContent || 'Idle'}`
+      getValue: () => `Signal: ${fdeState.mar}`
     },
     'bus-data': {
       name: 'Data Bus',
       nickname: '"Two-Way Data Highway"',
       icon: '🚚',
       role: 'A bidirectional physical pathway that transports instructions and raw data values back and forth between the CPU (MDR) and RAM.',
-      getValue: () => `Current Data: ${document.getElementById('busDataVal')?.textContent || 'Idle'}`
+      getValue: () => `Data: "${fdeState.mdr}"`
     },
     'bus-control': {
       name: 'Control Bus',
       nickname: '"Command Signals & Timing"',
       icon: '⚡',
       role: 'Carries command signals (MEM_READ, MEM_WRITE, HALT) and clock synchronization pulses across the motherboard.',
-      getValue: () => `Current Signal: ${document.getElementById('busControlVal')?.textContent || 'Idle'}`
+      getValue: () => `Signal: ${document.getElementById('busControlVal')?.textContent || 'Idle'}`
     },
     ram: {
       name: 'Main Memory (RAM)',
       nickname: '"The Main Workbench"',
       icon: '💾',
       role: 'Fast volatile memory holding the currently running program instructions and active data variables. Directly addressable by the CPU via the memory buses.',
-      getValue: () => `Active Slots: 00 – 07 | Total Range: 00 – 31`
+      getValue: () => `Active Slots: 00 – 07 | Mode: ${fdeState.ramViewFormat}`
     }
   };
 
   let currentlyInspectedKey = null;
 
   // Micro-step generator strictly aligned with AQA 8525 §3.4.1:
-  // Exactly 4 distinct steps: Fetch 1, Fetch 2, Decode, Execute
+  // Distinct 5 steps: Fetch 1 (PC->MAR), Fetch 2 (RAM->MDR), Fetch 3 (PC++), Decode, Execute
   function generateMicroStepsForInstruction(pcVal) {
     const ramEntry = fdeState.ram[pcVal];
     if (!ramEntry || ramEntry.type !== 'Instruction' || fdeState.isHalted) {
@@ -264,41 +304,53 @@
       stage: 'FETCH',
       title: 'Fetch 1: Copy PC Address to MAR',
       instrTag: instrDisplay,
-      plainEnglish: `The CPU copies the memory address currently held in the Program Counter (${pcStr}) into the Memory Address Register (MAR) across the internal bus.`,
+      plainEnglish: `The CPU copies the memory address from the Program Counter (${pcStr}) into the Memory Address Register (MAR) across the internal bus.`,
       quote: 'The contents of the Program Counter (PC) are copied to the Memory Address Register (MAR) via the address bus.',
-      activeElements: { source: 'regPC', target: 'regMAR', bus: 'busAddress' },
-      busAddressVal: `Addr: ${pcStr}`,
-      packetDir: { bus: 'address', dir: 'to-ram' },
+      activeElements: { source: 'regPC', target: 'regMAR', internalWire: 'wirePCtoMAR' },
       action: () => {
         fdeState.mar = pcStr;
       }
     });
 
-    // STEP 2: Fetch 2 (PC++ & Memory Read into MDR)
+    // STEP 2: Fetch 2 (Memory Read from RAM into MDR)
     steps.push({
       stage: 'FETCH',
-      title: 'Fetch 2: Increment PC & Read from RAM into MDR',
+      title: 'Fetch 2: RAM Lookup & Copy to MDR',
       instrTag: instrDisplay,
-      plainEnglish: `The Program Counter increments by 1 (now ${nextPcStr}) to point to the next instruction. Simultaneously, the instruction at address ${pcStr} ("${ramEntry.val}") is loaded from RAM into the MDR across the Data Bus.`,
-      quote: 'The PC is incremented by 1. The instruction at the memory address in MAR is copied to the Memory Data Register (MDR) via the Data Bus.',
-      activeElements: { source: `ram-row-${pcStr}`, target: 'regMDR', bus: 'busData', secondaryTarget: 'regPC' },
-      busDataVal: `Data: "${ramEntry.val}"`,
+      plainEnglish: `Address ${pcStr} travels down the Address Bus to RAM with a MEM_READ signal. RAM finds instruction "${ramEntry.val}" and returns it along the Data Bus into the MDR.`,
+      quote: 'The instruction at the memory address in MAR is copied to the Memory Data Register (MDR) via the Data Bus.',
+      activeElements: { source: 'regMAR', target: 'regMDR', bus: 'busAddress', secondaryBus: 'busData', ramRow: pcStr },
+      busAddressVal: `Addr: ${pcStr}`,
+      busDataVal: `${ramEntry.val}`,
       busControlVal: 'MEM_READ',
-      packetDir: { bus: 'data', dir: 'to-cpu' },
+      packetDir: { bus: 'address', dir: 'to-ram', val: pcStr },
       action: () => {
-        fdeState.pc = pcVal + 1;
         fdeState.mdr = ramEntry.val;
       }
     });
 
-    // STEP 3: Decode (CU decodes MDR)
+    // STEP 3: Fetch 3 (Explicit Program Counter Increment: PC = PC + 1)
+    steps.push({
+      stage: 'FETCH',
+      title: 'Fetch 3: Program Counter Increments (PC ← PC + 1)',
+      instrTag: instrDisplay,
+      plainEnglish: `The Program Counter increments by 1 (${pcStr} ➔ ${nextPcStr}) so it is primed to point to the next instruction in memory on the subsequent cycle.`,
+      quote: 'The Program Counter is incremented by 1 (PC = PC + 1).',
+      activeElements: { target: 'regPC' },
+      isIncrement: true,
+      action: () => {
+        fdeState.pc = pcVal + 1;
+      }
+    });
+
+    // STEP 4: Decode (CU decodes MDR)
     steps.push({
       stage: 'DECODE',
       title: 'Decode: Control Unit Decodes Instruction in MDR',
       instrTag: instrDisplay,
       plainEnglish: `The Control Unit (CU) inspects and decodes the instruction in the MDR ("${ramEntry.val}"). It identifies opcode ${opcode} and operand ${operand || 'None'}, configuring CPU pathways for execution.`,
       quote: 'The instruction held in the Memory Data Register (MDR) is decoded by the Control Unit (CU).',
-      activeElements: { source: 'regMDR', target: 'cuBlock' },
+      activeElements: { source: 'regMDR', target: 'cuBlock', internalWire: 'wireMDRtoExecution' },
       busControlVal: 'DECODE_OP',
       action: () => {
         fdeState.decodedOpcode = opcode;
@@ -306,7 +358,7 @@
       }
     });
 
-    // STEP 4: Execute (Opcode action)
+    // STEP 5: Execute (Opcode action)
     if (opcode === 'LOAD') {
       const dataVal = fdeState.ram[parseInt(operand, 10)]?.val || '0';
       steps.push({
@@ -315,11 +367,11 @@
         instrTag: instrDisplay,
         plainEnglish: `The address ${operand} is placed on the MAR, and the stored value (${dataVal}) is fetched through the MDR directly into the Accumulator (ACC) register.`,
         quote: 'The data at the specified address in memory is fetched via the MDR and copied into the Accumulator (ACC).',
-        activeElements: { source: `ram-row-${operand}`, target: 'regACC', bus: 'busData' },
+        activeElements: { source: 'regMAR', target: 'regACC', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand, internalWire: 'wireMDRtoExecution' },
         busAddressVal: `Addr: ${operand}`,
-        busDataVal: `Data: "${dataVal}"`,
+        busDataVal: `${dataVal}`,
         busControlVal: 'MEM_READ',
-        packetDir: { bus: 'data', dir: 'to-cpu' },
+        packetDir: { bus: 'data', dir: 'to-cpu', val: dataVal },
         action: () => {
           fdeState.mar = operand;
           fdeState.mdr = dataVal;
@@ -334,11 +386,11 @@
         instrTag: instrDisplay,
         plainEnglish: `The ALU fetches ${addOperandVal} from address ${operand} via the MDR, adds it to the current Accumulator value (${fdeState.acc}), and saves the result (${fdeState.acc + addOperandVal}) into the Accumulator (ACC).`,
         quote: 'The ALU performs addition of the MDR contents to the Accumulator (ACC) and stores the result back in the Accumulator.',
-        activeElements: { source: 'aluBlock', target: 'regACC', bus: 'busData' },
+        activeElements: { source: 'aluBlock', target: 'regACC', internalWire: 'wireALUtoACC' },
         busAddressVal: `Addr: ${operand}`,
-        busDataVal: `Data: "${addOperandVal}"`,
+        busDataVal: `${addOperandVal}`,
         busControlVal: 'MEM_READ',
-        packetDir: { bus: 'data', dir: 'to-cpu' },
+        packetDir: { bus: 'data', dir: 'to-cpu', val: addOperandVal },
         action: () => {
           fdeState.mar = operand;
           fdeState.mdr = addOperandVal.toString();
@@ -353,11 +405,11 @@
         instrTag: instrDisplay,
         plainEnglish: `The ALU fetches ${subOperandVal} from address ${operand} via the MDR, subtracts it from the Accumulator (${fdeState.acc}), and saves the result (${fdeState.acc - subOperandVal}) into the Accumulator (ACC).`,
         quote: 'The ALU performs subtraction of the MDR contents from the Accumulator (ACC) and stores the result back in the Accumulator.',
-        activeElements: { source: 'aluBlock', target: 'regACC', bus: 'busData' },
+        activeElements: { source: 'aluBlock', target: 'regACC', internalWire: 'wireALUtoACC' },
         busAddressVal: `Addr: ${operand}`,
-        busDataVal: `Data: "${subOperandVal}"`,
+        busDataVal: `${subOperandVal}`,
         busControlVal: 'MEM_READ',
-        packetDir: { bus: 'data', dir: 'to-cpu' },
+        packetDir: { bus: 'data', dir: 'to-cpu', val: subOperandVal },
         action: () => {
           fdeState.mar = operand;
           fdeState.mdr = subOperandVal.toString();
@@ -371,11 +423,11 @@
         instrTag: instrDisplay,
         plainEnglish: `The value in the Accumulator (${fdeState.acc}) is loaded into the MDR and sent across the Data Bus with a MEM_WRITE signal to be stored in RAM address ${operand}.`,
         quote: 'The contents of the Accumulator (ACC) are copied to the MDR and written to the memory address specified by the MAR.',
-        activeElements: { source: 'regACC', target: `ram-row-${operand}`, bus: 'busData' },
+        activeElements: { source: 'regACC', target: `ram-row-${operand}`, bus: 'busData', ramRow: operand, internalWire: 'wireMDRtoExecution' },
         busAddressVal: `Addr: ${operand}`,
-        busDataVal: `Data: "${fdeState.acc}"`,
+        busDataVal: `${fdeState.acc}`,
         busControlVal: 'MEM_WRITE',
-        packetDir: { bus: 'data', dir: 'to-ram' },
+        packetDir: { bus: 'data', dir: 'to-ram', val: fdeState.acc },
         action: () => {
           fdeState.mar = operand;
           fdeState.mdr = fdeState.acc.toString();
@@ -444,7 +496,7 @@
 
         const tdVal = document.createElement('td');
         tdVal.id = `ram-val-${row.addr}`;
-        tdVal.textContent = row.val;
+        tdVal.textContent = formatRamValue(row.val, row.type, fdeState.ramViewFormat);
         if (row.type === 'Instruction') {
           tdVal.style.color = '#818cf8';
           tdVal.style.fontWeight = '600';
@@ -487,7 +539,7 @@
         const valSpan = document.createElement('span');
         valSpan.id = `rack-val-${row.addr}`;
         valSpan.className = 'slot-val';
-        valSpan.textContent = row.val;
+        valSpan.textContent = formatRamValue(row.val, row.type, fdeState.ramViewFormat);
 
         if (row.type === 'Instruction') {
           valSpan.classList.add('val-instruction');
@@ -573,13 +625,23 @@
   }
 
   function clearActiveGlows() {
+    const canvas = document.getElementById('motherboardCanvas');
+    if (canvas) canvas.classList.remove('focus-mode');
+
+    document.querySelectorAll('.hw-node').forEach(el => {
+      el.classList.remove('active-source', 'active-target', 'active-glow', 'active-inc');
+    });
     document.querySelectorAll('.component-block, .hardware-card').forEach(el => el.classList.remove('active-glow'));
     document.querySelectorAll('.register-card, .register-block').forEach(el => {
       el.classList.remove('active-source', 'active-target');
     });
+    document.querySelectorAll('.internal-bus-wire').forEach(el => el.classList.remove('active-wire'));
     document.querySelectorAll('.bus-line, .highway-bus').forEach(el => el.classList.remove('bus-active'));
     document.querySelectorAll('.ram-row').forEach(el => el.classList.remove('active-ram-read', 'active-ram-write'));
     document.querySelectorAll('.ram-slot').forEach(el => el.classList.remove('active-slot-read', 'active-slot-write'));
+
+    const incBadge = document.getElementById('pcIncrementBadge');
+    if (incBadge) incBadge.style.display = 'none';
 
     // Clear dynamic bus packets
     ['packetAddress', 'packetData', 'packetControl'].forEach(id => {
@@ -587,12 +649,17 @@
       if (p) p.classList.remove('packet-to-ram', 'packet-to-cpu');
     });
 
+    ['packetAddressVal', 'packetDataVal', 'packetControlVal'].forEach(id => {
+      const valEl = document.getElementById(id);
+      if (valEl) valEl.textContent = '';
+    });
+
     const bAddr = document.getElementById('busAddressVal');
     const bData = document.getElementById('busDataVal');
     const bCtrl = document.getElementById('busControlVal');
-    if (bAddr) bAddr.textContent = 'Idle';
-    if (bData) bData.textContent = 'Idle';
-    if (bCtrl) bCtrl.textContent = 'Idle';
+    if (bAddr) bAddr.textContent = '';
+    if (bData) bData.textContent = '';
+    if (bCtrl) bCtrl.textContent = '';
   }
 
   function updateStepNarrativeDOM() {
@@ -645,12 +712,15 @@
     clearActiveGlows();
     if (!step) return;
 
+    const canvas = document.getElementById('motherboardCanvas');
+    if (canvas) canvas.classList.add('focus-mode');
+
     const act = step.activeElements || {};
 
     if (act.source) {
       const srcEl = document.getElementById(act.source);
       if (srcEl) {
-        if (srcEl.classList.contains('register-card') || srcEl.classList.contains('register-block')) {
+        if (srcEl.classList.contains('hw-node') || srcEl.classList.contains('register-card') || srcEl.classList.contains('register-block')) {
           srcEl.classList.add('active-source');
         } else if (srcEl.classList.contains('component-block') || srcEl.classList.contains('hardware-card')) {
           srcEl.classList.add('active-glow');
@@ -668,7 +738,7 @@
     if (act.target) {
       const tgtEl = document.getElementById(act.target);
       if (tgtEl) {
-        if (tgtEl.classList.contains('register-card') || tgtEl.classList.contains('register-block')) {
+        if (tgtEl.classList.contains('hw-node') || tgtEl.classList.contains('register-card') || tgtEl.classList.contains('register-block')) {
           tgtEl.classList.add('active-target');
         } else if (tgtEl.classList.contains('component-block') || tgtEl.classList.contains('hardware-card')) {
           tgtEl.classList.add('active-glow');
@@ -685,14 +755,30 @@
 
     if (act.secondaryTarget) {
       const secEl = document.getElementById(act.secondaryTarget);
-      if (secEl && (secEl.classList.contains('register-card') || secEl.classList.contains('register-block'))) {
+      if (secEl && (secEl.classList.contains('hw-node') || secEl.classList.contains('register-card') || secEl.classList.contains('register-block'))) {
         secEl.classList.add('active-target');
       }
+    }
+
+    if (act.internalWire) {
+      const wireEl = document.getElementById(act.internalWire);
+      if (wireEl) wireEl.classList.add('active-wire');
+    }
+
+    if (step.isIncrement) {
+      const pcNode = document.getElementById('regPC');
+      if (pcNode) pcNode.classList.add('active-inc');
+      const incBadge = document.getElementById('pcIncrementBadge');
+      if (incBadge) incBadge.style.display = 'inline-block';
     }
 
     if (act.bus) {
       const busEl = document.getElementById(act.bus);
       if (busEl) busEl.classList.add('bus-active');
+    }
+    if (act.secondaryBus) {
+      const secBusEl = document.getElementById(act.secondaryBus);
+      if (secBusEl) secBusEl.classList.add('bus-active');
     }
 
     // Dynamic Bus Packet Glide Animation
@@ -700,11 +786,15 @@
       if (step.packetDir.bus === 'address') {
         const p = document.getElementById('packetAddress');
         const b = document.getElementById('busAddress');
+        const pVal = document.getElementById('packetAddressVal');
+        if (pVal) pVal.textContent = step.packetDir.val || '';
         if (p) p.classList.add(step.packetDir.dir === 'to-ram' ? 'packet-to-ram' : 'packet-to-cpu');
         if (b) b.classList.add('bus-active');
       } else if (step.packetDir.bus === 'data') {
         const p = document.getElementById('packetData');
         const b = document.getElementById('busData');
+        const pVal = document.getElementById('packetDataVal');
+        if (pVal) pVal.textContent = step.packetDir.val || '';
         if (p) p.classList.add(step.packetDir.dir === 'to-ram' ? 'packet-to-ram' : 'packet-to-cpu');
         if (b) b.classList.add('bus-active');
       }
@@ -727,7 +817,9 @@
       const bCtrl = document.getElementById('busControlVal');
       const b = document.getElementById('busControl');
       const p = document.getElementById('packetControl');
+      const pCtrlVal = document.getElementById('packetControlVal');
       if (bCtrl) bCtrl.textContent = step.busControlVal;
+      if (pCtrlVal) pCtrlVal.textContent = step.busControlVal;
       if (b) b.classList.add('bus-active');
       if (p) p.classList.add('packet-to-ram');
     }
@@ -850,6 +942,17 @@
       });
     });
 
+    // RAM View Format Toggle Buttons (Mnemonic / Hex / Binary)
+    const formatButtons = document.querySelectorAll('.format-btn');
+    formatButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        formatButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        fdeState.ramViewFormat = btn.getAttribute('data-format') || 'mnemonic';
+        renderRAMTable();
+      });
+    });
+
     initComponentInspector();
     resetFDE();
   }
@@ -893,6 +996,7 @@
     document.querySelectorAll('[data-inspect]').forEach(el => {
       const key = el.getAttribute('data-inspect');
       el.addEventListener('mouseenter', () => showInspector(key));
+      el.addEventListener('mouseleave', () => hideInspector());
       el.addEventListener('click', (e) => {
         e.stopPropagation();
         showInspector(key);

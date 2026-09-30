@@ -224,225 +224,243 @@
 
         <!-- The Motherboard Canvas Frame -->
         <div class="motherboard-frame">
-          <div class="motherboard-canvas">
+          <div class="motherboard-canvas" id="motherboardCanvas">
 
             <!-- 1. CPU SILICON CHIP (Left / Center) -->
-            <div class="cpu-chip-housing">
+            <div class="cpu-chip-housing" id="cpuChip">
               <div class="chip-header">
                 <div class="chip-label">
                   <span class="chip-dot"></span>
                   <span>CENTRAL PROCESSING UNIT (CPU)</span>
                 </div>
-                <span class="chip-sub">Von Neumann Core</span>
+                <span class="chip-sub">Von Neumann Architecture</span>
               </div>
 
-              <!-- Top: Core Processing Units (CU & ALU) -->
-              <div class="chip-core-units">
-                <!-- Control Unit (CU) -->
-                <div id="cuBlock" class="hardware-card cu-card" data-inspect="cu">
-                  <div class="hw-header">
-                    <div class="hw-title-row">
-                      <span class="hw-name">Control Unit (CU)</span>
-                      <button class="inspect-btn" title="Inspect Control Unit">ℹ️</button>
-                    </div>
-                    <span class="hw-tag tag-cu">DECODER</span>
-                  </div>
-                  <div class="hw-body">
-                    <span class="hw-label">Decoded Instruction:</span>
-                    <div id="cuDecodedText" class="hw-value font-mono">NONE</div>
-                  </div>
-                </div>
+              <!-- Internal Architecture Grid: Directly Bus-Aligned -->
+              <div class="cpu-internal-architecture">
 
-                <!-- Arithmetic Logic Unit (ALU) -->
-                <div id="aluBlock" class="hardware-card alu-card" data-inspect="alu">
-                  <div class="hw-header">
-                    <div class="hw-title-row">
-                      <span class="hw-name">Arithmetic Logic Unit (ALU)</span>
-                      <button class="inspect-btn" title="Inspect ALU">ℹ️</button>
-                    </div>
-                    <span class="hw-tag tag-alu">CALCULATOR</span>
-                  </div>
-                  <div class="hw-body">
-                    <span class="hw-label">Math Output:</span>
-                    <div id="aluResultText" class="hw-value font-mono">0</div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Internal Bus Schematic Wires Between CU/ALU & Registers -->
-              <div class="internal-wires-container">
-                <div class="internal-wire-line wire-cu-mdr">
-                  <span class="wire-label">Opcode to CU ➔</span>
-                </div>
-                <div class="internal-wire-line wire-alu-acc">
-                  <span class="wire-label">ALU ⇄ ACC</span>
-                </div>
-              </div>
-
-              <!-- Bottom: The 4 Core Registers -->
-              <div class="chip-registers-section">
-                <div class="registers-bar-title">
-                  <span>INTERNAL REGISTERS (AQA CORE)</span>
-                </div>
-
-                <div class="registers-row-grid">
-                  <!-- PC -->
-                  <div id="regPC" class="register-block" data-inspect="pc">
-                    <div class="reg-top">
-                      <span class="reg-code">PC</span>
+                <!-- Channel 1: Address Pathway (PC -> MAR -> Address Bus) -->
+                <div class="hw-channel channel-address">
+                  <!-- Program Counter (PC) -->
+                  <div id="regPC" class="hw-node register-node" data-inspect="pc">
+                    <div class="node-header">
+                      <span class="node-title">Program Counter (PC)</span>
                       <button class="inspect-btn" title="Inspect Program Counter">ℹ️</button>
                     </div>
-                    <div id="valPC" class="reg-value font-mono">00</div>
-                    <span class="reg-sub">Prog Counter</span>
-                  </div>
-
-                  <!-- Internal Wire: PC to MAR -->
-                  <div class="reg-connector-arrow" title="Address transferred from PC to MAR">
-                    <span class="arrow-symbol">➔</span>
-                  </div>
-
-                  <!-- MAR -->
-                  <div id="regMAR" class="register-block" data-inspect="mar">
-                    <div class="reg-top">
-                      <span class="reg-code">MAR</span>
-                      <button class="inspect-btn" title="Inspect Memory Address Register">ℹ️</button>
+                    <div class="node-value-wrap">
+                      <div id="valPC" class="node-value font-mono">00</div>
+                      <span id="pcIncrementBadge" class="pc-inc-badge" style="display: none;">+1 (Next)</span>
                     </div>
-                    <div id="valMAR" class="reg-value font-mono">00</div>
-                    <span class="reg-sub">Mem Address</span>
+                    <span class="node-sub">Holds address of NEXT instruction</span>
                   </div>
 
-                  <!-- MDR -->
-                  <div id="regMDR" class="register-block" data-inspect="mdr">
-                    <div class="reg-top">
-                      <span class="reg-code">MDR</span>
-                      <button class="inspect-btn" title="Inspect Memory Data Register">ℹ️</button>
-                    </div>
-                    <div id="valMDR" class="reg-value font-mono">---</div>
-                    <span class="reg-sub">Mem Data</span>
+                  <!-- Internal Bus: PC to MAR -->
+                  <div id="wirePCtoMAR" class="internal-bus-wire wire-pc-mar" title="Internal Address Bus (PC to MAR)">
+                    <span class="wire-arrow-down">➔</span>
                   </div>
 
-                  <!-- ACC -->
-                  <div id="regACC" class="register-block" data-inspect="acc">
-                    <div class="reg-top">
-                      <span class="reg-code">ACC</span>
-                      <button class="inspect-btn" title="Inspect Accumulator">ℹ️</button>
+                  <!-- Memory Address Register (MAR) - Direct Alignment with Address Bus -->
+                  <div id="regMAR" class="hw-node register-node node-bus-exit" data-inspect="mar">
+                    <div class="node-header">
+                      <span class="node-title">Memory Address Register (MAR)</span>
+                      <button class="inspect-btn" title="Inspect MAR">ℹ️</button>
                     </div>
-                    <div id="valACC" class="reg-value font-mono">0</div>
-                    <span class="reg-sub">Accumulator</span>
+                    <div class="node-value-wrap">
+                      <div id="valMAR" class="node-value font-mono">00</div>
+                    </div>
+                    <span class="node-sub">Holds RAM address to read/write</span>
                   </div>
                 </div>
-              </div>
 
+                <!-- Internal Bus Divider Trace -->
+                <div id="internalDataSpine" class="internal-spine-wire"></div>
+
+                <!-- Channel 2: Data Pathway (MDR <-> Data Bus, MDR -> CU & ALU) -->
+                <div class="hw-channel channel-data">
+                  <!-- Left: ALU & ACC -->
+                  <div class="math-cluster">
+                    <!-- Arithmetic Logic Unit (ALU) -->
+                    <div id="aluBlock" class="hw-node unit-node" data-inspect="alu">
+                      <div class="node-header">
+                        <span class="node-title">Arithmetic Logic Unit (ALU)</span>
+                        <button class="inspect-btn" title="Inspect ALU">ℹ️</button>
+                      </div>
+                      <div class="node-value-wrap">
+                        <div id="aluResultText" class="node-value font-mono">0</div>
+                      </div>
+                      <span class="node-sub">Executes arithmetic &amp; logic</span>
+                    </div>
+
+                    <!-- Internal Trace: ALU <-> ACC -->
+                    <div id="wireALUtoACC" class="internal-bus-wire wire-alu-acc" title="ALU to Accumulator Bus">
+                      <span class="wire-arrow-bidirectional">⇄</span>
+                    </div>
+
+                    <!-- Accumulator (ACC) -->
+                    <div id="regACC" class="hw-node register-node" data-inspect="acc">
+                      <div class="node-header">
+                        <span class="node-title">Accumulator (ACC)</span>
+                        <button class="inspect-btn" title="Inspect Accumulator">ℹ️</button>
+                      </div>
+                      <div class="node-value-wrap">
+                        <div id="valACC" class="node-value font-mono">0</div>
+                      </div>
+                      <span class="node-sub">Stores running calculation results</span>
+                    </div>
+                  </div>
+
+                  <!-- Internal Wire: MDR to ALU & CU -->
+                  <div id="wireMDRtoExecution" class="internal-bus-wire wire-mdr-exec" title="Internal Data Bus">
+                    <span class="wire-arrow-left">◀</span>
+                  </div>
+
+                  <!-- Memory Data Register (MDR) - Direct Alignment with Data Bus -->
+                  <div id="regMDR" class="hw-node register-node node-bus-exit" data-inspect="mdr">
+                    <div class="node-header">
+                      <span class="node-title">Memory Data Register (MDR)</span>
+                      <button class="inspect-btn" title="Inspect MDR">ℹ️</button>
+                    </div>
+                    <div class="node-value-wrap">
+                      <div id="valMDR" class="node-value font-mono">---</div>
+                    </div>
+                    <span class="node-sub">Buffer for data/instructions from RAM</span>
+                  </div>
+                </div>
+
+                <!-- Channel 3: Control Pathway (CU -> Control Bus) -->
+                <div class="hw-channel channel-control">
+                  <!-- Control Unit (CU) -->
+                  <div id="cuBlock" class="hw-node unit-node node-bus-exit" data-inspect="cu">
+                    <div class="node-header">
+                      <span class="node-title">Control Unit (CU)</span>
+                      <button class="inspect-btn" title="Inspect Control Unit">ℹ️</button>
+                    </div>
+                    <div class="node-value-wrap">
+                      <div id="cuDecodedText" class="node-value font-mono" style="font-size: 13px;">NONE</div>
+                    </div>
+                    <span class="node-sub">Decodes instructions &amp; synchronizes signals</span>
+                  </div>
+                </div>
+
+              </div>
             </div>
 
-            <!-- 2. HIGHWAY BUSES CONDUIT (Center Spanning) -->
-            <div class="buses-highway-conduit">
+            <!-- 2. HIGHWAY BUSES CONDUIT (Center Spanning, Physically Aligned) -->
+            <div class="buses-highway-conduit" id="busesConduit">
               
-              <!-- Address Bus (Amber: MAR ➔ RAM) -->
+              <!-- Address Bus (Amber: Plugs Directly into MAR ➔ RAM) -->
               <div id="busAddress" class="highway-bus bus-address" data-inspect="bus-address">
                 <div class="highway-bus-meta">
-                  <div class="bus-badge-group">
-                    <span class="bus-name-badge">Address Bus</span>
-                    <button class="inspect-btn" title="Inspect Address Bus">ℹ️</button>
-                  </div>
-                  <span class="bus-direction-tag">Unidirectional (CPU ➔ RAM)</span>
+                  <span class="bus-name-badge">Address Bus</span>
+                  <span class="bus-direction-tag">MAR ➔ RAM (Unidirectional)</span>
                 </div>
                 <div class="highway-wire">
                   <div class="highway-trace">
+                    <span class="bridge-in-anchor" title="Physical connection from MAR"></span>
                     <span class="wire-flow-arrow">▶</span>
-                    <div id="packetAddress" class="highway-packet packet-address"></div>
+                    <div id="packetAddress" class="highway-packet packet-address">
+                      <span id="packetAddressVal" class="packet-label"></span>
+                    </div>
+                    <span class="bridge-out-anchor" title="Physical connection to RAM"></span>
                   </div>
                 </div>
                 <div class="highway-bus-readout">
-                  <span class="readout-label">ADDR:</span>
-                  <span id="busAddressVal" class="readout-value font-mono">Idle</span>
+                  <span class="readout-label">ADDRESS LINE:</span>
+                  <span id="busAddressVal" class="readout-value font-mono"></span>
                 </div>
               </div>
 
-              <!-- Data Bus (Emerald: MDR ⇄ RAM) -->
+              <!-- Data Bus (Emerald: Plugs Directly into MDR ⇄ RAM) -->
               <div id="busData" class="highway-bus bus-data" data-inspect="bus-data">
                 <div class="highway-bus-meta">
-                  <div class="bus-badge-group">
-                    <span class="bus-name-badge">Data Bus</span>
-                    <button class="inspect-btn" title="Inspect Data Bus">ℹ️</button>
-                  </div>
-                  <span class="bus-direction-tag">Bidirectional (CPU ⇄ RAM)</span>
+                  <span class="bus-name-badge">Data Bus</span>
+                  <span class="bus-direction-tag">MDR ⇄ RAM (Bidirectional)</span>
                 </div>
                 <div class="highway-wire">
                   <div class="highway-trace">
+                    <span class="bridge-in-anchor" title="Physical connection to MDR"></span>
                     <span class="wire-flow-arrow-left">◀</span>
                     <span class="wire-flow-arrow">▶</span>
-                    <div id="packetData" class="highway-packet packet-data"></div>
+                    <div id="packetData" class="highway-packet packet-data">
+                      <span id="packetDataVal" class="packet-label"></span>
+                    </div>
+                    <span class="bridge-out-anchor" title="Physical connection to RAM"></span>
                   </div>
                 </div>
                 <div class="highway-bus-readout">
-                  <span class="readout-label">DATA:</span>
-                  <span id="busDataVal" class="readout-value font-mono">Idle</span>
+                  <span class="readout-label">DATA LINE:</span>
+                  <span id="busDataVal" class="readout-value font-mono"></span>
                 </div>
               </div>
 
-              <!-- Control Bus (Purple: CU ➔ RAM) -->
+              <!-- Control Bus (Purple: Plugs Directly into CU ➔ RAM) -->
               <div id="busControl" class="highway-bus bus-control" data-inspect="bus-control">
                 <div class="highway-bus-meta">
-                  <div class="bus-badge-group">
-                    <span class="bus-name-badge">Control Bus</span>
-                    <button class="inspect-btn" title="Inspect Control Bus">ℹ️</button>
-                  </div>
-                  <span class="bus-direction-tag">Control Signals &amp; Timing</span>
+                  <span class="bus-name-badge">Control Bus</span>
+                  <span class="bus-direction-tag">CU ➔ Timing Signals</span>
                 </div>
                 <div class="highway-wire">
                   <div class="highway-trace">
+                    <span class="bridge-in-anchor" title="Physical connection from CU"></span>
                     <span class="wire-flow-arrow">⚡▶</span>
-                    <div id="packetControl" class="highway-packet packet-control"></div>
+                    <div id="packetControl" class="highway-packet packet-control">
+                      <span id="packetControlVal" class="packet-label"></span>
+                    </div>
+                    <span class="bridge-out-anchor" title="Physical connection to RAM"></span>
                   </div>
                 </div>
                 <div class="highway-bus-readout">
-                  <span class="readout-label">CTRL:</span>
-                  <span id="busControlVal" class="readout-value font-mono">Idle</span>
+                  <span class="readout-label">CONTROL SIGNAL:</span>
+                  <span id="busControlVal" class="readout-value font-mono"></span>
                 </div>
               </div>
 
             </div>
 
             <!-- 3. MAIN MEMORY (RAM) VERTICAL RACK (Right) -->
-            <div class="ram-rack-subsystem" data-inspect="ram">
+            <div class="ram-rack-subsystem" id="ramRackSubsystem" data-inspect="ram">
               <div class="ram-rack-header">
                 <div class="ram-rack-title-row">
                   <span class="ram-rack-title">Main Memory (RAM)</span>
                   <button class="inspect-btn" title="Inspect RAM">ℹ️</button>
                 </div>
-                <span class="ram-rack-sub">Active Slots (00 – 07)</span>
+
+                <!-- Dual-Format Memory View Toggle (Mnemonic vs Hex vs Binary) -->
+                <div class="ram-format-toggle" title="Switch memory view format">
+                  <button class="format-btn active" data-format="mnemonic">Mnemonic</button>
+                  <button class="format-btn" data-format="hex">Hex</button>
+                  <button class="format-btn" data-format="binary">Binary</button>
+                </div>
               </div>
 
               <!-- 8-Slot Vertical Rack -->
               <div class="ram-rack-slots" id="ramRackSlots">
                 <!-- Dynamically generated 8 vertical slots via JS -->
               </div>
+
+              <div class="ram-footnote">
+                <span>💡 RAM holds both instructions &amp; data as binary bit patterns</span>
+              </div>
             </div>
 
           </div>
         </div>
 
-        <!-- Floating Component Inspector Card / Modal (Hidden by default, triggered on hover/click) -->
-        <div id="componentInspectorCard" class="component-inspector-card" style="display: none;">
-          <div class="inspector-header">
-            <div class="inspector-title-row">
-              <span id="inspectorIcon" class="inspector-icon">🔍</span>
-              <div>
-                <h4 id="inspectorName" class="inspector-name">Program Counter (PC)</h4>
-                <span id="inspectorNickname" class="inspector-nickname">"The Bookmark"</span>
-              </div>
+        <!-- Sleek, Compact Hover Tooltip (Dismisses automatically on mouseleave) -->
+        <div id="componentInspectorCard" class="component-tooltip" style="display: none;">
+          <div class="tooltip-header">
+            <span id="inspectorIcon" class="tooltip-icon">🔍</span>
+            <div>
+              <h5 id="inspectorName" class="tooltip-title">Program Counter (PC)</h5>
+              <span id="inspectorNickname" class="tooltip-nick">"The Bookmark"</span>
             </div>
-            <button id="closeInspectorBtn" class="inspector-close-btn">&times;</button>
           </div>
-          <div class="inspector-body">
-            <p id="inspectorRole" class="inspector-role">
-              Holds the memory address of the NEXT instruction to be fetched from RAM.
-            </p>
-            <div class="inspector-live-status">
-              <span class="inspector-status-label">Current Value:</span>
-              <strong id="inspectorLiveValue" class="inspector-status-val font-mono">00</strong>
-            </div>
+          <p id="inspectorRole" class="tooltip-text">
+            Holds the memory address of the NEXT instruction to be fetched from RAM.
+          </p>
+          <div class="tooltip-value-row">
+            <span class="tooltip-val-label">Live Value:</span>
+            <strong id="inspectorLiveValue" class="tooltip-val font-mono">00</strong>
           </div>
         </div>
 
