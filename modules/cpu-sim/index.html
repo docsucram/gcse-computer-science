@@ -195,33 +195,6 @@
           </div>
         </div>
 
-        <!-- In-Diagram Step Storyline & Spotlight Callout -->
-        <div class="stage-storyline-banner">
-          <div class="storyline-phase-tracker">
-            <span id="phasePillFetch" class="phase-pill active">1. FETCH</span>
-            <span class="phase-arrow">➔</span>
-            <span id="phasePillDecode" class="phase-pill">2. DECODE</span>
-            <span class="phase-arrow">➔</span>
-            <span id="phasePillExecute" class="phase-pill">3. EXECUTE</span>
-          </div>
-
-          <div class="storyline-content">
-            <div class="storyline-main">
-              <div class="storyline-badge-row">
-                <span id="narrativeStageBadge" class="stage-badge stage-fetch">FETCH STAGE</span>
-                <h4 id="narrativeTitle" class="storyline-title">Copy Address from PC to MAR</h4>
-              </div>
-              <p id="narrativePlainEnglish" class="storyline-text">
-                The Program Counter holds the address of the next instruction (00). The CPU copies this address into the Memory Address Register (MAR) across the internal bus.
-              </p>
-            </div>
-            <div class="storyline-hint">
-              <span class="hint-icon">💡</span>
-              <span class="hint-text">Hover or tap any hardware component to inspect what it does!</span>
-            </div>
-          </div>
-        </div>
-
         <!-- The Motherboard Canvas Frame -->
         <div class="motherboard-frame">
           <div class="motherboard-canvas" id="motherboardCanvas">
@@ -282,13 +255,13 @@
                     <!-- Arithmetic Logic Unit (ALU) -->
                     <div id="aluBlock" class="hw-node unit-node" data-inspect="alu">
                       <div class="node-header">
-                        <span class="node-title">Arithmetic Logic Unit (ALU)</span>
+                        <span class="node-title">ALU</span>
                         <button class="inspect-btn" title="Inspect ALU">ℹ️</button>
                       </div>
                       <div class="node-value-wrap">
                         <div id="aluResultText" class="node-value font-mono">0</div>
                       </div>
-                      <span class="node-sub">Executes arithmetic &amp; logic</span>
+                      <span class="node-sub">Arithmetic &amp; logic</span>
                     </div>
 
                     <!-- Internal Trace: ALU <-> ACC -->
@@ -305,7 +278,7 @@
                       <div class="node-value-wrap">
                         <div id="valACC" class="node-value font-mono">0</div>
                       </div>
-                      <span class="node-sub">Stores running calculation results</span>
+                      <span class="node-sub">Calculation results</span>
                     </div>
                   </div>
 
@@ -323,7 +296,7 @@
                     <div class="node-value-wrap">
                       <div id="valMDR" class="node-value font-mono">---</div>
                     </div>
-                    <span class="node-sub">Buffer for data/instructions from RAM</span>
+                    <span class="node-sub">Buffer for data &amp; instructions</span>
                   </div>
                 </div>
 
@@ -347,71 +320,68 @@
 
             <!-- 2. HIGHWAY BUSES CONDUIT (Center Spanning, Physically Aligned) -->
             <div class="buses-highway-conduit" id="busesConduit">
+              <div class="conduit-header">
+                <div class="conduit-label">
+                  <span class="chip-dot" style="background: #f59e0b; box-shadow: 0 0 8px #f59e0b;"></span>
+                  <span>SYSTEM BUS HIGHWAY</span>
+                </div>
+                <span class="conduit-sub">Interconnects</span>
+              </div>
               
-              <!-- Address Bus (Amber: Plugs Directly into MAR ➔ RAM) -->
-              <div id="busAddress" class="highway-bus bus-address" data-inspect="bus-address">
-                <div class="highway-bus-meta">
-                  <span class="bus-name-badge">Address Bus</span>
-                  <span class="bus-direction-tag">MAR ➔ RAM (Unidirectional)</span>
-                </div>
-                <div class="highway-wire">
-                  <div class="highway-trace">
-                    <span class="bridge-in-anchor" title="Physical connection from MAR"></span>
-                    <span class="wire-flow-arrow">▶</span>
-                    <div id="packetAddress" class="highway-packet packet-address">
-                      <span id="packetAddressVal" class="packet-label"></span>
+              <div class="conduit-buses-rack">
+                <!-- Address Bus (Amber: MAR ➔ RAM) -->
+                <div id="busAddress" class="highway-bus bus-address" data-inspect="bus-address">
+                  <div class="highway-bus-meta">
+                    <span class="bus-name-badge">Address Bus</span>
+                    <span class="bus-direction-tag">MAR ➔ RAM (Unidirectional)</span>
+                  </div>
+                  <div class="highway-wire">
+                    <div class="highway-trace">
+                      <span class="bridge-in-anchor" title="Physical connection from MAR"></span>
+                      <span class="wire-flow-arrow">▶</span>
+                      <div id="packetAddress" class="highway-packet packet-address">
+                        <span id="packetAddressVal" class="packet-label"></span>
+                      </div>
+                      <span class="bridge-out-anchor" title="Physical connection to RAM"></span>
                     </div>
-                    <span class="bridge-out-anchor" title="Physical connection to RAM"></span>
                   </div>
                 </div>
-                <div class="highway-bus-readout">
-                  <span class="readout-label">ADDRESS LINE:</span>
-                  <span id="busAddressVal" class="readout-value font-mono"></span>
-                </div>
-              </div>
 
-              <!-- Data Bus (Emerald: Plugs Directly into MDR ⇄ RAM) -->
-              <div id="busData" class="highway-bus bus-data" data-inspect="bus-data">
-                <div class="highway-bus-meta">
-                  <span class="bus-name-badge">Data Bus</span>
-                  <span class="bus-direction-tag">MDR ⇄ RAM (Bidirectional)</span>
-                </div>
-                <div class="highway-wire">
-                  <div class="highway-trace">
-                    <span class="bridge-in-anchor" title="Physical connection to MDR"></span>
-                    <span class="wire-flow-arrow-left">◀</span>
-                    <span class="wire-flow-arrow">▶</span>
-                    <div id="packetData" class="highway-packet packet-data">
-                      <span id="packetDataVal" class="packet-label"></span>
+                <!-- Data Bus (Emerald: MDR ⇄ RAM) -->
+                <div id="busData" class="highway-bus bus-data" data-inspect="bus-data">
+                  <div class="highway-bus-meta">
+                    <span class="bus-name-badge">Data Bus</span>
+                    <span class="bus-direction-tag">MDR ⇄ RAM (Bidirectional)</span>
+                  </div>
+                  <div class="highway-wire">
+                    <div class="highway-trace">
+                      <span class="bridge-in-anchor" title="Physical connection to MDR"></span>
+                      <span class="wire-flow-arrow-left">◀</span>
+                      <span class="wire-flow-arrow">▶</span>
+                      <div id="packetData" class="highway-packet packet-data">
+                        <span id="packetDataVal" class="packet-label"></span>
+                      </div>
+                      <span class="bridge-out-anchor" title="Physical connection to RAM"></span>
                     </div>
-                    <span class="bridge-out-anchor" title="Physical connection to RAM"></span>
                   </div>
                 </div>
-                <div class="highway-bus-readout">
-                  <span class="readout-label">DATA LINE:</span>
-                  <span id="busDataVal" class="readout-value font-mono"></span>
-                </div>
-              </div>
 
-              <!-- Control Bus (Purple: Plugs Directly into CU ➔ RAM) -->
-              <div id="busControl" class="highway-bus bus-control" data-inspect="bus-control">
-                <div class="highway-bus-meta">
-                  <span class="bus-name-badge">Control Bus</span>
-                  <span class="bus-direction-tag">CU ➔ Timing Signals</span>
-                </div>
-                <div class="highway-wire">
-                  <div class="highway-trace">
-                    <span class="bridge-in-anchor" title="Physical connection from CU"></span>
-                    <span class="wire-flow-arrow">⚡▶</span>
-                    <div id="packetControl" class="highway-packet packet-control">
-                      <span id="packetControlVal" class="packet-label"></span>
-                    </div>
-                    <span class="bridge-out-anchor" title="Physical connection to RAM"></span>
+                <!-- Control Bus (Purple: CU ➔ Control Signals) -->
+                <div id="busControl" class="highway-bus bus-control" data-inspect="bus-control">
+                  <div class="highway-bus-meta">
+                    <span class="bus-name-badge">Control Bus</span>
+                    <span class="bus-direction-tag">CU ➔ Timing Signals</span>
                   </div>
-                </div>
-                <div class="highway-bus-readout">
-                  <span class="readout-label">CONTROL SIGNAL:</span>
-                  <span id="busControlVal" class="readout-value font-mono"></span>
+                  <div class="highway-wire">
+                    <div class="highway-trace">
+                      <span class="bridge-in-anchor" title="Physical connection from CU"></span>
+                      <span class="wire-flow-arrow">⚡▶</span>
+                      <div id="packetControl" class="highway-packet packet-control">
+                        <span id="packetControlVal" class="packet-label"></span>
+                      </div>
+                      <span class="bridge-out-anchor" title="Physical connection to RAM"></span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -443,6 +413,33 @@
               </div>
             </div>
 
+          </div>
+        </div>
+
+        <!-- In-Diagram Step Storyline & Spotlight Callout (Placed BELOW Schematic) -->
+        <div class="stage-storyline-banner">
+          <div class="storyline-phase-tracker">
+            <span id="phasePillFetch" class="phase-pill active">1. FETCH</span>
+            <span class="phase-arrow">➔</span>
+            <span id="phasePillDecode" class="phase-pill">2. DECODE</span>
+            <span class="phase-arrow">➔</span>
+            <span id="phasePillExecute" class="phase-pill">3. EXECUTE</span>
+          </div>
+
+          <div class="storyline-content">
+            <div class="storyline-main">
+              <div class="storyline-badge-row">
+                <span id="narrativeStageBadge" class="stage-badge stage-fetch">FETCH STAGE</span>
+                <h4 id="narrativeTitle" class="storyline-title">Copy Address from PC to MAR</h4>
+              </div>
+              <p id="narrativePlainEnglish" class="storyline-text">
+                The Program Counter holds the address of the next instruction (00). The CPU copies this address into the Memory Address Register (MAR) across the internal bus.
+              </p>
+            </div>
+            <div class="storyline-hint">
+              <span class="hint-icon">💡</span>
+              <span class="hint-text">Hover or tap any hardware component to inspect what it does!</span>
+            </div>
           </div>
         </div>
 

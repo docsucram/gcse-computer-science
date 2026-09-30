@@ -309,6 +309,8 @@
       activeElements: { source: 'regPC', target: 'regMAR', internalWire: 'wirePCtoMAR' },
       action: () => {
         fdeState.mar = pcStr;
+        fdeState.decodedOpcode = '---';
+        fdeState.decodedOperand = '';
       }
     });
 
@@ -386,7 +388,7 @@
         instrTag: instrDisplay,
         plainEnglish: `The ALU fetches ${addOperandVal} from address ${operand} via the MDR, adds it to the current Accumulator value (${fdeState.acc}), and saves the result (${fdeState.acc + addOperandVal}) into the Accumulator (ACC).`,
         quote: 'The ALU performs addition of the MDR contents to the Accumulator (ACC) and stores the result back in the Accumulator.',
-        activeElements: { source: 'aluBlock', target: 'regACC', internalWire: 'wireALUtoACC' },
+        activeElements: { source: 'aluBlock', target: 'regACC', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand, internalWire: 'wireALUtoACC' },
         busAddressVal: `Addr: ${operand}`,
         busDataVal: `${addOperandVal}`,
         busControlVal: 'MEM_READ',
@@ -405,7 +407,7 @@
         instrTag: instrDisplay,
         plainEnglish: `The ALU fetches ${subOperandVal} from address ${operand} via the MDR, subtracts it from the Accumulator (${fdeState.acc}), and saves the result (${fdeState.acc - subOperandVal}) into the Accumulator (ACC).`,
         quote: 'The ALU performs subtraction of the MDR contents from the Accumulator (ACC) and stores the result back in the Accumulator.',
-        activeElements: { source: 'aluBlock', target: 'regACC', internalWire: 'wireALUtoACC' },
+        activeElements: { source: 'aluBlock', target: 'regACC', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand, internalWire: 'wireALUtoACC' },
         busAddressVal: `Addr: ${operand}`,
         busDataVal: `${subOperandVal}`,
         busControlVal: 'MEM_READ',
@@ -423,7 +425,7 @@
         instrTag: instrDisplay,
         plainEnglish: `The value in the Accumulator (${fdeState.acc}) is loaded into the MDR and sent across the Data Bus with a MEM_WRITE signal to be stored in RAM address ${operand}.`,
         quote: 'The contents of the Accumulator (ACC) are copied to the MDR and written to the memory address specified by the MAR.',
-        activeElements: { source: 'regACC', target: `ram-row-${operand}`, bus: 'busData', ramRow: operand, internalWire: 'wireMDRtoExecution' },
+        activeElements: { source: 'regACC', target: `ram-row-${operand}`, bus: 'busAddress', secondaryBus: 'busData', ramRow: operand, internalWire: 'wireMDRtoExecution' },
         busAddressVal: `Addr: ${operand}`,
         busDataVal: `${fdeState.acc}`,
         busControlVal: 'MEM_WRITE',
@@ -465,7 +467,7 @@
     fdeState.mar = '00';
     fdeState.mdr = '---';
     fdeState.acc = 0;
-    fdeState.decodedOpcode = 'NONE';
+    fdeState.decodedOpcode = '---';
     fdeState.decodedOperand = '';
     fdeState.isHalted = false;
     fdeState.cycleCount = 1;
@@ -576,7 +578,7 @@
     if (valMAR) valMAR.textContent = fdeState.mar;
     if (valMDR) valMDR.textContent = fdeState.mdr;
     if (valACC) valACC.textContent = fdeState.acc.toString();
-    if (cuDecodedText) cuDecodedText.textContent = fdeState.decodedOpcode + (fdeState.decodedOperand ? ` ${fdeState.decodedOperand}` : '');
+    if (cuDecodedText) cuDecodedText.textContent = (fdeState.decodedOpcode === '---' || fdeState.decodedOpcode === 'NONE') ? '---' : (fdeState.decodedOpcode + (fdeState.decodedOperand ? ` ${fdeState.decodedOperand}` : ''));
     if (aluResultText) aluResultText.textContent = fdeState.acc.toString();
 
     // 2. Right-hand Live Register State Table
@@ -765,6 +767,18 @@
       if (wireEl) wireEl.classList.add('active-wire');
     }
 
+    if (act.ramRow) {
+      const isWrite = step.stage === 'EXECUTE' && step.busControlVal === 'MEM_WRITE';
+      const slotEl = document.getElementById(`ram-slot-${act.ramRow}`);
+      if (slotEl) {
+        slotEl.classList.add(isWrite ? 'active-slot-write' : 'active-slot-read');
+      }
+      const rowEl = document.getElementById(`ram-row-${act.ramRow}`);
+      if (rowEl) {
+        rowEl.classList.add(isWrite ? 'active-ram-write' : 'active-ram-read');
+      }
+    }
+
     if (step.isIncrement) {
       const pcNode = document.getElementById('regPC');
       if (pcNode) pcNode.classList.add('active-inc');
@@ -800,27 +814,34 @@
       }
     }
 
-    // Bus Status Readouts
+    // Bus Status Packet Value Fillers
     if (step.busAddressVal) {
-      const bAddr = document.getElementById('busAddressVal');
+      const p = document.getElementById('packetAddress');
+      const pVal = document.getElementById('packetAddressVal');
       const b = document.getElementById('busAddress');
-      if (bAddr) bAddr.textContent = step.busAddressVal;
+      if (pVal && (!step.packetDir || step.packetDir.bus !== 'address')) {
+        pVal.textContent = step.busAddressVal.replace('Addr: ', '');
+        if (p) p.classList.add('packet-to-ram');
+      }
       if (b) b.classList.add('bus-active');
     }
     if (step.busDataVal) {
-      const bData = document.getElementById('busDataVal');
+      const p = document.getElementById('packetData');
+      const pVal = document.getElementById('packetDataVal');
       const b = document.getElementById('busData');
-      if (bData) bData.textContent = step.busDataVal;
+      if (pVal && (!step.packetDir || step.packetDir.bus !== 'data')) {
+        pVal.textContent = step.busDataVal;
+        const dir = (step.stage === 'EXECUTE' && step.busControlVal === 'MEM_WRITE') ? 'packet-to-ram' : 'packet-to-cpu';
+        if (p) p.classList.add(dir);
+      }
       if (b) b.classList.add('bus-active');
     }
     if (step.busControlVal) {
-      const bCtrl = document.getElementById('busControlVal');
-      const b = document.getElementById('busControl');
+      const bCtrl = document.getElementById('busControl');
       const p = document.getElementById('packetControl');
       const pCtrlVal = document.getElementById('packetControlVal');
-      if (bCtrl) bCtrl.textContent = step.busControlVal;
       if (pCtrlVal) pCtrlVal.textContent = step.busControlVal;
-      if (b) b.classList.add('bus-active');
+      if (bCtrl) bCtrl.classList.add('bus-active');
       if (p) p.classList.add('packet-to-ram');
     }
 

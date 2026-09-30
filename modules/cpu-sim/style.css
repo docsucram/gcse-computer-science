@@ -326,6 +326,7 @@
   flex-direction: column;
   gap: 12px;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+  margin-top: 14px;
 }
 
 .storyline-phase-tracker {
@@ -421,9 +422,9 @@
 
 .motherboard-canvas {
   display: grid;
-  grid-template-columns: minmax(400px, 1.45fr) minmax(200px, 0.85fr) minmax(270px, 1.05fr);
-  gap: 16px;
-  min-width: 900px;
+  grid-template-columns: minmax(460px, 1.55fr) minmax(230px, 0.9fr) minmax(280px, 1fr);
+  gap: 20px;
+  min-width: 980px;
   align-items: stretch;
   position: relative;
   transition: opacity 0.3s ease;
@@ -504,13 +505,14 @@
 /* Channel 2: Data Channel (ALU/ACC <-> MDR) */
 .channel-data {
   display: grid;
-  grid-template-columns: 1.15fr 28px 1fr;
+  grid-template-columns: 1.15fr 24px 1.25fr;
   align-items: center;
+  gap: 6px;
 }
 
 .math-cluster {
   display: grid;
-  grid-template-columns: 1fr 22px 1fr;
+  grid-template-columns: 1fr 18px 1fr;
   align-items: center;
   gap: 4px;
 }
@@ -550,18 +552,19 @@
 .node-bus-exit::after {
   content: '';
   position: absolute;
-  right: -8px;
+  right: -12px;
   top: 50%;
-  width: 8px;
-  height: 2.5px;
+  width: 12px;
+  height: 3.5px;
   background: currentColor;
-  opacity: 0.5;
+  opacity: 0.7;
   transform: translateY(-50%);
+  border-radius: 2px;
 }
 
-#regMAR.node-bus-exit::after { background: #f59e0b; opacity: 0.8; }
-#regMDR.node-bus-exit::after { background: #10b981; opacity: 0.8; }
-#cuBlock.node-bus-exit::after { background: #a855f7; opacity: 0.8; }
+#regMAR.node-bus-exit::after { background: #f59e0b; opacity: 0.9; }
+#regMDR.node-bus-exit::after { background: #10b981; opacity: 0.9; }
+#cuBlock.node-bus-exit::after { background: #a855f7; opacity: 0.9; }
 
 #regPC { border-left: 4px solid #3b82f6; }
 #regMAR { border-left: 4px solid #f59e0b; }
@@ -577,12 +580,12 @@
 }
 
 .node-title {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 800;
   color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  line-height: 1.25;
+  word-break: normal;
 }
 
 .inspect-btn {
@@ -617,9 +620,8 @@
 .node-sub {
   font-size: 8.5px;
   color: var(--text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  line-height: 1.2;
 }
 
 /* PC Increment Badge */
@@ -702,28 +704,102 @@
 /* ========================================================================= */
 
 .buses-highway-conduit {
+  background: var(--bg-surface);
+  border: 2px solid var(--border-hover);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+}
+
+.conduit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.conduit-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+
+.conduit-sub {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.conduit-buses-rack {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  flex: 1;
   gap: 12px;
-  padding: 6px 0;
 }
 
 .highway-bus {
-  background: var(--bg-surface);
+  background: var(--bg-surface-elevated);
   border: 1.5px solid var(--border-color);
   border-radius: var(--radius-md);
-  padding: 8px 10px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 6px;
   transition: all var(--transition-fast);
   cursor: pointer;
   position: relative;
 }
 
+/* Explicit physical bus bridge connectors spanning into CPU and RAM */
+.highway-bus::before {
+  content: '';
+  position: absolute;
+  left: -22px;
+  top: 50%;
+  width: 22px;
+  height: 4px;
+  background: currentColor;
+  opacity: 0.45;
+  transform: translateY(-50%);
+  transition: all var(--transition-fast);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
+.highway-bus::after {
+  content: '';
+  position: absolute;
+  right: -22px;
+  top: 50%;
+  width: 22px;
+  height: 4px;
+  background: currentColor;
+  opacity: 0.45;
+  transform: translateY(-50%);
+  transition: all var(--transition-fast);
+  border-radius: 2px;
+  pointer-events: none;
+}
+
 .highway-bus:hover {
   border-color: var(--border-hover);
+}
+
+.highway-bus.bus-active::before,
+.highway-bus.bus-active::after {
+  opacity: 1;
+  box-shadow: 0 0 12px currentColor;
 }
 
 .highway-bus-meta {
@@ -733,7 +809,7 @@
 }
 
 .bus-name-badge {
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -750,11 +826,11 @@
 .bus-control .bus-name-badge { color: #a855f7; }
 
 .highway-wire {
-  height: 16px;
+  height: 22px;
   display: flex;
   align-items: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .highway-trace {
@@ -769,20 +845,27 @@
   position: absolute;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 4px;
   background: currentColor;
-  opacity: 0.35;
+  opacity: 0.45;
+  border-radius: 2px;
+  transition: all var(--transition-fast);
+}
+
+.highway-bus.bus-active .highway-trace::before {
+  opacity: 1;
+  box-shadow: 0 0 14px currentColor;
 }
 
 .bridge-in-anchor, .bridge-out-anchor {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: currentColor;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  opacity: 0.7;
+  opacity: 0.85;
 }
 .bridge-in-anchor { left: 0; }
 .bridge-out-anchor { right: 0; }
@@ -806,9 +889,9 @@
 .highway-packet {
   position: absolute;
   top: 50%;
-  min-width: 44px;
-  height: 16px;
-  border-radius: 8px;
+  min-width: 48px;
+  height: 18px;
+  border-radius: 9px;
   transform: translateY(-50%);
   opacity: 0;
   pointer-events: none;
@@ -816,11 +899,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 6px;
+  padding: 0 7px;
 }
 
 .packet-label {
-  font-size: 9px;
+  font-size: 9.5px;
   font-weight: 800;
   font-family: var(--font-mono);
   color: #ffffff;
@@ -849,14 +932,14 @@
 
 @keyframes packetSlideToRAM {
   0% { left: 0%; opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { left: 82%; opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { left: calc(100% - 48px); opacity: 0; }
 }
 @keyframes packetSlideToCPU {
-  0% { left: 82%; opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
+  0% { left: calc(100% - 48px); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
   100% { left: 0%; opacity: 0; }
 }
 
@@ -869,7 +952,7 @@
 }
 .bus-data.bus-active {
   border-color: #10b981 !important;
-  box-shadow: 0 0 16px rgba(168, 85, 247, 0.45);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.45);
 }
 .bus-control.bus-active {
   border-color: #a855f7 !important;
@@ -1019,16 +1102,20 @@
 
 .ram-slot.active-slot-read {
   border-color: #38bdf8 !important;
-  background: rgba(56, 189, 248, 0.22) !important;
-  box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
-  transform: translateX(-2px);
+  background: rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 0 16px rgba(56, 189, 248, 0.75) !important;
+  transform: translateX(-4px) !important;
+  opacity: 1 !important;
+  filter: none !important;
 }
 
 .ram-slot.active-slot-write {
   border-color: #f59e0b !important;
-  background: rgba(245, 158, 11, 0.22) !important;
-  box-shadow: 0 0 14px rgba(245, 158, 11, 0.5);
-  transform: translateX(-2px);
+  background: rgba(245, 158, 11, 0.3) !important;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.75) !important;
+  transform: translateX(-4px) !important;
+  opacity: 1 !important;
+  filter: none !important;
 }
 
 .ram-footnote {
@@ -1046,9 +1133,15 @@
 .motherboard-canvas.focus-mode .hw-node:not(.active-source):not(.active-target):not(.active-glow):not(.active-inc),
 .motherboard-canvas.focus-mode .highway-bus:not(.bus-active),
 .motherboard-canvas.focus-mode .ram-slot:not(.active-slot-read):not(.active-slot-write) {
-  opacity: 0.32;
+  opacity: 0.28;
   filter: grayscale(40%);
   transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+.motherboard-canvas.focus-mode .ram-slot.active-slot-read,
+.motherboard-canvas.focus-mode .ram-slot.active-slot-write {
+  opacity: 1 !important;
+  filter: none !important;
 }
 
 /* ========================================================================= */
