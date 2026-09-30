@@ -796,33 +796,6 @@
       { key: 'ram',         x: 745, y: 15,  w: 298, h: 490 }
     ];
 
-    canvas.addEventListener('mousemove', (e) => {
-      const pos = getMousePos(e);
-      let foundKey = null;
-
-      for (const zone of HIT_ZONES) {
-        if (pos.x >= zone.x && pos.x <= zone.x + zone.w && pos.y >= zone.y && pos.y <= zone.y + zone.h) {
-          foundKey = zone.key;
-          break;
-        }
-      }
-
-      hoveredKey = foundKey;
-      if (foundKey) {
-        canvas.style.cursor = 'pointer';
-        showInspector(foundKey, pos.x);
-      } else {
-        canvas.style.cursor = 'default';
-        hideInspector();
-      }
-    });
-
-    canvas.addEventListener('mouseleave', () => {
-      hoveredKey = null;
-      canvas.style.cursor = 'default';
-      hideInspector();
-    });
-
     startCanvasLoop();
   }
 
@@ -884,11 +857,11 @@
     // Clear viewport
     ctx.clearRect(0, 0, 1060, 520);
 
-    // Canvas Substrate Motherboard Chassis
-    drawRoundRect(ctx, 4, 4, 1052, 512, 16);
+    // Subtle motherboard substrate background
+    drawRoundRect(ctx, 4, 4, 1052, 512, 12);
     ctx.fillStyle = cBgRoot;
     ctx.fill();
-    ctx.lineWidth = 1.5;
+    ctx.lineWidth = 1;
     ctx.strokeStyle = cBorder;
     ctx.stroke();
 
@@ -902,9 +875,7 @@
       if (isInitial || !currStep.stage) return false;
       if (act.source === key || act.target === key || act.secondaryTarget === key || act.intermediate === key) return true;
       if (key === 'regPC' && currStep.isIncrement) return true;
-      // Control Unit is active during DECODE or whenever sending a bus command (e.g. MEM_READ, MEM_WRITE, INC_PC)
       if (key === 'cuBlock' && (currStep.stage === 'DECODE' || !!currStep.busControlVal)) return true;
-      // Memory Data Register (MDR) is active whenever the Data Bus carries data or code to/from the CPU
       if (key === 'regMDR' && (act.bus === 'busData' || act.secondaryBus === 'busData')) return true;
       return false;
     };
@@ -927,66 +898,41 @@
     }
 
     // =========================================================================
-    // 1. CENTRAL PROCESSING UNIT (CPU) CHASSIS (Left Area)
+    // 1. CPU HARDWARE ZONE (Left & Center - No nested cages)
     // =========================================================================
     ctx.save();
     ctx.globalAlpha = 1.0;
 
-    // Outer CPU Chassis Box
-    drawRoundRect(ctx, 20, 15, 710, 490, 16);
-    ctx.fillStyle = cCardBg;
-    ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = (hoveredKey && ['pc', 'mar', 'mdr', 'cir', 'acc', 'alu', 'cu'].includes(hoveredKey)) ? cBlue : cBorder;
-    ctx.stroke();
-
-    // CPU Header
-    ctx.beginPath();
-    ctx.arc(36, 36, 4, 0, Math.PI * 2);
-    ctx.fillStyle = cBlue;
-    ctx.fill();
-
+    // Subtle dashed CPU boundary label
     ctx.font = 'bold 11px Inter, system-ui, sans-serif';
-    ctx.fillStyle = cTextPrimary;
+    ctx.fillStyle = cTextSecondary;
     ctx.textAlign = 'left';
-    ctx.fillText('CENTRAL PROCESSING UNIT (CPU)', 48, 36);
+    ctx.fillText('CENTRAL PROCESSING UNIT (CPU CORE)', 30, 28);
 
     ctx.font = '10px JetBrains Mono, monospace';
     ctx.fillStyle = cTextMuted;
     ctx.textAlign = 'right';
-    ctx.fillText('Von Neumann Architecture Core', 715, 36);
+    ctx.fillText('Internal Architecture', 730, 28);
 
-    // Divider under CPU header
+    // Subtle hairline divider between CPU zone and RAM
     ctx.beginPath();
-    ctx.moveTo(20, 44);
-    ctx.lineTo(730, 44);
+    ctx.moveTo(742, 15);
+    ctx.lineTo(742, 505);
     ctx.strokeStyle = cBorder;
     ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
     ctx.stroke();
+    ctx.setLineDash([]);
 
     // -------------------------------------------------------------------------
-    // 1.1 INTERNAL REGISTERS CONTAINER (Top Left)
-    // Houses 5 Registers: PC, MAR, MDR, CIR, ACC
+    // 1.1 SPACIOUS REGISTER BANK (Top Row: PC, MAR, MDR, CIR, ACC)
     // -------------------------------------------------------------------------
-    drawRoundRect(ctx, 35, 48, 380, 110, 10);
-    ctx.fillStyle = isDark ? '#141c2c' : '#f8fafc';
-    ctx.fill();
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = cBorder;
-    ctx.stroke();
-
-    ctx.font = 'bold 9px JetBrains Mono, monospace';
-    ctx.fillStyle = cTextMuted;
-    ctx.textAlign = 'left';
-    ctx.fillText('INTERNAL REGISTERS (AQA & OCR CORE)', 44, 62);
-
-    // 5 Core Registers
     const REG_LIST = [
-      { id: 'regPC',  key: 'pc',  x: 41,  pinX: 74,  tag: 'PC',  name: 'Prog Counter',  color: cAmber,   val: fdeState.pc.toString().padStart(2, '0') },
-      { id: 'regMAR', key: 'mar', x: 115, pinX: 148, tag: 'MAR', name: 'Mem Address',   color: cAmber,   val: fdeState.mar },
-      { id: 'regMDR', key: 'mdr', x: 189, pinX: 222, tag: 'MDR', name: 'Mem Data',      color: cEmerald, val: fdeState.mdr },
-      { id: 'regCIR', key: 'cir', x: 263, pinX: 296, tag: 'CIR', name: 'Current Instr', color: cPurple,  val: fdeState.cir || '---' },
-      { id: 'regACC', key: 'acc', x: 337, pinX: 370, tag: 'ACC', name: 'Accumulator',   color: cPink,    val: fdeState.acc.toString() }
+      { id: 'regPC',  x: 30,  w: 96, pinX: 78,  tag: 'PC',  name: 'Prog Counter',  color: cAmber,   val: fdeState.pc.toString().padStart(2, '0') },
+      { id: 'regMAR', x: 138, w: 96, pinX: 186, tag: 'MAR', name: 'Mem Address',   color: cAmber,   val: fdeState.mar },
+      { id: 'regMDR', x: 246, w: 96, pinX: 294, tag: 'MDR', name: 'Mem Data',      color: cEmerald, val: fdeState.mdr },
+      { id: 'regCIR', x: 354, w: 96, pinX: 402, tag: 'CIR', name: 'Current Instr', color: cPurple,  val: fdeState.cir || '---' },
+      { id: 'regACC', x: 462, w: 96, pinX: 510, tag: 'ACC', name: 'Accumulator',   color: cPink,    val: fdeState.acc.toString() }
     ];
 
     for (const reg of REG_LIST) {
@@ -994,14 +940,15 @@
       const isInc = reg.id === 'regPC' && currStep.isIncrement;
       ctx.globalAlpha = getDimAlpha(active || isInc);
 
-      drawRoundRect(ctx, reg.x, 68, 68, 82, 8);
+      // Register Card Box
+      drawRoundRect(ctx, reg.x, 42, reg.w, 96, 8);
       ctx.fillStyle = active || isInc
         ? (isDark ? 'rgba(56, 189, 248, 0.16)' : 'rgba(56, 189, 248, 0.12)')
         : cCardBg;
       ctx.fill();
 
       ctx.lineWidth = active || isInc ? 2.5 : 1.5;
-      ctx.strokeStyle = isInc ? cEmerald : (active ? reg.color : (hoveredKey === reg.key ? cBlue : cBorder));
+      ctx.strokeStyle = isInc ? cEmerald : (active ? reg.color : cBorder);
       if (active || isInc) {
         ctx.shadowColor = isInc ? cEmerald : reg.color;
         ctx.shadowBlur = 12;
@@ -1011,67 +958,67 @@
 
       // Color accent tab
       ctx.beginPath();
-      ctx.moveTo(reg.x + 3, 73);
-      ctx.lineTo(reg.x + 3, 93);
+      ctx.moveTo(reg.x + 3, 47);
+      ctx.lineTo(reg.x + 3, 72);
       ctx.strokeStyle = reg.color;
-      ctx.lineWidth = 2.5;
+      ctx.lineWidth = 3;
       ctx.stroke();
 
       // Tag
-      ctx.font = 'bold 10px JetBrains Mono, monospace';
+      ctx.font = 'bold 11px JetBrains Mono, monospace';
       ctx.fillStyle = reg.color;
       ctx.textAlign = 'left';
-      ctx.fillText(reg.tag, reg.x + 8, 84);
+      ctx.fillText(reg.tag, reg.x + 10, 60);
 
-      // Info icon
-      ctx.font = '8px sans-serif';
+      // Name
+      ctx.font = '8.5px Inter, system-ui, sans-serif';
       ctx.fillStyle = cTextMuted;
       ctx.textAlign = 'right';
-      ctx.fillText('ℹ️', reg.x + 62, 83);
+      ctx.fillText(reg.name, reg.x + reg.w - 8, 60);
 
       // Big Value
-      ctx.font = 'bold 12.5px JetBrains Mono, monospace';
+      ctx.font = 'bold 14px JetBrains Mono, monospace';
       ctx.fillStyle = active || isInc ? reg.color : cTextPrimary;
       ctx.textAlign = 'center';
-      const maxValW = 60;
+      const maxValW = reg.w - 16;
       let displayVal = reg.val;
       if (ctx.measureText(displayVal).width > maxValW) {
-        displayVal = displayVal.slice(0, 7) + '..';
+        displayVal = displayVal.slice(0, 8) + '..';
       }
-      ctx.fillText(displayVal, reg.x + 34, 114);
+      ctx.fillText(displayVal, reg.x + reg.w / 2, 92);
 
-      // Status badge or register role
+      // Status badge or role
       if (isInc) {
-        drawRoundRect(ctx, reg.x + 6, 122, 56, 14, 3);
+        drawRoundRect(ctx, reg.x + 16, 108, 64, 16, 3);
         ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
         ctx.fill();
-        ctx.font = 'bold 7.5px JetBrains Mono, monospace';
+        ctx.font = 'bold 8px JetBrains Mono, monospace';
         ctx.fillStyle = cEmerald;
-        ctx.fillText('+1 (Next)', reg.x + 34, 132);
+        ctx.fillText('+1 (Next)', reg.x + reg.w / 2, 119);
       } else {
-        ctx.font = '7.5px Inter, system-ui, sans-serif';
+        ctx.font = '8px JetBrains Mono, monospace';
         ctx.fillStyle = cTextMuted;
-        ctx.fillText(reg.name, reg.x + 34, 134);
+        ctx.fillText(reg.id === 'regPC' ? 'Pointer' : (reg.id === 'regMAR' ? 'Address' : (reg.id === 'regMDR' ? 'Buffer' : (reg.id === 'regCIR' ? 'Active' : 'Working'))), reg.x + reg.w / 2, 118);
       }
 
-      // External Pin Terminal at bottom of Register
+      // Pin terminal dot at bottom of Register
       ctx.beginPath();
-      ctx.arc(reg.pinX, 150, 3.5, 0, Math.PI * 2);
+      ctx.arc(reg.pinX, 138, 3.5, 0, Math.PI * 2);
       ctx.fillStyle = reg.color;
       ctx.fill();
     }
 
     // -------------------------------------------------------------------------
-    // 1.2 ARITHMETIC LOGIC UNIT (ALU) (Top Center/Right)
+    // 1.2 ARITHMETIC LOGIC UNIT (ALU) (Top Right of CPU zone)
     // -------------------------------------------------------------------------
     const aluActive = isNodeActive('aluBlock');
     ctx.globalAlpha = getDimAlpha(aluActive);
 
-    drawRoundRect(ctx, 430, 48, 285, 110, 10);
+    drawRoundRect(ctx, 578, 42, 150, 96, 8);
     ctx.fillStyle = aluActive ? (isDark ? 'rgba(16, 185, 129, 0.16)' : 'rgba(16, 185, 129, 0.12)') : cCardElevated;
     ctx.fill();
-    ctx.lineWidth = aluActive ? 2 : 1.5;
-    ctx.strokeStyle = aluActive ? cEmerald : (hoveredKey === 'alu' ? cBlue : cBorder);
+    ctx.lineWidth = aluActive ? 2.5 : 1.5;
+    ctx.strokeStyle = aluActive ? cEmerald : cBorder;
     if (aluActive) {
       ctx.shadowColor = cEmerald;
       ctx.shadowBlur = 12;
@@ -1080,42 +1027,42 @@
     ctx.shadowBlur = 0;
 
     // ALU Tag Badge
-    drawRoundRect(ctx, 638, 55, 68, 16, 4);
+    drawRoundRect(ctx, 668, 48, 54, 15, 3);
     ctx.fillStyle = isDark ? 'rgba(16, 185, 129, 0.25)' : 'rgba(16, 185, 129, 0.2)';
     ctx.fill();
-    ctx.font = 'bold 8.5px JetBrains Mono, monospace';
+    ctx.font = 'bold 8px JetBrains Mono, monospace';
     ctx.fillStyle = cEmerald;
     ctx.textAlign = 'center';
-    ctx.fillText('CALCULATOR', 672, 66);
+    ctx.fillText('CALCULATOR', 695, 59);
 
-    ctx.font = 'bold 11px Inter, system-ui, sans-serif';
+    ctx.font = 'bold 10.5px Inter, system-ui, sans-serif';
     ctx.fillStyle = cTextPrimary;
     ctx.textAlign = 'left';
-    ctx.fillText('Arithmetic Logic Unit (ALU)', 442, 68);
-
-    ctx.font = '9.5px Inter, system-ui, sans-serif';
-    ctx.fillStyle = cTextSecondary;
-    ctx.fillText('Math Output:', 442, 94);
-
-    ctx.font = 'bold 17px JetBrains Mono, monospace';
-    ctx.fillStyle = aluActive ? cEmerald : cTextPrimary;
-    ctx.fillText(fdeState.acc.toString(), 442, 118);
+    ctx.fillText('ALU', 588, 60);
 
     ctx.font = '8.5px Inter, system-ui, sans-serif';
+    ctx.fillStyle = cTextSecondary;
+    ctx.fillText('Math Output:', 588, 80);
+
+    ctx.font = 'bold 16px JetBrains Mono, monospace';
+    ctx.fillStyle = aluActive ? cEmerald : cTextPrimary;
+    ctx.fillText(fdeState.acc.toString(), 588, 102);
+
+    ctx.font = '8px Inter, system-ui, sans-serif';
     ctx.fillStyle = cTextMuted;
-    ctx.fillText('Performs arithmetic (+, -) & logic checks', 442, 138);
+    ctx.fillText('Math (+, -) & logic', 588, 122);
 
     // ALU Pin Terminal at bottom (connecting to Data Bus)
     ctx.beginPath();
-    ctx.arc(572, 158, 3.5, 0, Math.PI * 2);
+    ctx.arc(653, 138, 3.5, 0, Math.PI * 2);
     ctx.fillStyle = cEmerald;
     ctx.fill();
 
-    // Dedicated Internal Data Bus Bridge: ACC ⇄ ALU
+    // Dedicated Direct Internal Bus Bridge: ACC ⇄ ALU
     const isAccAluActive = aluActive || isNodeActive('regACC');
     ctx.beginPath();
-    ctx.moveTo(405, 109);
-    ctx.lineTo(430, 109);
+    ctx.moveTo(558, 88);
+    ctx.lineTo(578, 88);
     ctx.strokeStyle = isAccAluActive ? cEmerald : cBorder;
     ctx.lineWidth = isAccAluActive ? 3.5 : 2;
     if (isAccAluActive) {
@@ -1126,7 +1073,7 @@
     ctx.shadowBlur = 0;
 
     // Small ALU ⇄ ACC Bridge Badge
-    drawRoundRect(ctx, 395, 101, 46, 16, 4);
+    drawRoundRect(ctx, 552, 80, 32, 14, 3);
     ctx.fillStyle = cCardBg;
     ctx.fill();
     ctx.strokeStyle = isAccAluActive ? cEmerald : cBorder;
@@ -1135,19 +1082,19 @@
     ctx.font = 'bold 7px JetBrains Mono, monospace';
     ctx.fillStyle = isAccAluActive ? cEmerald : cTextMuted;
     ctx.textAlign = 'center';
-    ctx.fillText('ACC⇄ALU', 418, 112);
+    ctx.fillText('⇄', 568, 90);
 
     // -------------------------------------------------------------------------
-    // 1.3 CONTROL UNIT (CU) (Bottom Left)
+    // 1.3 CONTROL UNIT (CU) (Bottom Left/Center)
     // -------------------------------------------------------------------------
     const cuActive = isNodeActive('cuBlock');
     ctx.globalAlpha = getDimAlpha(cuActive);
 
-    drawRoundRect(ctx, 35, 365, 380, 125, 10);
+    drawRoundRect(ctx, 30, 360, 500, 135, 10);
     ctx.fillStyle = cuActive ? (isDark ? 'rgba(168, 85, 247, 0.16)' : 'rgba(168, 85, 247, 0.12)') : cCardElevated;
     ctx.fill();
-    ctx.lineWidth = cuActive ? 2 : 1.5;
-    ctx.strokeStyle = cuActive ? cPurple : (hoveredKey === 'cu' ? cBlue : cBorder);
+    ctx.lineWidth = cuActive ? 2.5 : 1.5;
+    ctx.strokeStyle = cuActive ? cPurple : cBorder;
     if (cuActive) {
       ctx.shadowColor = cPurple;
       ctx.shadowBlur = 12;
@@ -1156,77 +1103,90 @@
     ctx.shadowBlur = 0;
 
     // CU Tag Pill
-    drawRoundRect(ctx, 345, 373, 60, 16, 4);
+    drawRoundRect(ctx, 452, 368, 68, 18, 4);
     ctx.fillStyle = isDark ? 'rgba(168, 85, 247, 0.25)' : 'rgba(168, 85, 247, 0.2)';
     ctx.fill();
     ctx.font = 'bold 8.5px JetBrains Mono, monospace';
     ctx.fillStyle = cPurple;
     ctx.textAlign = 'center';
-    ctx.fillText('DECODER', 375, 384);
+    ctx.fillText('DECODER', 486, 380);
 
     // CU Centre of Operations Pill
-    drawRoundRect(ctx, 45, 373, 135, 16, 4);
+    drawRoundRect(ctx, 42, 368, 145, 18, 4);
     ctx.fillStyle = isDark ? 'rgba(56, 189, 248, 0.2)' : 'rgba(56, 189, 248, 0.15)';
     ctx.fill();
-    ctx.font = 'bold 8px JetBrains Mono, monospace';
+    ctx.font = 'bold 8.5px JetBrains Mono, monospace';
     ctx.fillStyle = cBlue;
     ctx.textAlign = 'center';
-    ctx.fillText('CENTRE OF OPERATIONS', 112, 384);
+    ctx.fillText('CENTRE OF OPERATIONS', 114, 380);
 
-    ctx.font = 'bold 11px Inter, system-ui, sans-serif';
+    ctx.font = 'bold 12px Inter, system-ui, sans-serif';
     ctx.fillStyle = cTextPrimary;
     ctx.textAlign = 'left';
-    ctx.fillText('Control Unit (CU)', 45, 410);
+    ctx.fillText('Control Unit (CU)', 42, 408);
 
     ctx.font = '9.5px Inter, system-ui, sans-serif';
     ctx.fillStyle = cTextSecondary;
-    ctx.fillText('Decoded Instruction:', 45, 432);
+    ctx.fillText('Decoded Instruction & Meaning:', 42, 430);
 
     ctx.font = 'bold 15px JetBrains Mono, monospace';
     ctx.fillStyle = cuActive ? cPurple : cTextPrimary;
     const cuText = (fdeState.decodedOpcode === '---' || fdeState.decodedOpcode === 'NONE')
-      ? 'NONE'
+      ? 'READY (Waiting for instruction)'
       : `${fdeState.decodedOpcode} ${fdeState.decodedOperand || ''}`;
-    ctx.fillText(cuText, 45, 454);
+    ctx.fillText(cuText, 42, 452);
 
-    ctx.font = '8.5px Inter, system-ui, sans-serif';
-    ctx.fillStyle = cTextMuted;
-    ctx.fillText('• Receives & decodes instructions  • Sends out command signals', 45, 476);
+    // Meaning translation
+    ctx.font = '9.5px Inter, system-ui, sans-serif';
+    ctx.fillStyle = cuActive ? (isDark ? '#c084fc' : '#7e22ce') : cTextMuted;
+    let cuMeaning = '• Receives & decodes instructions  • Sends command signals across Control Bus';
+    if (fdeState.decodedOpcode === 'LOAD') {
+      cuMeaning = `➔ LOAD value at RAM address ${fdeState.decodedOperand} into the Accumulator`;
+    } else if (fdeState.decodedOpcode === 'ADD') {
+      cuMeaning = `➔ ADD value at RAM address ${fdeState.decodedOperand} to the Accumulator`;
+    } else if (fdeState.decodedOpcode === 'SUB') {
+      cuMeaning = `➔ SUBTRACT value at RAM address ${fdeState.decodedOperand} from the Accumulator`;
+    } else if (fdeState.decodedOpcode === 'STORE') {
+      cuMeaning = `➔ STORE value in Accumulator into RAM address ${fdeState.decodedOperand}`;
+    } else if (fdeState.decodedOpcode === 'HLT') {
+      cuMeaning = '➔ HALT program execution (Stop CPU cycle)';
+    }
+    ctx.fillText(cuMeaning, 42, 476);
 
     // Pin connection terminal dot at top of CU (Control Bus tap)
     ctx.beginPath();
-    ctx.arc(225, 365, 3.5, 0, Math.PI * 2);
+    ctx.arc(220, 360, 3.5, 0, Math.PI * 2);
     ctx.fillStyle = cPurple;
     ctx.fill();
 
     // =========================================================================
-    // 2. MAIN MEMORY (RAM) RACK (Right)
+    // 2. MAIN MEMORY (RAM) RACK (Right Side)
     // =========================================================================
     ctx.save();
     ctx.globalAlpha = 1.0;
 
-    drawRoundRect(ctx, 745, 15, 298, 490, 16);
+    drawRoundRect(ctx, 760, 15, 280, 490, 12);
     ctx.fillStyle = cCardBg;
     ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = (hoveredKey === 'ram') ? cBlue : cBorder;
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = cBorder;
     ctx.stroke();
 
     // RAM Header
     ctx.font = 'bold 11px Inter, system-ui, sans-serif';
     ctx.fillStyle = cEmerald;
     ctx.textAlign = 'left';
-    ctx.fillText('MAIN MEMORY (RAM)', 760, 36);
+    ctx.fillText('MAIN MEMORY (RAM)', 775, 36);
 
     ctx.font = '10px JetBrains Mono, monospace';
     ctx.fillStyle = cTextMuted;
     ctx.textAlign = 'right';
-    ctx.fillText('Active Slots (00 – 07)', 1028, 36);
+    ctx.fillText('Slots 00 – 07', 1025, 36);
 
     // Divider under header
     ctx.beginPath();
-    ctx.moveTo(745, 44);
-    ctx.lineTo(1043, 44);
+    ctx.moveTo(760, 44);
+    ctx.lineTo(1040, 44);
     ctx.strokeStyle = cBorder;
     ctx.lineWidth = 1;
     ctx.stroke();
@@ -1235,14 +1195,14 @@
     ctx.font = 'bold 9px JetBrains Mono, monospace';
     ctx.fillStyle = cTextMuted;
     ctx.textAlign = 'left';
-    ctx.fillText('ADDR', 762, 58);
+    ctx.fillText('ADDR', 775, 58);
     ctx.fillText('CONTENT', 835, 58);
     ctx.textAlign = 'right';
-    ctx.fillText('TYPE', 1028, 58);
+    ctx.fillText('TYPE', 1025, 58);
 
     // 8 Active RAM Slots
     const targetAddrStr = act.ramRow ? act.ramRow.toString().padStart(2, '0') : null;
-    let ramTargetY = 70 + 21; // fallback row 0 center
+    let ramTargetY = 70 + 21;
 
     for (let i = 0; i < 8; i++) {
       const row = fdeState.ram[i] || { addr: i.toString().padStart(2, '0'), val: '0', type: 'Empty' };
@@ -1254,7 +1214,7 @@
 
       ctx.globalAlpha = getDimAlpha(isRowActive);
 
-      drawRoundRect(ctx, 756, rowY, 276, 42, 6);
+      drawRoundRect(ctx, 768, rowY, 264, 42, 6);
       ctx.fillStyle = isRowActive
         ? (isWrite ? (isDark ? 'rgba(245, 158, 11, 0.25)' : '#fef3c7') : (isDark ? 'rgba(56, 189, 248, 0.25)' : '#e0f2fe'))
         : cCardElevated;
@@ -1273,7 +1233,7 @@
       ctx.font = 'bold 11px JetBrains Mono, monospace';
       ctx.fillStyle = isRowActive ? (isWrite ? cAmber : cBlue) : cTextSecondary;
       ctx.textAlign = 'left';
-      ctx.fillText(row.addr, 768, rowY + 25);
+      ctx.fillText(row.addr, 778, rowY + 25);
 
       // Formatted Value
       const displayVal = formatRamValue(row.val, row.type, fdeState.ramViewFormat);
@@ -1285,7 +1245,7 @@
       ctx.fillText(displayVal, 835, rowY + 25);
 
       // Type Badge
-      drawRoundRect(ctx, 984, rowY + 12, 42, 18, 4);
+      drawRoundRect(ctx, 982, rowY + 12, 42, 18, 4);
       ctx.fillStyle = isDark ? '#1e293b' : '#ffffff';
       ctx.fill();
       ctx.strokeStyle = cBorder;
@@ -1295,7 +1255,7 @@
       ctx.font = 'bold 7.5px JetBrains Mono, monospace';
       ctx.fillStyle = row.type === 'Instruction' ? '#818cf8' : (row.type === 'Result' ? cEmerald : (row.type === 'Data' ? cBlue : cTextMuted));
       ctx.textAlign = 'center';
-      ctx.fillText(row.type === 'Instruction' ? 'INSTR' : (row.type === 'Result' ? 'RESULT' : (row.type === 'Data' ? 'DATA' : 'EMPTY')), 1005, rowY + 24);
+      ctx.fillText(row.type === 'Instruction' ? 'INSTR' : (row.type === 'Result' ? 'RESULT' : (row.type === 'Data' ? 'DATA' : 'EMPTY')), 1003, rowY + 24);
     }
 
     ctx.restore();
@@ -1307,7 +1267,6 @@
 
     // -------------------------------------------------------------------------
     // 3.1 ADDRESS BUS TRUNK (Amber: PC ➔ MAR ➔ RAM)
-    // Starts directly under PC (x=74) and extends across to RAM dock (x=745)
     // -------------------------------------------------------------------------
     const isStep1 = !isInitial && currStep.stage === 'FETCH' && act.target === 'regMAR' && act.source === 'regPC';
     const isStep2 = !isInitial && currStep.stage === 'FETCH' && act.source === 'regMAR';
@@ -1317,7 +1276,7 @@
     ctx.globalAlpha = getDimAlpha(isAddrBusActive);
 
     // Highway Corridor Ribbon
-    drawRoundRect(ctx, 74, 183, 671, 30, 6);
+    drawRoundRect(ctx, 78, 181, 682, 28, 6);
     ctx.fillStyle = isAddrBusActive
       ? (isDark ? 'rgba(245, 158, 11, 0.2)' : 'rgba(245, 158, 11, 0.14)')
       : (isDark ? 'rgba(245, 158, 11, 0.05)' : 'rgba(245, 158, 11, 0.04)');
@@ -1333,8 +1292,8 @@
 
     // Center conductive copper trace across whole Address Bus
     ctx.beginPath();
-    ctx.moveTo(74, 198);
-    ctx.lineTo(745, 198);
+    ctx.moveTo(78, 195);
+    ctx.lineTo(760, 195);
     ctx.strokeStyle = isAddrBusActive ? cAmber : (isDark ? '#785315' : '#fcd34d');
     ctx.lineWidth = isAddrBusActive ? 3.5 : 2;
     ctx.stroke();
@@ -1343,20 +1302,20 @@
     ctx.font = 'bold 8.5px JetBrains Mono, monospace';
     ctx.fillStyle = isAddrBusActive ? cAmber : cTextMuted;
     ctx.textAlign = 'center';
-    ctx.fillText('▶   ▶   ▶   ▶   ▶   ▶   ▶', 415, 195);
+    ctx.fillText('▶   ▶   ▶   ▶   ▶   ▶   ▶', 420, 192);
 
     // Highway Ribbon Label
     ctx.font = 'bold 9px JetBrains Mono, monospace';
-    ctx.fillText('ADDRESS BUS (Unidirectional • PC / MAR ➔ RAM)', 415, 207);
+    ctx.fillText('ADDRESS BUS (Unidirectional • PC / MAR ➔ RAM)', 420, 204);
 
     // Live Readout at right end
     ctx.textAlign = 'right';
-    ctx.fillText(isAddrBusActive ? `ADDR: ${fdeState.mar}` : 'ADDR BUS', 735, 203);
+    ctx.fillText(isAddrBusActive ? `ADDR: ${fdeState.mar}` : 'ADDR BUS', 750, 200);
 
     // PC Branch Drop-Line (Vertical from PC pin down to Address Bus)
     ctx.beginPath();
-    ctx.moveTo(74, 150);
-    ctx.lineTo(74, 198);
+    ctx.moveTo(78, 138);
+    ctx.lineTo(78, 195);
     ctx.strokeStyle = isStep1 ? cAmber : (isAddrBusActive ? cAmber : cBorder);
     ctx.lineWidth = isStep1 ? 3.5 : 2;
     if (isStep1) {
@@ -1366,9 +1325,9 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder T-junction dot at PC tap (x=74, y=198)
+    // Solder T-junction dot at PC tap (x=78, y=195)
     ctx.beginPath();
-    ctx.arc(74, 198, 4.5, 0, Math.PI * 2);
+    ctx.arc(78, 195, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = (isStep1 || isAddrBusActive) ? cAmber : (isDark ? '#785315' : '#fcd34d');
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
@@ -1377,8 +1336,8 @@
 
     // MAR Branch Drop-Line (Vertical from MAR pin down to Address Bus)
     ctx.beginPath();
-    ctx.moveTo(148, 150);
-    ctx.lineTo(148, 198);
+    ctx.moveTo(186, 138);
+    ctx.lineTo(186, 195);
     ctx.strokeStyle = isAddrBusActive ? cAmber : cBorder;
     ctx.lineWidth = isAddrBusActive ? 3.5 : 2;
     if (isAddrBusActive) {
@@ -1388,18 +1347,18 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder T-junction dot at MAR tap (x=148, y=198)
+    // Solder T-junction dot at MAR tap (x=186, y=195)
     ctx.beginPath();
-    ctx.arc(148, 198, 4.5, 0, Math.PI * 2);
+    ctx.arc(186, 195, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = isAddrBusActive ? cAmber : (isDark ? '#785315' : '#fcd34d');
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // RAM Address Dock Port at (745, 198)
+    // RAM Address Dock Port at (760, 195)
     ctx.beginPath();
-    ctx.arc(745, 198, 4.5, 0, Math.PI * 2);
+    ctx.arc(760, 195, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = (isStep2 || isExecuteAddr) ? cAmber : cBorder;
     ctx.fill();
     ctx.stroke();
@@ -1412,16 +1371,16 @@
 
       if (g.progress <= 0.25) {
         const t = g.progress / 0.25;
-        px = 74;
-        py = 150 + t * 48;
+        px = 78;
+        py = 138 + t * 57;
       } else if (g.progress <= 0.75) {
         const t = (g.progress - 0.25) / 0.50;
-        px = 74 + t * 74;
-        py = 198;
+        px = 78 + t * 108;
+        py = 195;
       } else {
         const t = (g.progress - 0.75) / 0.25;
-        px = 148;
-        py = 198 - t * 48;
+        px = 186;
+        py = 195 - t * 57;
       }
       drawCapsulePacket(ctx, px, py, pcStr, cAmber, g.isArrived);
     }
@@ -1429,8 +1388,8 @@
     // --- ANIMATION: STEP 2 or EXECUTE (MAR ➔ RAM along Address Bus) ---
     if (isStep2 || isExecuteAddr) {
       ctx.beginPath();
-      ctx.moveTo(745, 198);
-      ctx.bezierCurveTo(752, 198, 754, ramTargetY, 756, ramTargetY);
+      ctx.moveTo(760, 195);
+      ctx.bezierCurveTo(764, 195, 766, ramTargetY, 768, ramTargetY);
       ctx.strokeStyle = cAmber;
       ctx.lineWidth = 3.5;
       ctx.shadowColor = cAmber;
@@ -1442,28 +1401,27 @@
       let px, py;
       if (g.progress <= 0.15) {
         const t = g.progress / 0.15;
-        px = 148;
-        py = 150 + t * 48;
+        px = 186;
+        py = 138 + t * 57;
       } else if (g.progress <= 0.85) {
         const t = (g.progress - 0.15) / 0.70;
-        px = 148 + t * 597;
-        py = 198;
+        px = 186 + t * 574;
+        py = 195;
       } else {
         const t = (g.progress - 0.85) / 0.15;
-        px = 745 + t * 11;
-        py = (1 - t) * 198 + t * ramTargetY;
+        px = 760 + t * 8;
+        py = (1 - t) * 195 + t * ramTargetY;
       }
       drawCapsulePacket(ctx, px, py, fdeState.mar, cAmber, g.isArrived);
     }
 
     // -------------------------------------------------------------------------
     // 3.2 DATA BUS TRUNK (Emerald: Bidirectional MDR ⇄ RAM ⇄ ALU)
-    // Starts directly under MDR (x=222) across to RAM dock (x=745)
     // -------------------------------------------------------------------------
     const isDataBusActive = !isInitial && (act.bus === 'busData' || act.secondaryBus === 'busData');
     ctx.globalAlpha = getDimAlpha(isDataBusActive);
 
-    drawRoundRect(ctx, 222, 243, 523, 30, 6);
+    drawRoundRect(ctx, 294, 236, 466, 28, 6);
     ctx.fillStyle = isDataBusActive
       ? (isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.14)')
       : (isDark ? 'rgba(16, 185, 129, 0.05)' : 'rgba(16, 185, 129, 0.04)');
@@ -1479,8 +1437,8 @@
 
     // Center conductive trace
     ctx.beginPath();
-    ctx.moveTo(222, 258);
-    ctx.lineTo(745, 258);
+    ctx.moveTo(294, 250);
+    ctx.lineTo(760, 250);
     ctx.strokeStyle = isDataBusActive ? cEmerald : (isDark ? '#1b5e39' : '#6ee7b7');
     ctx.lineWidth = isDataBusActive ? 3.5 : 2;
     ctx.stroke();
@@ -1489,20 +1447,20 @@
     ctx.font = 'bold 8.5px JetBrains Mono, monospace';
     ctx.fillStyle = isDataBusActive ? cEmerald : cTextMuted;
     ctx.textAlign = 'center';
-    ctx.fillText('◀ ◀ ◀   ▶ ▶ ▶', 510, 255);
+    ctx.fillText('◀ ◀ ◀   ▶ ▶ ▶', 525, 247);
 
     // Highway Ribbon Label
     ctx.font = 'bold 9px JetBrains Mono, monospace';
-    ctx.fillText('DATA BUS (Bidirectional • MDR ⇄ RAM ⇄ ALU)', 510, 267);
+    ctx.fillText('DATA BUS (Bidirectional • MDR ⇄ RAM ⇄ ALU)', 525, 259);
 
     // Live Readout at right end
     ctx.textAlign = 'right';
-    ctx.fillText(isDataBusActive ? `DATA: "${fdeState.mdr}"` : 'DATA BUS', 735, 263);
+    ctx.fillText(isDataBusActive ? `DATA: "${fdeState.mdr}"` : 'DATA BUS', 750, 255);
 
     // MDR Branch Drop-Line (Vertical from MDR pin down to Data Bus)
     ctx.beginPath();
-    ctx.moveTo(222, 150);
-    ctx.lineTo(222, 258);
+    ctx.moveTo(294, 138);
+    ctx.lineTo(294, 250);
     ctx.strokeStyle = isDataBusActive ? cEmerald : cBorder;
     ctx.lineWidth = isDataBusActive ? 3.5 : 2;
     if (isDataBusActive) {
@@ -1512,9 +1470,9 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder T-junction dot at MDR tap (222, 258)
+    // Solder T-junction dot at MDR tap (294, 250)
     ctx.beginPath();
-    ctx.arc(222, 258, 4.5, 0, Math.PI * 2);
+    ctx.arc(294, 250, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = isDataBusActive ? cEmerald : (isDark ? '#1b5e39' : '#6ee7b7');
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
@@ -1523,8 +1481,8 @@
 
     // ALU Branch Drop-Line (Vertical from ALU pin down to Data Bus)
     ctx.beginPath();
-    ctx.moveTo(572, 158);
-    ctx.lineTo(572, 258);
+    ctx.moveTo(653, 138);
+    ctx.lineTo(653, 250);
     ctx.strokeStyle = isDataBusActive ? cEmerald : cBorder;
     ctx.lineWidth = isDataBusActive ? 3.5 : 2;
     if (isDataBusActive) {
@@ -1534,18 +1492,18 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder T-junction dot at ALU tap (572, 258)
+    // Solder T-junction dot at ALU tap (653, 250)
     ctx.beginPath();
-    ctx.arc(572, 258, 4.5, 0, Math.PI * 2);
+    ctx.arc(653, 250, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = isDataBusActive ? cEmerald : (isDark ? '#1b5e39' : '#6ee7b7');
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // RAM Data Dock Port at (745, 258)
+    // RAM Data Dock Port at (760, 250)
     ctx.beginPath();
-    ctx.arc(745, 258, 4.5, 0, Math.PI * 2);
+    ctx.arc(760, 250, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = isDataBusActive ? cEmerald : cBorder;
     ctx.fill();
     ctx.stroke();
@@ -1553,8 +1511,8 @@
     // --- DECODE 1: MDR ➔ CIR Direct Transfer Bridge ---
     const isDecode1Active = !isInitial && currStep.stage === 'DECODE' && act.target === 'regCIR';
     ctx.beginPath();
-    ctx.moveTo(257, 109);
-    ctx.lineTo(263, 109);
+    ctx.moveTo(342, 88);
+    ctx.lineTo(354, 88);
     ctx.strokeStyle = isDecode1Active ? cPurple : cBorder;
     ctx.lineWidth = isDecode1Active ? 3.5 : 1.5;
     if (isDecode1Active) {
@@ -1566,15 +1524,15 @@
 
     if (isDecode1Active) {
       const g = getGlideProgress(animTime);
-      const px = 222 + g.progress * 74;
-      drawCapsulePacket(ctx, px, 109, fdeState.mdr, cPurple, g.isArrived);
+      const px = 294 + g.progress * 108;
+      drawCapsulePacket(ctx, px, 88, fdeState.mdr, cPurple, g.isArrived);
     }
 
     // --- DECODE 2: CIR ➔ CU Decoder Line ---
     const isDecode2Active = !isInitial && currStep.stage === 'DECODE' && act.source === 'regCIR';
     ctx.beginPath();
-    ctx.moveTo(296, 150);
-    ctx.lineTo(296, 365);
+    ctx.moveTo(402, 138);
+    ctx.lineTo(402, 360);
     ctx.strokeStyle = isDecode2Active ? cPurple : cBorder;
     ctx.lineWidth = isDecode2Active ? 3.5 : 1.5;
     if (isDecode2Active) {
@@ -1584,9 +1542,9 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder dots at CIR decoder line
+    // Solder dot at CU decoder terminal
     ctx.beginPath();
-    ctx.arc(296, 365, 3.5, 0, Math.PI * 2);
+    ctx.arc(402, 360, 3.5, 0, Math.PI * 2);
     ctx.fillStyle = isDecode2Active ? cPurple : cBorder;
     ctx.fill();
 
@@ -1594,12 +1552,12 @@
     ctx.font = 'bold 8px JetBrains Mono, monospace';
     ctx.fillStyle = isDecode2Active ? cPurple : cTextMuted;
     ctx.textAlign = 'left';
-    ctx.fillText('CIR to CU Decoder ➔', 302, 312);
+    ctx.fillText('CIR to CU Decoder ➔', 408, 335);
 
     if (isDecode2Active) {
       const g = getGlideProgress(animTime);
-      const py = 150 + g.progress * 215;
-      drawCapsulePacket(ctx, 296, py, fdeState.cir || fdeState.mdr, cPurple, g.isArrived);
+      const py = 138 + g.progress * 222;
+      drawCapsulePacket(ctx, 402, py, fdeState.cir || fdeState.mdr, cPurple, g.isArrived);
     }
 
     // Trace from Data Bus to Active RAM Row
@@ -1607,8 +1565,8 @@
       const isMemWrite = currStep.stage === 'EXECUTE' && currStep.busControlVal === 'MEM_WRITE';
 
       ctx.beginPath();
-      ctx.moveTo(745, 258);
-      ctx.bezierCurveTo(752, 258, 754, ramTargetY, 756, ramTargetY);
+      ctx.moveTo(760, 250);
+      ctx.bezierCurveTo(764, 250, 766, ramTargetY, 768, ramTargetY);
       ctx.strokeStyle = cEmerald;
       ctx.lineWidth = 3.5;
       ctx.shadowColor = cEmerald;
@@ -1623,16 +1581,16 @@
       let px, py;
       if (p < 0.15) {
         const t = p / 0.15;
-        px = 756 - t * 11;
-        py = (1 - t) * ramTargetY + t * 258;
+        px = 768 - t * 8;
+        py = (1 - t) * ramTargetY + t * 250;
       } else if (p < 0.85) {
         const t = (p - 0.15) / 0.70;
-        px = 745 - t * 523;
-        py = 258;
+        px = 760 - t * 466;
+        py = 250;
       } else {
         const t = (p - 0.85) / 0.15;
-        px = 222;
-        py = 258 - t * 108;
+        px = 294;
+        py = 250 - t * 112;
       }
       drawCapsulePacket(ctx, px, py, fdeState.mdr, cEmerald, g.isArrived);
     }
@@ -1643,7 +1601,7 @@
     const isCtrlBusActive = !isInitial && !!currStep.busControlVal;
     ctx.globalAlpha = getDimAlpha(isCtrlBusActive);
 
-    drawRoundRect(ctx, 225, 303, 520, 30, 6);
+    drawRoundRect(ctx, 220, 291, 540, 28, 6);
     ctx.fillStyle = isCtrlBusActive
       ? (isDark ? 'rgba(168, 85, 247, 0.2)' : 'rgba(168, 85, 247, 0.14)')
       : (isDark ? 'rgba(168, 85, 247, 0.05)' : 'rgba(168, 85, 247, 0.04)');
@@ -1659,8 +1617,8 @@
 
     // Center conductive trace
     ctx.beginPath();
-    ctx.moveTo(225, 318);
-    ctx.lineTo(745, 318);
+    ctx.moveTo(220, 305);
+    ctx.lineTo(760, 305);
     ctx.strokeStyle = isCtrlBusActive ? cPurple : (isDark ? '#6b21a8' : '#d8b4fe');
     ctx.lineWidth = isCtrlBusActive ? 3.5 : 2;
     ctx.stroke();
@@ -1669,20 +1627,20 @@
     ctx.font = 'bold 8.5px JetBrains Mono, monospace';
     ctx.fillStyle = isCtrlBusActive ? cPurple : cTextMuted;
     ctx.textAlign = 'center';
-    ctx.fillText('⚡   ⚡   ⚡   ⚡   ⚡', 485, 315);
+    ctx.fillText('⚡   ⚡   ⚡   ⚡   ⚡', 490, 302);
 
     // Highway Ribbon Label
     ctx.font = 'bold 9px JetBrains Mono, monospace';
-    ctx.fillText('CONTROL BUS (Commands & Timing • CU ➔ RAM & ALU)', 485, 327);
+    ctx.fillText('CONTROL BUS (Commands & Timing • CU ➔ RAM & ALU)', 490, 314);
 
     // Live Readout at right end
     ctx.textAlign = 'right';
-    ctx.fillText(isCtrlBusActive ? `CMD: ${currStep.busControlVal || 'READ'}` : 'CTRL BUS', 735, 323);
+    ctx.fillText(isCtrlBusActive ? `CMD: ${currStep.busControlVal || 'READ'}` : 'CTRL BUS', 750, 310);
 
     // CU Branch Tap-Line (Vertical from CU pin up to Control Bus)
     ctx.beginPath();
-    ctx.moveTo(225, 365);
-    ctx.lineTo(225, 318);
+    ctx.moveTo(220, 360);
+    ctx.lineTo(220, 305);
     ctx.strokeStyle = isCtrlBusActive ? cPurple : cBorder;
     ctx.lineWidth = isCtrlBusActive ? 3.5 : 2;
     if (isCtrlBusActive) {
@@ -1692,9 +1650,9 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder T-junction dot at CU tap (225, 318)
+    // Solder T-junction dot at CU tap (220, 305)
     ctx.beginPath();
-    ctx.arc(225, 318, 4.5, 0, Math.PI * 2);
+    ctx.arc(220, 305, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = isCtrlBusActive ? cPurple : (isDark ? '#6b21a8' : '#d8b4fe');
     ctx.fill();
     ctx.strokeStyle = '#ffffff';
@@ -1703,29 +1661,29 @@
 
     // Signal Line up to ALU from Control Bus
     ctx.beginPath();
-    ctx.moveTo(572, 318);
-    ctx.lineTo(572, 273);
+    ctx.moveTo(653, 305);
+    ctx.lineTo(653, 260);
     ctx.strokeStyle = isCtrlBusActive ? cPurple : cBorder;
     ctx.lineWidth = isCtrlBusActive ? 2.5 : 1;
     ctx.stroke();
 
     // Solder dot at ALU Control tap
     ctx.beginPath();
-    ctx.arc(572, 318, 4, 0, Math.PI * 2);
+    ctx.arc(653, 305, 4, 0, Math.PI * 2);
     ctx.fillStyle = isCtrlBusActive ? cPurple : cBorder;
     ctx.fill();
 
-    // Connection into RAM Control Receiver Dock (745, 318)
+    // Connection into RAM Control Receiver Dock (760, 305)
     ctx.beginPath();
-    ctx.moveTo(745, 318);
-    ctx.lineTo(756, 318);
+    ctx.moveTo(760, 305);
+    ctx.lineTo(768, 305);
     ctx.strokeStyle = isCtrlBusActive ? cPurple : cBorder;
     ctx.lineWidth = isCtrlBusActive ? 3.5 : 1.5;
     ctx.stroke();
 
     // Solder dot at RAM Control Dock
     ctx.beginPath();
-    ctx.arc(745, 318, 4.5, 0, Math.PI * 2);
+    ctx.arc(760, 305, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = isCtrlBusActive ? cPurple : cBorder;
     ctx.fill();
     ctx.stroke();
@@ -1736,12 +1694,12 @@
       let px, py;
       if (g.progress <= 0.20) {
         const t = g.progress / 0.20;
-        px = 225;
-        py = 365 - t * 47;
+        px = 220;
+        py = 360 - t * 55;
       } else {
         const t = (g.progress - 0.20) / 0.80;
-        px = 225 + t * 520;
-        py = 318;
+        px = 220 + t * 540;
+        py = 305;
       }
       drawCapsulePacket(ctx, px, py, currStep.busControlVal || 'MEM_READ', cPurple, g.isArrived);
     }

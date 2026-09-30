@@ -224,55 +224,27 @@
       <div class="cpu-stage-fullwidth">
 
         <!-- Stage Header & Telemetry Bar -->
-        <div class="stage-header-bar">
-          <div class="stage-title-group">
-            <span class="badge badge-spec">Von Neumann Architecture</span>
-            <h3 class="stage-title">Interactive Hardware Schematic</h3>
+        <div class="stage-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border-color);">
+          <div class="stage-title-group" style="display: flex; align-items: center; gap: 8px;">
+            <span class="chip-dot" style="background: #38bdf8; box-shadow: 0 0 8px #38bdf8; width: 8px; height: 8px; border-radius: 50%;"></span>
+            <h3 class="stage-title" style="margin: 0; font-size: 13.5px; font-weight: 700;">Von Neumann CPU Architecture</h3>
             <span class="badge badge-topic">AQA 8525 §3.4.1</span>
           </div>
-          <div class="stage-telemetry-group">
-            <span id="stepCounterBadge" class="badge badge-live">Step 1 of 4</span>
+          <div class="stage-telemetry-group" style="display: flex; align-items: center; gap: 12px;">
+            <span id="stepCounterBadge" class="badge badge-live">Step 1 of 6</span>
             <span id="cycleInstrTag" class="cycle-instr-tag">Instr: LOAD 05</span>
-          </div>
-        </div>
-
-        <!-- The Motherboard Canvas Frame -->
-        <div class="motherboard-frame">
-          <div class="motherboard-top-controls">
-            <div class="controls-left">
-              <span class="chip-dot" style="background: #38bdf8; box-shadow: 0 0 8px #38bdf8;"></span>
-              <span class="board-brand">VON NEUMANN SYSTEM ARCHITECTURE</span>
-              <span class="badge badge-topic" style="margin-left: 6px;">AQA §3.4.1</span>
-            </div>
-            <div class="ram-format-toggle" title="Switch memory view format">
-              <span class="format-label">RAM Format:</span>
+            <div class="ram-format-toggle" title="Switch memory view format" style="display: flex; align-items: center; gap: 5px; margin-left: 8px;">
+              <span class="format-label" style="font-size: 11px; color: var(--text-muted);">RAM:</span>
               <button class="format-btn active" data-format="mnemonic">Mnemonic</button>
               <button class="format-btn" data-format="hex">Hex</button>
               <button class="format-btn" data-format="binary">Binary</button>
             </div>
           </div>
+        </div>
 
-          <div class="canvas-viewport" style="position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch;">
-            <canvas id="cpuMotherboardCanvas" width="1060" height="520" class="motherboard-render-canvas"></canvas>
-
-            <!-- Sleek, Compact Hover Tooltip (Dismisses automatically on mouseleave) -->
-            <div id="componentInspectorCard" class="component-tooltip" style="display: none;">
-              <div class="tooltip-header">
-                <span id="inspectorIcon" class="tooltip-icon">🔍</span>
-                <div>
-                  <h5 id="inspectorName" class="tooltip-title">Program Counter (PC)</h5>
-                  <span id="inspectorNickname" class="tooltip-nick">"The Bookmark"</span>
-                </div>
-              </div>
-              <ul id="inspectorBullets" class="tooltip-bullets">
-                <!-- Injected dynamically -->
-              </ul>
-              <div class="tooltip-value-row">
-                <span class="tooltip-val-label">Live Status:</span>
-                <strong id="inspectorLiveValue" class="tooltip-val font-mono">00</strong>
-              </div>
-            </div>
-          </div>
+        <!-- The Motherboard Canvas Viewport -->
+        <div class="canvas-viewport" style="position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: var(--bg-surface); margin: 12px 0;">
+          <canvas id="cpuMotherboardCanvas" width="1060" height="520" class="motherboard-render-canvas" style="display: block; width: 100%; height: auto;"></canvas>
         </div>
 
         <!-- In-Diagram Step Storyline & Spotlight Callout (Placed BELOW Schematic) -->
@@ -299,11 +271,6 @@
             <!-- Mini Step Flow Widget (Visual Micro-Action Preview) -->
             <div id="miniStepFlowWidget" class="mini-step-flow-widget">
               <!-- Dynamically rendered e.g. [PC 00] ══(00)══> [MAR 00] -->
-            </div>
-
-            <div class="storyline-hint">
-              <span class="hint-icon">💡</span>
-              <span class="hint-text">Hover or tap any hardware component to inspect what it does!</span>
             </div>
           </div>
         </div>
