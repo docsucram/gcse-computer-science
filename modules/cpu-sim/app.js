@@ -357,8 +357,8 @@
       title: 'Fetch 1: Copy PC Address to MAR',
       instrTag: instrDisplay,
       bullets: [
-        `<strong>Address Bus:</strong> Address ${pcStr} is sent across the Address Bus into the Memory Address Register (MAR)`,
-        `<strong>MAR Armed:</strong> Holds address ${pcStr} of the next instruction or value to be fetched or stored`
+        `<strong>Address Bus:</strong> Address ${pcStr} is sent across the Address Bus into the Memory Address Register (MAR).`,
+        `<strong>MAR Armed:</strong> Holds address ${pcStr} of the next instruction or value to be fetched or stored.`
       ],
       examTakeaway: 'The address held in the Program Counter (PC) is copied to the Memory Address Register (MAR) via the Address Bus.',
       activeElements: { source: 'regPC', target: 'regMAR', bus: 'busAddress' },
@@ -369,19 +369,19 @@
       }
     });
 
-    // STEP 2: Fetch 2 (RAM Lookup via Address Bus & Copy to MDR via Data Bus)
+    // STEP 2: Fetch 2 (RAM Lookup & Copy to MDR)
     steps.push({
       stage: 'FETCH',
       title: 'Fetch 2: RAM Lookup & Copy to MDR',
       instrTag: instrDisplay,
       bullets: [
-        `<strong>Address Bus:</strong> Sends memory address ${pcStr} from MAR to RAM`,
-        '<strong>Control Bus:</strong> Control Unit sends MEM_READ command across Control Bus to RAM',
-        `<strong>Data Bus:</strong> RAM retrieves "${ramEntry.val}" and returns it down Data Bus into the Memory Data Register (MDR)`,
-        '<strong>MDR Buffer:</strong> Holds values and instructions ready for CPU processing'
+        `<strong>Address Bus:</strong> Sends memory address ${pcStr} from MAR to RAM.`,
+        '<strong>Control Bus:</strong> Control Unit sends MEM_READ command across Control Bus to RAM.',
+        `<strong>Data Bus:</strong> RAM retrieves "${ramEntry.val}" and returns it down the Data Bus into the Memory Data Register (MDR).`,
+        '<strong>MDR Buffer:</strong> Holds values and instructions ready for CPU processing.'
       ],
       examTakeaway: 'The instruction at the address in MAR is sent along the Data Bus and stored in the Memory Data Register (MDR).',
-      activeElements: { source: 'regMAR', target: 'regMDR', bus: 'busAddress', secondaryBus: 'busData', ramRow: pcStr },
+      activeElements: { source: 'regMAR', intermediate: 'regMDR', target: 'regMDR', bus: 'busAddress', secondaryBus: 'busData', ramRow: pcStr },
       busAddressVal: `Addr: ${pcStr}`,
       busDataVal: `${ramEntry.val}`,
       busControlVal: 'MEM_READ',
@@ -391,18 +391,19 @@
       }
     });
 
-    // STEP 3: Fetch 3 (Explicit Program Counter Increment: PC = PC + 1)
+    // STEP 3: Fetch 3 (PC Increment: PC = PC + 1)
     steps.push({
       stage: 'FETCH',
       title: 'Fetch 3: Program Counter Increments (PC ← PC + 1)',
       instrTag: instrDisplay,
       bullets: [
-        `<strong>PC Advances:</strong> Program Counter increments by 1 (${pcStr} ➔ ${nextPcStr})`,
-        '<strong>Sequencing:</strong> Ensures the CPU is ready to fetch the next sequential instruction',
-        '<strong>AQA & OCR Key Mark:</strong> Distinct mark awarded for stating PC = PC + 1 before Fetch finishes'
+        `<strong>Control Signal:</strong> Control Unit pulses internal timing signal to advance the Program Counter.`,
+        `<strong>PC Advances:</strong> Program Counter increments by 1 (${pcStr} ➔ ${nextPcStr}).`,
+        '<strong>Ready for Next Cycle:</strong> Ensures the CPU is prepared to fetch the next sequential instruction.'
       ],
       examTakeaway: 'Before completing the Fetch stage, the Program Counter is incremented by 1 (PC ← PC + 1).',
-      activeElements: { target: 'regPC' },
+      activeElements: { source: 'cuBlock', target: 'regPC', bus: 'busControl' },
+      busControlVal: 'INC_PC',
       isIncrement: true,
       action: () => {
         fdeState.pc = nextPcVal;
@@ -415,11 +416,10 @@
       title: 'Decode 1: Copy Instruction from MDR to CIR',
       instrTag: instrDisplay,
       bullets: [
-        `<strong>Instruction Latched:</strong> As it is an instruction, "${ramEntry.val}" is automatically copied from MDR into the Current Instruction Register (CIR)`,
-        '<strong>CIR Active:</strong> Current Instruction Register holds the active instruction ready for decoding',
-        '<strong>MDR Available:</strong> Frees MDR to receive data values during execution'
+        `<strong>Instruction Copied:</strong> The instruction in the MDR ("${ramEntry.val}") is copied into the Current Instruction Register (CIR).`,
+        '<strong>MDR Ready:</strong> This frees up the MDR so it can be used to hold data during the upcoming Execute stage.'
       ],
-      examTakeaway: 'The instruction in the MDR is copied to the Current Instruction Register (CIR) ready to be decoded.',
+      examTakeaway: 'Syllabus Note: In OCR & advanced architectures, the CIR holds the instruction. For AQA GCSE, you only need to know that the instruction is decoded by the Control Unit.',
       activeElements: { source: 'regMDR', target: 'regCIR', internalWire: 'wireMDRtoCIR' },
       action: () => {
         fdeState.cir = ramEntry.val;
@@ -427,15 +427,31 @@
     });
 
     // STEP 5: Decode 2 (Control Unit Decodes Instruction in CIR)
+    let decodeMeaning = '';
+    if (opcode === 'LOAD') {
+      decodeMeaning = `LOAD the value stored at memory address ${operand} into the Accumulator.`;
+    } else if (opcode === 'ADD') {
+      decodeMeaning = `ADD the value stored at memory address ${operand} to the value currently in the Accumulator.`;
+    } else if (opcode === 'SUB') {
+      decodeMeaning = `SUBTRACT the value stored at memory address ${operand} from the value in the Accumulator.`;
+    } else if (opcode === 'STORE') {
+      decodeMeaning = `STORE the value currently in the Accumulator into memory address ${operand}.`;
+    } else if (opcode === 'HLT') {
+      decodeMeaning = 'HALT (stop) program execution.';
+    } else {
+      decodeMeaning = `Execute operation ${opcode} with parameter ${operand}.`;
+    }
+
     steps.push({
       stage: 'DECODE',
-      title: 'Decode 2: Control Unit Decodes Instruction in CIR',
+      title: 'Decode 2: Control Unit Decodes Instruction',
       instrTag: instrDisplay,
       bullets: [
-        `<strong>Decoded into Parts:</strong> CU decodes CIR ("${ramEntry.val}") into Opcode (${opcode}: what to do) and Operand (${operand || 'None'}: address/data)`,
-        '<strong>Centre of Operations:</strong> CU activates internal timing circuits and prepares execution signals'
+        `<strong>Decoding:</strong> The Control Unit decodes ${instrDisplay}.`,
+        `<strong>Meaning:</strong> This means "${decodeMeaning}"`,
+        '<strong>Control Signals:</strong> The Control Unit prepares the internal execution circuits and buses.'
       ],
-      examTakeaway: 'The Control Unit (CU) decodes the instruction in CIR into opcode (operation) and operand (data/address).',
+      examTakeaway: 'The Control Unit (CU) decodes the instruction to determine what operation to perform and which memory address to access.',
       activeElements: { source: 'regCIR', target: 'cuBlock' },
       busControlVal: 'DECODE_OP',
       action: () => {
@@ -452,12 +468,12 @@
         title: `Execute: Load Value from RAM Address ${operand} into ACC`,
         instrTag: instrDisplay,
         bullets: [
-          `<strong>Address Sent:</strong> MAR set to address ${operand}; MEM_READ sent to RAM`,
-          `<strong>Data Fetched:</strong> Number ${dataVal} travels across Data Bus into MDR`,
-          `<strong>Stored in ACC:</strong> Value ${dataVal} loaded directly into the Accumulator`
+          `<strong>Address Sent:</strong> MAR sends address ${operand} along Address Bus to RAM; Control Unit signals MEM_READ.`,
+          `<strong>Data Retrieved:</strong> Value ${dataVal} travels across Data Bus into the Memory Data Register (MDR).`,
+          `<strong>Stored in ACC:</strong> Value ${dataVal} is copied from MDR directly into the Accumulator (ACC).`
         ],
         examTakeaway: 'Data at the specified memory address is fetched via MDR and copied into the Accumulator (ACC).',
-        activeElements: { source: 'regMAR', target: 'regACC', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand, internalWire: 'wireMDRtoExecution' },
+        activeElements: { source: 'regMAR', intermediate: 'regMDR', target: 'regACC', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand },
         busAddressVal: `Addr: ${operand}`,
         busDataVal: `${dataVal}`,
         busControlVal: 'MEM_READ',
@@ -475,12 +491,12 @@
         title: `Execute: ALU Adds Memory Value (${addOperandVal}) to Accumulator`,
         instrTag: instrDisplay,
         bullets: [
-          `<strong>Data Retrieved:</strong> Value ${addOperandVal} fetched from address ${operand} into MDR`,
-          `<strong>ALU Calculation:</strong> ALU adds MDR (${addOperandVal}) to existing ACC (${fdeState.acc})`,
-          `<strong>New Total:</strong> Result (${fdeState.acc + addOperandVal}) saved into the Accumulator`
+          `<strong>Data Retrieved:</strong> Value ${addOperandVal} is fetched from RAM address ${operand} into the MDR.`,
+          `<strong>ALU Calculation:</strong> The ALU adds MDR (${addOperandVal}) to existing ACC (${fdeState.acc}) to get ${fdeState.acc + addOperandVal}.`,
+          `<strong>Total Saved:</strong> The result (${fdeState.acc + addOperandVal}) is stored back in the Accumulator (ACC).`
         ],
         examTakeaway: 'The ALU adds the MDR contents to the Accumulator (ACC) and stores the result back in ACC.',
-        activeElements: { source: 'aluBlock', target: 'regACC', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand, internalWire: 'wireALUtoACC' },
+        activeElements: { source: 'regMAR', intermediate: 'regMDR', secondaryTarget: 'aluBlock', target: 'regACC', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand },
         busAddressVal: `Addr: ${operand}`,
         busDataVal: `${addOperandVal}`,
         busControlVal: 'MEM_READ',
@@ -498,12 +514,12 @@
         title: `Execute: ALU Subtracts Memory Value (${subOperandVal}) from Accumulator`,
         instrTag: instrDisplay,
         bullets: [
-          `<strong>Data Retrieved:</strong> Value ${subOperandVal} fetched from address ${operand} into MDR`,
-          `<strong>ALU Calculation:</strong> ALU subtracts MDR (${subOperandVal}) from existing ACC (${fdeState.acc})`,
-          `<strong>New Total:</strong> Result (${fdeState.acc - subOperandVal}) saved into the Accumulator`
+          `<strong>Data Retrieved:</strong> Value ${subOperandVal} is fetched from RAM address ${operand} into the MDR.`,
+          `<strong>ALU Calculation:</strong> The ALU subtracts MDR (${subOperandVal}) from existing ACC (${fdeState.acc}) to get ${fdeState.acc - subOperandVal}.`,
+          `<strong>Total Saved:</strong> The result (${fdeState.acc - subOperandVal}) is stored back in the Accumulator (ACC).`
         ],
         examTakeaway: 'The ALU subtracts the MDR contents from the Accumulator (ACC) and stores the result back in ACC.',
-        activeElements: { source: 'aluBlock', target: 'regACC', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand, internalWire: 'wireALUtoACC' },
+        activeElements: { source: 'regMAR', intermediate: 'regMDR', secondaryTarget: 'aluBlock', target: 'regACC', bus: 'busAddress', secondaryBus: 'busData', ramRow: operand },
         busAddressVal: `Addr: ${operand}`,
         busDataVal: `${subOperandVal}`,
         busControlVal: 'MEM_READ',
@@ -520,12 +536,12 @@
         title: `Execute: Store Accumulator (${fdeState.acc}) to RAM Address ${operand}`,
         instrTag: instrDisplay,
         bullets: [
-          `<strong>Target Address:</strong> MAR set to address ${operand} via Address Bus`,
-          `<strong>Data Prepared:</strong> ACC value (${fdeState.acc}) transferred into MDR`,
-          `<strong>Written to Memory:</strong> Control Unit pulses MEM_WRITE; ${fdeState.acc} stored in RAM slot ${operand}`
+          `<strong>Target Address:</strong> MAR is set to address ${operand} via the Address Bus.`,
+          `<strong>Data Prepared:</strong> The Accumulator value (${fdeState.acc}) is copied into the MDR.`,
+          `<strong>Written to Memory:</strong> Control Unit sends MEM_WRITE signal; ${fdeState.acc} is stored in RAM slot ${operand}.`
         ],
         examTakeaway: 'The contents of the Accumulator (ACC) are copied to MDR and written to the address in MAR.',
-        activeElements: { source: 'regACC', target: `ram-row-${operand}`, bus: 'busAddress', secondaryBus: 'busData', ramRow: operand, internalWire: 'wireMDRtoExecution' },
+        activeElements: { source: 'regACC', intermediate: 'regMDR', secondaryTarget: 'regMAR', target: `ram-row-${operand}`, bus: 'busAddress', secondaryBus: 'busData', ramRow: operand },
         busAddressVal: `Addr: ${operand}`,
         busDataVal: `${fdeState.acc}`,
         busControlVal: 'MEM_WRITE',
@@ -545,9 +561,9 @@
         title: 'Execute: Stop Instruction Execution (HLT)',
         instrTag: instrDisplay,
         bullets: [
-          '<strong>Halt Signal:</strong> CU sends HALT command signal across the Control Bus',
-          '<strong>Execution Stopped:</strong> The Fetch-Decode-Execute cycle completes and stops',
-          '<strong>Final State Saved:</strong> Results remain safely stored in memory and registers'
+          '<strong>Halt Signal:</strong> Control Unit sends HALT command signal across the Control Bus.',
+          '<strong>Execution Stopped:</strong> The Fetch-Decode-Execute cycle completes and stops.',
+          '<strong>Final State Saved:</strong> Results remain safely stored in memory and registers.'
         ],
         examTakeaway: 'The CPU stops executing instructions when a HLT instruction is reached.',
         activeElements: { source: 'cuBlock', target: null },
@@ -884,8 +900,12 @@
     // Component Active State Check
     const isNodeActive = (key) => {
       if (isInitial || !currStep.stage) return false;
-      if (act.source === key || act.target === key || act.secondaryTarget === key) return true;
+      if (act.source === key || act.target === key || act.secondaryTarget === key || act.intermediate === key) return true;
       if (key === 'regPC' && currStep.isIncrement) return true;
+      // Control Unit is active during DECODE or whenever sending a bus command (e.g. MEM_READ, MEM_WRITE, INC_PC)
+      if (key === 'cuBlock' && (currStep.stage === 'DECODE' || !!currStep.busControlVal)) return true;
+      // Memory Data Register (MDR) is active whenever the Data Bus carries data or code to/from the CPU
+      if (key === 'regMDR' && (act.bus === 'busData' || act.secondaryBus === 'busData')) return true;
       return false;
     };
 
@@ -2227,6 +2247,12 @@
     if (progSelect) {
       progSelect.addEventListener('change', (e) => {
         fdeState.selectedProgram = e.target.value;
+        if (e.target.value === 'custom') {
+          const drawer = document.getElementById('customRamDrawer');
+          if (drawer) {
+            drawer.style.display = 'block';
+          }
+        }
         resetFDE();
       });
     }
@@ -2281,6 +2307,7 @@
 
     initCanvasMotherboard();
     initComponentInspector();
+    initCustomRamEditor();
     resetFDE();
   }
 
