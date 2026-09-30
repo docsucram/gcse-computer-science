@@ -156,6 +156,81 @@
     prevRegisters: { pc: null, mar: null, mdr: null, acc: null }
   };
 
+  const COMPONENT_DETAILS = {
+    pc: {
+      name: 'Program Counter (PC)',
+      nickname: '"The Bookmark"',
+      icon: '📍',
+      role: 'Holds the memory address of the NEXT instruction to be fetched from RAM. It automatically increments by 1 during each Fetch cycle so the program moves sequentially through code.',
+      getValue: () => `Address: ${fdeState.pc.toString().padStart(2, '0')} (0x${fdeState.pc.toString(16).toUpperCase().padStart(2, '0')})`
+    },
+    mar: {
+      name: 'Memory Address Register (MAR)',
+      nickname: '"The Address Tag"',
+      icon: '🏷️',
+      role: 'Holds the exact memory address in RAM that is currently being read from or written to. The CPU outputs this address down the Address Bus.',
+      getValue: () => `Address: ${fdeState.mar}`
+    },
+    mdr: {
+      name: 'Memory Data Register (MDR)',
+      nickname: '"The In / Out Tray"',
+      icon: '📥',
+      role: 'Acts as the temporary holding buffer for the actual data value or instruction fetched from RAM (Read) or about to be stored in RAM (Write). Connected directly to the Data Bus.',
+      getValue: () => `Contents: "${fdeState.mdr}"`
+    },
+    acc: {
+      name: 'Accumulator (ACC)',
+      nickname: '"The Calculator Screen"',
+      icon: '🧮',
+      role: 'Temporarily stores the running results of calculations performed by the Arithmetic Logic Unit (ALU).',
+      getValue: () => `Current Value: ${fdeState.acc}`
+    },
+    cu: {
+      name: 'Control Unit (CU)',
+      nickname: '"The Conductor & Decoder"',
+      icon: '🧠',
+      role: 'Decodes instructions held in the MDR using the CPU instruction set. Sends electrical control signals across the Control Bus to coordinate timing and data movement throughout the system.',
+      getValue: () => `Decoded: ${fdeState.decodedOpcode} ${fdeState.decodedOperand || ''}`
+    },
+    alu: {
+      name: 'Arithmetic Logic Unit (ALU)',
+      nickname: '"The Math & Logic Engine"',
+      icon: '⚡',
+      role: 'Executes mathematical calculations (addition, subtraction) and logical comparisons (equal, greater, less than). Outputs results directly into the Accumulator.',
+      getValue: () => `Latest Output: ${fdeState.acc}`
+    },
+    'bus-address': {
+      name: 'Address Bus',
+      nickname: '"One-Way Address Highway"',
+      icon: '🛣️',
+      role: 'A unidirectional physical pathway that transmits memory addresses from the CPU (MAR) to RAM. Data never travels backward on this bus.',
+      getValue: () => `Current Signal: ${document.getElementById('busAddressVal')?.textContent || 'Idle'}`
+    },
+    'bus-data': {
+      name: 'Data Bus',
+      nickname: '"Two-Way Data Highway"',
+      icon: '🚚',
+      role: 'A bidirectional physical pathway that transports instructions and raw data values back and forth between the CPU (MDR) and RAM.',
+      getValue: () => `Current Data: ${document.getElementById('busDataVal')?.textContent || 'Idle'}`
+    },
+    'bus-control': {
+      name: 'Control Bus',
+      nickname: '"Command Signals & Timing"',
+      icon: '⚡',
+      role: 'Carries command signals (MEM_READ, MEM_WRITE, HALT) and clock synchronization pulses across the motherboard.',
+      getValue: () => `Current Signal: ${document.getElementById('busControlVal')?.textContent || 'Idle'}`
+    },
+    ram: {
+      name: 'Main Memory (RAM)',
+      nickname: '"The Main Workbench"',
+      icon: '💾',
+      role: 'Fast volatile memory holding the currently running program instructions and active data variables. Directly addressable by the CPU via the memory buses.',
+      getValue: () => `Active Slots: 00 – 07 | Total Range: 00 – 31`
+    }
+  };
+
+  let currentlyInspectedKey = null;
+
   // Micro-step generator strictly aligned with AQA 8525 §3.4.1:
   // Exactly 4 distinct steps: Fetch 1, Fetch 2, Decode, Execute
   function generateMicroStepsForInstruction(pcVal) {
@@ -353,45 +428,87 @@
   }
 
   function renderRAMTable() {
+    // 1. Full 32-cell table in under-the-hood drawer
     const tbody = document.getElementById('ramTableBody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
+    if (tbody) {
+      tbody.innerHTML = '';
+      fdeState.ram.forEach((row) => {
+        const tr = document.createElement('tr');
+        tr.id = `ram-row-${row.addr}`;
+        tr.className = 'ram-row' + (row.type === 'Unallocated' ? ' unallocated' : '');
 
-    fdeState.ram.forEach((row) => {
-      const tr = document.createElement('tr');
-      tr.id = `ram-row-${row.addr}`;
-      tr.className = 'ram-row' + (row.type === 'Unallocated' ? ' unallocated' : '');
+        const tdAddr = document.createElement('td');
+        tdAddr.textContent = row.addr;
+        tdAddr.style.fontWeight = '700';
+        tdAddr.style.color = 'var(--text-secondary)';
 
-      const tdAddr = document.createElement('td');
-      tdAddr.textContent = row.addr;
-      tdAddr.style.fontWeight = '700';
-      tdAddr.style.color = 'var(--text-secondary)';
+        const tdVal = document.createElement('td');
+        tdVal.id = `ram-val-${row.addr}`;
+        tdVal.textContent = row.val;
+        if (row.type === 'Instruction') {
+          tdVal.style.color = '#818cf8';
+          tdVal.style.fontWeight = '600';
+        } else if (row.type === 'Result') {
+          tdVal.style.color = '#34d399';
+          tdVal.style.fontWeight = '600';
+        } else if (row.type === 'Unallocated') {
+          tdVal.style.color = 'var(--text-muted)';
+        } else {
+          tdVal.style.color = 'var(--text-primary)';
+        }
 
-      const tdVal = document.createElement('td');
-      tdVal.id = `ram-val-${row.addr}`;
-      tdVal.textContent = row.val;
-      if (row.type === 'Instruction') {
-        tdVal.style.color = '#818cf8';
-        tdVal.style.fontWeight = '600';
-      } else if (row.type === 'Result') {
-        tdVal.style.color = '#34d399';
-        tdVal.style.fontWeight = '600';
-      } else if (row.type === 'Unallocated') {
-        tdVal.style.color = 'var(--text-muted)';
-      } else {
-        tdVal.style.color = 'var(--text-primary)';
+        const tdType = document.createElement('td');
+        tdType.style.fontSize = '10px';
+        tdType.style.color = 'var(--text-muted)';
+        tdType.textContent = row.type;
+
+        tr.appendChild(tdAddr);
+        tr.appendChild(tdVal);
+        tr.appendChild(tdType);
+        tbody.appendChild(tr);
+      });
+    }
+
+    // 2. Active 8-slot vertical rack directly on motherboard canvas
+    const rack = document.getElementById('ramRackSlots');
+    if (rack) {
+      rack.innerHTML = '';
+      for (let i = 0; i < 8; i++) {
+        const row = fdeState.ram[i];
+        if (!row) continue;
+        const slot = document.createElement('div');
+        slot.id = `ram-slot-${row.addr}`;
+        slot.className = 'ram-slot';
+
+        const addrSpan = document.createElement('span');
+        addrSpan.className = 'slot-addr';
+        addrSpan.textContent = row.addr;
+
+        const valSpan = document.createElement('span');
+        valSpan.id = `rack-val-${row.addr}`;
+        valSpan.className = 'slot-val';
+        valSpan.textContent = row.val;
+
+        if (row.type === 'Instruction') {
+          valSpan.classList.add('val-instruction');
+        } else if (row.type === 'Result') {
+          valSpan.classList.add('val-result');
+        } else if (row.type === 'Data') {
+          valSpan.classList.add('val-data');
+        } else {
+          valSpan.classList.add('val-empty');
+        }
+
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'slot-type-badge';
+        typeBadge.textContent = row.type === 'Instruction' ? 'Instr' : row.type === 'Result' ? 'Result' : row.type === 'Data' ? 'Data' : 'Empty';
+
+        slot.appendChild(addrSpan);
+        slot.appendChild(valSpan);
+        slot.appendChild(typeBadge);
+        rack.appendChild(slot);
       }
-
-      const tdType = document.createElement('td');
-      tdType.style.fontSize = '10px';
-      tdType.style.color = 'var(--text-muted)';
-      tdType.textContent = row.type;
-
-      tr.appendChild(tdAddr);
-      tr.appendChild(tdVal);
-      tr.appendChild(tdType);
-      tbody.appendChild(tr);
-    });
+    }
   }
 
   function updateRegistersDOM() {
@@ -447,15 +564,22 @@
     checkAndUpdateRow('regRowMAR', 'regDenMAR', 'regHexMAR', marDen, marHex, 'mar', fdeState.mar);
     checkAndUpdateRow('regRowMDR', 'regDenMDR', 'regHexMDR', mdrDen, mdrHex, 'mdr', fdeState.mdr);
     checkAndUpdateRow('regRowACC', 'regDenACC', 'regHexACC', accDen, accHex, 'acc', fdeState.acc);
+
+    // Refresh live inspector readout if currently open
+    if (currentlyInspectedKey && typeof COMPONENT_DETAILS !== 'undefined' && COMPONENT_DETAILS[currentlyInspectedKey]) {
+      const valEl = document.getElementById('inspectorLiveValue');
+      if (valEl) valEl.textContent = COMPONENT_DETAILS[currentlyInspectedKey].getValue();
+    }
   }
 
   function clearActiveGlows() {
-    document.querySelectorAll('.component-block').forEach(el => el.classList.remove('active-glow'));
-    document.querySelectorAll('.register-card').forEach(el => {
+    document.querySelectorAll('.component-block, .hardware-card').forEach(el => el.classList.remove('active-glow'));
+    document.querySelectorAll('.register-card, .register-block').forEach(el => {
       el.classList.remove('active-source', 'active-target');
     });
-    document.querySelectorAll('.bus-line').forEach(el => el.classList.remove('bus-active'));
+    document.querySelectorAll('.bus-line, .highway-bus').forEach(el => el.classList.remove('bus-active'));
     document.querySelectorAll('.ram-row').forEach(el => el.classList.remove('active-ram-read', 'active-ram-write'));
+    document.querySelectorAll('.ram-slot').forEach(el => el.classList.remove('active-slot-read', 'active-slot-write'));
 
     // Clear dynamic bus packets
     ['packetAddress', 'packetData', 'packetControl'].forEach(id => {
@@ -482,6 +606,16 @@
     const aqaExamQuote = document.getElementById('aqaExamQuote');
     const stepCounterBadge = document.getElementById('stepCounterBadge');
     const cycleStatusBadge = document.getElementById('cycleStatusBadge');
+
+    // Phase Pills Sync
+    const pillFetch = document.getElementById('phasePillFetch');
+    const pillDecode = document.getElementById('phasePillDecode');
+    const pillExecute = document.getElementById('phasePillExecute');
+    if (pillFetch && pillDecode && pillExecute) {
+      pillFetch.classList.toggle('active', currentStep.stage === 'FETCH');
+      pillDecode.classList.toggle('active', currentStep.stage === 'DECODE');
+      pillExecute.classList.toggle('active', currentStep.stage === 'EXECUTE');
+    }
 
     if (narrativeStageBadge) {
       narrativeStageBadge.textContent = `${currentStep.stage} STAGE`;
@@ -516,24 +650,44 @@
     if (act.source) {
       const srcEl = document.getElementById(act.source);
       if (srcEl) {
-        if (srcEl.classList.contains('register-card')) srcEl.classList.add('active-source');
-        else if (srcEl.classList.contains('component-block')) srcEl.classList.add('active-glow');
-        else if (srcEl.classList.contains('ram-row')) srcEl.classList.add('active-ram-read');
+        if (srcEl.classList.contains('register-card') || srcEl.classList.contains('register-block')) {
+          srcEl.classList.add('active-source');
+        } else if (srcEl.classList.contains('component-block') || srcEl.classList.contains('hardware-card')) {
+          srcEl.classList.add('active-glow');
+        } else if (srcEl.classList.contains('ram-row')) {
+          srcEl.classList.add('active-ram-read');
+        }
+      }
+      if (act.source.startsWith('ram-row-')) {
+        const addr = act.source.replace('ram-row-', '');
+        const slotEl = document.getElementById(`ram-slot-${addr}`);
+        if (slotEl) slotEl.classList.add('active-slot-read');
       }
     }
 
     if (act.target) {
       const tgtEl = document.getElementById(act.target);
       if (tgtEl) {
-        if (tgtEl.classList.contains('register-card')) tgtEl.classList.add('active-target');
-        else if (tgtEl.classList.contains('component-block')) tgtEl.classList.add('active-glow');
-        else if (tgtEl.classList.contains('ram-row')) tgtEl.classList.add('active-ram-write');
+        if (tgtEl.classList.contains('register-card') || tgtEl.classList.contains('register-block')) {
+          tgtEl.classList.add('active-target');
+        } else if (tgtEl.classList.contains('component-block') || tgtEl.classList.contains('hardware-card')) {
+          tgtEl.classList.add('active-glow');
+        } else if (tgtEl.classList.contains('ram-row')) {
+          tgtEl.classList.add('active-ram-write');
+        }
+      }
+      if (act.target.startsWith('ram-row-')) {
+        const addr = act.target.replace('ram-row-', '');
+        const slotEl = document.getElementById(`ram-slot-${addr}`);
+        if (slotEl) slotEl.classList.add('active-slot-write');
       }
     }
 
     if (act.secondaryTarget) {
       const secEl = document.getElementById(act.secondaryTarget);
-      if (secEl && secEl.classList.contains('register-card')) secEl.classList.add('active-target');
+      if (secEl && (secEl.classList.contains('register-card') || secEl.classList.contains('register-block'))) {
+        secEl.classList.add('active-target');
+      }
     }
 
     if (act.bus) {
@@ -696,7 +850,60 @@
       });
     });
 
+    initComponentInspector();
     resetFDE();
+  }
+
+  // =========================================================================
+  // 2.5 INTERACTIVE COMPONENT HOVER & CLICK INSPECTOR
+  // =========================================================================
+
+  function initComponentInspector() {
+    const card = document.getElementById('componentInspectorCard');
+    const closeBtn = document.getElementById('closeInspectorBtn');
+    const iconEl = document.getElementById('inspectorIcon');
+    const nameEl = document.getElementById('inspectorName');
+    const nickEl = document.getElementById('inspectorNickname');
+    const roleEl = document.getElementById('inspectorRole');
+    const valEl = document.getElementById('inspectorLiveValue');
+
+    if (!card) return;
+
+    function showInspector(key) {
+      currentlyInspectedKey = key;
+      const data = COMPONENT_DETAILS[key];
+      if (!data) return;
+      if (iconEl) iconEl.textContent = data.icon;
+      if (nameEl) nameEl.textContent = data.name;
+      if (nickEl) nickEl.textContent = data.nickname;
+      if (roleEl) roleEl.textContent = data.role;
+      if (valEl) valEl.textContent = data.getValue();
+      card.style.display = 'block';
+    }
+
+    function hideInspector() {
+      currentlyInspectedKey = null;
+      card.style.display = 'none';
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', hideInspector);
+    }
+
+    document.querySelectorAll('[data-inspect]').forEach(el => {
+      const key = el.getAttribute('data-inspect');
+      el.addEventListener('mouseenter', () => showInspector(key));
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        showInspector(key);
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!card.contains(e.target) && !e.target.closest('[data-inspect]')) {
+        hideInspector();
+      }
+    });
   }
 
   // =========================================================================
