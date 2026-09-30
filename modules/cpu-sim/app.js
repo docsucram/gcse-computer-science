@@ -269,9 +269,9 @@
       nickname: 'One-Way Memory Highway',
       icon: '🛣️',
       bullets: [
-        '<strong>Unidirectional</strong>: Carries addresses one way (MAR ➔ RAM)',
-        '<strong>Points to memory slot</strong> to read or write',
-        '<strong>Width determines</strong> maximum memory capacity (2ⁿ)'
+        '<strong>Unidirectional highway</strong>: Carries addresses from PC & MAR to RAM',
+        '<strong>Points to memory slot</strong> to read instructions or store data',
+        '<strong>Width determines</strong> maximum memory capacity (2ⁿ locations)'
       ],
       getValue: () => `Address Signal: ${fdeState.mar}`
     },
@@ -351,11 +351,11 @@
       instrTag: instrDisplay,
       bullets: [
         `<strong>Program Counter holds:</strong> Address ${pcStr} (points to next instruction in RAM)`,
-        `<strong>Internal Transfer:</strong> Address ${pcStr} copied across jumper wire into MAR`,
+        `<strong>Address Bus:</strong> Address ${pcStr} placed onto the Address Bus and latched into MAR`,
         '<strong>Target Locked:</strong> Prepares the Memory Address Register for RAM lookup'
       ],
-      examTakeaway: 'The contents of the Program Counter (PC) are copied to the MAR via the internal bus.',
-      activeElements: { source: 'regPC', target: 'regMAR', internalWire: 'wirePCtoMAR' },
+      examTakeaway: 'The contents of the Program Counter (PC) are copied to the MAR via the Address Bus.',
+      activeElements: { source: 'regPC', target: 'regMAR', bus: 'busAddress' },
       action: () => {
         fdeState.mar = pcStr;
         fdeState.decodedOpcode = '---';
@@ -743,7 +743,7 @@
       { key: 'acc',         x: 327, y: 64,  w: 82,  h: 86 },
       { key: 'alu',         x: 430, y: 45,  w: 285, h: 112 },
       { key: 'cu',          x: 35,  y: 365, w: 380, h: 125 },
-      { key: 'bus-address', x: 180, y: 183, w: 565, h: 30 },
+      { key: 'bus-address', x: 86,  y: 183, w: 659, h: 30 },
       { key: 'bus-data',    x: 274, y: 243, w: 471, h: 30 },
       { key: 'bus-control', x: 225, y: 303, w: 520, h: 30 },
       { key: 'ram',         x: 745, y: 15,  w: 298, h: 490 }
@@ -782,8 +782,20 @@
   function startCanvasLoop() {
     if (animFrameId) cancelAnimationFrame(animFrameId);
 
-    function loop() {
-      animTime += 0.022;
+    let lastTimestamp = performance.now();
+
+    function loop(now) {
+      const dt = Math.min((now - lastTimestamp) / 1000, 0.1);
+      lastTimestamp = now;
+
+      // Base speed: 1 full calm cycle every 2.8 seconds at Normal speed (1000ms playSpeedMs)
+      // Slow speed (2000ms): 1 cycle every 4.8 seconds
+      // Fast speed (500ms): 1 cycle every 1.4 seconds
+      let speedMult = 1.0;
+      if (fdeState.playSpeedMs >= 1800) speedMult = 0.58;
+      else if (fdeState.playSpeedMs <= 600) speedMult = 1.9;
+
+      animTime += (dt / 2.8) * speedMult;
       drawCanvasMotherboard();
       animFrameId = requestAnimationFrame(loop);
     }
@@ -825,7 +837,7 @@
     // Clear viewport
     ctx.clearRect(0, 0, 1060, 520);
 
-    // Canvas Substrate Frame
+    // Canvas Substrate Motherboard Chassis
     drawRoundRect(ctx, 4, 4, 1052, 512, 16);
     ctx.fillStyle = cBgRoot;
     ctx.fill();
@@ -838,7 +850,7 @@
     const act = currStep.activeElements || {};
     const hasFocus = !isInitial && !!currStep.stage;
 
-    // Helper: Component Active state check
+    // Component Active State Check
     const isNodeActive = (key) => {
       if (isInitial || !currStep.stage) return false;
       if (act.source === key || act.target === key || act.secondaryTarget === key) return true;
@@ -846,25 +858,42 @@
       return false;
     };
 
-    // Helper: Dim opacity in focus mode (Pre-stage always returns 1.0)
-    const getDimAlpha = (isActive) => (isInitial ? 1.0 : (hasFocus ? (isActive ? 1.0 : 0.35) : 1.0));
+    // Dim opacity in focus mode (Initial state is always 100% visible)
+    const getDimAlpha = (isActive) => (isInitial ? 1.0 : (hasFocus ? (isActive ? 1.0 : 0.32) : 1.0));
+
+    // Smooth gliding progress with destination latch/dwell
+    // 0.00 to 0.78: smooth cubic ease-in-out transit
+    // 0.78 to 1.00: arrived at destination, calm latch & pulse glow
+    function getGlideProgress(timeVal) {
+      const cycleT = timeVal % 1;
+      if (cycleT < 0.78) {
+        const u = cycleT / 0.78;
+        const eased = u * u * (3 - 2 * u);
+        return { progress: eased, isArrived: false, pulse: 0 };
+      } else {
+        const dwellT = (cycleT - 0.78) / 0.22;
+        const pulse = Math.sin(dwellT * Math.PI);
+        return { progress: 1.0, isArrived: true, pulse };
+      }
+    }
 
     // =========================================================================
-    // 1. CPU SILICON DIE HOUSING (Left & Center)
+    // 1. CENTRAL PROCESSING UNIT (CPU) CHASSIS (Left Area)
     // =========================================================================
     ctx.save();
     ctx.globalAlpha = 1.0;
 
+    // Outer CPU Chassis Box
     drawRoundRect(ctx, 20, 15, 710, 490, 16);
     ctx.fillStyle = cCardBg;
     ctx.fill();
     ctx.lineWidth = 2;
-    ctx.strokeStyle = cBorder;
+    ctx.strokeStyle = (hoveredKey && ['pc', 'mar', 'mdr', 'acc', 'alu', 'cu'].includes(hoveredKey)) ? cBlue : cBorder;
     ctx.stroke();
 
     // CPU Header
     ctx.beginPath();
-    ctx.arc(36, 32, 4, 0, Math.PI * 2);
+    ctx.arc(36, 36, 4, 0, Math.PI * 2);
     ctx.fillStyle = cBlue;
     ctx.fill();
 
@@ -901,9 +930,11 @@
     ctx.textAlign = 'left';
     ctx.fillText('INTERNAL REGISTERS (AQA CORE)', 48, 62);
 
-    // 4 Registers: PC, MAR, MDR, ACC
+    // 4 Core Registers: PC, MAR, MDR, ACC
+    // Note: PC and MAR tap into the Address Bus (Amber).
+    // MDR and ACC tap into Data / ALU paths (Emerald/Pink).
     const REG_LIST = [
-      { id: 'regPC',  key: 'pc',  x: 45,  pinX: 86,  tag: 'PC',  name: 'Prog Counter', color: cBlue,    val: fdeState.pc.toString().padStart(2, '0') },
+      { id: 'regPC',  key: 'pc',  x: 45,  pinX: 86,  tag: 'PC',  name: 'Prog Counter', color: cAmber,   val: fdeState.pc.toString().padStart(2, '0') },
       { id: 'regMAR', key: 'mar', x: 139, pinX: 180, tag: 'MAR', name: 'Mem Address',  color: cAmber,   val: fdeState.mar },
       { id: 'regMDR', key: 'mdr', x: 233, pinX: 274, tag: 'MDR', name: 'Mem Data',     color: cEmerald, val: fdeState.mdr },
       { id: 'regACC', key: 'acc', x: 327, pinX: 368, tag: 'ACC', name: 'Accumulator',  color: cPink,    val: fdeState.acc.toString() }
@@ -929,7 +960,7 @@
       ctx.stroke();
       ctx.shadowBlur = 0;
 
-      // Color accent tab
+      // Color accent tab on register
       ctx.beginPath();
       ctx.moveTo(reg.x + 3, 73);
       ctx.lineTo(reg.x + 3, 93);
@@ -943,19 +974,19 @@
       ctx.textAlign = 'left';
       ctx.fillText(reg.tag, reg.x + 10, 84);
 
-      // Info Icon
+      // Info icon
       ctx.font = '9px sans-serif';
       ctx.fillStyle = cTextMuted;
       ctx.textAlign = 'right';
       ctx.fillText('ℹ️', reg.x + 75, 83);
 
-      // Big Value
+      // Value
       ctx.font = 'bold 15px JetBrains Mono, monospace';
       ctx.fillStyle = active || isInc ? reg.color : cTextPrimary;
       ctx.textAlign = 'center';
       ctx.fillText(reg.val, reg.x + 41, 114);
 
-      // PC Increment Badge
+      // PC Increment status badge
       if (isInc) {
         drawRoundRect(ctx, reg.x + 12, 122, 58, 14, 3);
         ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
@@ -969,9 +1000,9 @@
         ctx.fillText(reg.name, reg.x + 41, 134);
       }
 
-      // Pin connection terminal dot at bottom
+      // External Pin Terminal at bottom of Register
       ctx.beginPath();
-      ctx.arc(reg.pinX, 150, 3, 0, Math.PI * 2);
+      ctx.arc(reg.pinX, 150, 3.5, 0, Math.PI * 2);
       ctx.fillStyle = reg.color;
       ctx.fill();
     }
@@ -1020,31 +1051,37 @@
     ctx.fillStyle = cTextMuted;
     ctx.fillText('Performs arithmetic (+, -) & logic checks', 442, 138);
 
-    // Pin connection terminal dot at bottom of ALU
+    // ALU Pin Terminal at bottom (connecting to Data Bus)
     ctx.beginPath();
     ctx.arc(572, 158, 3.5, 0, Math.PI * 2);
     ctx.fillStyle = cEmerald;
     ctx.fill();
 
-    // Direct jumper link: ACC to ALU
+    // Dedicated Internal Data Bus Bridge: ACC ⇄ ALU
+    const isAccAluActive = aluActive || isNodeActive('regACC');
     ctx.beginPath();
     ctx.moveTo(409, 109);
     ctx.lineTo(430, 109);
-    ctx.strokeStyle = aluActive ? cEmerald : cBorder;
-    ctx.lineWidth = aluActive ? 2.5 : 1.5;
+    ctx.strokeStyle = isAccAluActive ? cEmerald : cBorder;
+    ctx.lineWidth = isAccAluActive ? 3.5 : 2;
+    if (isAccAluActive) {
+      ctx.shadowColor = cEmerald;
+      ctx.shadowBlur = 10;
+    }
     ctx.stroke();
+    ctx.shadowBlur = 0;
 
-    // Small ALU ⇄ ACC pill
-    drawRoundRect(ctx, 396, 102, 46, 14, 3);
+    // Small ALU ⇄ ACC Bridge Badge
+    drawRoundRect(ctx, 396, 101, 46, 16, 4);
     ctx.fillStyle = cCardBg;
     ctx.fill();
-    ctx.strokeStyle = aluActive ? cEmerald : cBorder;
+    ctx.strokeStyle = isAccAluActive ? cEmerald : cBorder;
     ctx.lineWidth = 1;
     ctx.stroke();
-    ctx.font = 'bold 7.5px JetBrains Mono, monospace';
-    ctx.fillStyle = aluActive ? cEmerald : cTextMuted;
+    ctx.font = 'bold 7px JetBrains Mono, monospace';
+    ctx.fillStyle = isAccAluActive ? cEmerald : cTextMuted;
     ctx.textAlign = 'center';
-    ctx.fillText('ALU⇄ACC', 419, 112);
+    ctx.fillText('ACC⇄ALU', 419, 112);
 
     // -------------------------------------------------------------------------
     // 1.3 CONTROL UNIT (CU) (Bottom Left)
@@ -1102,7 +1139,7 @@
     ctx.fillStyle = cTextMuted;
     ctx.fillText('• Receives & decodes instructions  • Sends out command signals', 45, 476);
 
-    // Pin connection terminal dot at top of CU
+    // Pin connection terminal dot at top of CU (Control Bus tap)
     ctx.beginPath();
     ctx.arc(225, 365, 3.5, 0, Math.PI * 2);
     ctx.fillStyle = cPurple;
@@ -1118,7 +1155,7 @@
     ctx.fillStyle = cCardBg;
     ctx.fill();
     ctx.lineWidth = 2;
-    ctx.strokeStyle = cBorder;
+    ctx.strokeStyle = (hoveredKey === 'ram') ? cBlue : cBorder;
     ctx.stroke();
 
     // RAM Header
@@ -1215,13 +1252,18 @@
     ctx.save();
 
     // -------------------------------------------------------------------------
-    // 3.1 ADDRESS BUS TRUNK (Amber: Unidirectional MAR ➔ RAM)
+    // 3.1 ADDRESS BUS TRUNK (Amber: PC ➔ MAR ➔ RAM)
+    // Spans from under PC (x=86) across to RAM dock (x=745)
     // -------------------------------------------------------------------------
-    const isAddrBusActive = !isInitial && (act.bus === 'busAddress' || act.secondaryBus === 'busAddress');
+    const isStep1 = !isInitial && currStep.stage === 'FETCH' && act.target === 'regMAR' && act.source === 'regPC';
+    const isStep2 = !isInitial && currStep.stage === 'FETCH' && act.source === 'regMAR';
+    const isExecuteAddr = !isInitial && currStep.stage === 'EXECUTE' && (act.bus === 'busAddress' || act.secondaryBus === 'busAddress');
+    const isAddrBusActive = isStep1 || isStep2 || isExecuteAddr;
+
     ctx.globalAlpha = getDimAlpha(isAddrBusActive);
 
-    // Highway Ribbon Corridor (from MAR pin x=180 across to RAM dock x=745)
-    drawRoundRect(ctx, 180, 183, 565, 30, 6);
+    // Highway Corridor Ribbon (from PC tap x=86 across to RAM dock x=745)
+    drawRoundRect(ctx, 86, 183, 659, 30, 6);
     ctx.fillStyle = isAddrBusActive
       ? (isDark ? 'rgba(245, 158, 11, 0.2)' : 'rgba(245, 158, 11, 0.14)')
       : (isDark ? 'rgba(245, 158, 11, 0.05)' : 'rgba(245, 158, 11, 0.04)');
@@ -1235,9 +1277,9 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Center conductive copper trace
+    // Center conductive copper trace across whole Address Bus
     ctx.beginPath();
-    ctx.moveTo(180, 198);
+    ctx.moveTo(86, 198);
     ctx.lineTo(745, 198);
     ctx.strokeStyle = isAddrBusActive ? cAmber : (isDark ? '#785315' : '#fcd34d');
     ctx.lineWidth = isAddrBusActive ? 3.5 : 2;
@@ -1247,17 +1289,39 @@
     ctx.font = 'bold 8.5px JetBrains Mono, monospace';
     ctx.fillStyle = isAddrBusActive ? cAmber : cTextMuted;
     ctx.textAlign = 'center';
-    ctx.fillText('▶   ▶   ▶   ▶   ▶', 460, 195);
+    ctx.fillText('▶   ▶   ▶   ▶   ▶   ▶   ▶', 415, 195);
 
     // Highway Ribbon Label
     ctx.font = 'bold 9px JetBrains Mono, monospace';
-    ctx.fillText('ADDRESS BUS (Unidirectional • MAR ➔ RAM)', 460, 207);
+    ctx.fillText('ADDRESS BUS (Unidirectional • PC / MAR ➔ RAM)', 415, 207);
 
     // Live Readout at right end
     ctx.textAlign = 'right';
     ctx.fillText(isAddrBusActive ? `ADDR: ${fdeState.mar}` : 'ADDR BUS', 735, 203);
 
-    // MAR Branch Drop-Line (Vertical from MAR pin to Address Bus)
+    // PC Branch Drop-Line (Vertical from PC pin down to Address Bus)
+    ctx.beginPath();
+    ctx.moveTo(86, 150);
+    ctx.lineTo(86, 198);
+    ctx.strokeStyle = isStep1 ? cAmber : (isAddrBusActive ? cAmber : cBorder);
+    ctx.lineWidth = isStep1 ? 3.5 : 2;
+    if (isStep1) {
+      ctx.shadowColor = cAmber;
+      ctx.shadowBlur = 10;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Solder T-junction dot at PC tap (x=86, y=198)
+    ctx.beginPath();
+    ctx.arc(86, 198, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = (isStep1 || isAddrBusActive) ? cAmber : (isDark ? '#785315' : '#fcd34d');
+    ctx.fill();
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // MAR Branch Drop-Line (Vertical from MAR pin down to Address Bus)
     ctx.beginPath();
     ctx.moveTo(180, 150);
     ctx.lineTo(180, 198);
@@ -1270,7 +1334,7 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder T-junction dot at MAR tap
+    // Solder T-junction dot at MAR tap (x=180, y=198)
     ctx.beginPath();
     ctx.arc(180, 198, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = isAddrBusActive ? cAmber : (isDark ? '#785315' : '#fcd34d');
@@ -1279,32 +1343,41 @@
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Internal Jumper: PC ➔ MAR (Gold curved wire under registers)
-    const isStep1 = !isInitial && currStep.stage === 'FETCH' && act.internalWire === 'wirePCtoMAR';
-    ctx.globalAlpha = getDimAlpha(isStep1);
-
+    // RAM Address Dock Port at (745, 198)
     ctx.beginPath();
-    ctx.moveTo(86, 150);
-    ctx.bezierCurveTo(86, 178, 180, 178, 180, 150);
-    ctx.strokeStyle = isStep1 ? cBlue : cBorder;
-    ctx.lineWidth = isStep1 ? 4 : 2;
-    if (isStep1) {
-      ctx.shadowColor = cBlue;
-      ctx.shadowBlur = 12;
-    }
+    ctx.arc(745, 198, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = (isStep2 || isExecuteAddr) ? cAmber : cBorder;
+    ctx.fill();
     ctx.stroke();
-    ctx.shadowBlur = 0;
 
-    // Capsule sliding PC -> MAR
+    // --- ANIMATION: STEP 1 (PC ➔ MAR along the Address Bus) ---
     if (isStep1) {
-      const t = (animTime * 1.5) % 1;
-      const px = Math.pow(1 - t, 2) * 86 + 2 * (1 - t) * t * 133 + Math.pow(t, 2) * 180;
-      const py = Math.pow(1 - t, 2) * 150 + 2 * (1 - t) * t * 178 + Math.pow(t, 2) * 150;
-      drawCapsulePacket(ctx, px, py, fdeState.pc.toString().padStart(2, '0'), cBlue);
+      const g = getGlideProgress(animTime);
+      let px, py;
+      const pcStr = fdeState.pc.toString().padStart(2, '0');
+
+      if (g.progress <= 0.25) {
+        // 1. Drop down vertical branch from PC pin (86, 150) to Address Bus (86, 198)
+        const t = g.progress / 0.25;
+        px = 86;
+        py = 150 + t * 48;
+      } else if (g.progress <= 0.75) {
+        // 2. Glide along Address Bus highway trunk from PC tap (86, 198) to MAR tap (180, 198)
+        const t = (g.progress - 0.25) / 0.50;
+        px = 86 + t * 94;
+        py = 198;
+      } else {
+        // 3. Rise up vertical branch from Address Bus (180, 198) into MAR pin (180, 150)
+        const t = (g.progress - 0.75) / 0.25;
+        px = 180;
+        py = 198 - t * 48;
+      }
+      drawCapsulePacket(ctx, px, py, pcStr, cAmber, g.isArrived);
     }
 
-    // Trace from Address Bus into Target RAM Row
-    if (isAddrBusActive) {
+    // --- ANIMATION: STEP 2 or EXECUTE (MAR ➔ RAM along the Address Bus) ---
+    if (isStep2 || isExecuteAddr) {
+      // Trace from Address Bus Dock into Target RAM Row
       ctx.beginPath();
       ctx.moveTo(745, 198);
       ctx.bezierCurveTo(752, 198, 754, ramTargetY, 756, ramTargetY);
@@ -1315,26 +1388,25 @@
       ctx.stroke();
       ctx.shadowBlur = 0;
 
-      // Sliding Address Capsule along Address Bus
-      const glideT = (animTime * 1.2) % 1;
+      const g = getGlideProgress(animTime);
       let px, py;
-      if (glideT < 0.2) {
-        // Drop down from MAR
-        const t = glideT / 0.2;
+      if (g.progress <= 0.15) {
+        // 1. Drop down from MAR pin to Address Bus
+        const t = g.progress / 0.15;
         px = 180;
         py = 150 + t * 48;
-      } else if (glideT < 0.85) {
-        // Across Address Bus trunk
-        const t = (glideT - 0.2) / 0.65;
+      } else if (g.progress <= 0.85) {
+        // 2. Across Address Bus trunk to RAM Dock
+        const t = (g.progress - 0.15) / 0.70;
         px = 180 + t * 565;
         py = 198;
       } else {
-        // Into target RAM row
-        const t = (glideT - 0.85) / 0.15;
+        // 3. Into target RAM row
+        const t = (g.progress - 0.85) / 0.15;
         px = 745 + t * 11;
         py = (1 - t) * 198 + t * ramTargetY;
       }
-      drawCapsulePacket(ctx, px, py, fdeState.mar, cAmber);
+      drawCapsulePacket(ctx, px, py, fdeState.mar, cAmber, g.isArrived);
     }
 
     // -------------------------------------------------------------------------
@@ -1343,7 +1415,7 @@
     const isDataBusActive = !isInitial && (act.bus === 'busData' || act.secondaryBus === 'busData');
     ctx.globalAlpha = getDimAlpha(isDataBusActive);
 
-    // Highway Ribbon Corridor (from MDR pin x=274 across to RAM dock x=745)
+    // Highway Corridor Ribbon (from MDR pin x=274 across to RAM dock x=745)
     drawRoundRect(ctx, 274, 243, 471, 30, 6);
     ctx.fillStyle = isDataBusActive
       ? (isDark ? 'rgba(16, 185, 129, 0.2)' : 'rgba(16, 185, 129, 0.14)')
@@ -1393,7 +1465,7 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder T-junction dot at MDR tap
+    // Solder T-junction dot at MDR tap (274, 258)
     ctx.beginPath();
     ctx.arc(274, 258, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = isDataBusActive ? cEmerald : (isDark ? '#1b5e39' : '#6ee7b7');
@@ -1415,7 +1487,7 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder T-junction dot at ALU tap
+    // Solder T-junction dot at ALU tap (572, 258)
     ctx.beginPath();
     ctx.arc(572, 258, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = isDataBusActive ? cEmerald : (isDark ? '#1b5e39' : '#6ee7b7');
@@ -1424,10 +1496,17 @@
     ctx.lineWidth = 1;
     ctx.stroke();
 
-    // Decoder Opcode Line: from Data Bus down into CU top
+    // RAM Data Dock Port at (745, 258)
+    ctx.beginPath();
+    ctx.arc(745, 258, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = isDataBusActive ? cEmerald : cBorder;
+    ctx.fill();
+    ctx.stroke();
+
+    // Decoder Opcode Line: from MDR tap down into CU top
     const isDecodeActive = !isInitial && currStep.stage === 'DECODE';
     ctx.beginPath();
-    ctx.moveTo(274, 273);
+    ctx.moveTo(274, 258);
     ctx.lineTo(274, 365);
     ctx.strokeStyle = isDecodeActive ? cPurple : cBorder;
     ctx.lineWidth = isDecodeActive ? 3.5 : 1.5;
@@ -1438,17 +1517,23 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
+    // Solder dot at CU decoder terminal
+    ctx.beginPath();
+    ctx.arc(274, 365, 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = isDecodeActive ? cPurple : cBorder;
+    ctx.fill();
+
     // Opcode label on decoder line
     ctx.font = 'bold 8px JetBrains Mono, monospace';
     ctx.fillStyle = isDecodeActive ? cPurple : cTextMuted;
     ctx.textAlign = 'left';
-    ctx.fillText('Opcode to CU ➔', 280, 320);
+    ctx.fillText('Opcode to CU Decoder ➔', 280, 312);
 
     // Sliding Opcode Capsule down into CU
     if (isDecodeActive) {
-      const t = (animTime * 1.5) % 1;
-      const py = 273 + t * 92;
-      drawCapsulePacket(ctx, 274, py, fdeState.mdr, cPurple);
+      const g = getGlideProgress(animTime);
+      const py = 258 + g.progress * 107;
+      drawCapsulePacket(ctx, 274, py, fdeState.mdr, cPurple, g.isArrived);
     }
 
     // Trace from Data Bus to Active RAM Row
@@ -1466,27 +1551,27 @@
       ctx.shadowBlur = 0;
 
       // Sliding Data Capsule along Data Bus
-      let glideT = (animTime * 1.2) % 1;
-      if (isMemWrite) glideT = 1 - glideT; // Reverse for memory write
+      const g = getGlideProgress(animTime);
+      const p = isMemWrite ? (1 - g.progress) : g.progress;
 
       let px, py;
-      if (glideT < 0.15) {
+      if (p < 0.15) {
         // Curve from RAM Row into Data Bus
-        const t = glideT / 0.15;
+        const t = p / 0.15;
         px = 756 - t * 11;
         py = (1 - t) * ramTargetY + t * 258;
-      } else if (glideT < 0.8) {
+      } else if (p < 0.85) {
         // Across Data Bus trunk
-        const t = (glideT - 0.15) / 0.65;
+        const t = (p - 0.15) / 0.70;
         px = 745 - t * 471;
         py = 258;
       } else {
         // Travel up branch into MDR
-        const t = (glideT - 0.8) / 0.2;
+        const t = (p - 0.85) / 0.15;
         px = 274;
         py = 258 - t * 108;
       }
-      drawCapsulePacket(ctx, px, py, fdeState.mdr, cEmerald);
+      drawCapsulePacket(ctx, px, py, fdeState.mdr, cEmerald, g.isArrived);
     }
 
     // -------------------------------------------------------------------------
@@ -1526,7 +1611,7 @@
 
     // Highway Ribbon Label
     ctx.font = 'bold 9px JetBrains Mono, monospace';
-    ctx.fillText('CONTROL BUS (Commands & Timing • CU ➔ All)', 485, 327);
+    ctx.fillText('CONTROL BUS (Commands & Timing • CU ➔ RAM & ALU)', 485, 327);
 
     // Live Readout at right end
     ctx.textAlign = 'right';
@@ -1545,7 +1630,7 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // Solder T-junction dot at CU tap
+    // Solder T-junction dot at CU tap (225, 318)
     ctx.beginPath();
     ctx.arc(225, 318, 4.5, 0, Math.PI * 2);
     ctx.fillStyle = isCtrlBusActive ? cPurple : (isDark ? '#6b21a8' : '#d8b4fe');
@@ -1556,13 +1641,19 @@
 
     // Signal Line up to ALU from Control Bus
     ctx.beginPath();
-    ctx.moveTo(572, 303);
+    ctx.moveTo(572, 318);
     ctx.lineTo(572, 273);
     ctx.strokeStyle = isCtrlBusActive ? cPurple : cBorder;
     ctx.lineWidth = isCtrlBusActive ? 2.5 : 1;
     ctx.stroke();
 
-    // Connection into RAM Control Receiver
+    // Solder dot at ALU Control tap
+    ctx.beginPath();
+    ctx.arc(572, 318, 4, 0, Math.PI * 2);
+    ctx.fillStyle = isCtrlBusActive ? cPurple : cBorder;
+    ctx.fill();
+
+    // Connection into RAM Control Receiver Dock (745, 318)
     ctx.beginPath();
     ctx.moveTo(745, 318);
     ctx.lineTo(756, 318);
@@ -1570,54 +1661,66 @@
     ctx.lineWidth = isCtrlBusActive ? 3.5 : 1.5;
     ctx.stroke();
 
+    // Solder dot at RAM Control Dock
+    ctx.beginPath();
+    ctx.arc(745, 318, 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = isCtrlBusActive ? cPurple : cBorder;
+    ctx.fill();
+    ctx.stroke();
+
     // Sliding Control Pulse Capsule
     if (isCtrlBusActive) {
-      const glideT = (animTime * 1.3) % 1;
+      const g = getGlideProgress(animTime);
       let px, py;
-      if (glideT < 0.2) {
-        // Travel up from CU
-        const t = glideT / 0.2;
+      if (g.progress <= 0.20) {
+        // Travel up from CU pin (225, 365) to Control Bus (225, 318)
+        const t = g.progress / 0.20;
         px = 225;
         py = 365 - t * 47;
       } else {
         // Travel across Control Bus to RAM
-        const t = (glideT - 0.2) / 0.8;
+        const t = (g.progress - 0.20) / 0.80;
         px = 225 + t * 520;
         py = 318;
       }
-      drawCapsulePacket(ctx, px, py, currStep.busControlVal || 'MEM_READ', cPurple);
+      drawCapsulePacket(ctx, px, py, currStep.busControlVal || 'MEM_READ', cPurple, g.isArrived);
     }
 
     ctx.restore();
   }
 
-  // Draw 3D-styled Data Capsule Packet
-  function drawCapsulePacket(ctx, x, y, label, color) {
+  // Draw 3D-styled Data Capsule Packet with high legibility and arrival dwell
+  function drawCapsulePacket(ctx, x, y, label, color, isArrived = false) {
     ctx.save();
     ctx.font = 'bold 9.5px JetBrains Mono, monospace';
-    const textW = Math.max(ctx.measureText(label).width + 14, 38);
-    const capH = 18;
+    const textW = Math.max(ctx.measureText(label).width + 16, 42);
+    const capH = 19;
     const rx = x - textW / 2;
     const ry = y - capH / 2;
 
-    drawRoundRect(ctx, rx, ry, textW, capH, 9);
-    ctx.fillStyle = color;
+    // Glowing halo
     ctx.shadowColor = color;
-    ctx.shadowBlur = 12;
+    ctx.shadowBlur = isArrived ? 16 : 10;
+
+    // Capsule pill body
+    drawRoundRect(ctx, rx, ry, textW, capH, capH / 2);
+    ctx.fillStyle = color;
     ctx.fill();
 
-    ctx.lineWidth = 1.5;
+    // Highlight border
     ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = isArrived ? 2 : 1.5;
     ctx.stroke();
     ctx.shadowBlur = 0;
 
+    // High contrast text inside pill
     ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(label, x, y);
-
     ctx.restore();
   }
+
   // Render Mini Step Flow Widget (From Concept Art)
   function renderMiniStepFlow(step) {
     const container = document.getElementById('miniStepFlowWidget');
@@ -1629,11 +1732,11 @@
     let html = '';
 
     if (step.stage === 'FETCH') {
-      if (step.activeElements && step.activeElements.internalWire === 'wirePCtoMAR') {
+      if (step.activeElements && step.activeElements.target === 'regMAR' && step.activeElements.source === 'regPC') {
         // Fetch 1: PC -> MAR
         html = `
           <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">PC</span><span class="mini-flow-node-val">${pcStr}</span></div>
-          <div class="mini-flow-wire"><span class="mini-flow-packet">${pcStr}</span></div>
+          <div class="mini-flow-wire wire-gold"><span class="mini-flow-packet">ADDR ${pcStr}</span></div>
           <span class="mini-flow-arrow">➔</span>
           <div class="mini-flow-node highlight-gold"><span class="mini-flow-node-tag">MAR</span><span class="mini-flow-node-val">${pcStr}</span></div>
         `;
