@@ -65,7 +65,12 @@
         btn.classList.add('active');
         const tabKey = btn.getAttribute('data-tab');
         const targetView = document.getElementById(`tab-${tabKey}`);
-        if (targetView) targetView.classList.add('active');
+        if (targetView) {
+          targetView.classList.add('active');
+          if (tabKey === 'perf' && typeof resizePerfCanvas === 'function') {
+            setTimeout(resizePerfCanvas, 20);
+          }
+        }
       });
     });
   }
@@ -214,6 +219,18 @@
   }
 
   const COMPONENT_DETAILS = {
+    registers: {
+      name: 'Registers (Internal CPU Memory)',
+      nickname: 'Ultra-Fast Temporary Storage',
+      icon: '⚡',
+      bullets: [
+        '<strong>High-speed memory cells</strong> located directly inside the CPU processor',
+        '<strong>Extremely small capacity</strong> (typically holding just a single word, instruction, or address)',
+        '<strong>Fastest access speed</strong> in the computer — operates at processor clock speed with zero wait cycles',
+        '<strong>Generic term</strong>: AQA often asks about "registers" collectively as small, fast temporary storage locations'
+      ],
+      getValue: () => `Active Bank: PC, MAR, MDR, CIR, ACC (5 internal registers)`
+    },
     pc: {
       name: 'Program Counter (PC)',
       nickname: 'The Next-Step Bookmark',
@@ -898,11 +915,7 @@
     const canvas = document.getElementById('cpuMotherboardCanvas');
     if (!canvas) return;
 
-    const dpr = window.devicePixelRatio || 1;
-    canvas.width = 1060 * dpr;
-    canvas.height = 520 * dpr;
     canvasCtx = canvas.getContext('2d');
-    canvasCtx.scale(dpr, dpr);
 
     function getMousePos(e) {
       const rect = canvas.getBoundingClientRect();
@@ -915,12 +928,13 @@
     }
 
     const HIT_ZONES = [
-      { key: 'pc',          x: 30,  y: 42,  w: 96,  h: 96 },
-      { key: 'mar',         x: 138, y: 42,  w: 96,  h: 96 },
-      { key: 'mdr',         x: 246, y: 42,  w: 96,  h: 96 },
-      { key: 'cir',         x: 354, y: 42,  w: 96,  h: 96 },
-      { key: 'acc',         x: 462, y: 42,  w: 96,  h: 96 },
-      { key: 'alu',         x: 578, y: 42,  w: 150, h: 96 },
+      { key: 'pc',          x: 30,  y: 58,  w: 96,  h: 96 },
+      { key: 'mar',         x: 138, y: 58,  w: 96,  h: 96 },
+      { key: 'mdr',         x: 246, y: 58,  w: 96,  h: 96 },
+      { key: 'cir',         x: 354, y: 58,  w: 96,  h: 96 },
+      { key: 'acc',         x: 462, y: 58,  w: 96,  h: 96 },
+      { key: 'registers',   x: 22,  y: 42,  w: 546, h: 118 },
+      { key: 'alu',         x: 578, y: 58,  w: 150, h: 96 },
       { key: 'cu',          x: 30,  y: 360, w: 500, h: 135 },
       { key: 'bus-address', x: 88,  y: 181, w: 672, h: 28 },
       { key: 'bus-data',    x: 294, y: 236, w: 466, h: 28 },
@@ -992,7 +1006,27 @@
 
   function drawCanvasMotherboard() {
     if (!canvasCtx) return;
+    const canvas = document.getElementById('cpuMotherboardCanvas');
+    if (!canvas) return;
+
+    // High-DPI / Retina Crispness Resolution Match
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.max(window.devicePixelRatio || 1, 1);
+    if (rect.width > 0 && rect.height > 0) {
+      const targetW = Math.max(1060, Math.round(rect.width * dpr));
+      const targetH = Math.max(520, Math.round(rect.height * dpr));
+
+      if (canvas.width !== targetW || canvas.height !== targetH) {
+        canvas.width = targetW;
+        canvas.height = targetH;
+      }
+    }
+
     const ctx = canvasCtx;
+    ctx.setTransform(canvas.width / 1060, 0, 0, canvas.height / 520, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
     const isDark = document.documentElement.classList.contains('dark');
 
     // Theme Color Palette
@@ -1013,9 +1047,25 @@
     // Clear viewport
     ctx.clearRect(0, 0, 1060, 520);
 
-    // Clean substrate fill (no nested border lines)
+    // Clean substrate fill
     ctx.fillStyle = cBgRoot;
     ctx.fillRect(0, 0, 1060, 520);
+
+    // Subtle Motherboard PCB circuit grid
+    ctx.strokeStyle = isDark ? 'rgba(255, 255, 255, 0.025)' : 'rgba(0, 0, 0, 0.035)';
+    ctx.lineWidth = 1;
+    for (let gx = 0; gx < 1060; gx += 24) {
+      ctx.beginPath();
+      ctx.moveTo(gx, 0);
+      ctx.lineTo(gx, 520);
+      ctx.stroke();
+    }
+    for (let gy = 0; gy < 520; gy += 24) {
+      ctx.beginPath();
+      ctx.moveTo(0, gy);
+      ctx.lineTo(1060, gy);
+      ctx.stroke();
+    }
 
     const isInitial = fdeState.isInitialState;
     const currStep = isInitial ? {} : (fdeState.microSteps[fdeState.currentMicroStepIndex] || {});
@@ -1050,18 +1100,49 @@
     }
 
     // =========================================================================
-    // 1. CPU HARDWARE ZONE (Left & Center - No nested cages)
+    // 1. CPU HARDWARE ZONE (Silicon Microchip Die Housing)
     // =========================================================================
     ctx.save();
     ctx.globalAlpha = 1.0;
 
-    // Subtle dashed CPU boundary label
-    ctx.font = 'bold 11px Inter, system-ui, sans-serif';
-    ctx.fillStyle = cTextSecondary;
-    ctx.textAlign = 'left';
-    ctx.fillText('CENTRAL PROCESSING UNIT (CPU CORE)', 30, 28);
+    // CPU Silicon Substrate Enclosure
+    const dieX = 16, dieY = 14, dieW = 726, dieH = 492;
+    if (isDark) {
+      const dieGrad = ctx.createLinearGradient(dieX, dieY, dieX + dieW, dieY + dieH);
+      dieGrad.addColorStop(0, '#0f1d33');
+      dieGrad.addColorStop(1, '#08101e');
+      ctx.fillStyle = dieGrad;
+    } else {
+      ctx.fillStyle = '#ffffff';
+    }
+    drawRoundRect(ctx, dieX, dieY, dieW, dieH, 12);
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = isDark ? 'rgba(56, 189, 248, 0.4)' : '#cbd5e1';
+    ctx.stroke();
 
-    ctx.font = '10px JetBrains Mono, monospace';
+    // Gold Wire-Bond Pin Pads along top and bottom of the CPU silicon die
+    ctx.fillStyle = isDark ? '#f59e0b' : '#d97706';
+    for (let px = dieX + 32; px < dieX + dieW - 20; px += 24) {
+      ctx.fillRect(px, dieY - 3, 10, 4); // top pin pads
+      ctx.fillRect(px, dieY + dieH - 1, 10, 4); // bottom pin pads
+    }
+
+    // Top Header: Chip Die Badge + Title
+    drawRoundRect(ctx, 28, 17, 72, 15, 3);
+    ctx.fillStyle = isDark ? 'rgba(56, 189, 248, 0.2)' : 'rgba(14, 165, 233, 0.15)';
+    ctx.fill();
+    ctx.font = 'bold 8px JetBrains Mono, monospace';
+    ctx.fillStyle = isDark ? '#38bdf8' : '#0284c7';
+    ctx.textAlign = 'center';
+    ctx.fillText('SILICON DIE', 64, 28);
+
+    ctx.font = 'bold 11px Inter, system-ui, sans-serif';
+    ctx.fillStyle = cTextPrimary;
+    ctx.textAlign = 'left';
+    ctx.fillText('VON NEUMANN CPU ARCHITECTURE', 108, 28);
+
+    ctx.font = '9.5px JetBrains Mono, monospace';
     ctx.fillStyle = cTextMuted;
     ctx.textAlign = 'right';
     ctx.fillText('Internal Architecture', 730, 28);
@@ -1070,7 +1151,7 @@
     ctx.beginPath();
     ctx.moveTo(742, 15);
     ctx.lineTo(742, 505);
-    ctx.strokeStyle = cBorder;
+    ctx.strokeStyle = isDark ? 'rgba(56, 189, 248, 0.25)' : cBorder;
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
     ctx.stroke();
@@ -1079,6 +1160,39 @@
     // -------------------------------------------------------------------------
     // 1.1 SPACIOUS REGISTER BANK (Top Row: PC, MAR, MDR, CIR, ACC)
     // -------------------------------------------------------------------------
+    const isRegsHovered = hoveredKey === 'registers';
+
+    // Enclosing Registers Container Box
+    drawRoundRect(ctx, 22, 50, 546, 108, 8);
+    ctx.fillStyle = isDark
+      ? (isRegsHovered ? 'rgba(56, 189, 248, 0.12)' : 'rgba(15, 23, 42, 0.45)')
+      : (isRegsHovered ? 'rgba(56, 189, 248, 0.08)' : 'rgba(241, 245, 249, 0.55)');
+    ctx.fill();
+    ctx.lineWidth = isRegsHovered ? 2 : 1;
+    ctx.strokeStyle = isRegsHovered
+      ? (isDark ? '#38bdf8' : '#0284c7')
+      : (isDark ? 'rgba(148, 163, 184, 0.35)' : '#cbd5e1');
+    if (isRegsHovered) {
+      ctx.shadowColor = isDark ? '#38bdf8' : 'rgba(2, 132, 199, 0.35)';
+      ctx.shadowBlur = 10;
+    }
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Header Badge for Registers Container
+    drawRoundRect(ctx, 252, 42, 86, 16, 4);
+    ctx.fillStyle = isRegsHovered
+      ? (isDark ? 'rgba(56, 189, 248, 0.25)' : 'rgba(2, 132, 199, 0.2)')
+      : (isDark ? '#1e293b' : '#e2e8f0');
+    ctx.fill();
+    ctx.strokeStyle = isRegsHovered ? (isDark ? '#38bdf8' : '#0284c7') : (isDark ? '#475569' : '#cbd5e1');
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.font = 'bold 8.5px JetBrains Mono, monospace';
+    ctx.fillStyle = isRegsHovered ? (isDark ? '#38bdf8' : '#0284c7') : (isDark ? '#94a3b8' : '#64748b');
+    ctx.textAlign = 'center';
+    ctx.fillText('REGISTERS', 295, 53.5);
     const REG_LIST = [
       { id: 'regPC',  x: 30,  w: 96, pinX: 88,  pinCtrlX: 54, tag: 'PC',  line1: 'Program Counter', line2: '',         color: cAmber,   val: fdeState.pc.toString().padStart(2, '0') },
       { id: 'regMAR', x: 138, w: 96, pinX: 186,               tag: 'MAR', line1: 'Memory Address',  line2: 'Register', color: cAmber,   val: fdeState.mar },
@@ -1093,7 +1207,7 @@
       ctx.globalAlpha = getDimAlpha(active || isInc);
 
       // Register Card Box
-      drawRoundRect(ctx, reg.x, 42, reg.w, 96, 8);
+      drawRoundRect(ctx, reg.x, 58, reg.w, 96, 8);
       ctx.fillStyle = active || isInc
         ? (isDark ? 'rgba(56, 189, 248, 0.16)' : 'rgba(56, 189, 248, 0.12)')
         : cCardBg;
@@ -1110,8 +1224,8 @@
 
       // Color accent tab
       ctx.beginPath();
-      ctx.moveTo(reg.x + 3, 47);
-      ctx.lineTo(reg.x + 3, 76);
+      ctx.moveTo(reg.x + 3, 63);
+      ctx.lineTo(reg.x + 3, 92);
       ctx.strokeStyle = reg.color;
       ctx.lineWidth = 3;
       ctx.stroke();
@@ -1120,17 +1234,17 @@
       ctx.font = 'bold 12px JetBrains Mono, monospace';
       ctx.fillStyle = reg.color;
       ctx.textAlign = 'left';
-      ctx.fillText(reg.tag, reg.x + 10, 56);
+      ctx.fillText(reg.tag, reg.x + 10, 72);
 
       // Full Name moved cleanly UNDER Tag
       ctx.font = '8px Inter, system-ui, sans-serif';
       ctx.fillStyle = cTextSecondary;
       ctx.textAlign = 'left';
       if (reg.line2) {
-        ctx.fillText(reg.line1, reg.x + 10, 67);
-        ctx.fillText(reg.line2, reg.x + 10, 77);
+        ctx.fillText(reg.line1, reg.x + 10, 83);
+        ctx.fillText(reg.line2, reg.x + 10, 93);
       } else {
-        ctx.fillText(reg.line1, reg.x + 10, 70);
+        ctx.fillText(reg.line1, reg.x + 10, 86);
       }
 
       // Big Value
@@ -1142,44 +1256,55 @@
       if (ctx.measureText(displayVal).width > maxValW) {
         displayVal = displayVal.slice(0, 8) + '..';
       }
-      ctx.fillText(displayVal, reg.x + reg.w / 2, 97);
+      ctx.fillText(displayVal, reg.x + reg.w / 2, 113);
 
       // Status badge or role
       if (isInc) {
-        drawRoundRect(ctx, reg.x + 14, 110, 68, 16, 3);
+        drawRoundRect(ctx, reg.x + 14, 125, 68, 15, 3);
         ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
         ctx.fill();
         ctx.font = 'bold 8px JetBrains Mono, monospace';
         ctx.fillStyle = cEmerald;
         ctx.textAlign = 'center';
-        ctx.fillText('+1 (Next)', reg.x + reg.w / 2, 121);
+        ctx.fillText('+1 (Next)', reg.x + reg.w / 2, 136);
       } else {
         const roleLabel = reg.id === 'regPC' ? 'Pointer' : (reg.id === 'regMAR' ? 'Address' : (reg.id === 'regMDR' ? 'Buffer' : (reg.id === 'regCIR' ? 'Active' : 'Working')));
-        drawRoundRect(ctx, reg.x + 16, 110, 64, 15, 3);
+        drawRoundRect(ctx, reg.x + 16, 125, 64, 15, 3);
         ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)';
         ctx.fill();
         ctx.font = '7.5px JetBrains Mono, monospace';
         ctx.fillStyle = cTextMuted;
         ctx.textAlign = 'center';
-        ctx.fillText(roleLabel, reg.x + reg.w / 2, 121);
+        ctx.fillText(roleLabel, reg.x + reg.w / 2, 136);
+      }
+
+      // 8-bit Flip-Flop Transistor Bit-Cell Indicators
+      const bitStartX = reg.x + (reg.w - (8 * 4 + 7 * 2)) / 2;
+      const bitActive = active || isInc;
+      for (let b = 0; b < 8; b++) {
+        const bx = bitStartX + b * 6;
+        ctx.fillStyle = bitActive
+          ? (isInc ? cEmerald : reg.color)
+          : (isDark ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.1)');
+        ctx.fillRect(bx, 144, 4, 3);
       }
 
       // Pin terminal dots at bottom of Register
       if (reg.id === 'regPC') {
         // Dedicated Control Pin (x=54) for INC_PC pulses
         ctx.beginPath();
-        ctx.arc(54, 138, 3.5, 0, Math.PI * 2);
+        ctx.arc(54, 154, 3.5, 0, Math.PI * 2);
         ctx.fillStyle = isInc ? cEmerald : cPurple;
         ctx.fill();
 
         // Dedicated Address Pin (x=88) for Address Bus
         ctx.beginPath();
-        ctx.arc(88, 138, 3.5, 0, Math.PI * 2);
+        ctx.arc(88, 154, 3.5, 0, Math.PI * 2);
         ctx.fillStyle = reg.color;
         ctx.fill();
       } else {
         ctx.beginPath();
-        ctx.arc(reg.pinX, 138, 3.5, 0, Math.PI * 2);
+        ctx.arc(reg.pinX, 154, 3.5, 0, Math.PI * 2);
         ctx.fillStyle = reg.color;
         ctx.fill();
       }
@@ -1191,7 +1316,7 @@
     const aluActive = isNodeActive('aluBlock');
     ctx.globalAlpha = getDimAlpha(aluActive);
 
-    drawRoundRect(ctx, 578, 42, 150, 96, 8);
+    drawRoundRect(ctx, 578, 58, 150, 96, 8);
     ctx.fillStyle = aluActive ? (isDark ? 'rgba(16, 185, 129, 0.16)' : 'rgba(16, 185, 129, 0.12)') : cCardElevated;
     ctx.fill();
     ctx.lineWidth = aluActive ? 2.5 : 1.5;
@@ -1204,48 +1329,71 @@
     ctx.shadowBlur = 0;
 
     // ALU Tag Badge
-    drawRoundRect(ctx, 668, 48, 54, 15, 3);
+    drawRoundRect(ctx, 668, 64, 54, 15, 3);
     ctx.fillStyle = isDark ? 'rgba(16, 185, 129, 0.25)' : 'rgba(16, 185, 129, 0.2)';
     ctx.fill();
     ctx.font = 'bold 8px JetBrains Mono, monospace';
     ctx.fillStyle = cEmerald;
     ctx.textAlign = 'center';
-    ctx.fillText('CALCULATOR', 695, 59);
+    ctx.fillText('CALCULATOR', 695, 75);
 
     ctx.font = 'bold 10.5px Inter, system-ui, sans-serif';
     ctx.fillStyle = cTextPrimary;
     ctx.textAlign = 'left';
-    ctx.fillText('ALU', 588, 60);
+    ctx.fillText('ALU', 588, 76);
 
     ctx.font = '8.5px Inter, system-ui, sans-serif';
     ctx.fillStyle = cTextSecondary;
-    ctx.fillText('Math Output:', 588, 80);
+    ctx.fillText('Math Output:', 588, 96);
 
     ctx.font = 'bold 16px JetBrains Mono, monospace';
     ctx.fillStyle = aluActive ? cEmerald : cTextPrimary;
-    ctx.fillText(fdeState.aluOutput || fdeState.acc.toString(), 588, 102);
+    ctx.fillText(fdeState.aluOutput || fdeState.acc.toString(), 588, 118);
 
     ctx.font = '8px Inter, system-ui, sans-serif';
     ctx.fillStyle = cTextMuted;
-    ctx.fillText('Math (+, -) & logic', 588, 122);
+    ctx.fillText('Math (+, -) & logic', 588, 138);
 
-    // ALU Data Pin Terminal (connecting to Data Bus) at (630, 138)
+    // ALU Arithmetic Logic Block Symbol (Iconic V-notch adder)
     ctx.beginPath();
-    ctx.arc(630, 138, 3.5, 0, Math.PI * 2);
+    ctx.moveTo(672, 88);
+    ctx.lineTo(687, 88);
+    ctx.lineTo(693, 96);
+    ctx.lineTo(699, 88);
+    ctx.lineTo(714, 88);
+    ctx.lineTo(705, 120);
+    ctx.lineTo(681, 120);
+    ctx.closePath();
+    ctx.fillStyle = aluActive
+      ? (isDark ? 'rgba(16, 185, 129, 0.28)' : 'rgba(16, 185, 129, 0.2)')
+      : (isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.03)');
+    ctx.fill();
+    ctx.lineWidth = aluActive ? 1.5 : 1;
+    ctx.strokeStyle = aluActive ? cEmerald : (isDark ? 'rgba(16, 185, 129, 0.3)' : '#cbd5e1');
+    ctx.stroke();
+
+    ctx.font = 'bold 8px JetBrains Mono, monospace';
+    ctx.fillStyle = aluActive ? cEmerald : cTextMuted;
+    ctx.textAlign = 'center';
+    ctx.fillText(aluActive ? 'ADD/SUB' : '+ / -', 693, 110);
+
+    // ALU Data Pin Terminal (connecting to Data Bus) at (630, 154)
+    ctx.beginPath();
+    ctx.arc(630, 154, 3.5, 0, Math.PI * 2);
     ctx.fillStyle = cEmerald;
     ctx.fill();
 
-    // ALU Control Pin Terminal (connecting to Control Bus) at (680, 138)
+    // ALU Control Pin Terminal (connecting to Control Bus) at (680, 154)
     ctx.beginPath();
-    ctx.arc(680, 138, 3.5, 0, Math.PI * 2);
+    ctx.arc(680, 154, 3.5, 0, Math.PI * 2);
     ctx.fillStyle = cPurple;
     ctx.fill();
 
     // Dedicated Direct Internal Bus Bridge: ACC ⇄ ALU
     const isAccAluActive = aluActive || isNodeActive('regACC');
     ctx.beginPath();
-    ctx.moveTo(558, 88);
-    ctx.lineTo(578, 88);
+    ctx.moveTo(558, 104);
+    ctx.lineTo(578, 104);
     ctx.strokeStyle = isAccAluActive ? cEmerald : cBorder;
     ctx.lineWidth = isAccAluActive ? 3.5 : 2;
     if (isAccAluActive) {
@@ -1256,7 +1404,7 @@
     ctx.shadowBlur = 0;
 
     // Small ALU ⇄ ACC Bridge Badge
-    drawRoundRect(ctx, 552, 80, 32, 14, 3);
+    drawRoundRect(ctx, 552, 96, 32, 14, 3);
     ctx.fillStyle = cCardBg;
     ctx.fill();
     ctx.strokeStyle = isAccAluActive ? cEmerald : cBorder;
@@ -1265,7 +1413,7 @@
     ctx.font = 'bold 7px JetBrains Mono, monospace';
     ctx.fillStyle = isAccAluActive ? cEmerald : cTextMuted;
     ctx.textAlign = 'center';
-    ctx.fillText('⇄', 568, 90);
+    ctx.fillText('⇄', 568, 106);
 
     // -------------------------------------------------------------------------
     // 1.3 CONTROL UNIT (CU) (Bottom Left/Center)
@@ -1336,6 +1484,30 @@
     }
     ctx.fillText(cuMeaning, 42, 476);
 
+    // Microcode Sequencer Stage Status Indicator
+    const stages = [
+      { name: '1. FETCH',   active: !isInitial && currStep.stage === 'FETCH',   color: cAmber },
+      { name: '2. DECODE',  active: !isInitial && currStep.stage === 'DECODE',  color: cPurple },
+      { name: '3. EXECUTE', active: !isInitial && currStep.stage === 'EXECUTE', color: cEmerald }
+    ];
+    let stY = 402;
+    for (const st of stages) {
+      drawRoundRect(ctx, 420, stY, 96, 14, 3);
+      ctx.fillStyle = st.active
+        ? (isDark ? 'rgba(168, 85, 247, 0.28)' : 'rgba(168, 85, 247, 0.15)')
+        : (isDark ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.03)');
+      ctx.fill();
+      ctx.strokeStyle = st.active ? st.color : (isDark ? 'rgba(255, 255, 255, 0.08)' : '#e2e8f0');
+      ctx.lineWidth = st.active ? 1.5 : 1;
+      ctx.stroke();
+
+      ctx.font = `${st.active ? 'bold' : 'normal'} 7.5px JetBrains Mono, monospace`;
+      ctx.fillStyle = st.active ? st.color : cTextMuted;
+      ctx.textAlign = 'center';
+      ctx.fillText(st.name, 468, stY + 10);
+      stY += 17;
+    }
+
     // Pin connection terminal dot at top of CU (Control Bus tap)
     ctx.beginPath();
     ctx.arc(220, 360, 3.5, 0, Math.PI * 2);
@@ -1348,23 +1520,39 @@
     ctx.save();
     ctx.globalAlpha = 1.0;
 
-    drawRoundRect(ctx, 760, 15, 280, 490, 12);
-    ctx.fillStyle = cCardBg;
+    const ramX = 760, ramY = 15, ramW = 280, ramH = 490;
+    if (isDark) {
+      const ramGrad = ctx.createLinearGradient(ramX, ramY, ramX + ramW, ramY + ramH);
+      ramGrad.addColorStop(0, '#07241b');
+      ramGrad.addColorStop(1, '#03140f');
+      ctx.fillStyle = ramGrad;
+    } else {
+      ctx.fillStyle = '#f0fdf4';
+    }
+    drawRoundRect(ctx, ramX, ramY, ramW, ramH, 12);
     ctx.fill();
-    ctx.lineWidth = 1.5;
-    ctx.strokeStyle = cBorder;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = isDark ? '#059669' : '#86efac';
     ctx.stroke();
 
+    // Gold Edge Connector Contacts along left edge of RAM (similar to CPU contacts)
+    ctx.fillStyle = isDark ? '#f59e0b' : '#d97706';
+    for (let py = ramY + 36; py < ramY + ramH - 24; py += 18) {
+      // Avoid overlapping system bus dock terminals at y=195, y=250, y=305
+      if (Math.abs(py - 195) < 10 || Math.abs(py - 250) < 10 || Math.abs(py - 305) < 10) continue;
+      ctx.fillRect(ramX - 3, py, 4, 10);
+    }
+
     // RAM Header
-    ctx.font = 'bold 11px Inter, system-ui, sans-serif';
-    ctx.fillStyle = cEmerald;
+    ctx.font = 'bold 12px Inter, system-ui, sans-serif';
+    ctx.fillStyle = isDark ? '#34d399' : '#15803d';
     ctx.textAlign = 'left';
-    ctx.fillText('MAIN MEMORY (RAM)', 775, 36);
+    ctx.fillText('MAIN MEMORY (RAM)', 775, 35);
 
     ctx.font = '10px JetBrains Mono, monospace';
-    ctx.fillStyle = cTextMuted;
+    ctx.fillStyle = isDark ? '#94a3b8' : '#64748b';
     ctx.textAlign = 'right';
-    ctx.fillText('Slots 00 – 07', 1025, 36);
+    ctx.fillText('Slots 00 – 07', 1025, 35);
 
     // Divider under header
     ctx.beginPath();
@@ -1473,6 +1661,18 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
+    // Parallel multi-rail copper conduit lines
+    ctx.beginPath();
+    ctx.moveTo(88, 187);
+    ctx.lineTo(760, 187);
+    ctx.moveTo(88, 203);
+    ctx.lineTo(760, 203);
+    ctx.strokeStyle = isDark ? 'rgba(245, 158, 11, 0.22)' : 'rgba(245, 158, 11, 0.25)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
     // Center conductive copper trace across whole Address Bus
     ctx.beginPath();
     ctx.moveTo(88, 195);
@@ -1493,11 +1693,11 @@
 
     // Live Readout at right end
     ctx.textAlign = 'right';
-    ctx.fillText(isAddrBusActive ? `ADDR: ${fdeState.mar}` : 'ADDR BUS', 742, 200);
+    ctx.fillText(isAddrBusActive ? `ADDR: ${fdeState.mar}` : 'ADDR BUS', 730, 200);
 
     // PC Branch Drop-Line (Vertical from PC pin down to Address Bus)
     ctx.beginPath();
-    ctx.moveTo(88, 138);
+    ctx.moveTo(88, 154);
     ctx.lineTo(88, 195);
     ctx.strokeStyle = isStep1 ? cAmber : (isAddrBusActive ? cAmber : cBorder);
     ctx.lineWidth = isStep1 ? 3.5 : 2;
@@ -1519,7 +1719,7 @@
 
     // MAR Branch Drop-Line (Vertical from MAR pin down to Address Bus)
     ctx.beginPath();
-    ctx.moveTo(186, 138);
+    ctx.moveTo(186, 154);
     ctx.lineTo(186, 195);
     ctx.strokeStyle = isAddrBusActive ? cAmber : cBorder;
     ctx.lineWidth = isAddrBusActive ? 3.5 : 2;
@@ -1555,7 +1755,7 @@
       if (g.progress <= 0.25) {
         const t = g.progress / 0.25;
         px = 88;
-        py = 138 + t * 57;
+        py = 154 + t * 41;
       } else if (g.progress <= 0.75) {
         const t = (g.progress - 0.25) / 0.50;
         px = 88 + t * 98;
@@ -1563,7 +1763,7 @@
       } else {
         const t = (g.progress - 0.75) / 0.25;
         px = 186;
-        py = 195 - t * 57;
+        py = 195 - t * 41;
       }
       drawCapsulePacket(ctx, px, py, pcStr, cAmber, g.isArrived);
     }
@@ -1585,7 +1785,7 @@
       if (g.progress <= 0.15) {
         const t = g.progress / 0.15;
         px = 186;
-        py = 138 + t * 57;
+        py = 154 + t * 41;
       } else if (g.progress <= 0.85) {
         const t = (g.progress - 0.15) / 0.70;
         px = 186 + t * 574;
@@ -1618,6 +1818,18 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
+    // Parallel multi-rail copper conduit lines
+    ctx.beginPath();
+    ctx.moveTo(294, 242);
+    ctx.lineTo(760, 242);
+    ctx.moveTo(294, 258);
+    ctx.lineTo(760, 258);
+    ctx.strokeStyle = isDark ? 'rgba(16, 185, 129, 0.22)' : 'rgba(16, 185, 129, 0.25)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
     // Center conductive trace
     ctx.beginPath();
     ctx.moveTo(294, 250);
@@ -1638,11 +1850,11 @@
 
     // Live Readout at right end
     ctx.textAlign = 'right';
-    ctx.fillText(isDataBusActive ? `DATA: "${fdeState.mdr}"` : 'DATA BUS', 742, 255);
+    ctx.fillText(isDataBusActive ? `DATA: "${fdeState.mdr}"` : 'DATA BUS', 730, 255);
 
     // MDR Branch Drop-Line (Vertical from MDR pin down to Data Bus)
     ctx.beginPath();
-    ctx.moveTo(294, 138);
+    ctx.moveTo(294, 154);
     ctx.lineTo(294, 250);
     ctx.strokeStyle = isDataBusActive ? cEmerald : cBorder;
     ctx.lineWidth = isDataBusActive ? 3.5 : 2;
@@ -1664,7 +1876,7 @@
 
     // ALU Branch Drop-Line (Vertical from ALU Data pin down to Data Bus)
     ctx.beginPath();
-    ctx.moveTo(630, 138);
+    ctx.moveTo(630, 154);
     ctx.lineTo(630, 250);
     ctx.strokeStyle = isDataBusActive ? cEmerald : cBorder;
     ctx.lineWidth = isDataBusActive ? 3.5 : 2;
@@ -1694,8 +1906,8 @@
     // --- DECODE 1: MDR ➔ CIR Direct Transfer Bridge ---
     const isDecode1Active = !isInitial && currStep.stage === 'DECODE' && act.target === 'regCIR';
     ctx.beginPath();
-    ctx.moveTo(342, 88);
-    ctx.lineTo(354, 88);
+    ctx.moveTo(342, 104);
+    ctx.lineTo(354, 104);
     ctx.strokeStyle = isDecode1Active ? cPurple : cBorder;
     ctx.lineWidth = isDecode1Active ? 3.5 : 1.5;
     if (isDecode1Active) {
@@ -1708,13 +1920,13 @@
     if (isDecode1Active) {
       const g = getGlideProgress(animTime);
       const px = 294 + g.progress * 108;
-      drawCapsulePacket(ctx, px, 88, fdeState.mdr, cPurple, g.isArrived);
+      drawCapsulePacket(ctx, px, 104, fdeState.mdr, cPurple, g.isArrived);
     }
 
     // --- DECODE 2: CIR ➔ CU Decoder Line ---
     const isDecode2Active = !isInitial && currStep.stage === 'DECODE' && act.source === 'regCIR';
     ctx.beginPath();
-    ctx.moveTo(402, 138);
+    ctx.moveTo(402, 154);
     ctx.lineTo(402, 360);
     ctx.strokeStyle = isDecode2Active ? cPurple : cBorder;
     ctx.lineWidth = isDecode2Active ? 3.5 : 1.5;
@@ -1739,7 +1951,7 @@
 
     if (isDecode2Active) {
       const g = getGlideProgress(animTime);
-      const py = 138 + g.progress * 222;
+      const py = 154 + g.progress * 206;
       drawCapsulePacket(ctx, 402, py, fdeState.cir || fdeState.mdr, cPurple, g.isArrived);
     }
 
@@ -1773,7 +1985,7 @@
       } else {
         const t = (p - 0.85) / 0.15;
         px = 294;
-        py = 250 - t * 112;
+        py = 250 - t * 96;
       }
       drawCapsulePacket(ctx, px, py, fdeState.mdr, cEmerald, g.isArrived);
     }
@@ -1786,7 +1998,7 @@
       if (g.progress <= 0.20) {
         const t = g.progress / 0.20;
         px = 294;
-        py = 138 + t * 112;
+        py = 154 + t * 96;
       } else if (g.progress <= 0.80) {
         const t = (g.progress - 0.20) / 0.60;
         px = 294 + t * 336;
@@ -1794,7 +2006,7 @@
       } else {
         const t = (g.progress - 0.80) / 0.20;
         px = 630;
-        py = 250 - t * 112;
+        py = 250 - t * 96;
       }
       drawCapsulePacket(ctx, px, py, fdeState.mdr, cEmerald, g.isArrived);
     }
@@ -1804,7 +2016,7 @@
     if (isAluToAcc) {
       const g = getGlideProgress(animTime);
       const px = 578 - g.progress * 68;
-      drawCapsulePacket(ctx, px, 88, fdeState.acc.toString(), cEmerald, g.isArrived);
+      drawCapsulePacket(ctx, px, 104, fdeState.acc.toString(), cEmerald, g.isArrived);
     }
 
     // --- EXECUTE 2 (LOAD): MDR ➔ ACC internal transfer ---
@@ -1812,7 +2024,7 @@
     if (isLoadToAcc) {
       const g = getGlideProgress(animTime);
       const px = 294 + g.progress * 216;
-      drawCapsulePacket(ctx, px, 88, fdeState.acc.toString(), cEmerald, g.isArrived);
+      drawCapsulePacket(ctx, px, 104, fdeState.acc.toString(), cEmerald, g.isArrived);
     }
 
     // --- EXECUTE 1 (STORE): ACC ➔ MDR internal transfer ---
@@ -1820,7 +2032,7 @@
     if (isStorePrep) {
       const g = getGlideProgress(animTime);
       const px = 510 - g.progress * 216;
-      drawCapsulePacket(ctx, px, 88, fdeState.mdr, cEmerald, g.isArrived);
+      drawCapsulePacket(ctx, px, 104, fdeState.mdr, cEmerald, g.isArrived);
     }
 
     // -------------------------------------------------------------------------
@@ -1844,6 +2056,18 @@
     ctx.stroke();
     ctx.shadowBlur = 0;
 
+    // Parallel multi-rail copper conduit lines
+    ctx.beginPath();
+    ctx.moveTo(54, 297);
+    ctx.lineTo(760, 297);
+    ctx.moveTo(54, 313);
+    ctx.lineTo(760, 313);
+    ctx.strokeStyle = isDark ? 'rgba(168, 85, 247, 0.22)' : 'rgba(168, 85, 247, 0.25)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
     // Center conductive trace across whole Control Bus
     ctx.beginPath();
     ctx.moveTo(54, 305);
@@ -1864,12 +2088,12 @@
 
     // Live Readout at right end
     ctx.textAlign = 'right';
-    ctx.fillText(isCtrlBusActive ? `CMD: ${currStep.busControlVal || 'READ'}` : 'CTRL BUS', 742, 310);
+    ctx.fillText(isCtrlBusActive ? `CMD: ${currStep.busControlVal || 'READ'}` : 'CTRL BUS', 730, 310);
 
     // PC Control Branch (Vertical from PC pin down to Control Bus) - Dedicated track to left of Address Bus!
     const isIncStep = isCtrlBusActive && currStep.busControlVal === 'INC_PC';
     ctx.beginPath();
-    ctx.moveTo(54, 138);
+    ctx.moveTo(54, 154);
     ctx.lineTo(54, 305);
     ctx.strokeStyle = isIncStep ? cPurple : (isCtrlBusActive ? cPurple : cBorder);
     ctx.lineWidth = isIncStep ? 3.5 : (isCtrlBusActive ? 2 : 1.5);
@@ -1914,7 +2138,7 @@
     // ALU Control Branch (Vertical from ALU pin down to Control Bus)
     const isAluCtrlActive = isCtrlBusActive && ['ADD', 'SUB'].includes(fdeState.decodedOpcode);
     ctx.beginPath();
-    ctx.moveTo(680, 138);
+    ctx.moveTo(680, 154);
     ctx.lineTo(680, 305);
     ctx.strokeStyle = isAluCtrlActive ? cPurple : (isCtrlBusActive ? cPurple : cBorder);
     ctx.lineWidth = isAluCtrlActive ? 3.5 : 1.5;
@@ -1953,7 +2177,7 @@
       let px, py;
 
       if (currStep.busControlVal === 'INC_PC') {
-        // Targeted at PC (x=54, y=138)
+        // Targeted at PC (x=54, y=154)
         if (g.progress <= 0.20) {
           // 1. Travel UP from CU (220, 360) to Control Bus (220, 305)
           const t = g.progress / 0.20;
@@ -1965,10 +2189,10 @@
           px = 220 - t * 166;
           py = 305;
         } else {
-          // 3. Travel UP the PC Control branch from (54, 305) to PC pin (54, 138)
+          // 3. Travel UP the PC Control branch from (54, 305) to PC pin (54, 154)
           const t = (g.progress - 0.75) / 0.25;
           px = 54;
-          py = 305 - t * 167;
+          py = 305 - t * 151;
         }
         drawCapsulePacket(ctx, px, py, 'INC_PC', cPurple, g.isArrived);
       } else {
@@ -2638,223 +2862,1456 @@
   }
 
   // =========================================================================
-  // 3. TAB 2: PERFORMANCE SANDBOX (Core AQA §3.4.1)
+  // 3. TAB 2: PERFORMANCE SANDBOX & SILICON DIE ENGINE (Core AQA §3.4.1)
   // =========================================================================
-let perfState = {
-    clockSpeed: 2.5,
-    cacheLevel: 'l2',
+  const perfState = {
+    clockSpeed: 3.0,
     cores: 2,
-    taskType: 'sequential', // 'sequential' | 'parallel'
-    isSimulating: false,
+    cacheSize: '4mb',
+    cacheLocation: 'on-die',
+    workload: 'single',
+    isPaused: false,
+    simSpeed: 1.0,
+    
+    // Live calculated telemetry
+    cacheHitRate: 85,
+    stallRate: 15,
+    throughputMips: 2400,
+    heatWatts: 52,
+    
+    // Internal animation state
+    animFrameId: null,
+    lastTimestamp: 0,
+    cycleClock: 0,
+    packets: [],
+    coreLoads: [100, 0, 0, 0],
+    coreStallTimers: [0, 0, 0, 0],
+    cacheFlashTimer: 0,
+    cacheFlashType: null, // 'hit' | 'miss'
+    ramFlashTimer: 0,
+    nextSpawnTimer: 0,
+    filledSlots: 0,
   };
 
+  // Helper for drawing rounded rectangles with universal compatibility
+  function drawRoundRect(ctx, x, y, w, h, r) {
+    if (typeof ctx.roundRect === 'function') {
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, r);
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+  }
+
   function initPerformanceSandbox() {
-    const slider = document.getElementById('clockSpeedSlider');
-    const badge = document.getElementById('clockSpeedValBadge');
-    const cacheSelect = document.getElementById('cacheSelect');
-    const coreButtons = document.querySelectorAll('.core-btn');
-    const seqBtn = document.getElementById('taskSequentialBtn');
-    const parBtn = document.getElementById('taskParallelBtn');
-    const workloadDesc = document.getElementById('workloadDescText');
-    const runBtn = document.getElementById('runBenchmarkBtn');
+    const clockSlider = document.getElementById('perfClockSlider');
+    const clockBadge = document.getElementById('perfClockBadge');
+    const coresGroup = document.getElementById('perfCoresGroup');
+    const coresBadge = document.getElementById('perfCoresBadge');
+    const cacheGroup = document.getElementById('perfCacheGroup');
+    const cacheBadge = document.getElementById('perfCacheBadge');
+    const locGroup = document.getElementById('perfLocationGroup');
+    const locBadge = document.getElementById('perfLocationBadge');
+    const workloadBadge = document.getElementById('perfWorkloadBadge');
+    const workloadButtons = document.querySelectorAll('.workload-pill-btn');
+    const speedBtn = document.getElementById('perfSimSpeedBtn');
+    const pauseBtn = document.getElementById('perfSimPauseBtn');
 
-    if (slider && badge) {
-      slider.addEventListener('input', (e) => {
-        perfState.clockSpeed = parseFloat(e.target.value);
-        badge.textContent = `${perfState.clockSpeed.toFixed(1)} GHz`;
-      });
-    }
-
-    if (cacheSelect) {
-      cacheSelect.addEventListener('change', (e) => {
-        perfState.cacheLevel = e.target.value;
-      });
-    }
-
-    coreButtons.forEach(btn => {
+    // 1. Workload Presets (CGP friendly titles)
+    workloadButtons.forEach(btn => {
       btn.addEventListener('click', () => {
-        coreButtons.forEach(b => b.classList.remove('active'));
+        workloadButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        perfState.cores = parseInt(btn.getAttribute('data-cores'), 10);
+        perfState.workload = btn.getAttribute('data-workload');
+        
+        const titles = {
+          single: 'Single-Threaded Task (e.g. Python Script / Office)',
+          render: 'Multi-Threaded App (3D Rendering — 100% Multi-Core)',
+          gaming: '3D Video Game (Mixed Game Loop & Physics)',
+          database: 'Database Search (Memory & Cache Intensive)'
+        };
+
+        if (workloadBadge) workloadBadge.textContent = titles[perfState.workload] || 'Active Workload';
+        calculatePerfMetrics();
       });
     });
 
-    if (seqBtn && parBtn && workloadDesc) {
-      seqBtn.addEventListener('click', () => {
-        seqBtn.classList.add('active');
-        parBtn.classList.remove('active');
-        perfState.taskType = 'sequential';
-        workloadDesc.textContent = '• Sequential tasks cannot be divided across cores. Additional cores will remain idle!';
-      });
-
-      parBtn.addEventListener('click', () => {
-        parBtn.classList.add('active');
-        seqBtn.classList.remove('active');
-        perfState.taskType = 'parallel';
-        workloadDesc.textContent = '• Parallel batch tasks can be split across cores, but encounter coordination overhead and memory bottlenecks.';
+    // 2. Clock Speed Slider
+    if (clockSlider) {
+      clockSlider.addEventListener('input', (e) => {
+        perfState.clockSpeed = parseFloat(e.target.value);
+        if (clockBadge) clockBadge.textContent = `${perfState.clockSpeed.toFixed(1)} GHz`;
+        calculatePerfMetrics();
       });
     }
 
-    if (runBtn) {
-      runBtn.addEventListener('click', runBenchmarkSimulation);
+    // 3. Cores Buttons
+    if (coresGroup) {
+      const coreBtns = coresGroup.querySelectorAll('.perf-choice-btn');
+      coreBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          coreBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          perfState.cores = parseInt(btn.getAttribute('data-cores'), 10);
+          if (coresBadge) coresBadge.textContent = `${perfState.cores} Core${perfState.cores > 1 ? 's' : ''}`;
+          calculatePerfMetrics();
+        });
+      });
     }
 
-    renderCoreMeters();
+    // 4. Cache Size Buttons
+    if (cacheGroup) {
+      const cacheBtns = cacheGroup.querySelectorAll('.perf-choice-btn');
+      cacheBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          cacheBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          perfState.cacheSize = btn.getAttribute('data-cache');
+          if (cacheBadge) cacheBadge.textContent = perfState.cacheSize.toUpperCase();
+          calculatePerfMetrics();
+        });
+      });
+    }
+
+    // 5. Cache Location Buttons
+    if (locGroup) {
+      const locBtns = locGroup.querySelectorAll('.perf-choice-btn');
+      locBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          locBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          perfState.cacheLocation = btn.getAttribute('data-loc');
+          if (locBadge) locBadge.textContent = perfState.cacheLocation === 'on-die' ? 'On-Die' : 'Off-Die';
+          calculatePerfMetrics();
+        });
+      });
+    }
+
+    // 6. Simulation Speed & Pause Controls
+    if (speedBtn) {
+      speedBtn.addEventListener('click', () => {
+        if (perfState.simSpeed === 1.0) {
+          perfState.simSpeed = 0.35;
+          speedBtn.textContent = 'Speed: 0.35× (Slow-Mo)';
+          speedBtn.style.color = '#38bdf8';
+        } else {
+          perfState.simSpeed = 1.0;
+          speedBtn.textContent = 'Speed: 1× (Normal)';
+          speedBtn.style.color = '';
+        }
+      });
+    }
+
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', () => {
+        perfState.isPaused = !perfState.isPaused;
+        pauseBtn.textContent = perfState.isPaused ? '▶ Resume' : '⏸ Pause';
+        pauseBtn.style.borderColor = perfState.isPaused ? '#10b981' : '';
+      });
+    }
+
+    // 7. Reset Hardware to Baseline
+    const resetHardwareBtn = document.getElementById('btnResetPerfHardware');
+    if (resetHardwareBtn) {
+      resetHardwareBtn.addEventListener('click', () => {
+        perfState.clockSpeed = 3.0;
+        perfState.cores = 2;
+        perfState.cacheSize = 4;
+        perfState.cacheLocation = 'on-die';
+        perfState.workload = 'single';
+
+        if (clockSlider) clockSlider.value = '3.0';
+        if (clockBadge) clockBadge.textContent = '3.0 GHz';
+
+        if (coresGroup) {
+          const coreBtns = coresGroup.querySelectorAll('.perf-choice-btn');
+          coreBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-cores') === '2'));
+          if (coresBadge) coresBadge.textContent = '2 Cores';
+        }
+
+        if (cacheGroup) {
+          const cacheBtns = cacheGroup.querySelectorAll('.perf-choice-btn');
+          cacheBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-cache') === '4'));
+          if (cacheBadge) cacheBadge.textContent = '4 MB';
+        }
+
+        if (locGroup) {
+          const locBtns = locGroup.querySelectorAll('.perf-choice-btn');
+          locBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-loc') === 'on-die'));
+          if (locBadge) locBadge.textContent = 'On-Die';
+        }
+
+        workloadButtons.forEach(b => b.classList.toggle('active', b.getAttribute('data-workload') === 'single'));
+        if (workloadBadge) workloadBadge.textContent = 'Single-Threaded Task';
+
+        calculatePerfMetrics();
+      });
+    }
+
+    window.addEventListener('resize', resizePerfCanvas);
+
+    // Initial calculation and layout setup
+    calculatePerfMetrics();
+    resizePerfCanvas();
+
+    // Start real-time simulation animation loop
+    if (!perfState.animFrameId) {
+      perfState.lastTimestamp = performance.now();
+      perfState.animFrameId = requestAnimationFrame(perfAnimationLoop);
+    }
   }
 
-  function renderCoreMeters() {
-    const container = document.getElementById('coresProgressContainer');
-    if (!container) return;
-    container.innerHTML = '';
-
-    for (let c = 0; c < perfState.cores; c++) {
-      const row = document.createElement('div');
-      row.className = 'core-meter-bar';
-
-      const titleRow = document.createElement('div');
-      titleRow.style.display = 'flex';
-      titleRow.style.justifyContent = 'space-between';
-      titleRow.style.fontSize = '11.5px';
-      titleRow.style.fontWeight = '700';
-
-      const name = document.createElement('span');
-      name.textContent = `Core ${c}`;
-      name.style.color = 'var(--text-primary)';
-
-      const status = document.createElement('span');
-      status.id = `core-status-${c}`;
-      status.style.fontFamily = 'var(--font-mono)';
-      status.style.color = 'var(--text-muted)';
-      status.textContent = 'Idle';
-
-      titleRow.appendChild(name);
-      titleRow.appendChild(status);
-
-      const track = document.createElement('div');
-      track.className = 'core-progress-track';
-
-      const fill = document.createElement('div');
-      fill.id = `core-fill-${c}`;
-      fill.className = 'core-progress-fill';
-
-      track.appendChild(fill);
-      row.appendChild(titleRow);
-      row.appendChild(track);
-      container.appendChild(row);
-    }
+  function resizePerfCanvas() {
+    const canvas = document.getElementById('cpuPerfCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    const width = rect.width;
+    if (!width) return;
+    const height = width * (460 / 1060);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(width / 1060 * dpr, 0, 0, width / 1060 * dpr, 0, 0);
+    drawPerfCanvas();
   }
 
-  function runBenchmarkSimulation() {
-    renderCoreMeters();
+  // Live Metric Calculation & Bottleneck Diagnostic Engine (CGP Revision Style)
+  function calculatePerfMetrics() {
+    // Reset cache fill level so students watch cache fill up progressively on every config change
+    perfState.filledSlots = 0;
 
-    const statusBadge = document.getElementById('benchmarkStatusBadge');
-    const metricExec = document.getElementById('metricExecTime');
-    const metricScore = document.getElementById('metricSpeedScore');
-    const metricCache = document.getElementById('metricCacheHit');
-    const metricHeat = document.getElementById('metricHeatLevel');
-
-    if (statusBadge) {
-      statusBadge.textContent = 'SIMULATING...';
-      statusBadge.className = 'badge badge-live';
+    // 1. Thread Load Distribution per core based on workload
+    const loads = [0, 0, 0, 0];
+    if (perfState.workload === 'single') {
+      loads[0] = 100;
+      // All other cores remain completely 0% idle
+    } else if (perfState.workload === 'render') {
+      for (let i = 0; i < perfState.cores; i++) {
+        loads[i] = 100;
+      }
+    } else if (perfState.workload === 'gaming') {
+      const gameProfile = [95, 65, 38, 22];
+      for (let i = 0; i < perfState.cores; i++) {
+        loads[i] = gameProfile[i] || 20;
+      }
+    } else if (perfState.workload === 'database') {
+      for (let i = 0; i < perfState.cores; i++) {
+        loads[i] = 75;
+      }
     }
+    perfState.coreLoads = loads;
 
-    // Mathematical model of execution time:
-    // Base workload: 10,000 instruction units
-    const baseUnits = 10000;
-    
-    // Cache impact
-    let cacheHitRate = 0;
-    let cacheMultiplier = 1.0;
-    if (perfState.cacheLevel === 'none') {
-      cacheHitRate = 12;
-      cacheMultiplier = 2.4; // heavy memory stalls
-    } else if (perfState.cacheLevel === 'l1') {
-      cacheHitRate = 96;
-      cacheMultiplier = 1.05;
-    } else if (perfState.cacheLevel === 'l2') {
-      cacheHitRate = 88;
-      cacheMultiplier = 1.18;
-    } else if (perfState.cacheLevel === 'l3') {
-      cacheHitRate = 78;
-      cacheMultiplier = 1.35;
+    // 2. Cache Hit Rate (%) Model
+    // Proximity + capacity determine whether data is in high-speed SRAM or requires off-chip RAM
+    const hitMatrix = {
+      single:   { '256kb': 55, '1mb': 76, '4mb': 92, '16mb': 98 },
+      render:   { '256kb': 70, '1mb': 86, '4mb': 95, '16mb': 99 },
+      gaming:   { '256kb': 42, '1mb': 66, '4mb': 86, '16mb': 96 },
+      database: { '256kb': 28, '1mb': 52, '4mb': 78, '16mb': 93 },
+    };
+    let baseHit = hitMatrix[perfState.workload][perfState.cacheSize] || 75;
+
+    // Off-Die cache penalty: longer motherboard trace causes higher miss penalty & lower hit throughput
+    if (perfState.cacheLocation === 'off-die') {
+      baseHit = Math.max(15, baseHit - 14);
     }
+    perfState.cacheHitRate = baseHit;
 
-    // Core scaling factor
-    let effectiveCores = 1;
-    if (perfState.taskType === 'parallel') {
-      // Amdahl's Law with 12% serial bottleneck + multi-core overhead
-      const P = 0.88;
-      const N = perfState.cores;
-      const speedup = 1 / ((1 - P) + (P / N));
-      effectiveCores = speedup * 0.92; // 8% bus contention penalty
+    // 3. Memory Stall Rate (% cycles lost waiting on off-chip RAM)
+    const missRate = 100 - baseHit;
+    if (perfState.cacheLocation === 'on-die') {
+      perfState.stallRate = Math.min(85, Math.round(missRate * 0.72));
     } else {
-      effectiveCores = 1; // Sequential task only uses 1 core!
+      perfState.stallRate = Math.min(94, Math.round(missRate * 0.88 + 14));
     }
 
-    const calculatedTimeMs = Math.round((baseUnits * cacheMultiplier) / (perfState.clockSpeed * effectiveCores));
-    const mipsScore = Math.round((perfState.clockSpeed * 1000 * effectiveCores) / cacheMultiplier);
+    // 4. Instruction Throughput (MIPS & Relative Speed Multiplier)
+    let activeCoreFactor = 0;
+    for (let i = 0; i < perfState.cores; i++) {
+      activeCoreFactor += loads[i] / 100;
+    }
+    // Multi-core bus contention penalty (Amdahl & interconnect overhead)
+    if (perfState.cores === 2) activeCoreFactor *= 0.96;
+    if (perfState.cores === 4) activeCoreFactor *= 0.91;
 
-    // Heat rating based on clock speed and cores
-    let heat = 'Low';
-    if (perfState.clockSpeed >= 3.5 && perfState.cores >= 4) heat = 'High (Throttling Risk)';
-    else if (perfState.clockSpeed >= 3.0 || perfState.cores >= 4) heat = 'Moderate';
+    const stallMultiplier = Math.max(0.08, 1 - (perfState.stallRate / 100));
+    perfState.throughputMips = Math.round(perfState.clockSpeed * 1000 * activeCoreFactor * stallMultiplier);
 
-    // Animate the core bars
-    const duration = Math.min(Math.max(calculatedTimeMs / 2, 400), 2000);
+    // 5. Thermal & Power Dissipation (Watts TDP)
+    const dynamicPower = Math.pow(perfState.clockSpeed, 2.2) * 5.2 * (0.4 + activeCoreFactor * 0.28);
+    const staticPower = 8 + (perfState.cores * 2);
+    perfState.heatWatts = Math.round(dynamicPower + staticPower);
 
-    for (let c = 0; c < perfState.cores; c++) {
-      const fill = document.getElementById(`core-fill-${c}`);
-      const st = document.getElementById(`core-status-${c}`);
+    // 6. Update Intuitive Telemetry Cards & Speedometer
+    const speedMultEl = document.getElementById('perfMetricSpeedMult');
+    const speedSubEl = document.getElementById('perfMetricSpeedSub');
+    const ratingBadge = document.getElementById('perfRatingBadge');
+    const fpsEl = document.getElementById('perfMetricFps');
+    const fpsSubEl = document.getElementById('perfMetricFpsSub');
+    const fpsBadge = document.getElementById('perfFpsBadge');
+    const hitEl = document.getElementById('perfMetricHit');
+    const hitSubEl = document.getElementById('perfMetricHitSub');
+    const effEl = document.getElementById('perfMetricEfficiency');
+    const effSubEl = document.getElementById('perfMetricEfficiencySub');
+    const stallBadge = document.getElementById('perfStallBadge');
 
-      if (perfState.taskType === 'sequential' && c > 0) {
-        if (st) st.textContent = 'Idle (0% - Single Thread)';
-        if (fill) fill.style.width = '0%';
-      } else {
-        if (st) st.textContent = 'Computing 100%...';
-        if (fill) {
-          fill.style.transition = `width ${duration}ms cubic-bezier(0.4, 0, 0.2, 1)`;
-          setTimeout(() => {
-            fill.style.width = '100%';
-          }, 30);
+    // Relative speed vs 1.0 GHz Single-Core baseline (~950 MIPS)
+    const speedMult = Math.max(1.0, (perfState.throughputMips / 950)).toFixed(1);
+    if (speedMultEl) speedMultEl.textContent = `${speedMult}× Baseline`;
+    if (speedSubEl) speedSubEl.textContent = `vs 1.0 GHz Single-Core PC (~${perfState.throughputMips.toLocaleString()} MIPS)`;
+
+    let ratingText = 'Average';
+    let badgeClass = 'badge badge-warning';
+
+    if (parseFloat(speedMult) >= 8.0) {
+      ratingText = 'Very Fast';
+      badgeClass = 'badge badge-live';
+    } else if (parseFloat(speedMult) >= 4.5) {
+      ratingText = 'Fast';
+      badgeClass = 'badge badge-live';
+    } else if (parseFloat(speedMult) >= 2.5) {
+      ratingText = 'Above Average';
+      badgeClass = 'badge badge-spec';
+    } else if (parseFloat(speedMult) >= 1.5) {
+      ratingText = 'Average';
+      badgeClass = 'badge badge-warning';
+    } else {
+      ratingText = 'Below Average';
+      badgeClass = 'badge badge-paper2';
+    }
+
+    if (ratingBadge) {
+      ratingBadge.textContent = ratingText;
+      ratingBadge.className = badgeClass;
+    }
+
+    // Update Overall Speedometer & Needle
+    const speedoVal = document.getElementById('perfSpeedometerVal');
+    const speedoMips = document.getElementById('perfSpeedometerMips');
+    const speedoBadge = document.getElementById('perfSpeedometerBadge');
+    const speedoNeedle = document.getElementById('perfSpeedometerNeedle');
+
+    if (speedoVal) speedoVal.textContent = `${speedMult}×`;
+    if (speedoMips) speedoMips.textContent = `${perfState.throughputMips.toLocaleString()} MIPS`;
+    if (speedoBadge) {
+      speedoBadge.textContent = ratingText;
+      speedoBadge.className = badgeClass;
+    }
+
+    if (speedoNeedle) {
+      const valNum = parseFloat(speedMult);
+      const clamped = Math.max(1.0, Math.min(12.0, valNum));
+      const angle = ((clamped - 1.0) / 11.0) * 180;
+      speedoNeedle.setAttribute('transform', `rotate(${angle.toFixed(1)}, 100, 100)`);
+    }
+
+    // Real-world FPS task rate
+    const fps = Math.round(Math.min(60, parseFloat(speedMult) * 10.5));
+    if (fpsEl) fpsEl.textContent = `${fps} FPS`;
+    if (fpsSubEl) {
+      fpsSubEl.textContent = fps >= 55 ? 'Smooth playback (60 FPS)' : (fps >= 30 ? 'Acceptable performance' : 'Noticeable frame drops');
+    }
+    if (fpsBadge) {
+      fpsBadge.textContent = fps >= 55 ? 'Smooth' : (fps >= 30 ? 'Moderate' : 'Low');
+      fpsBadge.className = fps >= 55 ? 'badge badge-live' : (fps >= 30 ? 'badge badge-warning' : 'badge badge-paper2');
+    }
+
+    // Cache hit rate
+    if (hitEl) hitEl.textContent = `${perfState.cacheHitRate}% Found`;
+    if (hitSubEl) {
+      hitSubEl.textContent = `Retrieved from fast cache (${100 - perfState.cacheHitRate}% from RAM)`;
+    }
+
+    // Core Efficiency (Productive work vs RAM stall wait)
+    const efficiency = 100 - perfState.stallRate;
+    if (effEl) effEl.textContent = `${efficiency}% Active`;
+    if (effSubEl) effSubEl.textContent = `${perfState.stallRate}% of cycles spent waiting for RAM`;
+    if (stallBadge) {
+      stallBadge.textContent = efficiency >= 80 ? 'Low Wait' : (efficiency >= 60 ? 'Moderate Wait' : 'High Wait');
+      stallBadge.className = efficiency >= 80 ? 'badge badge-live' : (efficiency >= 60 ? 'badge badge-warning' : 'badge badge-paper2');
+    }
+
+    // Real-Time Hardware Performance Summary
+    updateBottleneckDiagnostic();
+  }
+
+  function updateBottleneckDiagnostic() {
+    const card = document.getElementById('perfBottleneckCard');
+    const icon = document.getElementById('perfBottleneckIcon');
+    const typeBadge = document.getElementById('perfBottleneckType');
+    const title = document.getElementById('perfBottleneckTitle');
+    const desc = document.getElementById('perfBottleneckDesc');
+    if (!card || !typeBadge || !title || !desc) return;
+
+    if (perfState.stallRate >= 35) {
+      card.style.borderLeftColor = '#ef4444';
+      if (icon) icon.textContent = '';
+      typeBadge.textContent = 'MEMORY LATENCY';
+      typeBadge.className = 'badge badge-paper2';
+      title.textContent = 'Memory Latency: CPU Waiting for Data';
+      desc.textContent = `The processor is spending ${perfState.stallRate}% of its time waiting for data to arrive from main RAM. A fast clock speed cannot overcome slow memory retrieval. Increasing cache size allows frequently used instructions to be held closer to the CPU.`;
+    } else if (perfState.workload === 'single' && perfState.cores > 1) {
+      card.style.borderLeftColor = '#f59e0b';
+      if (icon) icon.textContent = '';
+      typeBadge.textContent = 'SOFTWARE CONSTRAINT';
+      typeBadge.className = 'badge badge-warning';
+      title.textContent = 'Software Constraint: Single-Threaded Task';
+      desc.textContent = `This task is single-threaded, so only 1 core can process instructions at a time. The remaining ${perfState.cores - 1} cores cannot share the work. Having more cores does not speed up tasks that cannot be run in parallel.`;
+    } else if (perfState.clockSpeed >= 4.0 && perfState.cores === 4) {
+      card.style.borderLeftColor = '#ef4444';
+      if (icon) icon.textContent = '';
+      typeBadge.textContent = 'HEAT & POWER';
+      typeBadge.className = 'badge badge-paper2';
+      title.textContent = 'Thermal Limit: High Heat Generation';
+      desc.textContent = `Running 4 cores at ${perfState.clockSpeed.toFixed(1)} GHz produces significant heat. Real processors will automatically throttle (reduce clock speed) to prevent overheating if cooling is insufficient.`;
+    } else {
+      card.style.borderLeftColor = '#10b981';
+      if (icon) icon.textContent = '';
+      typeBadge.textContent = 'BALANCED';
+      typeBadge.className = 'badge badge-live';
+      title.textContent = 'Balanced Hardware Configuration';
+      desc.textContent = `Clock speed, core count, and cache capacity are well-suited to this workload. Instructions execute steadily with low memory wait time.`;
+    }
+  }
+
+  // Helper generating strict orthogonal waypoint routes for data packets
+  function getCoreExitPt(c) {
+    const exits = [
+      { x: 250, y: 137 }, // Core 0 right port
+      { x: 471, y: 137 }, // Core 1 right port
+      { x: 250, y: 327 }, // Core 2 right port
+      { x: 471, y: 327 }, // Core 3 right port
+    ];
+    return exits[c] || exits[0];
+  }
+
+  function getCoreCenterPt(c) {
+    const centers = [
+      { x: 147, y: 137 },
+      { x: 368, y: 137 },
+      { x: 147, y: 327 },
+      { x: 368, y: 327 },
+    ];
+    return centers[c] || centers[0];
+  }
+
+  function buildRouteToCache(coreIdx) {
+    const exit = getCoreExitPt(coreIdx);
+    const spineX = 492;
+    const junctionY = 230;
+
+    if (perfState.cacheLocation === 'on-die') {
+      // Strict orthogonal path: Core -> Spine -> On-Die Cache
+      return [
+        { x: exit.x, y: exit.y },
+        { x: spineX, y: exit.y },
+        { x: spineX, y: junctionY },
+        { x: 520, y: junctionY }
+      ];
+    } else {
+      // Strict orthogonal path: Core -> Spine -> CPU Die Pin -> Motherboard Bus -> UP into Off-Die Cache
+      return [
+        { x: exit.x, y: exit.y },
+        { x: spineX, y: exit.y },
+        { x: spineX, y: junctionY },
+        { x: 750, y: junctionY },
+        { x: 785, y: junctionY },
+        { x: 785, y: 165 }
+      ];
+    }
+  }
+
+  function buildRouteFromCacheToCore(coreIdx) {
+    const exit = getCoreExitPt(coreIdx);
+    const center = getCoreCenterPt(coreIdx);
+    const spineX = 492;
+    const junctionY = 230;
+
+    if (perfState.cacheLocation === 'on-die') {
+      return [
+        { x: 520, y: junctionY },
+        { x: spineX, y: junctionY },
+        { x: spineX, y: exit.y },
+        { x: exit.x, y: exit.y },
+        { x: center.x, y: exit.y }
+      ];
+    } else {
+      // Off-Die Cache -> DOWN to Motherboard Bus -> CPU Die Pin -> Spine -> Core
+      return [
+        { x: 785, y: 165 },
+        { x: 785, y: junctionY },
+        { x: 750, y: junctionY },
+        { x: spineX, y: junctionY },
+        { x: spineX, y: exit.y },
+        { x: exit.x, y: exit.y },
+        { x: center.x, y: exit.y }
+      ];
+    }
+  }
+
+  function buildRouteCacheToRam() {
+    const junctionY = 230;
+
+    if (perfState.cacheLocation === 'on-die') {
+      return [
+        { x: 620, y: junctionY },
+        { x: 750, y: junctionY },
+        { x: 880, y: junctionY }
+      ];
+    } else {
+      // Off-Die Cache -> DOWN to Motherboard Bus -> RAM
+      return [
+        { x: 845, y: 165 },
+        { x: 845, y: junctionY },
+        { x: 880, y: junctionY }
+      ];
+    }
+  }
+
+  function buildRouteRamToCore(coreIdx) {
+    const junctionY = 230;
+    const exit = getCoreExitPt(coreIdx);
+    const center = getCoreCenterPt(coreIdx);
+    const spineX = 492;
+
+    if (perfState.cacheLocation === 'on-die') {
+      return [
+        { x: 880, y: junctionY },
+        { x: 750, y: junctionY },
+        { x: 520, y: junctionY },
+        { x: spineX, y: junctionY },
+        { x: spineX, y: exit.y },
+        { x: exit.x, y: exit.y },
+        { x: center.x, y: exit.y }
+      ];
+    } else {
+      // RAM -> Motherboard Bus -> UP into Off-Die Cache to refill -> DOWN to Bus -> CPU -> Spine -> Core
+      return [
+        { x: 880, y: junctionY },
+        { x: 845, y: junctionY },
+        { x: 845, y: 165 },
+        { x: 785, y: 165 },
+        { x: 785, y: junctionY },
+        { x: 750, y: junctionY },
+        { x: spineX, y: junctionY },
+        { x: spineX, y: exit.y },
+        { x: exit.x, y: exit.y },
+        { x: center.x, y: exit.y }
+      ];
+    }
+  }
+
+  // Animation Loop: Packet physics and real-time state advances
+  function perfAnimationLoop(timestamp) {
+    const dt = Math.min((timestamp - perfState.lastTimestamp) / 1000, 0.1);
+    perfState.lastTimestamp = timestamp;
+
+    if (!perfState.isPaused) {
+      perfState.cycleClock += dt * perfState.clockSpeed * perfState.simSpeed;
+
+      // Decrement flash feedback timers
+      if (perfState.cacheFlashTimer > 0) perfState.cacheFlashTimer -= dt;
+      if (perfState.ramFlashTimer > 0) perfState.ramFlashTimer -= dt;
+
+      // Core stall timers
+      for (let i = 0; i < 4; i++) {
+        if (perfState.coreStallTimers[i] > 0) {
+          perfState.coreStallTimers[i] -= dt * perfState.simSpeed;
         }
       }
-    }
 
-    setTimeout(() => {
-      if (statusBadge) {
-        statusBadge.textContent = 'COMPLETED';
-        statusBadge.className = 'badge badge-spec';
-      }
-      if (metricExec) metricExec.textContent = `${calculatedTimeMs} ms`;
-      if (metricScore) metricScore.textContent = `${mipsScore.toLocaleString()} MIPS`;
-      if (metricCache) metricCache.textContent = `${cacheHitRate}%`;
-      if (metricHeat) {
-        metricHeat.textContent = heat;
-        metricHeat.style.color = heat.includes('High') ? '#ef4444' : (heat === 'Low' ? '#34d399' : '#fbbf24');
-      }
+      // Packet generation: active cores send memory requests along bus tracks (deliberate, calm cadence)
+      perfState.nextSpawnTimer -= dt * perfState.simSpeed;
+      if (perfState.nextSpawnTimer <= 0) {
+        perfState.nextSpawnTimer = 0.58 / (perfState.clockSpeed * 0.45);
 
-      for (let c = 0; c < perfState.cores; c++) {
-        const st = document.getElementById(`core-status-${c}`);
-        if (st) {
-          if (perfState.taskType === 'sequential' && c > 0) {
-            st.textContent = 'Idle (0%)';
-          } else {
-            st.textContent = 'Done';
+        // Pick an active core with load > 0 that is not currently stalled
+        const candidateCores = [];
+        for (let i = 0; i < perfState.cores; i++) {
+          if (perfState.coreLoads[i] > 0 && perfState.coreStallTimers[i] <= 0) {
+            candidateCores.push(i);
           }
         }
+
+        if (candidateCores.length > 0) {
+          const coreIdx = candidateCores[Math.floor(Math.random() * candidateCores.length)];
+          const route = buildRouteToCache(coreIdx);
+
+          perfState.packets.push({
+            waypoints: route,
+            wpIdx: 1, // targeting index 1
+            x: route[0].x,
+            y: route[0].y,
+            speed: 280 * perfState.simSpeed,
+            type: 'req-to-cache',
+            coreIdx: coreIdx,
+            color: '#38bdf8'
+          });
+        }
       }
-    }, duration + 50);
+
+      // Update Packets movement along strict orthogonal waypoints
+      for (let p = perfState.packets.length - 1; p >= 0; p--) {
+        const pkt = perfState.packets[p];
+        const target = pkt.waypoints[pkt.wpIdx];
+
+        if (!target) {
+          handlePacketArrival(pkt);
+          perfState.packets.splice(p, 1);
+          continue;
+        }
+
+        const dx = target.x - pkt.x;
+        const dy = target.y - pkt.y;
+        const dist = Math.hypot(dx, dy);
+        const step = pkt.speed * dt;
+
+        if (dist <= step || dist < 2) {
+          // Reached waypoint
+          pkt.x = target.x;
+          pkt.y = target.y;
+          pkt.wpIdx++;
+
+          if (pkt.wpIdx >= pkt.waypoints.length) {
+            handlePacketArrival(pkt);
+            perfState.packets.splice(p, 1);
+          }
+        } else {
+          pkt.x += (dx / dist) * step;
+          pkt.y += (dy / dist) * step;
+        }
+      }
+    }
+
+    drawPerfCanvas();
+    perfState.animFrameId = requestAnimationFrame(perfAnimationLoop);
+  }
+
+  function handlePacketArrival(pkt) {
+    if (pkt.type === 'req-to-cache') {
+      const maxSlots = perfState.cacheSize === '256kb' ? 4 : (perfState.cacheSize === '1mb' ? 10 : (perfState.cacheSize === '4mb' ? 24 : 48));
+
+      // Realistic Software Footprint Demand:
+      // - Single-Threaded (Python/Office): lightweight working set (~8 slots in 16MB)
+      // - 3D Rendering (Blender): parallel thread buffers (~28 slots)
+      // - 3D Video Game: textures, audio, physics (~40 slots)
+      // - Database / Big Data: gigabyte table scan demands ALL available capacity (all 48 slots in 16MB!)
+      let workloadDemand;
+      if (perfState.workload === 'single') {
+        workloadDemand = 8;
+      } else if (perfState.workload === 'render') {
+        workloadDemand = 28;
+      } else if (perfState.workload === 'gaming') {
+        workloadDemand = 40;
+      } else {
+        workloadDemand = 48;
+      }
+
+      const targetEquilibrium = Math.min(maxSlots, workloadDemand);
+
+      // Fill up cache slot if not yet at equilibrium (starts empty, fills up progressively)
+      if (perfState.filledSlots < targetEquilibrium) {
+        perfState.filledSlots++;
+      }
+
+      // If cache reaches 100% of physical capacity (especially tiny 256KB that fills 4/4 fast),
+      // it must evict and misses to RAM happen!
+      const isFull = perfState.filledSlots >= maxSlots;
+      let isFound = true;
+      if (isFull) {
+        isFound = (Math.random() * 100) < perfState.cacheHitRate;
+      } else {
+        // While below capacity, high rate of finding data in loaded working set
+        isFound = (Math.random() * 100) < 92;
+      }
+
+      if (isFound) {
+        // Found fast in cache (<1ns)
+        perfState.cacheFlashTimer = 0.28;
+        perfState.cacheFlashType = 'hit';
+
+        // Return fast green packet to core along orthogonal tracks
+        const returnRoute = buildRouteFromCacheToCore(pkt.coreIdx);
+        perfState.packets.push({
+          waypoints: returnRoute,
+          wpIdx: 1,
+          x: returnRoute[0].x,
+          y: returnRoute[0].y,
+          speed: 300 * perfState.simSpeed,
+          type: 'hit-return',
+          coreIdx: pkt.coreIdx,
+          color: '#10b981'
+        });
+      } else {
+        // Not in cache! Data must be fetched from slow RAM (~70ns). Core stalls!
+        perfState.cacheFlashTimer = 0.38;
+        perfState.cacheFlashType = 'miss';
+        perfState.coreStallTimers[pkt.coreIdx] = 1.6 / perfState.simSpeed;
+
+        // Spawn slow amber packet leaving cache and going across Motherboard Bus to RAM
+        const ramRoute = buildRouteCacheToRam();
+        perfState.packets.push({
+          waypoints: ramRoute,
+          wpIdx: 1,
+          x: ramRoute[0].x,
+          y: ramRoute[0].y,
+          speed: 150 * perfState.simSpeed, // Slower motherboard bus speed
+          type: 'miss-to-ram',
+          coreIdx: pkt.coreIdx,
+          color: '#f59e0b'
+        });
+      }
+    } else if (pkt.type === 'miss-to-ram') {
+      // Reached RAM: RAM flashes activity, sends data back across motherboard bus
+      perfState.ramFlashTimer = 0.35;
+      const ramReturnRoute = buildRouteRamToCore(pkt.coreIdx);
+      perfState.packets.push({
+        waypoints: ramReturnRoute,
+        wpIdx: 1,
+        x: ramReturnRoute[0].x,
+        y: ramReturnRoute[0].y,
+        speed: 170 * perfState.simSpeed,
+        type: 'ram-to-cache',
+        coreIdx: pkt.coreIdx,
+        color: '#06b6d4'
+      });
+    } else if (pkt.type === 'hit-return' || pkt.type === 'ram-to-cache') {
+      // Reached core: clear stall, core executes instruction
+      perfState.coreStallTimers[pkt.coreIdx] = 0;
+    }
   }
 
   // =========================================================================
-  // 5. INITIALIZATION ENTRYPOINT
+  // Canvas Rendering Function: Silicon Die, Cores, Interconnect & RAM
+  // =========================================================================
+  function drawPerfCanvas() {
+    const canvas = document.getElementById('cpuPerfCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+
+    // Precalculate core stall status for cache and bus bottleneck visuals
+    let isAnyStalled = false;
+    for (let i = 0; i < perfState.cores; i++) {
+      if (perfState.coreStallTimers[i] > 0) {
+        isAnyStalled = true;
+        break;
+      }
+    }
+
+    // Clear background
+    ctx.fillStyle = '#070b14';
+    ctx.fillRect(0, 0, 1060, 460);
+
+    // Subtle motherboard PCB circuit grid
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+    ctx.lineWidth = 1;
+    for (let gx = 0; gx < 1060; gx += 24) {
+      ctx.beginPath();
+      ctx.moveTo(gx, 0);
+      ctx.lineTo(gx, 460);
+      ctx.stroke();
+    }
+    for (let gy = 0; gy < 460; gy += 24) {
+      ctx.beginPath();
+      ctx.moveTo(0, gy);
+      ctx.lineTo(1060, gy);
+      ctx.stroke();
+    }
+
+    // -----------------------------------------------------------------------
+    // 1. CPU SILICON DIE (Microchip substrate)
+    // -----------------------------------------------------------------------
+    const dieX = 24, dieY = 18, dieW = 726, dieH = 424;
+
+    const dieGrad = ctx.createLinearGradient(dieX, dieY, dieX + dieW, dieY + dieH);
+    dieGrad.addColorStop(0, '#0c1527');
+    dieGrad.addColorStop(1, '#070c18');
+
+    ctx.fillStyle = dieGrad;
+    drawRoundRect(ctx, dieX, dieY, dieW, dieH, 14);
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.35)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Gold wire-bond contact pads around the perimeter of the silicon die
+    ctx.fillStyle = '#f59e0b';
+    for (let py = dieY + 20; py < dieY + dieH - 10; py += 18) {
+      ctx.fillRect(dieX - 6, py, 6, 8); // left pin pads
+      ctx.fillRect(dieX + dieW, py, 6, 8); // right pin pads
+    }
+
+    // Silicon Die Header
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = '800 11.5px Inter, system-ui, sans-serif';
+    ctx.fillText('CPU SILICON DIE (INTEGRATED CIRCUIT)', dieX + 16, dieY + 22);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '600 10.5px Inter, system-ui, sans-serif';
+    ctx.fillText(
+      `${perfState.cores} Core(s) Enabled • ${perfState.clockSpeed.toFixed(1)} GHz Clock • On-Chip Interconnect (< 1 ns)`,
+      dieX + 270,
+      dieY + 22
+    );
+
+    // -----------------------------------------------------------------------
+    // 2. HIGH-SPEED ON-CHIP INTERCONNECT HIGHWAY (Physical Copper Bus Conduit)
+    // -----------------------------------------------------------------------
+    const spineX = 492;
+
+    // Bus Conduit Background Track (Broad highway pipe)
+    ctx.fillStyle = 'rgba(14, 165, 233, 0.1)';
+    ctx.fillRect(spineX - 12, 50, 24, 360);
+
+    // Horizontal feeder bus tracks
+    ctx.fillRect(250, 131, 242, 12); // Core 0 & 1 -> Spine
+    ctx.fillRect(250, 321, 242, 12); // Core 2 & 3 -> Spine
+
+    if (perfState.cacheLocation === 'on-die') {
+      ctx.fillRect(spineX, 224, 28, 12); // Spine -> On-Die Cache
+    } else {
+      // Connects spine straight through empty bay to CPU Die pin exit!
+      ctx.fillRect(spineX, 224, 258, 12);
+    }
+
+    // Copper boundary lines of the bus conduit
+    ctx.strokeStyle = 'rgba(14, 165, 233, 0.4)';
+    ctx.lineWidth = 1.5;
+
+    // Vertical spine walls
+    ctx.beginPath();
+    ctx.moveTo(spineX - 12, 50);
+    ctx.lineTo(spineX - 12, 410);
+    ctx.moveTo(spineX + 12, 50);
+    ctx.lineTo(spineX + 12, 410);
+
+    // Horizontal feeder tracks
+    ctx.moveTo(250, 131); ctx.lineTo(spineX - 12, 131);
+    ctx.moveTo(250, 143); ctx.lineTo(spineX - 12, 143);
+    ctx.moveTo(250, 321); ctx.lineTo(spineX - 12, 321);
+    ctx.moveTo(250, 333); ctx.lineTo(spineX - 12, 333);
+
+    if (perfState.cacheLocation === 'on-die') {
+      ctx.moveTo(spineX + 12, 224); ctx.lineTo(520, 224);
+      ctx.moveTo(spineX + 12, 236); ctx.lineTo(520, 236);
+    } else {
+      ctx.moveTo(spineX + 12, 224); ctx.lineTo(750, 224);
+      ctx.moveTo(spineX + 12, 236); ctx.lineTo(750, 236);
+    }
+    ctx.stroke();
+
+    // Center electrical signal pulse lines
+    ctx.strokeStyle = '#0284c7';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(spineX, 50);
+    ctx.lineTo(spineX, 410);
+    ctx.moveTo(250, 137); ctx.lineTo(spineX, 137);
+    ctx.moveTo(250, 327); ctx.lineTo(spineX, 327);
+
+    if (perfState.cacheLocation === 'on-die') {
+      ctx.moveTo(spineX, 230); ctx.lineTo(520, 230);
+    } else {
+      ctx.moveTo(spineX, 230); ctx.lineTo(750, 230);
+    }
+    ctx.stroke();
+
+    // Animated dashed flow along interconnect
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 6]);
+    ctx.lineDashOffset = -perfState.cycleClock * 24;
+    ctx.beginPath();
+    ctx.moveTo(spineX, 50);
+    ctx.lineTo(spineX, 410);
+    ctx.stroke();
+    ctx.setLineDash([]); // reset
+
+    // -----------------------------------------------------------------------
+    // 3. CPU CORES (2 × 2 Grid)
+    // -----------------------------------------------------------------------
+    const coreBoxes = [
+      { x: 44,  y: 52,  w: 206, h: 170, label: 'CORE 0' },
+      { x: 265, y: 52,  w: 206, h: 170, label: 'CORE 1' },
+      { x: 44,  y: 242, w: 206, h: 170, label: 'CORE 2' },
+      { x: 265, y: 242, w: 206, h: 170, label: 'CORE 3' }
+    ];
+
+    for (let i = 0; i < 4; i++) {
+      const box = coreBoxes[i];
+      const isEnabled = i < perfState.cores;
+      const isStalled = perfState.coreStallTimers[i] > 0;
+      const load = perfState.coreLoads[i];
+
+      if (isEnabled) {
+        // Active Core Container
+        const isComputing = load > 0 && !isStalled;
+        ctx.fillStyle = isStalled ? '#1e1013' : (isComputing ? '#0d1829' : '#0a101d');
+        drawRoundRect(ctx, box.x, box.y, box.w, box.h, 10);
+        ctx.fill();
+
+        // Border glow based on state
+        if (isStalled) {
+          ctx.strokeStyle = '#ef4444';
+          ctx.lineWidth = 2.2;
+        } else if (isComputing) {
+          ctx.strokeStyle = 'rgba(56, 189, 248, 0.7)';
+          ctx.lineWidth = 1.8;
+        } else {
+          ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+          ctx.lineWidth = 1;
+        }
+        ctx.stroke();
+
+        // Core Header
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '800 12px Inter, system-ui, sans-serif';
+        ctx.fillText(box.label, box.x + 12, box.y + 20);
+
+        // State Badge (Top Right)
+        let badgeBg = 'rgba(16, 185, 129, 0.15)';
+        let badgeColor = '#10b981';
+        let badgeText = `ACTIVE (${load}%)`;
+
+        if (isStalled) {
+          badgeBg = 'rgba(239, 68, 68, 0.25)';
+          badgeColor = '#ef4444';
+          badgeText = '⏳ RAM STALL';
+        } else if (load === 0) {
+          badgeBg = 'rgba(148, 163, 184, 0.1)';
+          badgeColor = '#94a3b8';
+          badgeText = 'IDLE (0%)';
+        }
+
+        ctx.fillStyle = badgeBg;
+        drawRoundRect(ctx, box.x + box.w - 94, box.y + 7, 84, 18, 4);
+        ctx.fill();
+
+        ctx.fillStyle = badgeColor;
+        ctx.font = '700 9.5px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(badgeText, box.x + box.w - 52, box.y + 19);
+        ctx.textAlign = 'left'; // reset
+
+        // Internal Microarchitecture: ALU & CU Sub-blocks
+        const aluX = box.x + 12, aluY = box.y + 32, subW = 86, subH = 26;
+        ctx.fillStyle = '#1e293b';
+        drawRoundRect(ctx, aluX, aluY, subW, subH, 4);
+        ctx.fill();
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = '700 9.5px Inter, system-ui, sans-serif';
+        ctx.fillText('ALU (Math)', aluX + 8, aluY + 17);
+
+        const cuX = box.x + 106;
+        ctx.fillStyle = '#1e293b';
+        drawRoundRect(ctx, cuX, aluY, subW + 2, subH, 4);
+        ctx.fill();
+        ctx.fillStyle = '#c084fc';
+        ctx.font = '700 9.5px Inter, system-ui, sans-serif';
+        ctx.fillText('CU (Decoder)', cuX + 8, aluY + 17);
+
+        // Dedicated Clock Header (Zero collision with wave!)
+        const waveBoxX = box.x + 12, waveBoxY = box.y + 72, waveW = 182, waveH = 32;
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '600 8.5px Inter, system-ui, sans-serif';
+        ctx.fillText(`CLOCK: ${perfState.clockSpeed.toFixed(1)} GHz (${(perfState.clockSpeed * 1e9).toExponential(1)} cycles/s)`, waveBoxX, waveBoxY - 4);
+
+        // Real-time Sine Wave Clock Frequency Oscillator (Clean CRT Screen)
+        ctx.fillStyle = '#060a12';
+        drawRoundRect(ctx, waveBoxX, waveBoxY, waveW, waveH, 5);
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(waveBoxX, waveBoxY + 16);
+        ctx.lineTo(waveBoxX + waveW, waveBoxY + 16);
+        ctx.stroke();
+
+        // Pulsing sine wave representing clock frequency
+        ctx.strokeStyle = isStalled ? '#ef4444' : '#38bdf8';
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        const freqMultiplier = perfState.clockSpeed * 1.8;
+        for (let wx = 0; wx < waveW; wx += 2) {
+          const rad = (wx / 14) * freqMultiplier + perfState.cycleClock * 6;
+          const wy = waveBoxY + 16 + Math.sin(rad) * (isComputing ? 11 : 2);
+          if (wx === 0) ctx.moveTo(waveBoxX + wx, wy);
+          else ctx.lineTo(waveBoxX + wx, wy);
+        }
+        ctx.stroke();
+
+        // Core Thread Load Progress Bar
+        const barX = box.x + 12, barY = box.y + 114, barW = 182, barH = 16;
+        ctx.fillStyle = '#111827';
+        drawRoundRect(ctx, barX, barY, barW, barH, 4);
+        ctx.fill();
+
+        if (load > 0) {
+          const fillW = Math.max(8, (barW * load) / 100);
+          ctx.fillStyle = isStalled ? '#ef4444' : (load > 85 ? '#10b981' : '#38bdf8');
+          drawRoundRect(ctx, barX, barY, fillW, barH, 4);
+          ctx.fill();
+        }
+
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '700 8.5px Inter, system-ui, sans-serif';
+        ctx.fillText(`Thread Execution Load: ${load}%`, barX + 8, barY + 11.5);
+
+        // Subtext rule / State indicator
+        if (isStalled) {
+          ctx.fillStyle = '#ef4444';
+          ctx.font = '700 8.5px Inter, system-ui, sans-serif';
+          ctx.fillText('🔴 STALLED: Waiting on slow RAM (~70ns)...', barX, box.y + 148);
+        } else if (load === 0) {
+          ctx.fillStyle = '#64748b';
+          ctx.font = '500 8.5px Inter, system-ui, sans-serif';
+          ctx.fillText('• Idle: Unused by single-threaded code', barX, box.y + 148);
+        } else {
+          ctx.fillStyle = '#10b981';
+          ctx.font = '600 8.5px Inter, system-ui, sans-serif';
+          ctx.fillText('✓ Executing F-D-E instructions smoothly', barX, box.y + 148);
+        }
+
+      } else {
+        // Disabled / Unused Core (Power Gated)
+        ctx.fillStyle = 'rgba(10, 16, 26, 0.45)';
+        drawRoundRect(ctx, box.x, box.y, box.w, box.h, 10);
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([5, 5]);
+        ctx.stroke();
+        ctx.setLineDash([]); // reset
+
+        ctx.fillStyle = '#475569';
+        ctx.font = '800 13px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`${box.label} (DISABLED)`, box.x + box.w / 2, box.y + 70);
+
+        ctx.font = '600 10.5px Inter, system-ui, sans-serif';
+        ctx.fillText('POWER GATED (0W)', box.x + box.w / 2, box.y + 92);
+
+        ctx.font = '500 9.5px Inter, system-ui, sans-serif';
+        ctx.fillStyle = '#334155';
+        ctx.fillText('Unused by current hardware configuration', box.x + box.w / 2, box.y + 112);
+        ctx.textAlign = 'left'; // reset
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 4. CACHE MEMORY BLOCK (Dynamic Silicon Area & Placement)
+    // -----------------------------------------------------------------------
+    if (perfState.cacheLocation === 'on-die') {
+      const cacheBayX = 520, cacheBayW = 215;
+      // Dynamic height & visual slot counts according to cache size
+      const sizeParams = {
+        '256kb': { y: 160, h: 125, name: '256 KB (TINY - CRAMPED)', slots: 4, subText: 'Only 4 slots! High RAM misses', cols: 4, rows: 1 },
+        '1mb':   { y: 130, h: 180, name: '1 MB (SMALL CACHE)', slots: 10, subText: '10 slots (30% trips to RAM)', cols: 5, rows: 2 },
+        '4mb':   { y: 85,  h: 265, name: '4 MB (ROOMY CACHE)', slots: 24, subText: '24 slots (9 in 10 fit on desk!)', cols: 6, rows: 4 },
+        '16mb':  { y: 44,  h: 345, name: '16 MB (MASSIVE CACHE)', slots: 48, subText: '48 slots (99 in 100 fit on desk)', cols: 8, rows: 6 }
+      };
+      const p = sizeParams[perfState.cacheSize] || sizeParams['4mb'];
+
+      // Silicon SRAM container
+      ctx.fillStyle = '#140f2b';
+      drawRoundRect(ctx, cacheBayX, p.y, cacheBayW, p.h, 10);
+      ctx.fill();
+
+      // Steady calm border — eliminates distracting full-box strobe flashing
+      ctx.strokeStyle = '#8b5cf6';
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
+
+      // Row 1: Title
+      ctx.fillStyle = '#c084fc';
+      ctx.font = '800 11.5px Inter, system-ui, sans-serif';
+      ctx.fillText(p.name, cacheBayX + 12, p.y + 18);
+
+      // Row 2: Subtitle
+      ctx.fillStyle = '#a78bfa';
+      ctx.font = '600 9px Inter, system-ui, sans-serif';
+      ctx.fillText(p.subText, cacheBayX + 12, p.y + 31);
+
+      // Row 3: Dedicated Full-Width Status Pill (Dynamically reflects progressive fill level)
+      const isFull = perfState.filledSlots >= p.slots;
+      const pillH = isFull ? 26 : 18;
+      const pillY = p.y + (isFull ? 34 : 38);
+      let pillBg = '';
+      let pillColor = '';
+
+      if (perfState.filledSlots === 0) {
+        pillBg = 'rgba(148, 163, 184, 0.15)';
+        pillColor = '#94a3b8';
+      } else if (isFull) {
+        pillBg = 'rgba(239, 68, 68, 0.28)';
+        pillColor = '#ef4444';
+      } else {
+        const pct = Math.round((perfState.filledSlots / p.slots) * 100);
+        pillBg = pct > 75 ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.18)';
+        pillColor = pct > 75 ? '#f59e0b' : '#34d399';
+      }
+
+      ctx.fillStyle = pillBg;
+      drawRoundRect(ctx, cacheBayX + 12, pillY, cacheBayW - 24, pillH, 4);
+      ctx.fill();
+
+      if (perfState.filledSlots === 0) {
+        ctx.fillStyle = pillColor;
+        ctx.font = '700 8.5px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚪ CACHE EMPTY — INSTRUCTIONS STREAMING', cacheBayX + cacheBayW / 2, pillY + 12);
+        ctx.textAlign = 'left';
+      } else if (isFull) {
+        // Two clean lines to guarantee zero overflow outside the pill
+        ctx.fillStyle = pillColor;
+        ctx.font = '800 8.5px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`🔴 100% FULL (${p.slots}/${p.slots} SLOTS)`, cacheBayX + cacheBayW / 2, pillY + 11);
+        ctx.font = '700 8px Inter, system-ui, sans-serif';
+        ctx.fillText('Overflowing: Evicting data to RAM', cacheBayX + cacheBayW / 2, pillY + 22);
+        ctx.textAlign = 'left';
+      } else {
+        const pct = Math.round((perfState.filledSlots / p.slots) * 100);
+        ctx.fillStyle = pillColor;
+        ctx.font = '700 8.5px Inter, system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(`🟢 ${pct}% USED (${perfState.filledSlots}/${p.slots} SLOTS)`, cacheBayX + cacheBayW / 2, pillY + 12);
+        ctx.textAlign = 'left';
+      }
+
+      // Silicon SRAM memory cell slots (Guaranteed inside bounding box without overflow)
+      const cellCols = p.cols;
+      const cellRows = p.rows;
+      const gridW = cacheBayW - 24;
+      const startGridY = pillY + pillH + 6;
+      const gap = p.slots <= 4 ? 6 : 3;
+      const cellW = Math.floor((gridW - (cellCols - 1) * gap) / cellCols);
+      const cellH = p.slots <= 4 ? 22 : (perfState.cacheSize === '1mb' ? 18 : (perfState.cacheSize === '4mb' ? 16 : 13));
+      const rowGap = 4;
+
+      for (let cr = 0; cr < cellRows; cr++) {
+        for (let cc = 0; cc < cellCols; cc++) {
+          const slotIdx = cr * cellCols + cc;
+          if (slotIdx >= p.slots) break;
+
+          const cx = cacheBayX + 12 + cc * (cellW + gap);
+          const cy = startGridY + cr * (cellH + rowGap);
+          const isSlotFilled = slotIdx < perfState.filledSlots;
+
+          if (isSlotFilled) {
+            if (p.slots <= 4) {
+              if (perfState.filledSlots >= 4) {
+                ctx.fillStyle = '#ef4444';
+                ctx.strokeStyle = '#f87171';
+              } else {
+                ctx.fillStyle = 'rgba(239, 68, 68, 0.45)';
+                ctx.strokeStyle = '#ef4444';
+              }
+            } else if (perfState.cacheSize === '1mb') {
+              ctx.fillStyle = 'rgba(245, 158, 11, 0.8)';
+              ctx.strokeStyle = '#fbbf24';
+            } else if (perfState.cacheSize === '4mb') {
+              ctx.fillStyle = 'rgba(14, 165, 233, 0.8)';
+              ctx.strokeStyle = '#38bdf8';
+            } else {
+              ctx.fillStyle = 'rgba(16, 185, 129, 0.85)';
+              ctx.strokeStyle = '#34d399';
+            }
+          } else {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+          }
+
+          drawRoundRect(ctx, cx, cy, cellW, cellH, 3);
+          ctx.fill();
+          ctx.stroke();
+
+          if (isSlotFilled && p.slots <= 4 && perfState.filledSlots >= 4) {
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '800 8.5px font-mono, monospace';
+            ctx.fillText('FULL', cx + Math.floor(cellW / 2) - 11, cy + cellH - 6);
+          }
+        }
+      }
+
+      // Status message at bottom of cache block: green when fine, red when missing/stalled/overflowing
+      const isCacheProblem = isAnyStalled || (perfState.cacheFlashTimer > 0 && perfState.cacheFlashType === 'miss') || (perfState.filledSlots >= p.slots && p.slots <= 4);
+
+      ctx.font = '700 9.5px Inter, system-ui, sans-serif';
+      if (isCacheProblem) {
+        ctx.fillStyle = '#ef4444';
+        const msg = (perfState.filledSlots >= p.slots && p.slots <= 4)
+          ? 'Cache 100% Full — Evicting to RAM'
+          : 'Cache Miss — Fetching Slow RAM (~70ns)';
+        ctx.fillText(msg, cacheBayX + 12, p.y + p.h - 10);
+      } else {
+        ctx.fillStyle = '#10b981';
+        ctx.fillText('Cache Operating — Fast On-Chip SRAM (<1ns)', cacheBayX + 12, p.y + p.h - 10);
+      }
+
+    } else {
+      // Off-Die Cache: Silicon slot inside CPU die is empty!
+      const cacheBayX = 520, cacheBayY = 130, cacheBayW = 215, cacheBayH = 170;
+      ctx.fillStyle = 'rgba(10, 16, 26, 0.45)';
+      drawRoundRect(ctx, cacheBayX, cacheBayY, cacheBayW, cacheBayH, 10);
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 5]);
+      ctx.stroke();
+      ctx.setLineDash([]); // reset
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '800 12px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('EMPTY ON-DIE CACHE BAY', cacheBayX + cacheBayW / 2, cacheBayY + 65);
+      ctx.font = '500 10px Inter, system-ui, sans-serif';
+      ctx.fillText('No SRAM built on CPU silicon die', cacheBayX + cacheBayW / 2, cacheBayY + 85);
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillText('⚠️ Bus traces routed off-die to external chip (~15ns)', cacheBayX + cacheBayW / 2, cacheBayY + 105);
+      ctx.textAlign = 'left'; // reset
+
+      // Physical Off-Die Cache chip placed cleanly ABOVE the motherboard bus!
+      const offX = 762, offY = 40, offW = 104, offH = 125;
+      ctx.fillStyle = '#140f2b';
+      drawRoundRect(ctx, offX, offY, offW, offH, 8);
+      ctx.fill();
+
+      // Steady calm border — eliminates distracting strobe flash
+      ctx.strokeStyle = '#8b5cf6';
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
+
+      ctx.fillStyle = '#c084fc';
+      ctx.font = '800 10.5px Inter, system-ui, sans-serif';
+      ctx.fillText('OFF-DIE CACHE', offX + 8, offY + 18);
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = '700 8.5px Inter, system-ui, sans-serif';
+      ctx.fillText('~15 ns Bus Delay', offX + 8, offY + 31);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '500 8px Inter, system-ui, sans-serif';
+      ctx.fillText('External SRAM', offX + 8, offY + 43);
+
+      // 6 Miniature slots inside Off-Die Cache showing it filling up
+      for (let sc = 0; sc < 6; sc++) {
+        const sx = offX + 8 + (sc % 3) * 30;
+        const sy = offY + 50 + Math.floor(sc / 3) * 16;
+        const isOffSlotFilled = sc < perfState.filledSlots;
+
+        ctx.fillStyle = isOffSlotFilled ? (perfState.filledSlots >= 4 ? '#ef4444' : '#f59e0b') : 'rgba(255, 255, 255, 0.05)';
+        ctx.strokeStyle = isOffSlotFilled ? '#fbbf24' : 'rgba(255, 255, 255, 0.15)';
+        drawRoundRect(ctx, sx, sy, 26, 12, 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      const isOffProblem = isAnyStalled || (perfState.cacheFlashTimer > 0 && perfState.cacheFlashType === 'miss') || perfState.filledSlots >= 4;
+      ctx.fillStyle = isOffProblem ? '#ef4444' : '#10b981';
+      ctx.font = '700 8px Inter, system-ui, sans-serif';
+      ctx.fillText(isOffProblem ? 'Off-Die Miss (~15ns bus)' : 'Off-Die OK (~15ns SRAM)', offX + 8, offY + 92);
+
+      // Gold solder pin pads at bottom of Off-Die Cache
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillRect(781, 161, 8, 4); // Ingress pin pad (x=785)
+      ctx.fillRect(841, 161, 8, 4); // Egress pin pad (x=845)
+
+      // Vertical Ingress Bus Wire (CPU to Off-Die Cache): UP from y=230 to y=165
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
+      ctx.fillRect(780, 165, 10, 65);
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(780, 165); ctx.lineTo(780, 230);
+      ctx.moveTo(790, 165); ctx.lineTo(790, 230);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.moveTo(785, 165); ctx.lineTo(785, 230);
+      ctx.stroke();
+
+      // Solder dots at (785, 230) and (785, 165)
+      ctx.fillStyle = '#f59e0b';
+      ctx.beginPath(); ctx.arc(785, 230, 3.5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(785, 165, 3.5, 0, Math.PI * 2); ctx.fill();
+
+      // Up arrow tag
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = '700 8px Inter, system-ui, sans-serif';
+      ctx.fillText('▲ IN', 773, 202);
+
+      // Vertical Egress Bus Wire (Off-Die Cache to RAM): DOWN from y=165 to y=230
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
+      ctx.fillRect(840, 165, 10, 65);
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(840, 165); ctx.lineTo(840, 230);
+      ctx.moveTo(850, 165); ctx.lineTo(850, 230);
+      ctx.stroke();
+
+      ctx.strokeStyle = '#f59e0b';
+      ctx.beginPath();
+      ctx.moveTo(845, 165); ctx.lineTo(845, 230);
+      ctx.stroke();
+
+      // Solder dots at (845, 165) and (845, 230)
+      ctx.beginPath(); ctx.arc(845, 165, 3.5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(845, 230, 3.5, 0, Math.PI * 2); ctx.fill();
+
+      // Down arrow tag
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = '700 8px Inter, system-ui, sans-serif';
+      ctx.fillText('▼ RAM', 833, 202);
+    }
+
+    // -----------------------------------------------------------------------
+    // 5. EXTERNAL MOTHERBOARD BUS (Off-chip copper traces between CPU and RAM)
+    // -----------------------------------------------------------------------
+    const busStartX = dieX + dieW, busEndX = 880, busY = 210, busH = 46;
+
+    // Copper trace channel
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.08)';
+    ctx.fillRect(busStartX, busY, busEndX - busStartX, busH);
+
+    ctx.strokeStyle = 'rgba(245, 158, 11, 0.35)';
+    ctx.lineWidth = 1.5;
+    for (let ty = busY + 8; ty < busY + busH; ty += 10) {
+      ctx.beginPath();
+      ctx.moveTo(busStartX, ty);
+      ctx.lineTo(busEndX, ty);
+      ctx.stroke();
+    }
+
+    // Motherboard bus title and latency clearly placed BELOW the bus (Zero collisions!)
+    ctx.fillStyle = '#f59e0b';
+    ctx.font = '800 10px Inter, system-ui, sans-serif';
+    ctx.fillText('MOTHERBOARD BUS', busStartX + 10, busY + busH + 16);
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '500 8.5px Inter, system-ui, sans-serif';
+    ctx.fillText('~70 ns Latency (Slow Trip)', busStartX + 10, busY + busH + 28);
+
+    // Visual Traffic Jam / Bottleneck Barricade when RAM Stalls occur
+    if (isAnyStalled) {
+      // Draw flashing bottleneck barrier at the CPU Die exit
+      ctx.fillStyle = 'rgba(239, 68, 68, 0.85)';
+      ctx.fillRect(busStartX - 4, busY + 4, 6, busH - 8);
+
+      // Warning queue tag
+      ctx.fillStyle = '#ef4444';
+      ctx.font = '800 9px Inter, system-ui, sans-serif';
+      ctx.fillText('⛔ BUS BOTTLENECK: QUEUE BACKED UP', busStartX + 4, busY + 28);
+    }
+
+    // -----------------------------------------------------------------------
+    // 6. SYSTEM RAM (Off-Chip DRAM Modules — "The School Library")
+    // -----------------------------------------------------------------------
+    const ramX = 880, ramY = 35, ramW = 156, ramH = 390;
+
+    // Green / Slate DRAM Module PCB
+    ctx.fillStyle = '#06281e';
+    drawRoundRect(ctx, ramX, ramY, ramW, ramH, 8);
+    ctx.fill();
+
+    ctx.strokeStyle = perfState.ramFlashTimer > 0 ? '#10b981' : '#059669';
+    ctx.lineWidth = perfState.ramFlashTimer > 0 ? 2.5 : 1.5;
+    ctx.stroke();
+
+    // Gold contact edge fingers on left
+    ctx.fillStyle = '#f59e0b';
+    for (let gy = ramY + 16; gy < ramY + ramH - 12; gy += 14) {
+      ctx.fillRect(ramX - 5, gy, 5, 8);
+    }
+
+    // RAM Module Header
+    ctx.fillStyle = '#34d399';
+    ctx.font = '800 11.5px Inter, system-ui, sans-serif';
+    ctx.fillText('SYSTEM RAM (DRAM)', ramX + 12, ramY + 22);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '600 9px Inter, system-ui, sans-serif';
+    ctx.fillText('"The Library" • ~70 ns Access', ramX + 12, ramY + 36);
+
+    // 4 DRAM IC Chips
+    for (let c = 0; c < 4; c++) {
+      const chipY = ramY + 52 + c * 76;
+      ctx.fillStyle = '#0d1829';
+      drawRoundRect(ctx, ramX + 14, chipY, ramW - 28, 64, 4);
+      ctx.fill();
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = '#64748b';
+      ctx.font = '700 9px font-mono, monospace';
+      ctx.fillText(`DRAM BANK ${c}`, ramX + 22, chipY + 18);
+      ctx.fillStyle = '#475569';
+      ctx.font = '500 8px font-mono, monospace';
+      ctx.fillText('4096 MB Dynamic RAM', ramX + 22, chipY + 32);
+      ctx.fillText('Capacitor Refresh Cycle', ramX + 22, chipY + 46);
+    }
+
+    // RAM Activity Status Indicator
+    const isRamBusy = perfState.ramFlashTimer > 0;
+    ctx.fillStyle = isRamBusy ? 'rgba(16, 185, 129, 0.2)' : 'rgba(148, 163, 184, 0.1)';
+    drawRoundRect(ctx, ramX + 14, ramY + ramH - 28, ramW - 28, 20, 4);
+    ctx.fill();
+
+    ctx.fillStyle = isRamBusy ? '#10b981' : '#64748b';
+    ctx.font = '700 9px Inter, system-ui, sans-serif';
+    ctx.fillText(isRamBusy ? '● READING FROM RAM...' : '○ RAM BUS IDLE', ramX + 24, ramY + ramH - 15);
+
+    // -----------------------------------------------------------------------
+    // 7. ANIMATED DATA PACKETS IN FLIGHT (Strictly along copper conduits!)
+    // -----------------------------------------------------------------------
+    for (let p = 0; p < perfState.packets.length; p++) {
+      const pkt = perfState.packets[p];
+      ctx.save();
+
+      // Glowing packet body
+      ctx.fillStyle = pkt.color;
+      ctx.shadowColor = pkt.color;
+      ctx.shadowBlur = 10;
+
+      ctx.beginPath();
+      ctx.arc(pkt.x, pkt.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Outer pulse aura
+      ctx.fillStyle = pkt.color;
+      ctx.globalAlpha = 0.35;
+      ctx.beginPath();
+      ctx.arc(pkt.x, pkt.y, 8, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+  }
+
+  // =========================================================================
+  // 4. INITIALIZATION ENTRYPOINT
   // =========================================================================
 
   function init() {
     initTheme();
     initTabs();
     initFDE();
-        initPerformanceSandbox();
+    initPerformanceSandbox();
   }
 
   if (document.readyState === 'loading') {

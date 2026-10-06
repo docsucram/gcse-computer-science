@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="GCSE Computer Science - Interactive Random Number Generation, PRNG Seeds, Minecraft Procedural Worlds & Fractals for AQA GCSE.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
+  <meta name="theme-color" content="#4f46e5">
+  <title>Random Numbers and Procedural Generation — AQA GCSE Computer Science</title>
+
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+
+  <!-- Shared Design System -->
+  <link rel="stylesheet" href="../../shared/styles.css">
+  <link rel="stylesheet" href="./style.css">
+
+  <script>
+    // Immediate theme initialization to prevent flash
+    (function() {
+      try {
+        var theme = localStorage.getItem('theme');
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <!-- Ambient background glow & grid -->
+  <div class="bg-grid-ambient"></div>
+
+  <!-- Top Sticky Navigation -->
+  <header class="site-nav">
+    <div class="container nav-container">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="../../index.html" class="btn btn-secondary btn-sm" title="Return to Revision Hub">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Hub
+        </a>
+
+        <div class="nav-title-group" style="display: flex; align-items: center; gap: 10px;">
+          <div class="nav-icon-badge" style="background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);">
+            <!-- Dice / Seed SVG -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"></circle>
+              <circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"></circle>
+              <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+              <circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"></circle>
+              <circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"></circle>
+            </svg>
+          </div>
+          <div>
+            <h1 class="nav-module-title" style="margin: 0; font-size: 15.5px; font-weight: 800;">
+              Random Numbers and Procedural Generation
+            </h1>
+          </div>
+          <span class="badge badge-topic" style="font-size: 10px;">AQA Paper 1 • Programming</span>
+        </div>
+      </div>
+
+      <!-- Tab Navigation Buttons -->
+      <div class="view-tabs" role="tablist">
+        <button class="view-tab-btn active" data-tab="art" role="tab" aria-selected="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+            <polyline points="2 17 12 22 22 17"></polyline>
+            <polyline points="2 12 12 17 22 12"></polyline>
+          </svg>
+          Procedural World &amp; Art
+        </button>
+
+        <button class="view-tab-btn" data-tab="engine" role="tab" aria-selected="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          PRNG Engine &amp; Math
+        </button>
+
+        <button class="view-tab-btn" data-tab="exam" role="tab" aria-selected="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          Revision
+        </button>
+      </div>
+
+      <!-- Theme Toggle -->
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="themeToggleBtn" class="theme-toggle" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
+          <svg id="sunIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="moonIcon" style="display: none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="module-container">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: PROCEDURAL ART & WORLD GENERATOR                             -->
+    <!-- =================================================================== -->
+    <section id="tab-art" class="tab-view active">
+      
+      <!-- The Basics Intro Card -->
+      <div class="rl-basics-intro">
+        <p>
+          <strong>Random number generators are a useful tool in computing.</strong> Most programming languages have a built-in way of generating pseudo-random numbers. This can be useful for simulating things like a coin flip or rolling dice, selecting random items from a list, or procedurally generating entire video game worlds.
+        </p>
+      </div>
+
+      <!-- Educational Concept Header Banner -->
+      <div class="rl-concept-banner">
+        <div class="rl-banner-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </div>
+        <div class="rl-banner-content">
+          <strong>The Great Computing Secret: Computers CANNOT produce true random numbers!</strong>
+          <p>
+            CPUs are deterministic electronic circuits: given the same inputs, they calculate the same outputs every single time. 
+            All software "randomness" is calculated by a mathematical formula starting from a <strong>Seed value</strong>. 
+            <strong>Copy any seed, paste it below, and the algorithm will regenerate the exact same artwork down to the identical block and pixel!</strong>
+          </p>
+        </div>
+      </div>
+
+      <!-- Mode Selector Toolbar -->
+      <div class="rl-toolbar">
+        <div class="rl-mode-tabs">
+          <button class="rl-mode-btn active" data-mode="minecraft">
+            <span>Minecraft Voxel World</span>
+          </button>
+          <button class="rl-mode-btn" data-mode="fractal">
+            <span>Fractal Blossom Tree</span>
+          </button>
+          <button class="rl-mode-btn" data-mode="cityscape">
+            <span>City Skyline</span>
+          </button>
+        </div>
+
+        <div class="rl-toolbar-right">
+          <button id="stepAnimToggleBtn" class="btn btn-secondary btn-sm" title="Animate generation block-by-block">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span id="animBtnText">Watch Live Build</span>
+          </button>
+          <button id="downloadImageBtn" class="btn btn-secondary btn-sm" title="Download Canvas as PNG">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export PNG
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Canvas Stage Card -->
+      <div class="rl-canvas-card">
+        <!-- Canvas Stage Header -->
+        <div class="rl-canvas-header">
+          <div class="rl-telemetry-left">
+            <span id="rlModeBadge" class="badge badge-topic">Minecraft 2D Voxel Terrain</span>
+            <span id="rlBiomeBadge" class="badge badge-live">Biome: Lush Forest</span>
+          </div>
+
+          <div class="rl-telemetry-right">
+            <span id="rlEntropyStat" class="font-mono text-muted" style="font-size: 11px;">Generated numbers: 0</span>
+          </div>
+        </div>
+
+        <!-- The Responsive HTML5 Canvas -->
+        <div class="rl-canvas-container" id="canvasContainer">
+          <canvas id="randomArtCanvas" width="960" height="480"></canvas>
+          
+          <!-- Block / Pixel Hover Tooltip -->
+          <div id="canvasTooltip" class="rl-tooltip" style="display: none;"></div>
+        </div>
+
+        <!-- Interactive Seed Control Bar (The Core Seed Toy) -->
+        <div class="rl-seed-bar">
+          <div class="rl-seed-input-wrap">
+            <label for="seedInput" class="rl-seed-label">
+              <strong>Active World Seed:</strong>
+            </label>
+            <div class="rl-input-group">
+              <input type="text" id="seedInput" class="rl-seed-input font-mono" placeholder="Enter any number or word..." spellcheck="false" autocomplete="off" />
+              <button id="btnCopySeed" class="btn btn-secondary rl-btn-copy" title="Copy seed to clipboard">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Copy Seed</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="rl-seed-actions">
+            <button id="btnRollSeed" class="btn btn-primary rl-btn-roll" title="Generate a brand new random seed">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+              </svg>
+              <span>Roll Random Seed</span>
+            </button>
+
+            <button id="btnApplySeed" class="btn btn-secondary" title="Regenerate world using entered seed">
+              <span>Generate from Seed</span>
+            </button>
+
+            <button id="btnResetWorldSeed" class="btn btn-secondary" title="Reset to default seed">
+              <span>Reset to Default Seed</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Copy Confirmation Notification Toast -->
+        <div id="seedToast" class="rl-toast">
+          ✓ Seed copied to clipboard! Paste it anytime to re-create this exact world.
+        </div>
+      </div>
+
+      <!-- Procedural Stats & Block Inventory Grid -->
+      <div class="rl-inventory-card">
+        <div class="card-head">
+          <span class="card-title">World Generation Summary</span>
+          <span id="seedFormulaDisplay" class="badge badge-topic font-mono">Formula: Mulberry32 PRNG</span>
+        </div>
+        
+        <div id="inventoryStatsGrid" class="rl-stats-grid">
+          <!-- Dynamically populated stats -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: PRNG ENGINE & THE MATH                                       -->
+    <!-- =================================================================== -->
+    <section id="tab-engine" class="tab-view">
+      
+      <div class="rl-engine-grid">
+        
+        <!-- Left: Interactive Formula Stepper -->
+        <div class="under-hood-card">
+          <div class="card-head">
+            <span class="card-title">How a Pseudo-Random Number Generator (PRNG) Works</span>
+          </div>
+
+          <div class="rl-engine-body">
+            <p>
+              A <strong>Pseudo-Random Number Generator (PRNG)</strong> is a mathematical equation that takes an initial integer (the <strong>Seed</strong>) and performs arithmetic manipulations to output numbers that appear completely unpredictable.
+            </p>
+
+            <!-- Classic LCG Formula Box -->
+            <div class="rl-formula-box">
+              <div class="rl-formula-title">Linear Congruential Generator (Classic CPU Algorithm):</div>
+              <div class="rl-math-equation font-mono">
+                X<sub>n+1</sub> = (a · X<sub>n</sub> + c) mod m
+              </div>
+              <div class="rl-formula-vars">
+                <span><strong>X<sub>0</sub></strong> = Seed</span>
+                <span><strong>a</strong> = Multiplier (e.g. 1664525)</span>
+                <span><strong>c</strong> = Increment (e.g. 1013904223)</span>
+                <span><strong>m</strong> = Modulus (2<sup>32</sup>)</span>
+              </div>
+            </div>
+
+            <!-- Interactive PRNG Stepper Workbench -->
+            <div class="rl-prng-stepper">
+              <div class="stepper-controls">
+                <label><strong>Set Generator Seed:</strong></label>
+                <div style="display: flex; gap: 8px;">
+                  <input type="number" id="mathSeedInput" class="rl-seed-input font-mono" value="42" style="max-width: 140px;" />
+                  <button id="btnResetMathPrng" class="btn btn-secondary btn-sm">Reset</button>
+                  <button id="btnNextMathPrng" class="btn btn-primary btn-sm">▶ Next Random Number</button>
+                </div>
+              </div>
+
+              <!-- Live Math Step Walkthrough -->
+              <div id="mathStepLog" class="rl-math-log font-mono">
+                <!-- Dynamically logged calculation -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Sequence Comparison Workbench -->
+        <div class="under-hood-card">
+          <div class="card-head">
+            <span class="card-title">Side-by-Side Seed Comparison Test</span>
+          </div>
+
+          <div class="rl-engine-body">
+            <p>
+              Notice how <strong>Seed A</strong> and <strong>Seed B</strong> produce entirely different sequences. But if you reset back to Seed A, every single number re-appears in the <strong>exact same sequence</strong>!
+            </p>
+
+            <div class="rl-sequence-table-wrap">
+              <table class="rl-seq-table font-mono">
+                <thead>
+                  <tr>
+                    <th>Call #</th>
+                    <th id="thSeedA">Seed 42</th>
+                    <th id="thSeedB">Seed 999</th>
+                    <th id="thRollA">Roll (1–6)</th>
+                  </tr>
+                </thead>
+                <tbody id="seqTableBody">
+                  <!-- Dynamically populated comparison rows -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Key Takeaway Box -->
+            <div class="factor-note warning-note" style="margin-top: 16px;">
+              <strong>Key Exam Principle:</strong> If a programmer does not set an explicit seed, programming languages like Python automatically use the <strong>current system clock time in milliseconds</strong> as the seed. Because the clock changes every millisecond, you get a different result on each run!
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: REVISION                                                     -->
+    <!-- =================================================================== -->
+    <section id="tab-exam" class="tab-view">
+      
+      <!-- Revision Cards Stack -->
+      <div class="aqa-factors-stack">
+        
+        <!-- Topic 1: Generating Random Numbers in Code -->
+        <div class="aqa-factor-row">
+          <div class="factor-header">
+            <span class="factor-num">1</span>
+            <h5>Generating Random Numbers in Code</h5>
+          </div>
+          <p>
+            Random number generators are an essential tool in software development. In GCSE Computer Science, you need to understand how to generate pseudo-random numbers in both standard exam pseudocode and Python.
+          </p>
+
+          <div class="rl-syntax-grid">
+            <div class="rl-syntax-card">
+              <h6>AQA Official Pseudocode</h6>
+              <div class="rl-code-box font-mono">
+                <span class="code-comment">// Generates integer between 1 and 6 inclusive</span><br>
+                dice_roll &larr; random_int(1, 6)<br><br>
+                <span class="code-comment">// Generates float between 0.0 and 1.0</span><br>
+                chance &larr; random()
+              </div>
+            </div>
+
+            <div class="rl-syntax-card">
+              <h6>Python 3 Implementation</h6>
+              <div class="rl-code-box font-mono">
+                <span class="code-keyword">import</span> random<br><br>
+                <span class="code-comment"># Generates integer between 1 and 6 inclusive</span><br>
+                dice_roll = random.randint(1, 6)<br><br>
+                <span class="code-comment"># Setting an explicit seed for testing</span><br>
+                random.seed(12345)
+              </div>
+            </div>
+          </div>
+
+          <div class="factor-note tip-note">
+            <strong>Exam Tip:</strong> In Python, <code>random.randint(a, b)</code> is <strong>inclusive</strong> of both <code>a</code> and <code>b</code>. <code>randint(1, 6)</code> can return 1, 2, 3, 4, 5, or 6!
+          </div>
+        </div>
+
+        <!-- Topic 2: Why Minecraft & Video Games Use Seeds -->
+        <div class="aqa-factor-row">
+          <div class="factor-header">
+            <span class="factor-num">2</span>
+            <h5>Real-World Application — Why Minecraft Uses Seeds</h5>
+          </div>
+          <p>
+            A Minecraft world is practically infinite (over 60 million blocks in diameter). If Mojang tried to store every block's coordinates and type on your hard drive, a single world would require <strong>hundreds of gigabytes</strong> of storage!
+          </p>
+          <div class="factor-note tip-note">
+            <strong>Procedural Generation Solution:</strong>
+            <ul style="margin: 6px 0 0 16px; padding: 0;">
+              <li>Instead of saving billions of blocks, the game saves just <strong>ONE 64-bit number: the World Seed</strong>.</li>
+              <li>When the player walks towards new chunks, mathematical noise algorithms evaluate the seed at those coordinates and generate mountains, caves, and ores in real-time.</li>
+              <li>Two players on different computers who enter the same seed will explore the <strong>exact same world</strong>.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Topic 3: True Random (TRNG) vs Pseudo-Random (PRNG) -->
+        <div class="aqa-factor-row">
+          <div class="factor-header">
+            <span class="factor-num">3</span>
+            <h5>Cybersecurity &amp; Cryptography — The Lava Lamp Wall</h5>
+          </div>
+          <p>
+            Because PRNG algorithms are deterministic, an attacker who discovers your seed can calculate every "random" encryption key you will ever generate! For encryption and banking security, computers require <strong>True Random Number Generators (TRNG)</strong> based on unpredictable physical phenomena:
+          </p>
+
+          <div class="rl-trng-grid">
+            <div class="rl-trng-item">
+              <span class="rl-trng-icon">🌋</span>
+              <div>
+                <strong>Cloudflare's Lava Lamp Wall:</strong>
+                <p>Internet security giant Cloudflare films a wall of 100 bubbling lava lamps. Fluid turbulence and lighting photons create unpredictable physical noise to encrypt 10% of internet traffic.</p>
+              </div>
+            </div>
+
+            <div class="rl-trng-item">
+              <span class="rl-trng-icon">📻</span>
+              <div>
+                <strong>Atmospheric Radio Noise:</strong>
+                <p>Websites like Random.org use radio receivers tuned between stations to measure lightning storms and cosmic microwave background radiation.</p>
+              </div>
+            </div>
+
+            <div class="rl-trng-item">
+              <span class="rl-trng-icon">🌡️</span>
+              <div>
+                <strong>CPU Thermal &amp; Quantum Noise:</strong>
+                <p>Modern Intel/AMD chips contain hardware circuits that measure microscopic electrical thermal fluctuations in microscopic resistor junctions.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="factor-note trap-note">
+            <strong>Key Exam Trap:</strong> Never confuse <strong>Pseudo-Random</strong> (software algorithms, predictable if seed is known) with <strong>True Random</strong> (hardware physical measurements, non-deterministic).
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Module Script -->
+  <script src="./app.js"></script>
+</body>
+</html>

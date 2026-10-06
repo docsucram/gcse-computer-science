@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
   <title>CPU Architecture &amp; LMC • GCSE Computer Science</title>
   <link rel="stylesheet" href="./style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💻</text></svg>">
@@ -52,6 +54,15 @@
           Performance Sandbox
         </button>
 
+        <button class="view-tab-btn" data-tab="storage">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+            <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+            <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+          </svg>
+          Storage &amp; Memory
+        </button>
+
         <button class="view-tab-btn" data-tab="revision">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
@@ -92,86 +103,47 @@
     <!-- =================================================================== -->
     <div id="tab-fde" class="tab-view active">
 
-      <!-- View Banner -->
+      <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
         <div class="banner-left">
-          <div class="banner-icon" style="background: linear-gradient(135deg, #6366f1 0%, #38bdf8 100%);">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="4" y="4" width="16" height="16" rx="2"></rect>
-              <rect x="9" y="9" width="6" height="6"></rect>
-              <line x1="9" y1="1" x2="9" y2="4"></line>
-              <line x1="15" y1="1" x2="15" y2="4"></line>
-              <line x1="9" y1="20" x2="9" y2="23"></line>
-              <line x1="15" y1="20" x2="15" y2="23"></line>
-              <line x1="20" y1="9" x2="23" y2="9"></line>
-              <line x1="20" y1="14" x2="23" y2="14"></line>
-              <line x1="1" y1="9" x2="4" y2="9"></line>
-              <line x1="1" y1="14" x2="4" y2="14"></line>
-            </svg>
-          </div>
           <div class="banner-text">
             <h2>Fetch-Decode-Execute Simulator</h2>
-            <p>Watch how instructions travel between RAM, buses, and registers in the Von Neumann architecture.</p>
+            <p>Learn how instructions travel between RAM, buses, and registers in the Von Neumann architecture.</p>
           </div>
         </div>
       </div>
 
-      <!-- Friendly Intro Card: CPU & Registers -->
-      <details class="explainer-card">
-        <summary>
-          <div class="summary-left">
-            <span>💡</span>
-            <span>How the CPU Actually Works</span>
-          </div>
-          <span class="summary-toggle-pill"></span>
-        </summary>
-        <div class="explainer-content">
-          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 10px 0;">
-            The <strong>Central Processing Unit (CPU)</strong> is the computer's engine. Every second, it repeats the <strong>Fetch-Decode-Execute</strong> cycle billions of times: fetching an instruction from memory, decoding what it means, and executing it.
-          </p>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; font-size: 12px; line-height: 1.5;">
-            <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-              <strong style="color: #6366f1;">The Desk Analogy (Registers vs RAM):</strong> RAM is like a massive library down the street—it holds everything, but fetching from it takes time. <strong>Registers</strong> are like sticky notes right on your desk. Ultra-fast, but each only holds one tiny piece of data.
-            </div>
-            <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-              <strong style="color: #0284c7;">Key Registers to Remember:</strong><br>
-              • <strong>PC (Program Counter):</strong> Address of the NEXT instruction.<br>
-              • <strong>MAR:</strong> Address in RAM we are reading/writing.<br>
-              • <strong>MDR:</strong> Holds data/instruction fetched from or sent to RAM.<br>
-              • <strong>CIR:</strong> Holds instruction currently being decoded and executed.<br>
-              • <strong>ACC (Accumulator):</strong> Holds temporary calculation results.
-            </div>
-          </div>
-        </div>
-      </details>
-
-      <!-- Choose Programme & Custom RAM Card (Directly under How CPU Works) -->
-      <div class="program-selector-card">
-        <div class="program-selector-header">
-          <div class="selector-label-group">
-            <span class="selector-icon">🎯</span>
-            <div>
-              <h4 class="selector-heading">Choose Programme</h4>
-              <p class="selector-subheading">Select a pre-built GCSE assembly program or customize instructions and data in RAM.</p>
-            </div>
-          </div>
-          <div class="selector-actions">
-            <select id="programSelect" class="control-select-large">
-              <option value="add">Program 1: Add Two Numbers (12 + 8 ➔ ACC)</option>
+      <!-- F-D-E Control Console: Two-Tier Setup & Transport -->
+      <div class="fde-control-console">
+        <!-- Tier 1: Programme Setup & Memory Format -->
+        <div class="fde-setup-bar">
+          <div class="fde-setup-left">
+            <span class="fde-bar-label">Programme:</span>
+            <select id="programSelect" class="control-select fde-prog-select">
+              <option value="add">Program 1: Add Numbers (12 + 8 ➔ ACC)</option>
               <option value="sub">Program 2: Subtract Numbers (20 - 7 ➔ ACC)</option>
-              <option value="store">Program 3: Store Constant (Value 42 ➔ RAM 04)</option>
-              <option value="custom">🛠️ Custom Programme (User Defined)</option>
+              <option value="store">Program 3: Store Constant (42 ➔ RAM 04)</option>
+              <option value="custom">Custom RAM Programme</option>
             </select>
-            <button id="openCustomRamBtn" class="btn btn-secondary btn-custom-ram">
-              ✏️ Edit RAM / Custom Programme
+            <button id="openCustomRamBtn" class="control-btn" title="Edit memory values and instructions">
+              Edit RAM
             </button>
           </div>
+
+          <div class="fde-setup-right">
+            <span class="fde-bar-label">RAM View:</span>
+            <div class="ram-format-toggle" title="Switch memory view format">
+              <button class="format-btn active" data-format="mnemonic">Mnemonic</button>
+              <button class="format-btn" data-format="hex">Hex</button>
+              <button class="format-btn" data-format="binary">Binary</button>
+            </div>
+          </div>
         </div>
 
-        <!-- Custom RAM Editor Drawer (Expandable) -->
+        <!-- Custom RAM Editor Drawer (Expandable under setup bar) -->
         <div id="customRamDrawer" class="custom-ram-drawer" style="display: none;">
           <div class="drawer-header">
-            <span class="drawer-title">🛠️ Custom RAM Assembly Configuration (Slots 00 – 07)</span>
+            <span class="drawer-title">Custom RAM Configuration (Slots 00 – 07)</span>
             <span class="drawer-hint">Configure instructions (00–03) and memory data (04–07). Instructions execute sequentially from 00 until HLT.</span>
           </div>
           <div id="customRamGrid" class="custom-ram-grid">
@@ -179,7 +151,7 @@
           </div>
           <div class="drawer-footer">
             <button id="applyCustomRamBtn" class="btn btn-primary" style="padding: 7px 18px; font-size: 12.5px;">
-              Apply to RAM & Reset
+              Apply to RAM &amp; Reset
             </button>
             <button id="resetDefaultsRamBtn" class="btn btn-secondary" style="padding: 7px 14px; font-size: 12px;">
               Restore Default (Program 1)
@@ -189,58 +161,45 @@
             </button>
           </div>
         </div>
-      </div>
 
-      <!-- Playback Controls Bar -->
-      <div class="toolbar-row" style="background: var(--bg-surface); padding: 12px 18px; border-radius: var(--radius-lg); border: 1px solid var(--border-color); margin-bottom: 20px;">
-        <div class="control-group">
-          <button id="fdeStepBackBtn" class="control-btn" style="padding: 7px 14px;" disabled title="Rewind to previous microstep">
-            ❮ Step Back
-          </button>
-          <button id="fdeStepBtn" class="btn btn-primary" style="padding: 7px 16px; font-size: 12.5px;">
-            Step Forward ❯
-          </button>
-          <button id="fdePlayBtn" class="control-btn" style="padding: 7px 14px;">
-            ▶ Play
-          </button>
-          <button id="fdeResetBtn" class="control-btn" style="padding: 7px 14px;">
-            ⏮ Reset
-          </button>
-        </div>
+        <!-- Tier 2: Interactive Stepper & Telemetry Toolbar -->
+        <div class="fde-transport-bar">
+          <div class="fde-transport-controls">
+            <button id="fdeStepBackBtn" class="control-btn" disabled title="Rewind to previous microstep">
+              ❮ Step Back
+            </button>
+            <button id="fdeStepBtn" class="btn btn-primary" style="padding: 7px 16px; font-size: 12.5px; font-weight: 700;">
+              Step Forward ❯
+            </button>
+            <button id="fdePlayBtn" class="control-btn" title="Run automatically">
+              ▶ Play
+            </button>
+            <button id="fdeResetBtn" class="control-btn" title="Reset simulation">
+              ⏮ Reset
+            </button>
+          </div>
 
-        <div class="control-group">
-          <span class="control-label">Speed:</span>
-          <button class="control-btn speed-btn-fde" data-speed="1800">Slow</button>
-          <button class="control-btn speed-btn-fde active" data-speed="1000">Normal</button>
-          <button class="control-btn speed-btn-fde" data-speed="500">Fast</button>
-          <div style="height: 16px; width: 1px; background: var(--border-color); margin: 0 4px;"></div>
-          <span id="cycleStatusBadge" class="badge badge-paper1" style="font-size: 11px;">
-            Cycle 1 • FETCH
-          </span>
+          <div class="fde-transport-speed">
+            <span class="fde-bar-label">Speed:</span>
+            <div class="fde-btn-pill-group">
+              <button class="control-btn speed-btn-fde" data-speed="1800">Slow</button>
+              <button class="control-btn speed-btn-fde active" data-speed="1000">Normal</button>
+              <button class="control-btn speed-btn-fde" data-speed="500">Fast</button>
+            </div>
+          </div>
+
+          <div class="fde-transport-telemetry">
+            <span id="cycleStatusBadge" class="badge badge-paper1" style="font-size: 11px;">
+              Cycle 1 • Standby
+            </span>
+            <span id="cycleInstrTag" class="cycle-instr-tag" style="font-size: 11px;">Instr: Ready [LOAD 05]</span>
+            <span id="stepCounterBadge" class="badge badge-live" style="font-size: 11px; display: none;">Step 1 of 6</span>
+          </div>
         </div>
       </div>
 
       <!-- Full-Width Von Neumann Architecture Stage -->
       <div class="cpu-stage-fullwidth">
-
-        <!-- Stage Header & Telemetry Bar -->
-        <div class="stage-header-bar" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--border-color);">
-          <div class="stage-title-group" style="display: flex; align-items: center; gap: 8px;">
-            <span class="chip-dot" style="background: #38bdf8; box-shadow: 0 0 8px #38bdf8; width: 8px; height: 8px; border-radius: 50%;"></span>
-            <h3 class="stage-title" style="margin: 0; font-size: 13.5px; font-weight: 700;">Von Neumann CPU Architecture</h3>
-            <span class="badge badge-topic">AQA 8525 §3.4.1</span>
-          </div>
-          <div class="stage-telemetry-group" style="display: flex; align-items: center; gap: 12px;">
-            <span id="stepCounterBadge" class="badge badge-live">Step 1 of 6</span>
-            <span id="cycleInstrTag" class="cycle-instr-tag">Instr: LOAD 05</span>
-            <div class="ram-format-toggle" title="Switch memory view format" style="display: flex; align-items: center; gap: 5px; margin-left: 8px;">
-              <span class="format-label" style="font-size: 11px; color: var(--text-muted);">RAM:</span>
-              <button class="format-btn active" data-format="mnemonic">Mnemonic</button>
-              <button class="format-btn" data-format="hex">Hex</button>
-              <button class="format-btn" data-format="binary">Binary</button>
-            </div>
-          </div>
-        </div>
 
         <!-- The Motherboard Canvas Viewport (Edge-to-edge, flush, no inner border box) -->
         <div class="canvas-viewport" style="position: relative; overflow-x: auto; -webkit-overflow-scrolling: touch; border: none; margin: 0; padding: 0; background: var(--bg-surface);">
@@ -294,6 +253,34 @@
         </div>
 
       </div>
+
+      <!-- Friendly Quick Reference: CPU & Registers -->
+      <details class="explainer-card" style="margin-bottom: 14px;">
+        <summary>
+          <div class="summary-left">
+            <span>How the CPU Actually Works (Key Registers &amp; Theory)</span>
+          </div>
+          <span class="summary-toggle-pill"></span>
+        </summary>
+        <div class="explainer-content">
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 10px 0;">
+            The <strong>Central Processing Unit (CPU)</strong> is the computer's engine. Every second, it repeats the <strong>Fetch-Decode-Execute</strong> cycle billions of times: fetching an instruction from memory, decoding what it means, and executing it.
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; font-size: 12px; line-height: 1.5;">
+            <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <strong style="color: #6366f1;">The Desk Analogy (Registers vs RAM):</strong> RAM is like a massive library down the street—it holds everything, but fetching from it takes time. <strong>Registers</strong> are like sticky notes right on your desk. Ultra-fast, but each only holds one tiny piece of data.
+            </div>
+            <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+              <strong style="color: #0284c7;">Key Registers to Remember:</strong><br>
+              • <strong>PC (Program Counter):</strong> Address of the NEXT instruction.<br>
+              • <strong>MAR:</strong> Address in RAM we are reading/writing.<br>
+              • <strong>MDR:</strong> Holds data/instruction fetched from or sent to RAM.<br>
+              • <strong>CIR:</strong> Holds instruction currently being decoded and executed.<br>
+              • <strong>ACC (Accumulator):</strong> Holds temporary calculation results.
+            </div>
+          </div>
+        </div>
+      </details>
 
       <!-- Under-The-Hood Collapsible Drawer (Register Watch & Full 32-Cell RAM Inspector) -->
       <details class="under-hood-drawer">
@@ -428,142 +415,935 @@
         </div>
       </div>
 
-      <!-- Performance Grid -->
-      <div class="perf-grid">
-
-        <!-- Left: Configuration Controls -->
-        <div class="panel">
-          <div class="panel-title-bar">
-            <div class="panel-title-group">
-              <span class="badge badge-spec">Parameters</span>
-              <h3 class="panel-title">CPU Specifications</h3>
-            </div>
+      <!-- Workload Selector Strip -->
+      <div class="perf-workload-strip">
+        <div class="workload-strip-header">
+          <div class="workload-strip-title">
+            <strong>Select Software Scenario:</strong>
           </div>
-
-          <!-- Parameter 1: Clock Speed -->
-          <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-              <div>
-                <strong style="font-size: 13px; color: var(--text-primary);">1. Clock Speed (GHz)</strong>
-                <div style="font-size: 11.5px; color: var(--text-secondary);">Cycles per second (F-D-E cycles/sec)</div>
-              </div>
-              <span id="clockSpeedValBadge" class="font-mono" style="font-size: 15px; font-weight: 800; color: #38bdf8;">2.5 GHz</span>
+          <span id="perfWorkloadBadge" class="badge badge-live">Single-Threaded Task</span>
+        </div>
+        <div class="workload-pills-row">
+          <button class="workload-pill-btn active" data-workload="single" type="button">
+            <div class="pill-texts">
+              <div class="pill-title">Single-Threaded App</div>
+              <div class="pill-sub">Standard Python / Office script</div>
             </div>
-            <input type="range" id="clockSpeedSlider" min="1.0" max="4.0" step="0.5" value="2.5" style="width: 100%; accent-color: #38bdf8; cursor: pointer;">
-            <div style="display: flex; justify-content: space-between; font-size: 10.5px; color: var(--text-muted); margin-top: 4px;">
-              <span>1.0 GHz (1B cycles/s)</span>
-              <span>4.0 GHz (4B cycles/s)</span>
+          </button>
+          <button class="workload-pill-btn" data-workload="render" type="button">
+            <div class="pill-texts">
+              <div class="pill-title">Multi-Threaded App</div>
+              <div class="pill-sub">3D Rendering / Parallel processing</div>
             </div>
-          </div>
-
-          <!-- Parameter 2: Cache Memory -->
-          <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 14px;">
-            <div style="margin-bottom: 8px;">
-              <strong style="font-size: 13px; color: var(--text-primary);">2. Cache Memory Level</strong>
-              <div style="font-size: 11.5px; color: var(--text-secondary);">Extremely fast SRAM built directly on the CPU chip</div>
+          </button>
+          <button class="workload-pill-btn" data-workload="gaming" type="button">
+            <div class="pill-texts">
+              <div class="pill-title">Video Game Loop</div>
+              <div class="pill-sub">Uneven load across threads</div>
             </div>
-            <select id="cacheSelect" class="control-select" style="width: 100%;">
-              <option value="none">No Cache (Fetch from RAM only - High latency)</option>
-              <option value="l1">L1 Cache (64 KB • 1ns latency • Highest hit rate)</option>
-              <option value="l2" selected>L2 Cache (512 KB • 4ns latency • Balanced)</option>
-              <option value="l3">L3 Cache (8 MB • 10ns latency • Shared pool)</option>
-            </select>
-          </div>
-
-          <!-- Parameter 3: Number of Processor Cores -->
-          <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 16px;">
-            <div style="margin-bottom: 8px;">
-              <strong style="font-size: 13px; color: var(--text-primary);">3. Number of CPU Cores</strong>
-              <div style="font-size: 11.5px; color: var(--text-secondary);">Independent processing units sharing the memory bus</div>
+          </button>
+          <button class="workload-pill-btn" data-workload="database" type="button">
+            <div class="pill-texts">
+              <div class="pill-title">Database Query</div>
+              <div class="pill-sub">Frequent memory access</div>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
-              <button class="control-btn core-btn" data-cores="1">1 Core</button>
-              <button class="control-btn core-btn active" data-cores="2">2 Cores</button>
-              <button class="control-btn core-btn" data-cores="4">4 Cores</button>
-              <button class="control-btn core-btn" data-cores="8">8 Cores</button>
-            </div>
-          </div>
-
-          <!-- Workload Selection -->
-          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 16px;">
-            <div style="font-size: 12px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
-              Select Benchmark Workload:
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <button id="taskSequentialBtn" class="control-btn active" style="flex: 1;">
-                Single-Threaded Task
-              </button>
-              <button id="taskParallelBtn" class="control-btn" style="flex: 1;">
-                Parallel Batch Task
-              </button>
-            </div>
-            <div id="workloadDescText" style="margin-top: 8px; font-size: 11.5px; color: var(--text-secondary); line-height: 1.4;">
-              • Sequential tasks cannot be divided across cores. Additional cores will remain idle!
-            </div>
-          </div>
-
-          <button id="runBenchmarkBtn" class="btn btn-primary" style="width: 100%; padding: 10px; font-size: 13px;">
-            ▶ Run Performance Simulation
           </button>
         </div>
+      </div>
 
-        <!-- Right: Real-time Simulation Results -->
-        <div class="panel">
-          <div class="panel-title-bar">
-            <div class="panel-title-group">
-              <span class="badge badge-live">Live Benchmark</span>
-              <h3 class="panel-title">Execution Results</h3>
+      <!-- Hardware Controls Bar -->
+      <div class="perf-hardware-panel">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 4px;">
+          <span style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Hardware Settings:</span>
+          <button id="btnResetPerfHardware" class="control-btn" style="padding: 4px 12px; font-size: 11.5px;">↺ Reset to Baseline</button>
+        </div>
+        <div class="perf-hardware-grid">
+
+          <!-- Control 1: Clock Speed -->
+          <div class="perf-control-card">
+            <div class="control-header">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="control-num">1</span>
+                <div>
+                  <strong>Clock Speed</strong>
+                  <div class="control-sub">F-D-E cycles / second</div>
+                </div>
+              </div>
+              <span id="perfClockBadge" class="control-val font-mono">3.0 GHz</span>
             </div>
-            <span id="benchmarkStatusBadge" class="badge badge-paper1">Ready</span>
-          </div>
-
-          <!-- Metrics Badges -->
-          <div class="metrics-grid" style="margin-bottom: 16px;">
-            <div class="metric-card">
-              <span class="metric-label">Execution Time</span>
-              <span id="metricExecTime" class="metric-value" style="color: #38bdf8;">-</span>
-              <span class="metric-sub">Lower is faster</span>
-            </div>
-
-            <div class="metric-card">
-              <span class="metric-label">Effective Speed</span>
-              <span id="metricSpeedScore" class="metric-value" style="color: #34d399;">-</span>
-              <span class="metric-sub">MIPS Throughput</span>
-            </div>
-
-            <div class="metric-card">
-              <span class="metric-label">Cache Hit Rate</span>
-              <span id="metricCacheHit" class="metric-value" style="color: #c084fc;">-</span>
-              <span class="metric-sub">avoided RAM stall</span>
-            </div>
-
-            <div class="metric-card">
-              <span class="metric-label">Power &amp; Heat</span>
-              <span id="metricHeatLevel" class="metric-value" style="color: #fbbf24;">Moderate</span>
-              <span class="metric-sub">Thermal limits</span>
+            <input type="range" id="perfClockSlider" min="1.0" max="4.5" step="0.5" value="3.0" class="perf-slider">
+            <div class="slider-ticks">
+              <span>1.0 GHz (Cool)</span>
+              <span>4.5 GHz (High Heat)</span>
             </div>
           </div>
 
-          <!-- Active Cores Workload Bars -->
-          <div style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
-            Core Utilization:
-          </div>
-          <div id="coresProgressContainer">
-            <!-- Dynamically populated core bars -->
+          <!-- Control 2: Cores -->
+          <div class="perf-control-card">
+            <div class="control-header">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="control-num">2</span>
+                <div>
+                  <strong>CPU Cores</strong>
+                  <div class="control-sub">Independent ALUs &amp; CUs</div>
+                </div>
+              </div>
+              <span id="perfCoresBadge" class="control-val font-mono">2 Cores</span>
+            </div>
+            <div class="perf-btn-group" id="perfCoresGroup">
+              <button class="perf-choice-btn" data-cores="1" type="button">1 Core</button>
+              <button class="perf-choice-btn active" data-cores="2" type="button">2 Cores</button>
+              <button class="perf-choice-btn" data-cores="4" type="button">4 Cores</button>
+            </div>
           </div>
 
-          <!-- AQA Key Summary Callout -->
-          <div style="margin-top: 16px; padding: 12px 14px; border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); font-size: 11.5px; color: #fbbf24; line-height: 1.55;">
-            ⚠️ <strong>AQA Exam Rule (Why 2× cores does NOT mean 2× speed):</strong>
-            <ul style="margin: 4px 0 0 16px; padding: 0;">
-              <li>Software must be written to support parallel multithreading. Sequential algorithms cannot use extra cores.</li>
-              <li>CPU cores must communicate and coordinate, adding management overhead.</li>
-              <li>All cores compete for access to the same shared memory bus and cache.</li>
-            </ul>
+          <!-- Control 3: Cache Size -->
+          <div class="perf-control-card">
+            <div class="control-header">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="control-num">3</span>
+                <div>
+                  <strong>Cache Size</strong>
+                  <div class="control-sub">High-speed SRAM capacity</div>
+                </div>
+              </div>
+              <span id="perfCacheBadge" class="control-val font-mono">4 MB</span>
+            </div>
+            <div class="perf-btn-group" id="perfCacheGroup">
+              <button class="perf-choice-btn" data-cache="256kb" type="button">256 KB</button>
+              <button class="perf-choice-btn" data-cache="1mb" type="button">1 MB</button>
+              <button class="perf-choice-btn active" data-cache="4mb" type="button">4 MB</button>
+              <button class="perf-choice-btn" data-cache="16mb" type="button">16 MB</button>
+            </div>
+          </div>
+
+          <!-- Control 4: Cache Location -->
+          <div class="perf-control-card">
+            <div class="control-header">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="control-num">4</span>
+                <div>
+                  <strong>Placement</strong>
+                  <div class="control-sub">Silicon physical proximity</div>
+                </div>
+              </div>
+              <span id="perfLocationBadge" class="control-val font-mono">On-Die</span>
+            </div>
+            <div class="perf-btn-group" id="perfLocationGroup">
+              <button class="perf-choice-btn active" data-loc="on-die" type="button">On-Die (~1ns)</button>
+              <button class="perf-choice-btn" data-loc="off-die" type="button">Off-Die (~15ns)</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Canvas Viewport with Live Simulation -->
+      <div class="perf-canvas-card">
+        <div class="perf-canvas-header">
+          <div class="perf-canvas-title-group">
+            <span class="perf-canvas-desc">Visualizing instruction pulses, cache hit/miss latency, and core state</span>
+          </div>
+          <div class="perf-sim-controls">
+            <button id="perfSimSpeedBtn" class="control-btn" type="button" title="Toggle Simulation Speed">Speed: 1× (Normal)</button>
+            <button id="perfSimPauseBtn" class="control-btn" type="button" title="Pause or Resume Animation">⏸ Pause</button>
+          </div>
+        </div>
+
+        <div class="perf-canvas-viewport">
+          <canvas id="cpuPerfCanvas" width="1060" height="460" class="perf-render-canvas"></canvas>
+        </div>
+
+        <!-- Canvas Visual Legend (Plain-English Speed Analogy) -->
+        <div class="perf-legend-bar">
+          <div class="legend-item"><span class="legend-dot dot-hit"></span> <strong>Found in Cache (&lt;1ns)</strong> — Instant retrieval from fast on-chip SRAM, core never pauses</div>
+          <div class="legend-item"><span class="legend-dot dot-miss"></span> <strong>Not in Cache (Trip to RAM ~70ns)</strong> — Core freezes while packet fetches from slow off-chip DRAM</div>
+          <div class="legend-item"><span class="legend-dot dot-clock"></span> <strong>Clock Pulse</strong> — Heartbeat frequency driving F-D-E cycles</div>
+          <div class="legend-item"><span class="legend-dot dot-bus"></span> <strong>Interconnect Highway</strong> — On-chip copper bus tracks</div>
+        </div>
+      </div>
+
+      <!-- Live Bottleneck & Telemetry HUD -->
+      <div class="perf-hud-grid">
+
+        <!-- Overall CPU Speedometer & Performance Gauge -->
+        <div class="perf-speedometer-panel">
+          <div class="speedometer-left">
+            <div class="speedometer-meta">
+              <h4>Overall CPU Execution Speedometer</h4>
+              <p>How fast your CPU configuration crunches tasks compared to a standard 1.0 GHz single-core computer (1.0× baseline).</p>
+            </div>
+            <div class="speedometer-readout">
+              <div class="speedometer-big-val" id="perfSpeedometerVal">5.4×</div>
+              <div>
+                <div class="speedometer-val-label">Faster Than Baseline PC</div>
+                <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">
+                  Throughput: <span id="perfSpeedometerMips" class="font-mono" style="color: #38bdf8; font-weight: 700;">5,400 MIPS</span>
+                </div>
+              </div>
+              <span class="badge badge-live" id="perfSpeedometerBadge" style="margin-left: auto;">Fast</span>
+            </div>
+          </div>
+
+          <div class="speedometer-right">
+            <div class="speedometer-gauge-box">
+              <svg viewBox="0 0 200 110" class="speedometer-svg">
+                <!-- Sluggish zone (1x-2x) -->
+                <path d="M 24 100 A 76 76 0 0 1 54 46" fill="none" stroke="#ef4444" stroke-width="14" stroke-linecap="round" />
+                <!-- Moderate zone (2x-5x) -->
+                <path d="M 54 46 A 76 76 0 0 1 100 24" fill="none" stroke="#f59e0b" stroke-width="14" />
+                <!-- Fast zone (5x-8x) -->
+                <path d="M 100 24 A 76 76 0 0 1 146 46" fill="none" stroke="#0ea5e9" stroke-width="14" />
+                <!-- Extreme / Blazing zone (8x-12x) -->
+                <path d="M 146 46 A 76 76 0 0 1 176 100" fill="none" stroke="#10b981" stroke-width="14" stroke-linecap="round" />
+
+                <!-- Speedometer Needle -->
+                <g id="perfSpeedometerNeedle" transform="rotate(72, 100, 100)" style="transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);">
+                  <line class="speedometer-needle-line" x1="100" y1="100" x2="36" y2="100" stroke-width="3.5" stroke-linecap="round" />
+                  <circle class="speedometer-needle-cap" cx="100" cy="100" r="7" />
+                  <circle cx="100" cy="100" r="3" fill="#0284c7" />
+                </g>
+              </svg>
+              <div class="speedometer-ticks">
+                <span>1× (Base)</span>
+                <span>4×</span>
+                <span>8×</span>
+                <span>12× (Max)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottleneck Diagnosis Banner -->
+        <div class="perf-bottleneck-card" id="perfBottleneckCard">
+          <div class="bottleneck-header">
+            <div class="bottleneck-icon" id="perfBottleneckIcon">ℹ️</div>
+            <div style="flex: 1;">
+              <div class="bottleneck-badge-row">
+                <span class="badge badge-warning" id="perfBottleneckType">NOTE</span>
+                <span class="bottleneck-title" id="perfBottleneckTitle">Hardware Performance Note</span>
+              </div>
+              <div class="bottleneck-desc" id="perfBottleneckDesc">
+                Adjust hardware settings to see how clock speed, cores, and cache interact.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Intuitive Live Metrics Cards -->
+        <div class="perf-metrics-row">
+          <div class="perf-metric-card">
+            <div class="perf-metric-header">
+              <span class="perf-metric-label">Overall Speed</span>
+              <span class="badge badge-spec" id="perfRatingBadge">High Speed</span>
+            </div>
+            <div id="perfMetricSpeedMult" class="perf-metric-value" style="color: #38bdf8;">5.2× Baseline</div>
+            <div id="perfMetricSpeedSub" class="perf-metric-sub">vs 1.0 GHz Single-Core PC (~5,200 MIPS)</div>
+          </div>
+
+          <div class="perf-metric-card">
+            <div class="perf-metric-header">
+              <span class="perf-metric-label">Execution Rate</span>
+              <span class="badge badge-live" id="perfFpsBadge">Smooth</span>
+            </div>
+            <div id="perfMetricFps" class="perf-metric-value" style="color: #34d399;">60 FPS</div>
+            <div id="perfMetricFpsSub" class="perf-metric-sub">Task execution rate</div>
+          </div>
+
+          <div class="perf-metric-card">
+            <div class="perf-metric-header">
+              <span class="perf-metric-label">Found in Fast Cache</span>
+              <span class="badge badge-topic">On-Chip Cache</span>
+            </div>
+            <div id="perfMetricHit" class="perf-metric-value" style="color: #a855f7;">92% Found</div>
+            <div id="perfMetricHitSub" class="perf-metric-sub">Grabbed in &lt;1ns (Only 8% slow RAM trips)</div>
+          </div>
+
+          <div class="perf-metric-card">
+            <div class="perf-metric-header">
+              <span class="perf-metric-label">Core Efficiency</span>
+              <span class="badge badge-warning" id="perfStallBadge">Low Stall</span>
+            </div>
+            <div id="perfMetricEfficiency" class="perf-metric-value" style="color: #fbbf24;">88% Working</div>
+            <div id="perfMetricEfficiencySub" class="perf-metric-sub">12% cycles lost waiting for RAM</div>
           </div>
         </div>
 
       </div>
+
+      <!-- Revision Summary: AQA 8525 §3.4.1 Exam Essentials -->
+      <div class="perf-aqa-summary">
+        <div class="aqa-summary-header">
+          <span class="badge badge-topic">Specification Core</span>
+          <h4>The Three Major CPU Performance Factors — Exam Essentials</h4>
+        </div>
+        <div class="aqa-factors-stack">
+          <!-- Factor 1: Clock Speed -->
+          <div class="aqa-factor-row">
+            <div class="factor-header">
+              <span class="factor-num">1</span>
+              <h5>Clock Speed — The CPU Heartbeat</h5>
+            </div>
+            <p>
+              Clock speed is measured in <strong>Hertz (Hz or GHz)</strong> and represents the frequency of electrical pulses generated by the system clock. <strong>1 GHz equals one billion Fetch-Decode-Execute cycles every single second</strong>. A higher clock frequency allows the CPU to process more instructions per second, leading to faster program execution.
+            </p>
+            <div class="factor-note warning-note">
+              <strong>Exam Warning:</strong> Higher clock speeds consume substantially more electrical power and generate intense heat. If cooling systems cannot dissipate this heat fast enough, the CPU automatically throttles down (slows its frequency) to prevent permanent hardware damage.
+            </div>
+          </div>
+
+          <!-- Factor 2: Cache Memory -->
+          <div class="aqa-factor-row">
+            <div class="factor-header">
+              <span class="factor-num">2</span>
+              <h5>Cache Memory — On-Chip Desk vs Off-Chip Library</h5>
+            </div>
+            <p>
+              Cache is high-speed Static RAM (SRAM) constructed directly on the CPU silicon die, providing sub-nanosecond access latency. Frequently used instructions and data are kept here. When data is found in cache (a <strong>Cache Hit</strong>), the processor retrieves it immediately without pausing. Main memory (RAM) is located across the motherboard bus and takes roughly 70ns. When data is missing from cache (a <strong>Cache Miss</strong>), the CPU must stall and wait for bus transfer.
+            </p>
+            <div class="factor-note tip-note">
+              <strong>Exam Tip:</strong> A computer cannot simply replace all RAM with 64 GB of cache because SRAM requires multiple transistors per bit, making it physically too large for a silicon die and far too expensive to manufacture at scale.
+            </div>
+          </div>
+
+          <!-- Factor 3: Number of Cores -->
+          <div class="aqa-factor-row">
+            <div class="factor-header">
+              <span class="factor-num">3</span>
+              <h5>Number of Cores — Parallel Processing</h5>
+            </div>
+            <p>
+              Each CPU core contains its own independent Arithmetic Logic Unit (ALU), Control Unit (CU), and internal registers. A quad-core processor can execute four distinct instructions simultaneously.
+            </p>
+            <div class="factor-note trap-note">
+              <strong>Key Exam Trap — Why doubling cores does not simply double speed:</strong>
+              <ul>
+                <li>Software must be written for multithreading; single-threaded programs can only run on one core while remaining cores stay completely idle.</li>
+                <li>Thread coordination and core-to-core communication introduce management overhead.</li>
+                <li>All cores contend for the same shared memory bus, shared cache levels, and RAM bandwidth.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Beyond GCSE: Advanced Extra (Real-World Architecture: Branching & Pipelining) -->
+      <div class="perf-beyond-gcse-card">
+        <div class="beyond-gcse-header">
+          <span class="badge badge-spec">Advanced Extension</span>
+          <h4>Beyond GCSE — How Modern CPUs Eliminate Idle Stalls</h4>
+        </div>
+        <p class="beyond-gcse-intro">
+          In a classic Fetch-Decode-Execute design, functional sub-units (such as the ALU or instruction decoder) frequently sit completely idle while waiting for high-latency memory or conditional outcomes. Modern high-performance processors use advanced hardware engineering to keep execution units continuously busy:
+        </p>
+        <div class="beyond-gcse-stack">
+          <div class="beyond-gcse-row">
+            <h5>Branch Prediction and Speculative Execution</h5>
+            <p>
+              When a program reaches an <code>IF / ELSE</code> condition or loop, the CPU encounters a branch. Rather than sitting idle waiting for the condition to be calculated, modern CPUs predict which path the code will take (often with over 95% accuracy) and execute instructions ahead of time along the predicted path. If the prediction is verified correct, execution proceeds without delay. If incorrect, the speculative work is discarded and the pipeline restarts on the correct path.
+            </p>
+          </div>
+
+          <div class="beyond-gcse-row">
+            <h5>Instruction Pipelining</h5>
+            <p>
+              Operating like an industrial assembly line, the CPU divides instruction processing into overlapping stages. While instruction 1 is in the Execute stage, instruction 2 is simultaneously being Decoded, and instruction 3 is already being Fetched from cache. This overlap ensures every internal functional unit performs work on every single clock cycle.
+            </p>
+          </div>
+
+          <div class="beyond-gcse-row">
+            <h5>Out-of-Order Execution (OoO)</h5>
+            <p>
+              When an instruction stalls awaiting data from slow system RAM, modern processors do not freeze the entire core. Hardware schedulers scan forward in the instruction queue, identify later instructions that do not depend on the missing data, and execute them out of original program order to prevent wasted clock cycles.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: STORAGE & MEMORY (PRIMARY & SECONDARY)                       -->
+    <!-- =================================================================== -->
+    <div id="tab-storage" class="tab-view">
+
+      <!-- View Banner -->
+      <div class="view-banner">
+        <div class="banner-left">
+          <div class="banner-icon" style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="3"></circle>
+              <line x1="12" y1="2" x2="12" y2="5"></line>
+              <line x1="12" y1="19" x2="12" y2="22"></line>
+            </svg>
+          </div>
+          <div class="banner-text">
+            <h2>Storage &amp; Memory — Primary vs Secondary</h2>
+            <p>Explore why computers require volatile RAM, permanent ROM, and secondary storage media like magnetic hard drives and solid-state drives.</p>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span class="badge badge-topic">AQA Paper 2 • Storage</span>
+        </div>
+      </div>
+
+      <!-- Quick Concept Navigation Pills -->
+      <div class="storage-nav-pills">
+        <a href="#storage-primary" class="storage-pill">1. Primary Storage (RAM vs ROM)</a>
+        <a href="#storage-why-secondary" class="storage-pill">2. Why We Need Secondary Storage</a>
+        <a href="#storage-workbench" class="storage-pill">3. HDD vs SSD Interactive Sim</a>
+        <a href="#storage-matrix" class="storage-pill">4. 6 AQA Storage Factors</a>
+      </div>
+
+      <!-- ================================================================= -->
+      <!-- SECTION 1: PRIMARY STORAGE (RAM vs ROM)                           -->
+      <!-- ================================================================= -->
+      <section id="storage-primary" class="storage-section-card">
+        <div class="storage-section-header">
+          <div>
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800;">
+              Primary Storage: RAM vs ROM Interactive Comparator
+            </h3>
+          </div>
+          <!-- Power Control Switch -->
+          <div class="power-control-wrapper">
+            <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary);">System Power:</span>
+            <button id="btnToggleMemoryPower" class="power-toggle-btn power-on" title="Click to cut/restore power to RAM and ROM">
+              <span class="power-indicator-dot"></span>
+              <span id="powerBtnText">POWER: ON</span>
+            </button>
+          </div>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin: 12px 0 16px 0;">
+          <strong>Primary storage</strong> consists of memory chips directly connected to the CPU via high-speed memory buses. 
+          Use the power switch above to test <strong>volatility</strong>, and try writing to both chips below.
+        </p>
+
+        <!-- Dual Chip Comparator Grid -->
+        <div class="memory-chips-grid">
+
+          <!-- Chip 1: RAM -->
+          <div class="memory-chip-card ram-card">
+            <div class="chip-card-head">
+              <div class="chip-title-group">
+                <span class="chip-icon">⚡</span>
+                <div>
+                  <h4 style="margin: 0; font-size: 15px; font-weight: 800;">RAM (Random Access Memory)</h4>
+                  <span class="chip-sub">Direct working workspace for active CPU execution</span>
+                </div>
+              </div>
+              <span id="ramPowerBadge" class="badge badge-success">Active • Power Supplied</span>
+            </div>
+
+            <div class="chip-traits-bar">
+              <span class="trait-pill trait-volatile">Volatile (Needs Power)</span>
+              <span class="trait-pill trait-rw">Read &amp; Write</span>
+              <span class="trait-pill">Typical: 8 GB – 32 GB</span>
+            </div>
+
+            <div class="chip-slots-wrapper">
+              <div class="slots-header">
+                <span>Addressable Memory Slots</span>
+                <span id="ramUsageStat" style="color: var(--accent-primary); font-weight: 700;">4/4 Slots Active</span>
+              </div>
+              <div id="ramSlotsList" class="slots-list">
+                <!-- Dynamically updated memory slots -->
+              </div>
+            </div>
+
+            <div class="chip-actions">
+              <button id="btnWriteRam" class="btn btn-secondary btn-sm">
+                <span>➕ Write New Process to RAM</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Chip 2: ROM -->
+          <div class="memory-chip-card rom-card">
+            <div class="chip-card-head">
+              <div class="chip-title-group">
+                <span class="chip-icon">🔒</span>
+                <div>
+                  <h4 style="margin: 0; font-size: 15px; font-weight: 800;">ROM (Read-Only Memory)</h4>
+                  <span class="chip-sub">Permanent factory-burned firmware for system startup</span>
+                </div>
+              </div>
+              <span id="romPowerBadge" class="badge badge-topic">Firmware Preserved</span>
+            </div>
+
+            <div class="chip-traits-bar">
+              <span class="trait-pill trait-nonvolatile">Non-Volatile (Permanent)</span>
+              <span class="trait-pill trait-ro">Read-Only</span>
+              <span class="trait-pill">Typical: 4 MB – 16 MB</span>
+            </div>
+
+            <div class="chip-slots-wrapper">
+              <div class="slots-header">
+                <span>Factory Burned ROM Firmware</span>
+                <span style="color: #0284c7; font-weight: 700;">Immutable</span>
+              </div>
+              <div id="romSlotsList" class="slots-list">
+                <!-- Dynamically updated ROM slots -->
+              </div>
+            </div>
+
+            <div class="chip-actions">
+              <button id="btnWriteRom" class="btn btn-secondary btn-sm" title="Attempt to write into ROM chip">
+                <span>🚫 Attempt Write to ROM</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Dynamic Memory Feedback Log -->
+        <div id="memoryFeedbackLog" class="memory-feedback-box">
+          <span style="color: #38bdf8; font-weight: 700;">Status:</span> Power supplied. RAM actively holding OS, Chrome, Spotify, and current document. ROM firmware standing by.
+        </div>
+
+        <!-- RAM vs ROM Comparison Table -->
+        <div class="storage-table-wrapper" style="margin-top: 18px;">
+          <table class="storage-compare-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>RAM (Random Access Memory)</th>
+                <th>ROM (Read-Only Memory)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Volatility</strong></td>
+                <td><span style="color: #ef4444; font-weight: 700;">Volatile</span> — loses all contents instantly if power is cut.</td>
+                <td><span style="color: #10b981; font-weight: 700;">Non-volatile</span> — data is permanently retained with zero power.</td>
+              </tr>
+              <tr>
+                <td><strong>Read / Write</strong></td>
+                <td><strong>Read and Write</strong> — CPU continuously writes, edits, and reads data at nanosecond speeds.</td>
+                <td><strong>Read-Only</strong> — Burned into semiconductor circuits at the factory. CPU can only read.</td>
+              </tr>
+              <tr>
+                <td><strong>What It Stores</strong></td>
+                <td>The <strong>active Operating System</strong>, running applications, and currently open files/documents.</td>
+                <td>The <strong>BIOS / UEFI firmware</strong> and the <strong>Bootstrap Loader</strong> needed to start the computer.</td>
+              </tr>
+              <tr>
+                <td><strong>Capacity</strong></td>
+                <td>Large: Typically <strong>8 GB to 64 GB</strong> in modern laptops/desktops.</td>
+                <td>Small: Typically <strong>4 MB to 16 MB</strong> (just enough for firmware).</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTION 2: WHY SECONDARY STORAGE IS ESSENTIAL                     -->
+      <!-- ================================================================= -->
+      <section id="storage-why-secondary" class="storage-section-card">
+        <div class="storage-section-header">
+          <div>
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800;">
+              Why Secondary Storage is Essential
+            </h3>
+          </div>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin: 12px 0 16px 0;">
+          The CPU can <strong>only directly fetch instructions from Primary Storage (RAM &amp; Cache)</strong>. 
+          However, a computer with only RAM and ROM would be practically useless for two critical reasons:
+        </p>
+
+        <div class="secondary-reasons-grid">
+          <div class="reason-card">
+            <div class="reason-icon-wrapper" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
+              ⚡
+            </div>
+            <div>
+              <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 800; color: var(--text-primary);">
+                1. RAM is Volatile (Data Retention)
+              </h4>
+              <p style="margin: 0; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                Because RAM requires a continuous electrical charge to refresh its capacitors, all data is permanently lost when the computer powers off or sleeps. <strong>Secondary storage is non-volatile</strong>, keeping your operating system, installed software, games, photos, and saved work permanently preserved for decades.
+              </p>
+            </div>
+          </div>
+
+          <div class="reason-card">
+            <div class="reason-icon-wrapper" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
+              💾
+            </div>
+            <div>
+              <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 800; color: var(--text-primary);">
+                2. Capacity &amp; Cost Constraints
+              </h4>
+              <p style="margin: 0; font-size: 13px; color: var(--text-secondary); line-height: 1.6;">
+                High-speed RAM is physically complex and expensive per gigabyte. A typical system has 16 GB of RAM, but a single modern game or video library can require hundreds of gigabytes. Secondary storage provides <strong>massive terabyte storage</strong> at a tiny fraction of the cost per gigabyte.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTION 3: SECONDARY STORAGE WORKBENCH (HDD vs SSD)               -->
+      <!-- ================================================================= -->
+      <section id="storage-workbench" class="storage-section-card">
+        <div class="storage-section-header">
+          <div>
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800;">
+              Secondary Storage Simulation: HDD vs SSD Workbench
+            </h3>
+          </div>
+
+          <!-- Secondary Mode Switcher -->
+          <div class="storage-mode-tabs" role="tablist">
+            <button class="storage-mode-btn active" data-mode="hdd" role="tab" aria-selected="true">
+              <span>💽 Magnetic Platter (HDD)</span>
+            </button>
+            <button class="storage-mode-btn" data-mode="ssd" role="tab" aria-selected="false">
+              <span>⚡ Solid-State Flash (SSD)</span>
+            </button>
+          </div>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin: 12px 0 16px 0;">
+          Switch between magnetic and solid-state storage to see the difference between mechanical latency and semiconductor speeds. Test file fragmentation, defragmentation, and discover how deleted files really work!
+        </p>
+
+        <!-- HDD WORKBENCH CONTAINER -->
+        <div id="hddWorkbench" class="secondary-sim-container active">
+          
+          <div class="hdd-workbench-grid">
+            
+            <!-- Left Column: Spinning Platter Canvas -->
+            <div class="hdd-canvas-panel">
+              <div class="panel-header-mini">
+                <span style="font-weight: 700; font-size: 13px;">Magnetic Hard Drive Platter</span>
+                <span class="badge badge-topic" id="hddRpmBadge">7,200 RPM</span>
+              </div>
+              <div class="canvas-center-wrap" style="position: relative;">
+                <canvas id="hddCanvas" width="460" height="400"></canvas>
+                <!-- Canvas Bottom-Right Overlay Controls (Pause & Reset) -->
+                <div class="canvas-overlay-controls">
+                  <button id="btnPlatterPause" class="canvas-icon-btn" title="Pause / Resume Platter Spin" aria-label="Pause or Resume Platter">
+                    <span id="platterPauseIcon">⏸</span>
+                  </button>
+                  <button id="btnPlatterReset" class="canvas-icon-btn" title="Reset Platter & Drive" aria-label="Reset Drive">
+                    <span>↺</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Mouseover Inspector HUD -->
+              <div id="hddInspectorHud" class="hdd-inspector-hud">
+                <span class="hud-icon">🔍</span>
+                <span id="hddInspectorText" class="hud-text">Move mouse over tracks, sectors, spindle, or actuator head to inspect hardware components.</span>
+              </div>
+
+              <div class="canvas-legend">
+                <div class="legend-item"><span class="legend-swatch" style="background: #3b82f6;"></span> File A (game_levels.pak)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #ec4899;"></span> File B (vacation_clip.mp4)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #f59e0b;"></span> File C (notes.txt)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #06b6d4;"></span> File D (save_data.dat)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #94a3b8;"></span> Free Sectors</div>
+              </div>
+            </div>
+
+            <!-- Right Column: Controls, Telemetry & File Allocation Table -->
+            <div class="hdd-control-panel">
+              
+              <!-- Telemetry Metrics Bar -->
+              <div class="hdd-telemetry-grid">
+                <div class="hdd-tel-box">
+                  <span class="tel-label">Arm Seek Time</span>
+                  <span id="hddSeekVal" class="tel-val" style="color: #f59e0b;">0.0 ms</span>
+                </div>
+                <div class="hdd-tel-box">
+                  <span class="tel-label">Rotational Delay</span>
+                  <span id="hddRotVal" class="tel-val" style="color: #06b6d4;">0.0 ms</span>
+                </div>
+                <div class="hdd-tel-box">
+                  <span class="tel-label">Total Read Latency</span>
+                  <span id="hddTotalVal" class="tel-val" style="color: #ef4444;">0.0 ms</span>
+                </div>
+                <div class="hdd-tel-box">
+                  <span class="tel-label">Head Track Jumps</span>
+                  <span id="hddJumpsVal" class="tel-val" style="color: #8b5cf6;">0</span>
+                </div>
+              </div>
+
+              <!-- Interactive Buttons -->
+              <div class="hdd-btn-stack">
+                <button id="btnHddReadFileA" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                  ▶ Read File A (game_levels.pak)
+                </button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <button id="btnHddDefrag" class="btn btn-secondary btn-sm" style="justify-content: center;">
+                    🧹 Run Disk Defragmenter
+                  </button>
+                  <button id="btnHddDelete" class="btn btn-secondary btn-sm" style="justify-content: center;">
+                    🗑️ Delete File B (vacation.mp4)
+                  </button>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <button id="btnHddWriteD" class="btn btn-secondary btn-sm" style="justify-content: center;">
+                    💾 Write File D (save_data.dat)
+                  </button>
+                  <button id="btnHddReset" class="btn btn-secondary btn-sm" style="justify-content: center;">
+                    ↺ Reset Drive
+                  </button>
+                </div>
+              </div>
+
+              <!-- File Allocation Table (FAT) -->
+              <div class="fat-table-card">
+                <div class="fat-head">
+                  <span style="font-weight: 700; font-size: 12px; color: var(--text-secondary);">File Allocation Table (FAT / Index)</span>
+                  <span class="badge badge-topic" style="font-size: 9.5px;">File Pointers</span>
+                </div>
+                <table class="fat-table font-mono">
+                  <thead>
+                    <tr>
+                      <th>File Name</th>
+                      <th>Sector Chain</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="fatTableBody">
+                    <!-- Populated dynamically -->
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Dynamic Explanatory Note -->
+              <div id="hddExplainerBox" class="storage-explainer-box">
+                <strong style="color: #38bdf8;">Hard Drive Latency:</strong> An HDD has moving parts. To read a fragmented file, the mechanical actuator arm must physically swing across concentric tracks (Seek Time), and the head must wait for sectors to spin underneath (Rotational Latency).
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- SSD WORKBENCH CONTAINER -->
+        <div id="ssdWorkbench" class="secondary-sim-container" style="display: none;">
+          
+          <div class="ssd-workbench-grid">
+            
+            <!-- Left: Silicon Flash Matrix Visualization -->
+            <div class="ssd-canvas-panel">
+              <div class="panel-header-mini">
+                <span style="font-weight: 700; font-size: 13px;">Solid-State Drive Architecture (NAND Flash Matrix)</span>
+                <span class="badge badge-success">Zero Moving Parts</span>
+              </div>
+
+              <div class="ssd-silicon-board">
+                <!-- SSD Controller Chip -->
+                <div class="ssd-controller-chip">
+                  <div class="chip-label">NVMe / SATA Controller</div>
+                  <div class="chip-bus-indicator">High-Speed Parallel Electrical Buses</div>
+                </div>
+
+                <!-- 4 Flash NAND Chips -->
+                <div id="ssdChipsGrid" class="ssd-chips-grid">
+                  <!-- Generated dynamically in JS -->
+                </div>
+              </div>
+
+              <div class="canvas-legend" style="margin-top: 14px;">
+                <div class="legend-item"><span class="legend-swatch" style="background: #3b82f6;"></span> File A (game_levels.pak)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #ec4899;"></span> File B (vacation_clip.mp4)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #f59e0b;"></span> File C (notes.txt)</div>
+                <div class="legend-item"><span class="legend-swatch" style="background: #10b981;"></span> Free Flash Cells</div>
+              </div>
+            </div>
+
+            <!-- Right: SSD Controls & Performance Comparison -->
+            <div class="ssd-control-panel">
+              
+              <!-- Telemetry Metrics Bar -->
+              <div class="hdd-telemetry-grid">
+                <div class="hdd-tel-box">
+                  <span class="tel-label">Moving Parts</span>
+                  <span class="tel-val" style="color: #10b981;">0 (Silicon)</span>
+                </div>
+                <div class="hdd-tel-box">
+                  <span class="tel-label">Mechanical Seek Time</span>
+                  <span id="ssdSeekVal" class="tel-val" style="color: #10b981;">0.00 ms</span>
+                </div>
+                <div class="hdd-tel-box">
+                  <span class="tel-label">Total Access Time</span>
+                  <span id="ssdTotalVal" class="tel-val" style="color: #10b981;">0.08 ms</span>
+                </div>
+                <div class="hdd-tel-box">
+                  <span class="tel-label">Speed Advantage</span>
+                  <span class="tel-val" style="color: #6366f1;">~175× Faster</span>
+                </div>
+              </div>
+
+              <!-- Interactive Buttons -->
+              <div class="hdd-btn-stack">
+                <button id="btnSsdRead" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                  ⚡ Read File A Across Flash Cells
+                </button>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <button id="btnSsdReadB" class="btn btn-secondary btn-sm" style="justify-content: center;">
+                    ⚡ Read File B
+                  </button>
+                  <button id="btnSsdReadC" class="btn btn-secondary btn-sm" style="justify-content: center;">
+                    ⚡ Read File C
+                  </button>
+                </div>
+                <button id="btnSsdDefrag" class="btn btn-secondary" style="width: 100%; justify-content: center; border-color: #ef4444; color: #ef4444;">
+                  ⚠️ Try to Defragment SSD
+                </button>
+              </div>
+
+              <!-- Key Insight 1: Fragmentation on SSD -->
+              <div class="factor-note tip-note" style="margin: 0;">
+                <strong>Why Fragmentation Does NOT Slow Down SSDs:</strong>
+                <p style="margin: 4px 0 0 0; font-size: 12.5px; line-height: 1.55;">
+                  Because there is no physical arm to swing or platter to rotate, electrical signals can read any cell anywhere on the drive in the <strong>exact same 0.08 milliseconds</strong>. Non-contiguous blocks cause zero speed penalty!
+                </p>
+              </div>
+
+              <!-- Dynamic Explanatory Box -->
+              <div id="ssdExplainerBox" class="storage-explainer-box" style="border-left-color: #10b981;">
+                <strong style="color: #10b981;">Solid-State Reliability:</strong> SSDs store bits using trapped electrical charges inside floating-gate transistors. Because there are zero moving parts, SSDs are completely silent, draw less battery power, and will not break if dropped while reading.
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- READ PERFORMANCE BENCHMARK SCOREBOARD -->
+        <div class="read-benchmark-card">
+          <div class="benchmark-head">
+            <div>
+              <span class="badge badge-paper1" style="font-size: 9.5px;">Live Speed Benchmark</span>
+              <h4 style="margin: 4px 0 0 0; font-size: 15px; font-weight: 800;">
+                File Read Speed: Fragmented HDD vs Defragged HDD vs Solid-State Drive (SSD)
+              </h4>
+            </div>
+            <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">Normalized Read Latency</span>
+          </div>
+
+          <div class="benchmark-bars-list">
+            <!-- Fragmented HDD -->
+            <div class="benchmark-row" id="benchRowFrag">
+              <div class="bench-label-group">
+                <span class="bench-name">1. Fragmented HDD (Mechanical Arm Jumping)</span>
+                <span id="benchFragTime" class="badge badge-danger">14.2 ms • Slow</span>
+              </div>
+              <div class="bench-progress-bar">
+                <div class="bench-fill bench-fill-frag" style="width: 100%;"></div>
+              </div>
+              <span class="bench-sub">Arm jumped 3 tracks physically; waited for 4 distinct rotational disc delays.</span>
+            </div>
+
+            <!-- Defragmented HDD -->
+            <div class="benchmark-row" id="benchRowDefrag">
+              <div class="bench-label-group">
+                <span class="bench-name">2. Defragmented HDD (Single Smooth Track)</span>
+                <span id="benchDefragTime" class="badge badge-warning">2.4 ms • ~6× Faster</span>
+              </div>
+              <div class="bench-progress-bar">
+                <div class="bench-fill bench-fill-defrag" style="width: 17%;"></div>
+              </div>
+              <span class="bench-sub">Head stays steady on Track 0; all sectors read contiguously in one 360° spin.</span>
+            </div>
+
+            <!-- Solid State Drive -->
+            <div class="benchmark-row" id="benchRowSsd">
+              <div class="bench-label-group">
+                <span class="bench-name">3. Solid-State Drive (SSD) (Multichannel Electrical Bus)</span>
+                <span id="benchSsdTime" class="badge badge-success">0.08 ms • 175× Faster!</span>
+              </div>
+              <div class="bench-progress-bar">
+                <div class="bench-fill bench-fill-ssd" style="width: 2%;"></div>
+              </div>
+              <span class="bench-sub">Pure electronic voltage bus; zero moving parts, zero mechanical latency.</span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ================================================================= -->
+      <!-- SECTION 4: THE 6 AQA STORAGE CHARACTERISTICS MATRIX               -->
+      <!-- ================================================================= -->
+      <section id="storage-matrix" class="storage-section-card">
+        <div class="storage-section-header">
+          <div>
+            <h3 style="margin: 0; font-size: 18px; font-weight: 800;">
+              Comparing Secondary Storage: Magnetic vs Solid-State vs Optical
+            </h3>
+          </div>
+        </div>
+
+        <p style="font-size: 13.5px; color: var(--text-secondary); line-height: 1.6; margin: 12px 0 16px 0;">
+          Exam questions frequently ask you to recommend a storage type for a specific real-world scenario (e.g. an action camera, a backup server, or distributing software). You must evaluate across these <strong>6 key characteristics</strong>:
+        </p>
+
+        <div class="storage-table-wrapper">
+          <table class="storage-compare-table matrix-table">
+            <thead>
+              <tr>
+                <th style="width: 140px;">Characteristic</th>
+                <th>💽 Magnetic (HDD / Tape)</th>
+                <th>⚡ Solid-State (SSD / USB Flash)</th>
+                <th>💿 Optical (CD / DVD / Blu-Ray)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-type="all">
+                <td><strong>1. Capacity</strong></td>
+                <td><strong>Very High:</strong> 1 TB to 20+ TB. Massive storage for servers and backups.</td>
+                <td><strong>High:</strong> 256 GB to 8 TB. Plenty for OS, software, and games.</td>
+                <td><strong>Low:</strong> CD: 700 MB, DVD: 4.7 GB, Blu-ray: 25–50 GB.</td>
+              </tr>
+              <tr data-type="all">
+                <td><strong>2. Speed (Read/Write)</strong></td>
+                <td><strong>Moderate:</strong> ~150 MB/s. Slower due to physical seek time and rotation.</td>
+                <td><strong>Very Fast:</strong> 500 MB/s to 7,000+ MB/s (NVMe). Instant access.</td>
+                <td><strong>Very Slow:</strong> ~10–30 MB/s. Mechanical laser tracking.</td>
+              </tr>
+              <tr data-type="all">
+                <td><strong>3. Portability</strong></td>
+                <td><strong>Low:</strong> Bulky, heavy, requires delicate handling and SATA/USB cables.</td>
+                <td><strong>Excellent:</strong> Tiny, lightweight (M.2 sticks, USB flash thumb drives).</td>
+                <td><strong>High:</strong> Flat, lightweight discs, easily posted in envelopes.</td>
+              </tr>
+              <tr data-type="all">
+                <td><strong>4. Durability</strong></td>
+                <td><strong>Poor:</strong> Dropping an HDD while running causes a catastrophic <strong>head crash</strong>.</td>
+                <td><strong>Very High:</strong> Shock-resistant. No moving parts to break if dropped.</td>
+                <td><strong>Moderate:</strong> Easily scratched or warped by sunlight and heat.</td>
+              </tr>
+              <tr data-type="all">
+                <td><strong>5. Reliability</strong></td>
+                <td><strong>High:</strong> Excellent long-term retention if kept stationary and cool.</td>
+                <td><strong>High:</strong> Highly reliable, though cells have a finite write cycle limit.</td>
+                <td><strong>Low–Moderate:</strong> Discs can degrade or scratch after repeated handling.</td>
+              </tr>
+              <tr data-type="all">
+                <td><strong>6. Cost per GB</strong></td>
+                <td><strong>Very Cheap:</strong> Around £0.015 per GB. Best for mass data archives.</td>
+                <td><strong>Moderate:</strong> Around £0.06 per GB. More expensive per gigabyte.</td>
+                <td><strong>Very Cheap per Unit:</strong> Pennies per blank disc, but low capacity.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
     </div>
 
@@ -653,11 +1433,72 @@
           </span>
           <h4 class="trap-title" style="color: #818cf8;">The Stored Program Concept (Von Neumann)</h4>
         </div>
-        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
-          The foundation of all modern general-purpose computing systems:
-        </p>
         <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: #34d399; line-height: 1.6;">
           ✓ <strong>AQA Definition:</strong> In the Von Neumann architecture, both <strong>program instructions and data</strong> are stored together in the <strong>same physical memory (RAM)</strong> and fetched across shared system buses. Instructions are executed sequentially unless an explicit branch occurs.
+        </div>
+      </div>
+
+      <!-- Card 4: RAM vs ROM -->
+      <div class="trap-card" style="border-left-color: #10b981;">
+        <div class="trap-header">
+          <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
+            PRIMARY MEMORY TRAP
+          </span>
+          <h4 class="trap-title" style="color: #34d399;">Never Confuse RAM and ROM</h4>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          Both are primary storage chips directly wired to the CPU, but their physical characteristics are opposites:
+        </p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #ef4444;">
+            <strong style="color: #ef4444;">RAM (Random Access Memory):</strong><br>
+            • <strong>Volatile:</strong> Needs constant electrical power; wipes completely on shutdown.<br>
+            • <strong>Read &amp; Write:</strong> CPU continuously loads and modifies active apps, OS code, and open files.
+          </div>
+          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #10b981;">
+            <strong style="color: #10b981;">ROM (Read-Only Memory):</strong><br>
+            • <strong>Non-Volatile:</strong> Retains data permanently when powered off.<br>
+            • <strong>Read-Only:</strong> Factory burned. Stores BIOS/UEFI firmware and the <strong>Bootstrap Loader</strong>.
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 5: Secondary Storage & 6 Factors -->
+      <div class="trap-card" style="border-left-color: #06b6d4;">
+        <div class="trap-header">
+          <span class="badge" style="background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4);">
+            SECONDARY STORAGE ESSENTIALS
+          </span>
+          <h4 class="trap-title" style="color: #22d3ee;">Why Secondary Storage is Needed &amp; 6 Assessment Factors</h4>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          RAM is volatile (temporary) and small in capacity. Secondary storage is <strong>non-volatile</strong> and provides high-capacity, long-term file retention.
+        </p>
+        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; line-height: 1.6; margin-bottom: 10px;">
+          <strong>The 6 Factors for Comparing Media:</strong><br>
+          1. <strong>Capacity:</strong> HDD (Huge TBs) &gt; SSD (High GBs/TBs) &gt; Optical (CD 700MB, DVD 4.7GB, BD 25GB).<br>
+          2. <strong>Speed:</strong> SSD (instant, 500–7000 MB/s) &gt; HDD (150 MB/s, physical seek) &gt; Optical (~15 MB/s).<br>
+          3. <strong>Portability:</strong> SSD/USB flash (small, light) &gt; Optical discs &gt; HDD (heavy, bulky).<br>
+          4. <strong>Durability:</strong> SSD (shockproof) &gt; Optical (scratches easily) &gt; HDD (fragile head crash if dropped).<br>
+          5. <strong>Reliability:</strong> SSD &amp; HDD (high when treated well) &gt; Optical (laser dye degrades).<br>
+          6. <strong>Cost per GB:</strong> Optical &amp; HDD (pennies per GB) vs SSD (higher cost per GB).
+        </div>
+      </div>
+
+      <!-- Card 6: Defragmentation & SSD Wear -->
+      <div class="trap-card" style="border-left-color: #f59e0b;">
+        <div class="trap-header">
+          <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">
+            UTILITY SOFTWARE &amp; EXAM TRAP
+          </span>
+          <h4 class="trap-title" style="color: #fbbf24;">Defragmentation (HDD) vs Why You NEVER Defrag an SSD</h4>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          A frequent exam question explores how file fragmentation affects performance:
+        </p>
+        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; line-height: 1.6;">
+          • <strong>On a Magnetic HDD:</strong> Files become scattered across non-contiguous sectors over time. The mechanical arm must swing back and forth (seek time) to read all blocks, slowing down the drive. <strong>Defragmentation</strong> reorganises sectors contiguously so the file can be read in a single smooth rotation.<br>
+          • <strong>On an SSD:</strong> Access time to any flash cell is identical (instant electrical pulse, zero seek time). Non-contiguous blocks do not slow it down. Furthermore, flash cells have a <strong>finite number of write cycles (P/E wear)</strong>. Defragmenting an SSD needlessly writes gigabytes of data, wearing out the flash cells prematurely!
         </div>
       </div>
 
@@ -782,5 +1623,6 @@
 
   <!-- Application Logic -->
   <script src="./app.js"></script>
+  <script src="./storage.js"></script>
 </body>
 </html>

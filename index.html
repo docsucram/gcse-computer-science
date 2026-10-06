@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="GCSE Computer Science - Interactive visualizers, binary tools, algorithm sandboxes, and learning activities for AQA GCSE (8525).">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
   <meta name="theme-color" content="#4f46e5">
   <title>GCSE Computer Science Interactive Hub</title>
   
@@ -316,21 +318,13 @@
   <!-- Main Content -->
   <main class="container">
     <!-- Hero Section -->
-    <section class="hero-section">
-      <h2 class="hero-title">
-        Explore How Computers<br>
-        <span class="gradient-text">Actually Work</span>
+    <section class="hero-section" style="padding: 40px 0 24px 0;">
+      <h2 class="hero-title" style="margin-bottom: 12px;">
+        Interactive Revision Labs
       </h2>
-      <p class="hero-subtitle">
-        Hands-on interactive tools and sandboxes to understand binary, data representation, algorithms, and computer systems for GCSE.
+      <p class="hero-subtitle" style="margin-bottom: 0;">
+        Visual, hands-on tools to explore algorithms, binary, computer architecture, and systems for AQA GCSE Computer Science (8525).
       </p>
-
-      <!-- Exam Board Spec Pill -->
-      <div class="spec-pills">
-        <span class="spec-pill active">
-          <strong>AQA GCSE (8525)</strong>
-        </span>
-      </div>
     </section>
 
     <!-- Filter & Search Toolbar -->
@@ -358,7 +352,6 @@
         <div>
           <div class="card-header">
             <div class="card-icon-wrapper card-icon-active" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 50%, #ec4899 100%);">
-              <!-- Search & Sort Combined Icon -->
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="7"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -373,36 +366,19 @@
           </div>
 
           <p class="card-description">
-            Master Binary and Linear search, step through Bubble, Insertion, and Merge sort, compare efficiency side-by-side in race mode, and practice pass-by-pass tracing.
+            Step through Linear and Binary search with interactive pointers, watch Bubble, Insertion, and Merge sort comparisons, and test race mode efficiency.
           </p>
 
-          <ul class="card-highlights">
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Linear Search (O(n)) &amp; Binary Search (O(log n)) with interactive Low, Mid, High pointers and search-space halving</span>
-            </li>
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Step-by-step sorting animations with comparisons, swaps, and intuitive explanations</span>
-            </li>
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Algorithm race modes comparing best, average, and worst-case time complexities</span>
-            </li>
-          </ul>
-
           <div class="card-tags">
-            <span class="badge badge-paper1">Paper 1</span>
-            <span class="badge badge-topic">Algorithms 3.1</span>
-            <span class="badge badge-topic">Binary • Linear • Bubble • Merge</span>
-            <span class="badge badge-spec">AQA Core ★</span>
+            <span class="badge badge-topic">Linear &amp; Binary Search</span>
+            <span class="badge badge-topic">Bubble, Insertion &amp; Merge</span>
+            <span class="badge badge-topic">Time Complexity</span>
           </div>
         </div>
 
         <div class="card-footer">
-          <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">AQA 8525 §3.1</span>
           <a href="./modules/sort-lab/index.html" class="btn btn-primary" title="Open Searching &amp; Sorting">
-            Open Searching &amp; Sorting
+            Open Module
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
@@ -411,12 +387,11 @@
         </div>
       </div>
 
-      <!-- Card 2 (Paper 1, Sec 3): Interactive Trace Table Lab -->
-      <div class="module-card active" data-category="paper1" data-search="trace table variables iteration while loops for loops conditionals debugging logic error logic paper 1 3.2 3.3 test">
+      <!-- Card 2 (Paper 1, Sec 3): Design and Testing -->
+      <div class="module-card active" data-category="paper1" data-search="design and testing trace table modular programming subroutines functions procedures decomposition variables iteration while loops for loops conditionals debugging logic error logic paper 1 3.2 3.3 test">
         <div>
           <div class="card-header">
             <div class="card-icon-wrapper card-icon-active" style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 50%, #3b82f6 100%);">
-              <!-- Grid / Trace Table Icon -->
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
                 <line x1="3" y1="9" x2="21" y2="9"></line>
@@ -427,41 +402,24 @@
             </div>
             <div class="card-header-text">
               <span class="card-section-tag">Paper 1 • Section 3</span>
-              <h3 class="card-title">Interactive Trace Table Lab</h3>
+              <h3 class="card-title">Design and Testing</h3>
             </div>
           </div>
 
           <p class="card-description">
-            Master the guaranteed 4–6 mark Paper 1 exam question. Step through loops and conditions line-by-line while filling the trace grid.
+            Trace table simulation with step-by-step variable inspection and instant mark schemes, plus modular code decomposition and subroutine practice.
           </p>
 
-          <ul class="card-highlights">
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Step-by-step code execution pointer synchronized with live variable inspector</span>
-            </li>
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Interactive exam trace table: fill cells and get instant mark-scheme feedback</span>
-            </li>
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Classic AQA traps: off-by-one loop bounds, integer division, and boolean logic</span>
-            </li>
-          </ul>
-
           <div class="card-tags">
-            <span class="badge badge-paper1">Paper 1</span>
-            <span class="badge badge-topic">Design &amp; Testing 3.2</span>
-            <span class="badge badge-topic">Loops &amp; Logic</span>
-            <span class="badge badge-spec">Guaranteed Exam Q</span>
+            <span class="badge badge-topic">Trace Tables</span>
+            <span class="badge badge-topic">Code Decomposition</span>
+            <span class="badge badge-topic">Subroutines</span>
           </div>
         </div>
 
         <div class="card-footer">
-          <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">AQA 8525 §3.2</span>
-          <a href="./modules/trace-tables/index.html" class="btn btn-primary" title="Open Trace Table Lab">
-            Open Trace Table Lab
+          <a href="./modules/trace-tables/index.html" class="btn btn-primary" title="Open Design and Testing">
+            Open Module
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
@@ -470,12 +428,53 @@
         </div>
       </div>
 
-      <!-- Card 3 (Paper 2, Sec 4): Numbers & Characters -->
+      <!-- Card 3 (Paper 1, Sec 2): Random Numbers and Procedural Generation -->
+      <div class="module-card active" data-category="paper1" data-search="random numbers procedural generation seed prng pseudo random minecraft fractals random_int randint 3.2.1 3.2.10 paper 1 algorithms programming">
+        <div>
+          <div class="card-header">
+            <div class="card-icon-wrapper card-icon-active" style="background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 50%, #f59e0b 100%);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"></circle>
+                <circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"></circle>
+                <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
+                <circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"></circle>
+                <circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"></circle>
+              </svg>
+            </div>
+            <div class="card-header-text">
+              <span class="card-section-tag">Paper 1 • Section 2</span>
+              <h3 class="card-title">Random Numbers &amp; Procedural Gen</h3>
+            </div>
+          </div>
+
+          <p class="card-description">
+            Explore deterministic PRNG seeds, inspect how random_int() scales, and generate procedural voxel terrains, fractal trees, and skylines.
+          </p>
+
+          <div class="card-tags">
+            <span class="badge badge-topic">PRNG Seeds</span>
+            <span class="badge badge-topic">Procedural Terrain</span>
+            <span class="badge badge-topic">random_int()</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <a href="./modules/random-lab/index.html" class="btn btn-primary" title="Open Random Numbers and Procedural Generation">
+            Open Module
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 4 (Paper 2, Sec 4): Numbers & Characters -->
       <div class="module-card active" data-category="paper2" data-search="numbers characters binary hexadecimal denary twos complement addition shifts bits nibbles bytes units kb kib ascii unicode 3.3.1 3.3.2 paper 2">
         <div>
           <div class="card-header">
             <div class="card-icon-wrapper card-icon-active" style="background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 50%, #06b6d4 100%);">
-              <!-- Binary 01 Digits & Bits Icon -->
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="4" width="7" height="16" rx="3.5"></rect>
                 <path d="M17 4v16M14 7l3-3"></path>
@@ -488,36 +487,20 @@
           </div>
 
           <p class="card-description">
-            Interactive 8-bit binary register, two's complement, binary arithmetic, bitwise logic (AND, OR, XOR), shifts, data units, and ASCII/Unicode text encoding.
+            Interactive 8-bit registers, live Denary/Hex/Binary conversion, two's complement arithmetic, bitwise logic (AND, OR, XOR), shifts, and character encoding.
           </p>
 
-          <ul class="card-highlights">
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>8-bit interactive register, +/-1 steppers, and 3-way Denary/Hex/Binary live converter</span>
-            </li>
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Addition with overflow alert, two's complement subtraction workbench, and bitwise logic masks</span>
-            </li>
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Data units scale (kB vs KiB) and live secret message character encoder</span>
-            </li>
-          </ul>
-
           <div class="card-tags">
-            <span class="badge badge-paper2">Paper 2</span>
-            <span class="badge badge-topic">Numbers 3.3.1</span>
-            <span class="badge badge-topic">Characters 3.3.2</span>
-            <span class="badge badge-spec">AQA 8525 §3.3</span>
+            <span class="badge badge-topic">Binary &amp; Hex</span>
+            <span class="badge badge-topic">Two's Complement</span>
+            <span class="badge badge-topic">Bitwise Logic</span>
+            <span class="badge badge-topic">ASCII &amp; Unicode</span>
           </div>
         </div>
 
         <div class="card-footer">
-          <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">AQA 8525 §3.3</span>
           <a href="./modules/binary-numbers/index.html" class="btn btn-primary" title="Open Numbers & Characters">
-            Open Numbers &amp; Characters
+            Open Module
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
@@ -526,12 +509,11 @@
         </div>
       </div>
 
-      <!-- Card 4 (Paper 2, Sec 4): Media Representation -->
+      <!-- Card 5 (Paper 2, Sec 4): Media Representation -->
       <div class="module-card active" data-category="paper2" data-search="media data representation bitmaps pixels colour depth sound audio sampling quantization rate bit depth file size rle compression paper 2 3.3.3 3.3.4">
         <div>
           <div class="card-header">
             <div class="card-icon-wrapper card-icon-active" style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #6366f1 100%);">
-              <!-- Pixel Grid / Image Matrix Icon -->
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2"></rect>
                 <circle cx="8.5" cy="8.5" r="1.5"></circle>
@@ -545,36 +527,19 @@
           </div>
 
           <p class="card-description">
-            Draw on a pixel grid to see bitmap binary, test sound sampling &amp; quantization with a live musical Theremin, record your voice, and explore RLE compression.
+            Bitmap colour depth and pixel quantization, live sound sampling rate and bit depth with a musical Theremin, voice recorder, and RLE compression.
           </p>
 
-          <ul class="card-highlights">
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Interactive drawing grid &amp; large photo quantization (1-bit up to 24-bit True Colour)</span>
-            </li>
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Sound Theremin and 2.0s voice recorder demonstrating sampling rate and bit depth</span>
-            </li>
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Image &amp; audio file size calculations with dual prefix breakdown (kB vs KiB) and RLE run tracker</span>
-            </li>
-          </ul>
-
           <div class="card-tags">
-            <span class="badge badge-paper2">Paper 2</span>
-            <span class="badge badge-topic">Bitmaps 3.3.3</span>
-            <span class="badge badge-topic">Sound 3.3.4</span>
-            <span class="badge badge-spec">AQA 8525 §3.3</span>
+            <span class="badge badge-topic">Bitmaps &amp; Colour Depth</span>
+            <span class="badge badge-topic">Sound Sampling</span>
+            <span class="badge badge-topic">File Size &amp; RLE</span>
           </div>
         </div>
 
         <div class="card-footer">
-          <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">AQA 8525 §3.3</span>
           <a href="./modules/data-representation/index.html" class="btn btn-primary" title="Open Media Representation">
-            Open Media Representation
+            Open Module
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
@@ -583,12 +548,11 @@
         </div>
       </div>
 
-      <!-- Card 5 (Paper 2, Sec 5): CPU Architecture & FDE Cycle -->
+      <!-- Card 6 (Paper 2, Sec 5): CPU Architecture, Memory & Storage -->
       <div class="module-card active" data-category="paper2" data-search="cpu architecture von neumann fde fetch decode execute registers program counter pc mar mdr cir acc alu buses hardware 3.4 paper 2 systems architecture clock cache cores">
         <div>
           <div class="card-header">
             <div class="card-icon-wrapper card-icon-active" style="background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);">
-              <!-- CPU Microchip Icon -->
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="4" y="4" width="16" height="16" rx="2"></rect>
                 <rect x="9" y="9" width="6" height="6"></rect>
@@ -604,41 +568,24 @@
             </div>
             <div class="card-header-text">
               <span class="card-section-tag">Paper 2 • Section 5</span>
-              <h3 class="card-title">CPU Architecture &amp; FDE Cycle</h3>
+              <h3 class="card-title">CPU Architecture, Memory &amp; Storage</h3>
             </div>
           </div>
 
           <p class="card-description">
-            Step through the Von Neumann Fetch-Decode-Execute cycle, watch animated data-packets travel between registers, and benchmark CPU clock speed, cache, and cores.
+            Animated Von Neumann FDE cycle across system buses, CPU clock/cache/core performance sandbox, RAM vs ROM, and HDD defragmentation vs SSD flash.
           </p>
 
-          <ul class="card-highlights">
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Animated register data-flow: PC, MAR, MDR, ACC, CU, and ALU across Address, Data &amp; Control buses</span>
-            </li>
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Step-by-step FDE stage tracer with clear AQA mark-scheme explanations</span>
-            </li>
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>CPU Performance Sandbox: Clock Speed (GHz), Cache size (L1/L2), and Multi-Core bottlenecks</span>
-            </li>
-          </ul>
-
           <div class="card-tags">
-            <span class="badge badge-paper2">Paper 2</span>
-            <span class="badge badge-topic">Hardware 3.4.1</span>
-            <span class="badge badge-topic">Von Neumann Registers</span>
-            <span class="badge badge-spec">AQA 8525 §3.4</span>
+            <span class="badge badge-topic">FDE Cycle &amp; Buses</span>
+            <span class="badge badge-topic">Clock, Cache &amp; Cores</span>
+            <span class="badge badge-topic">RAM, ROM &amp; Storage</span>
           </div>
         </div>
 
         <div class="card-footer">
-          <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">AQA 8525 §3.4</span>
           <a href="./modules/cpu-sim/index.html" class="btn btn-primary" title="Open CPU Architecture">
-            Open CPU Architecture
+            Open Module
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>
@@ -647,12 +594,52 @@
         </div>
       </div>
 
-      <!-- Card 6 (Paper 2, Sec 5): Relational Databases & SQL Studio -->
+      <!-- Card 7 (Paper 2, Sec 5): Networks, Packets & Protocols -->
+      <div class="module-card active" data-category="paper2" data-search="networks packets packet switching dns domain name system routers routing ip address mac address topologies star bus mesh tcp ip layers protocols 3.5 paper 2 wireless masts">
+        <div>
+          <div class="card-header">
+            <div class="card-icon-wrapper card-icon-active" style="background: linear-gradient(135deg, #0284c7 0%, #3b82f6 50%, #8b5cf6 100%);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+              </svg>
+            </div>
+            <div class="card-header-text">
+              <span class="card-section-tag">Paper 2 • Section 5</span>
+              <h3 class="card-title">Networks, Packets &amp; Protocols</h3>
+            </div>
+          </div>
+
+          <p class="card-description">
+            Interactive packet routing across radio masts and router meshes, DNS domain resolution, Star vs Bus vs Mesh topologies, TCP/IP 4-layer encapsulation, and Public-Key Encryption with the Paint Pot analogy.
+          </p>
+
+          <div class="card-tags">
+            <span class="badge badge-topic">Packet Switching &amp; DNS</span>
+            <span class="badge badge-topic">Star, Bus &amp; Mesh</span>
+            <span class="badge badge-topic">TCP/IP 4 Layers</span>
+            <span class="badge badge-topic">Public Key Encryption</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <a href="./modules/networks/index.html" class="btn btn-primary" title="Open Networks, Packets & Protocols">
+            Open Module
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card 8 (Paper 2, Sec 5): Relational Databases & SQL Studio -->
       <div class="module-card active" data-category="paper2" data-search="sql database querying relational primary key foreign key select where order by paper 2 databases 3.7 tables">
         <div>
           <div class="card-header">
             <div class="card-icon-wrapper card-icon-active" style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 50%, #10b981 100%);">
-              <!-- Database & Schema Icon -->
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
                 <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
@@ -666,36 +653,19 @@
           </div>
 
           <p class="card-description">
-            Interactive SQL Studio with live clause tracer (FROM &rarr; WHERE &rarr; ORDER BY &rarr; SELECT), visual Primary/Foreign key schema, and exam practice challenges.
+            Interactive SQL Studio with live clause tracing (FROM, WHERE, ORDER BY, SELECT), visual Primary &amp; Foreign key schema, and exam challenge questions.
           </p>
 
-          <ul class="card-highlights">
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Interactive SQL engine testing the 4 AQA commands: SELECT, FROM, WHERE, ORDER BY</span>
-            </li>
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Linked two-table schema with Primary Key (PK) &amp; Foreign Key (FK) relationship explorer</span>
-            </li>
-            <li class="highlight-item">
-              <span class="highlight-icon">✓</span>
-              <span>Warm-up to exam-level challenges with instant automated mark schemes &amp; model answers</span>
-            </li>
-          </ul>
-
           <div class="card-tags">
-            <span class="badge badge-paper2">Paper 2</span>
-            <span class="badge badge-topic">Databases 3.7</span>
             <span class="badge badge-topic">SQL Queries</span>
-            <span class="badge badge-spec">AQA 8525 §3.7</span>
+            <span class="badge badge-topic">Primary &amp; Foreign Keys</span>
+            <span class="badge badge-topic">Clause Tracing</span>
           </div>
         </div>
 
         <div class="card-footer">
-          <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">AQA 8525 §3.7</span>
           <a href="./modules/sql-cyber-lab/index.html" class="btn btn-primary" title="Open Relational Databases & SQL">
-            Open Relational Databases &amp; SQL
+            Open Module
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"></line>
               <polyline points="12 5 19 12 12 19"></polyline>

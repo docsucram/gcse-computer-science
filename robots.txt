@@ -1,0 +1,25 @@
+# Robots.txt for GCSE Computer Science Revision Portal
+# Permits crawling, indexing, and ingestion by all web crawlers, search engines, and Google Gemini AI robots.
+
+User-agent: *
+Allow: /
+
+# Explicit permission for Google Gemini / Vertex AI training & grounding crawler
+User-agent: Google-Extended
+Allow: /
+
+# Google Search & Gemini Web Browsing Crawler
+User-agent: Googlebot
+Allow: /
+Allow: /modules/
+Allow: /shared/
+
+# Google Research & Specialized AI Crawlers
+User-agent: GoogleOther
+Allow: /
+
+# Google Search Console & Rendering Inspection
+User-agent: Google-InspectionTool
+Allow: /
+
+Sitemap: /sitemap.xml

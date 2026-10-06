@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow">
+  <title>How the Internet Works • Packets, Routing &amp; Protocols (GCSE)</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="site-header">
+    <div class="header-container" style="max-width: 1400px;">
+      
+      <!-- Left: Back link & Title -->
+      <div class="header-brand-group">
+        <a href="../../index.html" class="back-link" title="Return to Revision Hub">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Hub
+        </a>
+
+        <div class="brand-divider"></div>
+
+        <div class="brand-title-wrap">
+          <h1 class="brand-title">Networks &amp; Protocols</h1>
+          <span class="badge badge-topic">AQA 8525 §3.5</span>
+        </div>
+      </div>
+
+      <!-- Center: Tab Switchers -->
+      <nav class="view-tabs">
+        <button class="view-tab-btn active" data-tab="packet-world">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+          Packet Routing
+        </button>
+
+        <button class="view-tab-btn" data-tab="topologies">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="3"></circle><circle cx="4" cy="6" r="2"></circle><circle cx="20" cy="6" r="2"></circle><circle cx="4" cy="18" r="2"></circle><circle cx="20" cy="18" r="2"></circle><line x1="6" y1="7" x2="10" y2="10"></line><line x1="18" y1="7" x2="14" y2="10"></line><line x1="6" y1="17" x2="10" y2="14"></line><line x1="18" y1="17" x2="14" y2="14"></line></svg>
+          Topologies Sandbox
+        </button>
+
+        <button class="view-tab-btn" data-tab="layers">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+          TCP/IP 4 Layers
+        </button>
+
+        <button class="view-tab-btn" data-tab="encryption">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          Encryption
+        </button>
+
+        <button class="view-tab-btn" data-tab="revision">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          Revision Guide
+        </button>
+      </nav>
+
+      <!-- Right: Theme Toggle -->
+      <div class="header-right">
+        <button id="themeToggleBtn" class="theme-btn" title="Toggle Dark/Light Mode">
+          <svg id="sunIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg id="moonIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="network-stage-container">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: THE LIVING PACKET JOURNEY (HERO STAGE)                       -->
+    <!-- =================================================================== -->
+    <div id="tab-packet-world" class="tab-view active">
+
+      <!-- Dynamic Storyline Bar (Human, Conversational, Directly Connected) -->
+      <section class="story-director">
+        <div class="story-content">
+          <h2 class="story-headline" id="storyHeadline">What happens when you tap "Send"?</h2>
+          <p class="story-caption" id="storyCaption">
+            Type a message in the phone below and press the green send button. You'll watch your text get sliced into numbered packets, stamped with IP addresses, and routed across the world.
+          </p>
+        </div>
+        <!-- Tactile Journey Scrubber & Controls -->
+        <div class="story-scrubber-controls">
+          <div class="scrubber-bar-track" id="scrubberTrack" title="Drag or click to scrub through the journey">
+            <div class="scrubber-progress" id="scrubberProgress" style="width: 0%;"></div>
+            <div class="scrubber-thumb" id="scrubberThumb" style="left: 0%;"></div>
+          </div>
+          <div class="scrubber-buttons">
+            <button id="stepBackBtn" class="tactile-btn" title="Previous step">❮</button>
+            <button id="playPauseBtn" class="tactile-btn play-btn" title="Play or pause animation">
+              <span id="playIcon">▶ Play</span>
+              <span id="pauseIcon" style="display: none;">⏸ Pause</span>
+            </button>
+            <button id="stepFwdBtn" class="tactile-btn" title="Next step">❯</button>
+            <button id="resetJourneyBtn" class="tactile-btn reset-btn" title="Start over">↺ Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- THE LIVING PANORAMIC NETWORK WORLD (Full bleed, interactive stage) -->
+      <section class="living-world" id="livingWorld">
+
+        <!-- Stage Canvas (SVG Paths + Glowing Particles + Clickable Nodes) -->
+        <div class="world-canvas-wrapper" id="worldCanvasWrapper">
+          <svg id="worldSvg" viewBox="0 0 1340 500" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <!-- Fibre Optic Glow Filter -->
+              <filter id="laserGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" result="blur"></feGaussianBlur>
+                <feMerge>
+                  <feMergeNode in="blur"></feMergeNode>
+                  <feMergeNode in="SourceGraphic"></feMergeNode>
+                </feMerge>
+              </filter>
+              <!-- Drop shadow for nodes -->
+              <filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity="0.12"></feDropShadow>
+              </filter>
+            </defs>
+
+            <!-- Physical Transmission Links -->
+            <g id="worldLinks" class="world-links">
+              <!-- Phone -> 4G Mast (Wireless Radio Waves Arc) -->
+              <path id="linkPhoneMast" d="M 180 250 Q 240 180 300 180" class="wire-link wireless-wave-path"></path>
+              
+              <!-- 4G Mast -> Local ISP (Underground High-Speed Fibre) -->
+              <path id="linkMastIsp" d="M 300 180 Q 380 230 460 250" class="wire-link fibre-link"></path>
+              
+              <!-- ISP -> DNS Cloud (Upward Branch) -->
+              <path id="linkIspDns" d="M 460 250 Q 510 80 640 80" class="wire-link dns-query-link"></path>
+              
+              <!-- ISP -> Router Alpha (Path A - High Speed Fibre) -->
+              <path id="linkIspAlpha" d="M 460 250 Q 550 200 660 200" class="wire-link backbone-cable" data-cable="alpha"></path>
+              
+              <!-- ISP -> Router Beta (Path B - Alternate Transatlantic Link) -->
+              <path id="linkIspBeta" d="M 460 250 Q 550 370 660 370" class="wire-link backbone-cable" data-cable="beta"></path>
+              
+              <!-- Router Alpha -> Router Gamma (Cross-mesh) -->
+              <path id="linkAlphaGamma" d="M 660 200 Q 770 200 870 250" class="wire-link backbone-cable"></path>
+              
+              <!-- Router Beta -> Router Gamma (Cross-mesh) -->
+              <path id="linkBetaGamma" d="M 660 370 Q 770 370 870 250" class="wire-link backbone-cable"></path>
+              
+              <!-- CHAT DESTINATION LINKS (Friend's device via mast) -->
+              <g id="groupChatLinks">
+                <path id="linkGammaDestMast" d="M 870 250 Q 950 210 1020 180" class="wire-link fibre-link"></path>
+                <path id="linkDestMastPhone" d="M 1020 180 Q 1070 180 1120 250" class="wire-link wireless-wave-path"></path>
+              </g>
+
+              <!-- WEB DESTINATION LINKS (Shows different websites live on different servers!) -->
+              <g id="groupWebLinks" style="display: none;">
+                <path id="linkGammaBbc" d="M 870 250 Q 980 150 1120 130" class="wire-link fibre-link" data-server="bbc"></path>
+                <path id="linkGammaWiki" d="M 870 250 L 1120 250" class="wire-link fibre-link" data-server="wiki"></path>
+                <path id="linkGammaPython" d="M 870 250 Q 980 350 1120 370" class="wire-link fibre-link" data-server="python"></path>
+              </g>
+            </g>
+
+            <!-- Dynamic Radio Wave Pulse Rings (Animated on demand) -->
+            <g id="radioWavesLayer"></g>
+
+            <!-- Animated Moving Packets Layer -->
+            <g id="packetsLayer"></g>
+
+            <!-- Living Interactive Hardware Nodes -->
+            <g id="worldNodes" class="world-nodes">
+
+              <!-- Node 1: Sender Anchor (Coordinates: 150, 250) -->
+              <g class="world-node sender-anchor" id="nodeSender" transform="translate(150, 250)">
+                <circle r="36" class="node-halo halo-device"></circle>
+                <!-- Phone Silhouette -->
+                <rect x="-12" y="-20" width="24" height="40" rx="5" class="node-device-body"></rect>
+                <circle cx="0" cy="14" r="2.2" fill="currentColor"></circle>
+                <text y="54" class="node-title">Your Phone</text>
+                <text y="70" class="node-ip">192.168.1.104</text>
+                <text y="84" class="node-spec-tag">Source IP</text>
+              </g>
+
+              <!-- Node 2: 4G/5G Cell Mast (Coordinates: 300, 180) -->
+              <g class="world-node mast-anchor" id="nodeMast" transform="translate(300, 180)">
+                <circle r="32" class="node-halo halo-mast"></circle>
+                <!-- Mast Tower SVG -->
+                <path d="M 0 -18 L 0 16 M -10 -8 L 10 -8 M -5 16 L 5 16" stroke="currentColor" stroke-width="2.6" fill="none"></path>
+                <path d="M -14 -14 Q -18 -4 -14 6 M 14 -14 Q 18 -4 14 6" stroke="currentColor" stroke-width="2" fill="none"></path>
+                <text y="50" class="node-title">Cell Mast</text>
+                <text y="66" class="node-desc">Radio ➔ Optical Fibre</text>
+              </g>
+
+              <!-- Node 3: Local ISP Gateway Router (Coordinates: 460, 250) -->
+              <g class="world-node router-anchor" id="nodeIsp" transform="translate(460, 250)">
+                <circle r="36" class="node-halo halo-router"></circle>
+                <rect x="-14" y="-11" width="28" height="22" rx="4" class="node-router-body"></rect>
+                <line x1="-8" y1="0" x2="8" y2="0" stroke="currentColor" stroke-width="2.5"></line>
+                <text y="54" class="node-title">ISP Gateway</text>
+                <text y="70" class="node-ip">81.2.14.1</text>
+                <text y="84" class="node-spec-tag">Reads Dest IP</text>
+              </g>
+
+              <!-- Node 4: DNS Server (Domain Name System Resolver) (Coordinates: 640, 80) -->
+              <g class="world-node dns-anchor" id="nodeDns" transform="translate(640, 80)">
+                <circle r="34" class="node-halo halo-dns"></circle>
+                <rect x="-14" y="-14" width="28" height="28" rx="4" class="node-dns-body"></rect>
+                <line x1="-8" y1="-5" x2="8" y2="-5" stroke="currentColor" stroke-width="2.2"></line>
+                <line x1="-8" y1="3" x2="8" y2="3" stroke="currentColor" stroke-width="2.2"></line>
+                <text y="52" class="node-title">DNS Resolver</text>
+                <text y="68" class="node-ip">8.8.8.8</text>
+                <text y="82" class="node-spec-tag">Translates URL ➔ IP</text>
+              </g>
+
+              <!-- Node 5: Router Alpha (Path A - Top) (Coordinates: 660, 200) -->
+              <g class="world-node router-anchor" id="nodeAlpha" transform="translate(660, 200)">
+                <circle r="32" class="node-halo halo-router"></circle>
+                <rect x="-13" y="-10" width="26" height="20" rx="3" class="node-router-body"></rect>
+                <text y="50" class="node-title">Router Alpha</text>
+                <text y="66" class="node-ping" id="alphaPingText">Path A (12ms)</text>
+              </g>
+
+              <!-- Node 6: Router Beta (Path B - Bottom with direct interaction!) (Coordinates: 660, 370) -->
+              <g class="world-node router-anchor clickable-router" id="nodeBeta" transform="translate(660, 370)" title="Click to cause congestion or block this router!">
+                <circle r="32" class="node-halo halo-router" id="betaHalo"></circle>
+                <rect x="-13" y="-10" width="26" height="20" rx="3" class="node-router-body"></rect>
+                <!-- Hazard Cone Icon (shown when congested) -->
+                <text id="hazardIcon" x="0" y="5" font-size="18" text-anchor="middle" style="display: none;">🚧</text>
+                <text y="50" class="node-title" id="betaTitle">Router Beta</text>
+                <text y="66" class="node-ping" id="betaPingText">Path B (16ms)</text>
+                <text y="80" class="node-action-prompt" id="betaPrompt">Click to Congest</text>
+              </g>
+
+              <!-- Node 7: Router Gamma (Egress Aggregator) (Coordinates: 870, 250) -->
+              <g class="world-node router-anchor" id="nodeGamma" transform="translate(870, 250)">
+                <circle r="34" class="node-halo halo-router"></circle>
+                <rect x="-14" y="-11" width="28" height="22" rx="4" class="node-router-body"></rect>
+                <text y="52" class="node-title">Router Gamma</text>
+                <text y="68" class="node-desc">Egress Router</text>
+              </g>
+
+              <!-- CHAT DESTINATION NODES (Friend's device) -->
+              <g id="groupChatNodes">
+                <!-- Node 8: Destination Mast (Coordinates: 1020, 180) -->
+                <g class="world-node mast-anchor" id="nodeDestMast" transform="translate(1020, 180)">
+                  <circle r="32" class="node-halo halo-mast"></circle>
+                  <path d="M 0 -18 L 0 16 M -10 -8 L 10 -8 M -5 16 L 5 16" stroke="currentColor" stroke-width="2.6" fill="none"></path>
+                  <text y="50" class="node-title" id="destMastTitle">Friend's Mast</text>
+                  <text y="66" class="node-desc">Final Wireless Hop</text>
+                </g>
+
+                <!-- Node 9: Friend's Phone (Coordinates: 1120, 250) -->
+                <g class="world-node recipient-anchor" id="nodeRecipient" transform="translate(1120, 250)">
+                  <circle r="38" class="node-halo halo-device"></circle>
+                  <rect x="-13" y="-21" width="26" height="42" rx="5" class="node-device-body"></rect>
+                  <circle cx="0" cy="15" r="2.2" fill="currentColor"></circle>
+                  <text y="56" class="node-title" id="destDeviceTitle">Friend's Phone</text>
+                  <text y="72" class="node-ip" id="destDeviceIp">172.56.21.90</text>
+                  <text y="86" class="node-spec-tag">Reassembles Data</text>
+                </g>
+              </g>
+
+              <!-- WEB DESTINATION SERVERS (Shows that different websites live on different servers!) -->
+              <g id="groupWebServers" style="display: none;">
+                <!-- Server 1: BBC Web Server (Coordinates: 1120, 130) -->
+                <g class="world-node server-anchor" id="nodeServerBbc" transform="translate(1120, 130)">
+                  <circle r="34" class="node-halo halo-server" id="haloServerBbc"></circle>
+                  <rect x="-18" y="-14" width="36" height="28" rx="4" class="node-server-body"></rect>
+                  <line x1="-12" y1="-6" x2="6" y2="-6" stroke="currentColor" stroke-width="2"></line>
+                  <line x1="-12" y1="0" x2="6" y2="0" stroke="currentColor" stroke-width="2"></line>
+                  <line x1="-12" y1="6" x2="6" y2="6" stroke="currentColor" stroke-width="2"></line>
+                  <circle cx="10" cy="-6" r="1.5" fill="#10b981"></circle>
+                  <circle cx="10" cy="0" r="1.5" fill="#10b981"></circle>
+                  <circle cx="10" cy="6" r="1.5" fill="#10b981"></circle>
+                  <text y="38" class="node-title">BBC Server</text>
+                  <text y="52" class="node-ip">151.101.0.81</text>
+                  <text y="65" class="node-spec-tag">London, UK</text>
+                </g>
+
+                <!-- Server 2: Wikipedia Server (Coordinates: 1120, 250) -->
+                <g class="world-node server-anchor" id="nodeServerWiki" transform="translate(1120, 250)">
+                  <circle r="34" class="node-halo halo-server" id="haloServerWiki"></circle>
+                  <rect x="-18" y="-14" width="36" height="28" rx="4" class="node-server-body"></rect>
+                  <line x1="-12" y1="-6" x2="6" y2="-6" stroke="currentColor" stroke-width="2"></line>
+                  <line x1="-12" y1="0" x2="6" y2="0" stroke="currentColor" stroke-width="2"></line>
+                  <line x1="-12" y1="6" x2="6" y2="6" stroke="currentColor" stroke-width="2"></line>
+                  <circle cx="10" cy="-6" r="1.5" fill="#10b981"></circle>
+                  <circle cx="10" cy="0" r="1.5" fill="#10b981"></circle>
+                  <circle cx="10" cy="6" r="1.5" fill="#10b981"></circle>
+                  <text y="38" class="node-title">Wikipedia Server</text>
+                  <text y="52" class="node-ip">208.80.154.224</text>
+                  <text y="65" class="node-spec-tag">Virginia, USA</text>
+                </g>
+
+                <!-- Server 3: Python Server (Coordinates: 1120, 370) -->
+                <g class="world-node server-anchor" id="nodeServerPython" transform="translate(1120, 370)">
+                  <circle r="34" class="node-halo halo-server" id="haloServerPython"></circle>
+                  <rect x="-18" y="-14" width="36" height="28" rx="4" class="node-server-body"></rect>
+                  <line x1="-12" y1="-6" x2="6" y2="-6" stroke="currentColor" stroke-width="2"></line>
+                  <line x1="-12" y1="0" x2="6" y2="0" stroke="currentColor" stroke-width="2"></line>
+                  <line x1="-12" y1="6" x2="6" y2="6" stroke="currentColor" stroke-width="2"></line>
+                  <circle cx="10" cy="-6" r="1.5" fill="#10b981"></circle>
+                  <circle cx="10" cy="0" r="1.5" fill="#10b981"></circle>
+                  <circle cx="10" cy="6" r="1.5" fill="#10b981"></circle>
+                  <text y="38" class="node-title">Python Server</text>
+                  <text y="52" class="node-ip">151.101.192.223</text>
+                  <text y="65" class="node-spec-tag">Oregon, USA</text>
+                </g>
+              </g>
+
+            </g>
+
+            <!-- Floating Living Callouts Directly on the Canvas (Contextual & Visual) -->
+            <g id="worldCallouts">
+              <!-- DNS Resolver Card floating over DNS node -->
+              <g id="calloutDnsCard" class="floating-canvas-card" transform="translate(640, 32)" style="display: none;">
+                <rect x="-200" y="-18" width="400" height="36" rx="8" class="callout-rect" id="calloutDnsRect"></rect>
+                <text x="0" y="5" class="callout-text" id="calloutDnsText">DNS Lookup: bbc.co.uk ➔ 151.101.0.81</text>
+              </g>
+
+              <!-- Packet Divergence Card floating over mesh -->
+              <g id="calloutMeshCard" class="floating-canvas-card" transform="translate(730, 290)" style="display: none;">
+                <rect x="-200" y="-18" width="400" height="36" rx="8" class="callout-rect" id="calloutMeshRect"></rect>
+                <text x="0" y="5" class="callout-text" id="calloutMeshText">Packets split up to avoid congested lines</text>
+              </g>
+
+              <!-- Reassembly Card floating over recipient -->
+              <g id="calloutReassemblyCard" class="floating-canvas-card" transform="translate(1120, 110)" style="display: none;">
+                <rect x="-150" y="-18" width="300" height="36" rx="8" class="callout-rect" id="calloutReassemblyRect"></rect>
+                <text x="0" y="5" class="callout-text" id="calloutReassemblyText">Reordered by Sequence Number ✓</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Tactile Devices Flanking the World (The Physical Experience) -->
+        <div class="interactive-stage-dock">
+          
+          <!-- LEFT DEVICE: Your Phone (Interactive Sender) -->
+          <div class="physical-device sender-device">
+            <div class="device-speaker"></div>
+            
+            <!-- Prominent Mode Switcher Tabs -->
+            <div class="sender-mode-tabs">
+              <button class="mode-tab-btn active" id="tabModeChat" type="button">
+                💬 WhatsApp
+              </button>
+              <button class="mode-tab-btn" id="tabModeWeb" type="button">
+                🌐 Web &amp; DNS
+              </button>
+            </div>
+
+            <div class="device-screen">
+              <div class="screen-top-bar">
+                <span class="carrier-text">4G LTE • 100%</span>
+                <span class="battery-text" id="senderAppLabel">WhatsApp</span>
+              </div>
+
+              <!-- Chat Mode View -->
+              <div id="senderChatView" class="device-app-view">
+                <div class="chat-app-header">
+                  <div class="avatar-circle">M</div>
+                  <div>
+                    <div class="chat-app-title">Study Group</div>
+                    <div class="chat-app-sub">Online (AQA CS)</div>
+                  </div>
+                </div>
+
+                <div class="message-composer">
+                  <input type="text" id="interactiveMessageInput" class="composer-input" value="Meet at the library at 4pm!" placeholder="Type your message...">
+                  <button id="sendActionBtn" class="composer-send-btn" title="Tap to send packets across the internet!">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Web Mode View (Alternative) -->
+              <div id="senderWebView" class="device-app-view" style="display: none;">
+                <div class="chat-app-header">
+                  <div class="avatar-circle" style="background:#0284c7;">🌐</div>
+                  <div>
+                    <div class="chat-app-title">Web Browser</div>
+                    <div class="chat-app-sub">Requires DNS lookup first</div>
+                  </div>
+                </div>
+
+                <div class="browser-address-bar">
+                  <span class="lock-icon">🔒</span>
+                  <select id="browserDomainSelect" class="browser-domain-select">
+                    <option value="bbc.co.uk" data-ip="151.101.0.81" data-label="BBC Server" data-loc="London, UK" data-node="nodeServerBbc">bbc.co.uk (BBC • UK)</option>
+                    <option value="wikipedia.org" data-ip="208.80.154.224" data-label="Wikipedia Server" data-loc="Virginia, USA" data-node="nodeServerWiki">wikipedia.org (Wiki • USA)</option>
+                    <option value="python.org" data-ip="151.101.192.223" data-label="Python Server" data-loc="Oregon, USA" data-node="nodeServerPython">python.org (Python • USA)</option>
+                  </select>
+                  <button id="browserGoBtn" class="browser-go-btn" title="Request Web Page">Go ➔</button>
+                </div>
+                <div class="browser-hint-text">
+                  Different websites live on <strong>different servers</strong> across the world. <strong>DNS (8.8.8.8)</strong> translates the domain name into that server's specific IP address so routers can steer your request to the right place!
+                </div>
+              </div>
+
+              <!-- Slicing Visualization: Shows the actual packet chips generated -->
+              <div class="packet-slicer-tray" id="packetSlicerTray">
+                <span class="tray-label">TCP Packet Slicing:</span>
+                <div class="slicer-chips" id="slicerChips">
+                  <!-- Dynamically rendered slices -->
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CENTRE DOCK: Direct Physical Packet Inspector (The Unfolded Envelope) -->
+          <div class="contextual-envelope-inspector" id="packetInspectorCard">
+            <div class="envelope-ribbon">
+              <span class="envelope-badge" id="inspectEnvelopeBadge">Packet #1 of 3 (TCP)</span>
+              <button id="corruptToggleBtn" class="stamp-btn" title="Flip a single bit to simulate interference or noise">
+                <span class="stamp-icon">⚠️</span> Inject Checksum Error
+              </button>
+            </div>
+
+            <div class="envelope-body">
+              <!-- Part 1: Header Luggage Tag -->
+              <div class="envelope-section header-section">
+                <div class="section-tag-stamp">1. PACKET HEADER (Metadata)</div>
+                <div class="tag-meta-grid">
+                  <div class="meta-field-col"><span class="meta-label">Source IP:</span> <strong id="envSrcIp">192.168.1.104</strong></div>
+                  <div class="meta-field-col"><span class="meta-label">Destination IP:</span> <strong id="envDestIp">172.56.21.90</strong></div>
+                  <div class="meta-field-col"><span class="meta-label">Sequence #:</span> <strong id="envSeq" class="text-accent">#1 of 3</strong></div>
+                  <div class="meta-field-col"><span class="meta-label">Protocol:</span> <strong id="envProto">TCP / IP</strong></div>
+                  <div class="meta-field-col full-row"><span class="meta-label">TTL (Time to Live):</span> <div><strong id="envTtl">64 hops</strong> <span class="sub-explain">(prevents infinite loops)</span></div></div>
+                </div>
+              </div>
+
+              <!-- Part 2: Payload Letter -->
+              <div class="envelope-section payload-section">
+                <div class="section-tag-stamp">2. PAYLOAD (Data Chunk)</div>
+                <div class="payload-letter-box">
+                  <code id="envPayload">"Meet at the "</code>
+                </div>
+                <div class="payload-size-label" id="envBytes">12 bytes of text</div>
+              </div>
+
+              <!-- Part 3: Trailer Wax Seal -->
+              <div class="envelope-section trailer-section">
+                <div class="section-tag-stamp">3. TRAILER (Error Check)</div>
+                <div class="wax-seal-box">
+                  <div>
+                    <span class="meta-label">CRC32 Checksum:</span>
+                    <strong id="envCrc">0x8F3D12A0</strong>
+                  </div>
+                  <div class="seal-badge seal-valid" id="envSealStatus">Valid ✓</div>
+                </div>
+                <p class="exam-mini-tip">
+                  If the trailer checksum doesn't match the recalculation at the destination, TCP discards the packet and requests a resend.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT DEVICE: Recipient Phone / Web Server (Live Reassembly & Rendering) -->
+          <div class="physical-device recipient-device">
+            <div class="device-speaker"></div>
+            <div class="device-screen">
+              <div class="screen-top-bar">
+                <span class="carrier-text" id="destCarrierText">5G • Incoming</span>
+                <span class="battery-text">16:00</span>
+              </div>
+
+              <!-- Reassembly Live Buffer -->
+              <div class="destination-buffer-shelf">
+                <div class="shelf-title-row">
+                  <span class="shelf-title">Reassembly Buffer</span>
+                  <span class="shelf-status-pill" id="shelfStatusPill">Waiting</span>
+                </div>
+                <div class="shelf-slots" id="shelfSlots">
+                  <!-- Dynamic slots -->
+                </div>
+              </div>
+
+              <!-- Live Rendered Screen -->
+              <div class="destination-rendered-app" id="destAppBody">
+                <div class="dest-chat-bubble" id="destChatBubble">
+                  <div class="bubble-content" id="destBubbleContent">
+                    <em>Waiting for transmission...</em>
+                  </div>
+                  <div class="bubble-meta-row">
+                    <span id="destMsgTime">--:--</span>
+                    <span id="destTickMarks" class="tick-marks">✓✓</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: TOPOLOGIES PLAYGROUND (STAR vs BUS vs MESH)                  -->
+    <!-- =================================================================== -->
+    <div id="tab-topologies" class="tab-view">
+
+      <div class="standalone-stage-header">
+        <div>
+          <h2>Network Topologies: Star, Bus &amp; Mesh</h2>
+          <p>Cut wires or simulate hardware failures to test network resilience. Watch packets route, bounce, or self-heal in real time across Star, Bus, and Mesh architectures.</p>
+        </div>
+        <!-- Topology selector pills -->
+        <div class="topo-pill-group" id="topoPills">
+          <button class="topo-pill active" data-topo="star">Star</button>
+          <button class="topo-pill" data-topo="bus">Bus</button>
+          <button class="topo-pill" data-topo="mesh">Mesh</button>
+        </div>
+      </div>
+
+      <!-- Quick Preset & Fault Injection Bar -->
+      <div class="topo-preset-bar">
+        <span class="topo-preset-label">Test Scenarios:</span>
+        <div class="topo-preset-buttons" id="topoPresetButtons">
+          <!-- Dynamically populated based on active topology -->
+        </div>
+      </div>
+
+      <div class="topo-grid-layout">
+        <!-- Interactive Topology Canvas -->
+        <div class="topo-interactive-stage">
+          <div class="topo-stage-toolbar">
+            <div class="topo-hud">
+              <span class="topo-stage-title" id="topoCurrentTitle">Star Topology (Central Switch)</span>
+              <span class="topo-health-badge online" id="topoHealthBadge">● 100% Operational</span>
+            </div>
+            <div class="topo-stage-actions">
+              <button id="topoPingBtn" class="tactile-btn play-btn" title="Transmit animated packet">▶ Send Packet (1 ➔ 4)</button>
+              <button id="topoRepairBtn" class="tactile-btn reset-btn" title="Reconnect all severed wires">↺ Repair All Cables</button>
+            </div>
+          </div>
+
+          <div class="topo-canvas-container">
+            <svg id="topoSvg" viewBox="0 0 820 400" preserveAspectRatio="xMidYMid meet">
+              <defs>
+                <filter id="topoGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feGaussianBlur stdDeviation="3" result="blur"></feGaussianBlur>
+                  <feMerge>
+                    <feMergeNode in="blur"></feMergeNode>
+                    <feMergeNode in="SourceGraphic"></feMergeNode>
+                  </feMerge>
+                </filter>
+              </defs>
+              <!-- Drawn by JS -->
+            </svg>
+          </div>
+
+          <div class="topo-live-feedback" id="topoFeedback">
+            <div class="feedback-icon" id="topoFeedbackIcon">ℹ️</div>
+            <div class="feedback-text" id="topoFeedbackText">
+              Star network online. Click any cable to snip it with scissors ✂, or click the Central Switch to simulate hardware failure.
+            </div>
+          </div>
+        </div>
+
+        <!-- AQA Exam Revision Insights -->
+        <div class="topo-exam-insights">
+          <div class="topo-metrics-card">
+            <h4>Live Topology Diagnostics</h4>
+            <div class="topo-metrics-grid">
+              <div class="metric-item">
+                <span class="metric-label">Cable Cost</span>
+                <strong class="metric-val" id="metricCost">Moderate (O(N))</strong>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Single Point of Failure</span>
+                <strong class="metric-val" id="metricSpof">Central Switch</strong>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Collisions</span>
+                <strong class="metric-val" id="metricCollisions">Zero (Switched)</strong>
+              </div>
+              <div class="metric-item">
+                <span class="metric-label">Redundant Paths</span>
+                <strong class="metric-val" id="metricPaths">0 (Single link per node)</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="topo-fact-card" id="factCardDetail">
+            <h4 id="factCardTitle">⭐ Star Topology in GCSE Exams</h4>
+            <p id="factCardBody">
+              In a star network, each workstation has its own dedicated connection to a central switch. 
+              <strong>Advantage:</strong> If one workstation cable breaks, no other device is affected. 
+              <strong>Disadvantage:</strong> If the central switch fails, the entire network goes down (Single Point of Failure).
+            </p>
+            <div class="fact-exam-tip" id="factExamTip">
+              <strong>Exam Tip:</strong> AQA often asks why a school would choose a star topology over a bus topology. Key answers: higher bandwidth per machine, no packet collisions, and cable breaks only affect one computer.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: TCP/IP 4-LAYER MODEL (CLASSIC U-SHAPE FLOW)                  -->
+    <!-- =================================================================== -->
+    <div id="tab-layers" class="tab-view">
+
+      <div class="standalone-stage-header">
+        <div>
+          <h2>The TCP/IP 4-Layer Model</h2>
+          <p>How a message is packaged with headers on the sender (Encapsulation), sent across the wire, and unpacked layer-by-layer on the receiver (Decapsulation).</p>
+        </div>
+      </div>
+
+      <!-- Protocol Preset Chooser & Live Message Input -->
+      <div class="layer-preset-bar">
+        <div class="layer-preset-row">
+          <span class="layer-preset-label">Choose Request:</span>
+          <div class="layer-preset-buttons" id="layerPresetButtons">
+            <button class="layer-pill active" data-preset="web">Web Page (HTTP • Port 80)</button>
+            <button class="layer-pill" data-preset="https">Secure Web (HTTPS • Port 443)</button>
+            <button class="layer-pill" data-preset="email">Send Email (SMTP • Port 25)</button>
+            <button class="layer-pill" data-preset="custom">Custom Message</button>
+          </div>
+        </div>
+
+        <div class="layer-input-row">
+          <label class="layer-input-label">Message Payload:</label>
+          <input type="text" id="layerUserPayloadInput" class="layer-message-input" value="GET /index.html">
+        </div>
+      </div>
+
+      <!-- Story Director & Stepper Controls Bar (Above the Sim) -->
+      <div class="layer-story-director">
+        <div class="story-director-content">
+          <div class="u-story-badge-row">
+            <span class="u-step-indicator" id="storyStepIndicator">Step 1 of 8</span>
+            <span class="u-layer-tag" id="storyLayerTag">Layer 4 • Application</span>
+            <span class="layer-phase-pill" id="layerPhaseBadge">Sender (Encapsulation)</span>
+          </div>
+          <div class="u-story-header-row">
+            <h3 class="u-story-title" id="storyLayerTitle">Application Layer</h3>
+            <div class="u-teen-subtitle" id="storyTeenSub">"Which software application sent this?"</div>
+          </div>
+          <p class="u-story-desc" id="storyLayerDesc">
+            User initiates a request in browser software. The HTTP protocol formats the text payload ready for the network.
+          </p>
+        </div>
+
+        <div class="story-director-controls">
+          <div class="layer-tactile-buttons">
+            <button id="layerStepBackBtn" class="tactile-btn" title="Previous Layer">❮</button>
+            <button id="layerStepFwdBtn" class="tactile-btn play-btn" title="Next Layer">Next Step ❯</button>
+            <button id="layerAutoPlayBtn" class="tactile-btn" title="Auto Play Stack">
+              <span id="layerPlayIcon">▶ Auto Play</span>
+              <span id="layerPauseIcon" style="display: none;">⏸ Pause</span>
+            </button>
+            <button id="layerResetBtn" class="tactile-btn reset-btn" title="Start over">↺ Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- FULL-WIDTH TWO-COMPUTER U-SHAPED STACK SIMULATION -->
+      <div class="u-stack-stage">
+        
+        <div class="u-columns-container">
+          
+          <!-- SENDER COLUMN (PC WORKSTATION ON TOP + DOWNWARD ENCAPSULATION 4 -> 1) -->
+          <div class="u-column sender-column">
+            <!-- SENDER PC WORKSTATION -->
+            <div class="u-device-card sender-pc active" id="uSenderDevice">
+              <div class="u-device-screen">
+                <div class="screen-titlebar">
+                  <span class="screen-dots"><i></i><i></i><i></i></span>
+                  <span class="screen-window-title" id="uSenderWindowTitle">Browser Client</span>
+                </div>
+                <div class="screen-body">
+                  <div class="screen-indicator active" id="uSenderIndicator"></div>
+                  <div class="screen-text-wrap">
+                    <span class="screen-sub-label">Client Request:</span>
+                    <strong class="screen-text" id="uSenderScreenText">GET /index.html</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="u-device-neck"></div>
+              <div class="u-device-base"></div>
+              <div class="u-device-info-bar">
+                <div class="u-device-label">Sender Workstation</div>
+                <span class="u-device-ip">IP: 192.168.1.50</span>
+              </div>
+            </div>
+
+            <div class="u-column-header">
+              <span class="u-dir-badge">Encapsulation ↓</span>
+            </div>
+
+            <!-- Layer 4: Application -->
+            <div class="u-layer-box active" data-step="0" data-layer="4">
+              <div class="u-layer-num">Layer 4</div>
+              <div class="u-layer-info">
+                <strong class="u-layer-name">Application Layer</strong>
+                <span class="u-layer-sub" id="uSenderAppSub">HTTP (Port 80)</span>
+              </div>
+            </div>
+            <div class="u-stack-arrow down" id="uArrowDown0">↓ Pass down</div>
+
+            <!-- Layer 3: Transport -->
+            <div class="u-layer-box" data-step="1" data-layer="3">
+              <div class="u-layer-num">Layer 3</div>
+              <div class="u-layer-info">
+                <strong class="u-layer-name">Transport Layer</strong>
+                <span class="u-layer-sub" id="uSenderTransSub">TCP • Slices Packets &amp; Ports</span>
+              </div>
+            </div>
+            <div class="u-stack-arrow down" id="uArrowDown1">↓ Pass down</div>
+
+            <!-- Layer 2: Internet -->
+            <div class="u-layer-box" data-step="2" data-layer="2">
+              <div class="u-layer-num">Layer 2</div>
+              <div class="u-layer-info">
+                <strong class="u-layer-name">Internet Layer</strong>
+                <span class="u-layer-sub" id="uSenderNetSub">IP • Adds IP Addresses</span>
+              </div>
+            </div>
+            <div class="u-stack-arrow down" id="uArrowDown2">↓ Pass down</div>
+
+            <!-- Layer 1: Link -->
+            <div class="u-layer-box" data-step="3" data-layer="1">
+              <div class="u-layer-num">Layer 1</div>
+              <div class="u-layer-info">
+                <strong class="u-layer-name">Link Layer</strong>
+                <span class="u-layer-sub">MAC Addresses &amp; Physical NIC</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CENTER CONDUIT: LOGICAL PEER PROTOCOL BRIDGES & ACTIVE PACKET STATE -->
+          <div class="u-center-conduit">
+            <div class="conduit-channel-card">
+              <div class="channel-card-top">
+                <span class="conduit-title">Peer-to-Peer Protocol Bridges</span>
+                <span class="channel-status-pill" id="conduitStatusPill">Live Transmission</span>
+              </div>
+              <div class="channel-card-body">
+                <div class="channel-headline">End-to-End Logical Communication</div>
+                <div class="channel-desc">
+                  Each layer communicates logically with its matching peer on the other host. Watch how headers are added on the left, transported across the wire, and stripped on the right.
+                </div>
+              </div>
+            </div>
+
+            <div class="u-column-header">
+              <span class="u-dir-badge conduit-badge">Packet Transformation ⇄</span>
+            </div>
+
+            <!-- Conduit Level 4: Application -->
+            <div class="conduit-level" id="conduitLevel4" data-layer="4">
+              <div class="conduit-bridge-bar">
+                <span class="bridge-line"></span>
+                <span class="bridge-tag app-tag">Application Protocol Peer Link (HTTP / HTTPS / SMTP)</span>
+                <span class="bridge-line"></span>
+              </div>
+              <div class="conduit-content" id="conduitContent4">
+                <!-- Dynamically updated by JS -->
+              </div>
+            </div>
+
+            <!-- Conduit Level 3: Transport (TCP Splitting / Reassembly) -->
+            <div class="conduit-level" id="conduitLevel3" data-layer="3">
+              <div class="conduit-bridge-bar">
+                <span class="bridge-line"></span>
+                <span class="bridge-tag trans-tag">Transport Protocol Peer Link (TCP End-to-End)</span>
+                <span class="bridge-line"></span>
+              </div>
+              <div class="conduit-content" id="conduitContent3">
+                <!-- Dynamically updated by JS (Packet Splitting & Slicing) -->
+              </div>
+            </div>
+
+            <!-- Conduit Level 2: Internet (IP Addressing) -->
+            <div class="conduit-level" id="conduitLevel2" data-layer="2">
+              <div class="conduit-bridge-bar">
+                <span class="bridge-line"></span>
+                <span class="bridge-tag net-tag">Internet Protocol Peer Link (IP Logical Addressing)</span>
+                <span class="bridge-line"></span>
+              </div>
+              <div class="conduit-content" id="conduitContent2">
+                <!-- Dynamically updated by JS (IP Routing) -->
+              </div>
+            </div>
+
+            <!-- Conduit Level 1: Link (Physical NIC & Framing) -->
+            <div class="conduit-level" id="conduitLevel1" data-layer="1">
+              <div class="conduit-bridge-bar">
+                <span class="bridge-line"></span>
+                <span class="bridge-tag link-tag">Link Layer Peer Link (Hop-to-Hop Hardware Frames)</span>
+                <span class="bridge-line"></span>
+              </div>
+              <div class="conduit-content" id="conduitContent1">
+                <!-- Dynamically updated by JS (MAC & Physical Bits) -->
+              </div>
+            </div>
+          </div>
+
+          <!-- RECEIVER COLUMN (SERVER WORKSTATION ON TOP + UPWARD DECAPSULATION 1 -> 4) -->
+          <div class="u-column receiver-column">
+            <!-- RECEIVER SERVER WORKSTATION -->
+            <div class="u-device-card receiver-pc" id="uReceiverDevice">
+              <div class="u-device-screen">
+                <div class="screen-titlebar">
+                  <span class="screen-dots"><i></i><i></i><i></i></span>
+                  <span class="screen-window-title" id="uReceiverWindowTitle">Web Server Process</span>
+                </div>
+                <div class="screen-body">
+                  <div class="screen-indicator" id="uReceiverIndicator"></div>
+                  <div class="screen-text-wrap">
+                    <span class="screen-sub-label">Server State:</span>
+                    <strong class="screen-text text-idle" id="uReceiverScreenText">Waiting for packets...</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="u-device-neck"></div>
+              <div class="u-device-base"></div>
+              <div class="u-device-info-bar">
+                <div class="u-device-label">Receiver Server</div>
+                <span class="u-device-ip" id="uReceiverIp">IP: 151.101.0.81</span>
+              </div>
+            </div>
+
+            <div class="u-column-header">
+              <span class="u-dir-badge">Decapsulation ↑</span>
+            </div>
+
+            <!-- Layer 4: Application -->
+            <div class="u-layer-box" data-step="7" data-layer="4">
+              <div class="u-layer-num">Layer 4</div>
+              <div class="u-layer-info">
+                <strong class="u-layer-name">Application Layer</strong>
+                <span class="u-layer-sub" id="uReceiverAppSub">Renders Message</span>
+              </div>
+            </div>
+            <div class="u-stack-arrow up" id="uArrowUp6">↑ Pass up</div>
+
+            <!-- Layer 3: Transport -->
+            <div class="u-layer-box" data-step="6" data-layer="3">
+              <div class="u-layer-num">Layer 3</div>
+              <div class="u-layer-info">
+                <strong class="u-layer-name">Transport Layer</strong>
+                <span class="u-layer-sub" id="uReceiverTransSub">Reassembles Numbered Chunks</span>
+              </div>
+            </div>
+            <div class="u-stack-arrow up" id="uArrowUp5">↑ Pass up</div>
+
+            <!-- Layer 2: Internet -->
+            <div class="u-layer-box" data-step="5" data-layer="2">
+              <div class="u-layer-num">Layer 2</div>
+              <div class="u-layer-info">
+                <strong class="u-layer-name">Internet Layer</strong>
+                <span class="u-layer-sub">Strips &amp; Confirms IP</span>
+              </div>
+            </div>
+            <div class="u-stack-arrow up" id="uArrowUp4">↑ Pass up</div>
+
+            <!-- Layer 1: Link -->
+            <div class="u-layer-box" data-step="4" data-layer="1">
+              <div class="u-layer-num">Layer 1</div>
+              <div class="u-layer-info">
+                <strong class="u-layer-name">Link Layer</strong>
+                <span class="u-layer-sub">Strips MAC Frame</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- BOTTOM PHYSICAL WIRE (Connecting Link to Link) -->
+        <div class="u-wire-highway" id="uWireHighway">
+          <span class="wire-arrow-left">⮦ Link Layer</span>
+          <div class="wire-track-line">
+            <div class="wire-glowing-pulse"></div>
+            <div class="wire-moving-packet" id="wireMovingPacket">
+              <span class="packet-dot"></span>
+              <span class="packet-label" id="wirePacketLabel">Ethernet Frame: Bits &amp; Electrical Pulses</span>
+            </div>
+          </div>
+          <span class="wire-arrow-right">Link Layer ⮧</span>
+        </div>
+
+      </div>
+
+      <!-- LOWER DECK: PACKET ENVELOPE INSPECTOR & AQA CORE SPEC (Below the Sim) -->
+      <div class="layer-lower-deck">
+
+        <!-- The Live Packet Envelope Visualizer -->
+        <div class="u-envelope-card">
+          <div class="envelope-header-bar">
+            <span class="envelope-title">Packet Packaging at this Step</span>
+            <span class="envelope-state-pill" id="envelopeStatePill">Raw Payload</span>
+          </div>
+
+          <!-- Dynamic Envelope Stack -->
+          <div class="envelope-visual-stack" id="envelopeVisualStack">
+            <!-- Dynamically populated by JS -->
+          </div>
+        </div>
+
+        <!-- Why Layers Exist (AQA Core Spec) -->
+        <div class="layer-why-box">
+          <h5>Why Use Network Layers? (AQA Core §3.5.4)</h5>
+          <ul>
+            <li><strong>Modularity:</strong> Each layer is independent. Upgrading Wi-Fi to 5G doesn't break HTTP.</li>
+            <li><strong>Interoperability:</strong> Different hardware and software vendors interoperate freely.</li>
+            <li><strong>Decomposition:</strong> Breaks down complex network tasks into simple, manageable steps.</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 4: ENCRYPTION & KEY EXCHANGE (SIMON SINGH PAINT POT ANALOGY)    -->
+    <!-- =================================================================== -->
+    <div id="tab-encryption" class="tab-view show-math">
+
+      <!-- Header & Concept Overview -->
+      <div class="standalone-stage-header">
+        <div>
+          <h2>Public Key Cryptography &amp; Key Exchange</h2>
+          <p class="crypto-intro-paragraph">
+            Data sent across a network, like a WhatsApp message, is often encrypted so that if the data is intercepted, it cannot be read. However, encryption normally relies on both the sender and receiver knowing the same secret key. So, how do we share a secret encryption key over a network without someone listening being able to find out what that key is? One method is <strong>Public Key Cryptography</strong> — demonstrated below using the classic <strong>Paint Pot Analogy</strong> from Simon Singh's <em>The Code Book</em>.
+          </p>
+        </div>
+      </div>
+
+      <!-- Step-by-Step Controller Bar -->
+      <div class="crypto-stepper-panel">
+        <div class="crypto-controller-toolbar">
+          <div class="crypto-tactile-buttons">
+            <button id="cryptoStepBackBtn" class="tactile-btn" title="Previous step">❮</button>
+            <button id="cryptoStepFwdBtn" class="tactile-btn play-btn" title="Next step">Next Step ❯</button>
+            <button id="cryptoAutoPlayBtn" class="tactile-btn" title="Auto play simulation">
+              <span id="cryptoPlayIcon">▶ Auto Play</span>
+              <span id="cryptoPauseIcon" style="display: none;">⏸ Pause</span>
+            </button>
+            <button id="cryptoStepResetBtn" class="tactile-btn reset-btn" title="Restart simulation">↺ Reset</button>
+          </div>
+
+          <div class="crypto-toolbar-divider"></div>
+
+          <!-- Integrated Math in Diagram Toggle -->
+          <button id="cryptoMathToggleBtn" class="tactile-btn math-toggle-btn active" title="Toggle Diffie-Hellman formulas and values directly in the diagram">
+            <span class="math-status-dot"></span>
+            <span id="cryptoMathToggleText">Math in Diagram: ON</span>
+          </button>
+        </div>
+
+        <!-- 6 Step Indicators (1 to 6) -->
+        <div class="crypto-steps-track" id="cryptoStepsTrack">
+          <div class="crypto-step-pill active" data-step="1">
+            <span class="step-num">1</span>
+            <span class="step-title">Initial State</span>
+          </div>
+          <div class="crypto-step-arrow">➔</div>
+          <div class="crypto-step-pill" data-step="2">
+            <span class="step-num">2</span>
+            <span class="step-title">Share Public Key</span>
+          </div>
+          <div class="crypto-step-arrow">➔</div>
+          <div class="crypto-step-pill" data-step="3">
+            <span class="step-num">3</span>
+            <span class="step-title">One-Way Paint Mix</span>
+          </div>
+          <div class="crypto-step-arrow">➔</div>
+          <div class="crypto-step-pill" data-step="4">
+            <span class="step-num">4</span>
+            <span class="step-title">The Packet Swap</span>
+          </div>
+          <div class="crypto-step-arrow">➔</div>
+          <div class="crypto-step-pill" data-step="5">
+            <span class="step-num">5</span>
+            <span class="step-title">Shared Key Match</span>
+          </div>
+          <div class="crypto-step-arrow">➔</div>
+          <div class="crypto-step-pill" data-step="6">
+            <span class="step-num">6</span>
+            <span class="step-title">WhatsApp E2EE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dynamic Story Director / Explainer Banner -->
+      <div class="crypto-story-banner" id="cryptoStoryDirector">
+        <div class="story-banner-main">
+          <div class="story-tag-row">
+            <span class="crypto-phase-badge" id="cryptoPhaseBadge">Step 1 of 6 • Initial State</span>
+            <span class="story-principle-badge" id="statOneWayStatus">Private secrets remain in device storage</span>
+          </div>
+          <h3 class="crypto-story-headline" id="cryptoStoryHeadline">Private Keys in Studios, Public Key on Open Wire</h3>
+          <p class="crypto-story-desc" id="cryptoStoryDesc">
+            Alice holds her private key on her device. Bob holds his private key on his device. The public key is in the public space.
+          </p>
+        </div>
+        <div class="story-banner-hud" id="cryptoStoryStatBox">
+          <div class="hud-item">
+            <span class="hud-label">EVE'S KNOWLEDGE:</span>
+            <strong class="hud-value" id="statEveKnowledge">Public Base Color Only</strong>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">KEY STATUS:</span>
+            <strong class="hud-value" id="statKeyStatus">No secret key established</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- FULL-WIDTH PANORAMIC STAGE (ALICE ⟷ THE INTERNET / EVE ⟷ BOB)       -->
+      <!-- =================================================================== -->
+      <div class="crypto-panoramic-stage" id="cryptoPanoramicStage">
+
+        <!-- ZONE 1: ALICE'S PRIVATE STUDIO -->
+        <div class="stage-zone zone-alice">
+          <div class="zone-header">
+            <div class="zone-identity">
+              <span class="zone-avatar">A</span>
+              <div>
+                <h4 class="zone-title">Alice</h4>
+                <span class="zone-subtitle">Sender Device</span>
+              </div>
+            </div>
+            <span class="zone-shield-badge">Private Space</span>
+          </div>
+
+          <!-- Dynamic Bucket Workspace -->
+          <div class="bucket-workspace" id="aliceBucketWorkspace">
+            <!-- Dynamically populated by JS based on current step -->
+          </div>
+        </div>
+
+        <!-- ZONE 2: THE INSECURE INTERNET & EVE'S MONITOR -->
+        <div class="stage-zone zone-internet">
+          <div class="zone-header">
+            <div class="zone-identity">
+              <span class="zone-avatar">Net</span>
+              <div>
+                <h4 class="zone-title">Public Network Wire</h4>
+                <span class="zone-subtitle">Open Channel</span>
+              </div>
+            </div>
+            <span class="zone-warning-badge">Public Space</span>
+          </div>
+
+          <!-- Center Stage Visual: Transit Cable Highway & Public Base Display -->
+          <div class="internet-highway-area" id="internetHighwayArea">
+            <!-- Dynamically populated by JS based on current step -->
+          </div>
+
+          <!-- Eve's Interceptor Terminal -->
+          <div class="eve-radar-card" id="eveRadarCard">
+            <div class="eve-radar-header">
+              <div class="radar-status">
+                <span class="radar-pulse"></span>
+                <strong>Eve's Network Monitor</strong>
+              </div>
+              <span class="radar-tag">PROMISCUOUS WI-FI CAPTURE</span>
+            </div>
+
+            <!-- Eve Captured Data Display -->
+            <div class="eve-captured-row" id="eveCapturedRow">
+              <div class="eve-capture-slot">
+                <span class="slot-lbl">Public Base:</span>
+                <div class="slot-preview" id="eveSlotPublic"></div>
+                <strong class="slot-txt" id="eveSlotPublicTxt">Yellow</strong>
+              </div>
+              <div class="eve-capture-slot">
+                <span class="slot-lbl">Alice Mixture:</span>
+                <div class="slot-preview" id="eveSlotAliceMix"></div>
+                <strong class="slot-txt" id="eveSlotAliceMixTxt">Unknown</strong>
+              </div>
+              <div class="eve-capture-slot">
+                <span class="slot-lbl">Bob Mixture:</span>
+                <div class="slot-preview" id="eveSlotBobMix"></div>
+                <strong class="slot-txt" id="eveSlotBobMixTxt">Unknown</strong>
+              </div>
+              <div class="eve-capture-slot">
+                <span class="slot-lbl">Shared Secret:</span>
+                <div class="slot-preview slot-locked" id="eveSlotSecret">?</div>
+                <strong class="slot-txt text-danger" id="eveSlotSecretTxt">LOCKED</strong>
+              </div>
+            </div>
+
+            <!-- Eve Actions & Log -->
+            <div class="eve-radar-footer">
+              <button id="eveCrackBtn" class="eve-crack-btn">
+                Eve: Attempt to Reverse One-Way Function
+              </button>
+              <div class="eve-log-message" id="eveCrackResult">
+                Eve is listening to all public packets on the wire.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ZONE 3: BOB'S PRIVATE STUDIO -->
+        <div class="stage-zone zone-bob">
+          <div class="zone-header">
+            <div class="zone-identity">
+              <span class="zone-avatar">B</span>
+              <div>
+                <h4 class="zone-title">Bob</h4>
+                <span class="zone-subtitle">Receiver Device</span>
+              </div>
+            </div>
+            <span class="zone-shield-badge">Private Space</span>
+          </div>
+
+          <!-- Dynamic Bucket Workspace -->
+          <div class="bucket-workspace" id="bobBucketWorkspace">
+            <!-- Dynamically populated by JS based on current step -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- ENCRYPTION REFERENCE & EXAM NOTES                                   -->
+      <!-- =================================================================== -->
+      <section class="crypto-reference-section">
+        <h3 class="reference-section-title">Encryption Concepts &amp; Exam Notes</h3>
+        
+        <div class="reference-content-flow">
+          <article class="reference-block">
+            <h4>Plaintext vs Ciphertext</h4>
+            <p><strong>Plaintext:</strong> The original, readable message before encryption (for example, <code>"Meet at the cafe at 4pm!"</code>).</p>
+            <p><strong>Ciphertext:</strong> The encrypted, scrambled data transmitted across the network (for example, <code>0x53 0x65 0x65...</code>). Without the secret key, it appears as random noise.</p>
+          </article>
+
+          <article class="reference-block">
+            <h4>Symmetric vs Asymmetric Encryption</h4>
+            <p><strong>Symmetric:</strong> Uses <em>one single secret key</em> to both encrypt and decrypt (such as AES). It is fast and computationally lightweight, but introduces the <em>Key Exchange Problem</em>: transmitting the key across an insecure network risks interception.</p>
+            <p><strong>Asymmetric:</strong> Uses a <em>mathematically linked key pair</em> (a Public Key to encrypt and a Private Key to decrypt, or Diffie-Hellman key exchange). This resolves the key-sharing dilemma across public channels.</p>
+          </article>
+
+          <article class="reference-block">
+            <h4>Why WhatsApp and HTTPS Use Hybrid Encryption</h4>
+            <p>Asymmetric mathematics (such as 2048-bit modular exponentiation) requires intensive CPU processing and is too slow for large files or live video streams.</p>
+            <p><strong>The Solution:</strong> Modern networks use <strong>Asymmetric Key Exchange</strong> (Diffie-Hellman) for a fraction of a second to establish a shared secret key, and then immediately switch to fast <strong>Symmetric Encryption (AES)</strong> for all subsequent message traffic.</p>
+          </article>
+
+          <article class="reference-block alert-block">
+            <h4>Common Exam Pitfall: The Public Key</h4>
+            <p><strong>Common Mistake:</strong> Suggesting that <em>"the public key must be kept secret so unauthorized users cannot access it."</em></p>
+            <p><strong>Key Principle:</strong> The Public Key is intentionally public and broadcast openly. It can only be used to <em>encrypt</em> data or mix pigments. Only the corresponding <strong>Private Key</strong> can decrypt the resulting data.</p>
+          </article>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 5: REVISION NOTES & EXAM TRAPS                                  -->
+    <!-- =================================================================== -->
+    <div id="tab-revision" class="tab-view">
+
+      <div class="standalone-stage-header">
+        <div>
+          <h2>Networks Revision Guide &amp; AQA Exam Traps</h2>
+          <p>Plain, readable, high-impact GCSE facts directly aligned with the CGP revision textbook.</p>
+        </div>
+      </div>
+
+      <div class="revision-cards-grid">
+        <div class="rev-card">
+          <h3>1. What are the 3 parts of a packet?</h3>
+          <p>AQA questions consistently test this exact trio:</p>
+          <ul>
+            <li><strong>Header:</strong> Sender IP, Recipient IP, Packet Sequence Number, Total Packets, and Protocol.</li>
+            <li><strong>Payload:</strong> The slice of actual user data.</li>
+            <li><strong>Trailer:</strong> Checksum (CRC) for error detection.</li>
+          </ul>
+        </div>
+
+        <div class="rev-card">
+          <h3>2. IP Address vs MAC Address</h3>
+          <ul>
+            <li><strong>MAC Address:</strong> Physical address burnt into the NIC by the manufacturer. 48 bits written in hex. Used locally (LAN).</li>
+            <li><strong>IP Address:</strong> Logical address assigned by the network. 32-bit (IPv4) or 128-bit (IPv6). Used across the internet (WAN).</li>
+          </ul>
+        </div>
+
+        <div class="rev-card">
+          <h3>3. Domain Name System (DNS)</h3>
+          <p>Computers route numbers, humans remember words. When you type <code>bbc.co.uk</code>, your computer queries a DNS server to look up the corresponding IP address (e.g. <code>151.101.0.81</code>) before sending the request.</p>
+        </div>
+
+        <div class="rev-card">
+          <h3>4. Router vs Switch vs WAP</h3>
+          <ul>
+            <li><strong>Router:</strong> Connects different networks (LAN to WAN). Reads IP addresses to choose optimal paths.</li>
+            <li><strong>Switch:</strong> Connects devices on the same local network. Reads MAC addresses.</li>
+            <li><strong>WAP:</strong> Uses radio waves to connect wireless devices to a wired network.</li>
+          </ul>
+        </div>
+
+        <div class="rev-card alert-card">
+          <h3>⚠️ Classic AQA Exam Traps</h3>
+          <ul>
+            <li><strong>Trap 1:</strong> The <em>Internet</em> is the physical worldwide network of cables and routers. The <em>World Wide Web</em> is the collection of web pages accessed via HTTP over the Internet!</li>
+            <li><strong>Trap 2:</strong> In packet switching, packets take independent routes and arrive out of order—they do <em>not</em> travel on a dedicated single wire.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script src="./app.js"></script>
+</body>
+</html>

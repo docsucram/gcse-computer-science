@@ -102,6 +102,12 @@
     overflowAlert: document.getElementById('overflowAlert'),
     btnExampleOverflow: document.getElementById('btnExampleOverflow'),
     btnResetAdder: document.getElementById('btnResetAdder'),
+    calcAddInputA: document.getElementById('calcAddInputA'),
+    calcAddInputB: document.getElementById('calcAddInputB'),
+    calcAddHexA: document.getElementById('calcAddHexA'),
+    calcAddHexB: document.getElementById('calcAddHexB'),
+    calcAddResultNum: document.getElementById('calcAddResultNum'),
+    calcAddResultHex: document.getElementById('calcAddResultHex'),
 
     // Tab 2: Two's Complement Subtraction
     subStep1Bits: document.getElementById('subStep1Bits'),
@@ -110,7 +116,9 @@
     subStep2Label: document.getElementById('subStep2Label'),
     subVerificationLabel: document.getElementById('subVerificationLabel'),
     digitCellsSubA: document.querySelectorAll('.digit-input-cell[data-sub-row="a"]'),
+    digitCellsSubB: document.querySelectorAll('.digit-input-cell[data-sub-row="b"]'),
     subDenaryA: document.getElementById('subDenaryA'),
+    subDenaryOrigB: document.getElementById('subDenaryOrigB'),
     subDenaryNegB: document.getElementById('subDenaryNegB'),
     subDenaryResult: document.getElementById('subDenaryResult'),
     subCarryRuleBox: document.getElementById('subCarryRuleBox'),
@@ -118,6 +126,14 @@
     btnSubPreset2: document.getElementById('btnSubPreset2'),
     btnSubPreset3: document.getElementById('btnSubPreset3'),
     btnSubPreset4: document.getElementById('btnSubPreset4'),
+    btnSubPreset5: document.getElementById('btnSubPreset5'),
+    calcSubInputA: document.getElementById('calcSubInputA'),
+    calcSubInputB: document.getElementById('calcSubInputB'),
+    calcSubHexA: document.getElementById('calcSubHexA'),
+    calcSubHexB: document.getElementById('calcSubHexB'),
+    calcSubResultNum: document.getElementById('calcSubResultNum'),
+    calcSubResultHex: document.getElementById('calcSubResultHex'),
+    btnResetSub: document.getElementById('btnResetSub'),
 
     // Tab 2: Bitwise Logic
     logicOpButtons: document.querySelectorAll('.logic-op-btn'),
@@ -133,6 +149,13 @@
     btnMaskNibble: document.getElementById('btnMaskNibble'),
     btnMaskOddEven: document.getElementById('btnMaskOddEven'),
     btnMaskToggle: document.getElementById('btnMaskToggle'),
+    btnResetLogic: document.getElementById('btnResetLogic'),
+    calcLogicInputA: document.getElementById('calcLogicInputA'),
+    calcLogicInputB: document.getElementById('calcLogicInputB'),
+    calcLogicHexA: document.getElementById('calcLogicHexA'),
+    calcLogicHexB: document.getElementById('calcLogicHexB'),
+    calcLogicResultNum: document.getElementById('calcLogicResultNum'),
+    calcLogicResultHex: document.getElementById('calcLogicResultHex'),
 
     // Tab 2: Logical Shifts
     shiftBitsDisplay: document.getElementById('shiftBitsDisplay'),
@@ -142,6 +165,8 @@
     btnShiftRight1: document.getElementById('btnShiftRight1'),
     btnShiftRight2: document.getElementById('btnShiftRight2'),
     btnResetShift: document.getElementById('btnResetShift'),
+    calcShiftInput: document.getElementById('calcShiftInput'),
+    calcShiftHex: document.getElementById('calcShiftHex'),
 
     // Tab 3: Units
     scaleUnitButtons: document.querySelectorAll('.scale-unit-btn'),
@@ -1073,12 +1098,25 @@
     const denaryA = bitsToUnsigned(state.rowA);
     const denaryB = bitsToUnsigned(state.rowB);
     const denarySum = bitsToUnsigned(sumBits);
+    const totalMath = denaryA + denaryB;
 
     if (DOM.denaryValA) DOM.denaryValA.textContent = denaryA;
     if (DOM.denaryValB) DOM.denaryValB.textContent = denaryB;
     if (DOM.denaryValSum) {
       DOM.denaryValSum.textContent = hasOverflow ? `${denarySum}*` : denarySum;
     }
+
+    // Sync Calculator Bar
+    if (DOM.calcAddInputA && document.activeElement !== DOM.calcAddInputA) {
+      DOM.calcAddInputA.value = denaryA;
+    }
+    if (DOM.calcAddInputB && document.activeElement !== DOM.calcAddInputB) {
+      DOM.calcAddInputB.value = denaryB;
+    }
+    if (DOM.calcAddHexA) DOM.calcAddHexA.textContent = `0x${denaryA.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcAddHexB) DOM.calcAddHexB.textContent = `0x${denaryB.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcAddResultNum) DOM.calcAddResultNum.textContent = hasOverflow ? `${totalMath} (Overflown to ${denarySum})` : totalMath;
+    if (DOM.calcAddResultHex) DOM.calcAddResultHex.textContent = `0x${denarySum.toString(16).toUpperCase().padStart(2, '0')}`;
 
     // Overflow alert
     if (DOM.overflowAlert) {
@@ -1102,6 +1140,30 @@
         calculateBinaryAddition();
       });
     });
+
+    if (DOM.calcAddInputA) {
+      DOM.calcAddInputA.addEventListener('input', (e) => {
+        let val = parseInt(e.target.value, 10);
+        if (isNaN(val)) val = 0;
+        val = Math.max(0, Math.min(255, val));
+        for (let i = 0; i < 8; i++) {
+          state.rowA[i] = (val >> i) & 1;
+        }
+        calculateBinaryAddition();
+      });
+    }
+
+    if (DOM.calcAddInputB) {
+      DOM.calcAddInputB.addEventListener('input', (e) => {
+        let val = parseInt(e.target.value, 10);
+        if (isNaN(val)) val = 0;
+        val = Math.max(0, Math.min(255, val));
+        for (let i = 0; i < 8; i++) {
+          state.rowB[i] = (val >> i) & 1;
+        }
+        calculateBinaryAddition();
+      });
+    }
 
     if (DOM.btnExampleOverflow) {
       DOM.btnExampleOverflow.addEventListener('click', () => {
@@ -1171,6 +1233,13 @@
         cellA.classList.toggle('one', state.subA[i] === 1);
       }
 
+      // Cell Orig B
+      const cellB = document.querySelector(`.digit-input-cell[data-sub-row="b"][data-col="${i}"]`);
+      if (cellB) {
+        cellB.textContent = state.subB[i];
+        cellB.classList.toggle('one', state.subB[i] === 1);
+      }
+
       // Cell -B
       const cellNegB = document.getElementById(`subNegB-${i}`);
       if (cellNegB) {
@@ -1196,11 +1265,25 @@
     // Denary Calculation
     const resultMath = denaryA - denaryB;
     if (DOM.subDenaryA) DOM.subDenaryA.textContent = denaryA;
+    if (DOM.subDenaryOrigB) DOM.subDenaryOrigB.textContent = denaryB;
     if (DOM.subDenaryNegB) DOM.subDenaryNegB.textContent = `-${denaryB}`;
     if (DOM.subDenaryResult) DOM.subDenaryResult.textContent = resultMath;
     if (DOM.subVerificationLabel) {
       DOM.subVerificationLabel.textContent = `${denaryA} - ${denaryB} = ${resultMath} (Verified!)`;
     }
+
+    // Sync Calculator Bar elements
+    if (DOM.calcSubInputA && document.activeElement !== DOM.calcSubInputA) {
+      DOM.calcSubInputA.value = denaryA;
+    }
+    if (DOM.calcSubInputB && document.activeElement !== DOM.calcSubInputB) {
+      DOM.calcSubInputB.value = denaryB;
+    }
+    if (DOM.calcSubHexA) DOM.calcSubHexA.textContent = `0x${denaryA.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcSubHexB) DOM.calcSubHexB.textContent = `0x${denaryB.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcSubResultNum) DOM.calcSubResultNum.textContent = resultMath;
+    const unsignedRes = (resultMath + 256) & 0xFF;
+    if (DOM.calcSubResultHex) DOM.calcSubResultHex.textContent = `0x${unsignedRes.toString(16).toUpperCase().padStart(2, '0')}`;
 
     // Carry note update
     if (DOM.subCarryRuleBox) {
@@ -1210,7 +1293,7 @@
         `;
       } else {
         DOM.subCarryRuleBox.innerHTML = `
-          <strong>📌 Final Carry Rule:</strong> No 9th carry bit was generated (A &lt; B). The result has MSB=1, meaning the answer is a negative number in two's complement: <strong>${resultMath}</strong>.
+          <strong>📌 Final Carry Rule:</strong> No 9th carry bit was generated (A &lt; B). The result has MSB=1, meaning the answer is a negative number in two's complement: <strong>${resultMath}</strong> (8-bit value: <code>${sumBits.slice().reverse().join('')}</code>₂ = ${resultMath}).
         `;
       }
     }
@@ -1225,6 +1308,40 @@
       });
     });
 
+    if (DOM.digitCellsSubB) {
+      DOM.digitCellsSubB.forEach(cell => {
+        cell.addEventListener('click', () => {
+          const col = parseInt(cell.getAttribute('data-col'), 10);
+          state.subB[col] = state.subB[col] === 1 ? 0 : 1;
+          calculateBinarySubtraction();
+        });
+      });
+    }
+
+    if (DOM.calcSubInputA) {
+      DOM.calcSubInputA.addEventListener('input', (e) => {
+        let val = parseInt(e.target.value, 10);
+        if (isNaN(val)) val = 0;
+        val = Math.max(0, Math.min(255, val));
+        for (let i = 0; i < 8; i++) {
+          state.subA[i] = (val >> i) & 1;
+        }
+        calculateBinarySubtraction();
+      });
+    }
+
+    if (DOM.calcSubInputB) {
+      DOM.calcSubInputB.addEventListener('input', (e) => {
+        let val = parseInt(e.target.value, 10);
+        if (isNaN(val)) val = 0;
+        val = Math.max(0, Math.min(255, val));
+        for (let i = 0; i < 8; i++) {
+          state.subB[i] = (val >> i) & 1;
+        }
+        calculateBinarySubtraction();
+      });
+    }
+
     // Preset buttons
     function setSubtractionPreset(valA, valB) {
       for (let i = 0; i < 8; i++) {
@@ -1238,6 +1355,8 @@
     if (DOM.btnSubPreset2) DOM.btnSubPreset2.addEventListener('click', () => setSubtractionPreset(105, 42));
     if (DOM.btnSubPreset3) DOM.btnSubPreset3.addEventListener('click', () => setSubtractionPreset(25, 60));
     if (DOM.btnSubPreset4) DOM.btnSubPreset4.addEventListener('click', () => setSubtractionPreset(80, 80));
+    if (DOM.btnSubPreset5) DOM.btnSubPreset5.addEventListener('click', () => setSubtractionPreset(200, 75));
+    if (DOM.btnResetSub) DOM.btnResetSub.addEventListener('click', () => setSubtractionPreset(52, 19));
   }
 
   // --- SUB-MODE 3: BITWISE LOGIC ---
@@ -1316,6 +1435,22 @@
     if (DOM.logicDenaryB) DOM.logicDenaryB.textContent = op === 'NOT' ? 'N/A' : denB;
     if (DOM.logicDenaryRes) DOM.logicDenaryRes.textContent = denRes;
 
+    // Sync Calculator Bar elements
+    if (DOM.calcLogicInputA && document.activeElement !== DOM.calcLogicInputA) {
+      DOM.calcLogicInputA.value = denA;
+    }
+    if (DOM.calcLogicInputB && document.activeElement !== DOM.calcLogicInputB) {
+      DOM.calcLogicInputB.value = denB;
+    }
+    if (DOM.calcLogicInputB) {
+      DOM.calcLogicInputB.disabled = (op === 'NOT');
+      DOM.calcLogicInputB.style.opacity = (op === 'NOT') ? '0.3' : '1';
+    }
+    if (DOM.calcLogicHexA) DOM.calcLogicHexA.textContent = `0x${denA.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcLogicHexB) DOM.calcLogicHexB.textContent = op === 'NOT' ? '—' : `0x${denB.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcLogicResultNum) DOM.calcLogicResultNum.textContent = denRes;
+    if (DOM.calcLogicResultHex) DOM.calcLogicResultHex.textContent = `0x${denRes.toString(16).toUpperCase().padStart(2, '0')}`;
+
     // Label and Explanations
     if (DOM.logicOpLabel) DOM.logicOpLabel.textContent = doc.label;
     if (DOM.logicOpTitle) DOM.logicOpTitle.textContent = doc.title;
@@ -1350,6 +1485,30 @@
       });
     });
 
+    if (DOM.calcLogicInputA) {
+      DOM.calcLogicInputA.addEventListener('input', (e) => {
+        let val = parseInt(e.target.value, 10);
+        if (isNaN(val)) val = 0;
+        val = Math.max(0, Math.min(255, val));
+        for (let i = 0; i < 8; i++) {
+          state.logicA[i] = (val >> i) & 1;
+        }
+        calculateBitwiseLogic();
+      });
+    }
+
+    if (DOM.calcLogicInputB) {
+      DOM.calcLogicInputB.addEventListener('input', (e) => {
+        let val = parseInt(e.target.value, 10);
+        if (isNaN(val)) val = 0;
+        val = Math.max(0, Math.min(255, val));
+        for (let i = 0; i < 8; i++) {
+          state.logicB[i] = (val >> i) & 1;
+        }
+        calculateBitwiseLogic();
+      });
+    }
+
     // Preset Mask buttons
     if (DOM.btnMaskNibble) {
       DOM.btnMaskNibble.addEventListener('click', () => {
@@ -1377,16 +1536,42 @@
         calculateBitwiseLogic();
       });
     }
+
+    if (DOM.btnResetLogic) {
+      DOM.btnResetLogic.addEventListener('click', () => {
+        state.logicOp = 'AND';
+        state.logicA = [0, 1, 1, 0, 1, 0, 1, 1]; // 214
+        state.logicB = [1, 1, 1, 1, 0, 0, 0, 0]; // 15
+        DOM.logicOpButtons.forEach(b => b.classList.toggle('active', b.getAttribute('data-op') === 'AND'));
+        calculateBitwiseLogic();
+      });
+    }
   }
 
   // --- SUB-MODE 4: LOGICAL BINARY SHIFTS ---
   function renderShifts() {
-    const binStr = (state.shiftValue & 0xFF).toString(2).padStart(8, '0');
+    const val = state.shiftValue & 0xFF;
+    const binStr = val.toString(2).padStart(8, '0');
     if (DOM.shiftBitsDisplay) DOM.shiftBitsDisplay.textContent = binStr;
-    if (DOM.shiftDenaryDisplay) DOM.shiftDenaryDisplay.textContent = state.shiftValue & 0xFF;
+    if (DOM.shiftDenaryDisplay) DOM.shiftDenaryDisplay.textContent = val;
+    if (DOM.calcShiftInput && document.activeElement !== DOM.calcShiftInput) {
+      DOM.calcShiftInput.value = val;
+    }
+    if (DOM.calcShiftHex) {
+      DOM.calcShiftHex.textContent = `0x${val.toString(16).toUpperCase().padStart(2, '0')}`;
+    }
   }
 
   function setupShiftEvents() {
+    if (DOM.calcShiftInput) {
+      DOM.calcShiftInput.addEventListener('input', (e) => {
+        let val = parseInt(e.target.value, 10);
+        if (isNaN(val)) val = 0;
+        state.shiftValue = Math.max(0, Math.min(255, val));
+        renderShifts();
+      });
+    }
+
     if (DOM.btnShiftLeft1) {
       DOM.btnShiftLeft1.addEventListener('click', () => {
         state.shiftValue = (state.shiftValue << 1) & 0xFF;

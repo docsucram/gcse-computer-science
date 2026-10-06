@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
   <title>Relational Databases &amp; SQL • GCSE Computer Science</title>
   <link rel="stylesheet" href="./style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗄️</text></svg>">
@@ -114,8 +116,8 @@
 
       <!-- CGP-Style Plain-English Intro: Why Relational Databases? -->
       <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
-        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
-          <span>🗄️</span> Why Do We Need Relational Databases? (No More Duplicate Data!)
+        <div style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px;">
+          Why Do We Need Relational Databases?
         </div>
         <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
           Imagine writing a student's full name, address, and form group next to every single exam they ever sit. If Alice takes 10 exams, her details would be repeated 10 times! If she moves house, updating 10 rows risks errors. In a <strong>Relational Database</strong>, we store student details <em>once</em> in the <strong>Students</strong> table, and link their exam results using a <strong>Foreign Key</strong>.
@@ -123,14 +125,14 @@
         
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; font-size: 12px; line-height: 1.5;">
           <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <div style="font-weight: 700; color: #0284c7; margin-bottom: 2px;">📁 Tables &amp; Records</div>
+            <div style="font-weight: 700; color: #0284c7; margin-bottom: 2px;">Tables and Records</div>
             <p style="margin: 0; color: var(--text-secondary);">
               A table holds records (rows) and fields (columns). Separating tables prevents <strong>data redundancy</strong> (unnecessary duplication).
             </p>
           </div>
 
           <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <div style="font-weight: 700; color: #10b981; margin-bottom: 2px;">🔑 Primary vs Foreign Keys</div>
+            <div style="font-weight: 700; color: #10b981; margin-bottom: 2px;">Primary vs Foreign Keys</div>
             <p style="margin: 0; color: var(--text-secondary);">
               <strong>Primary Key (PK):</strong> Unique ID in its own table.<br>
               <strong>Foreign Key (FK):</strong> Links back to the PK of another table to connect records.
@@ -138,7 +140,7 @@
           </div>
 
           <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <div style="font-weight: 700; color: #ec4899; margin-bottom: 2px;">💬 The 4 AQA SQL Commands</div>
+            <div style="font-weight: 700; color: #ec4899; margin-bottom: 2px;">The 4 AQA SQL Commands</div>
             <div style="color: var(--text-secondary);">
               <code>SELECT</code> (which columns) • <code>FROM</code> (which table)<br>
               <code>WHERE</code> (filter condition) • <code>ORDER BY</code> (sort ASC/DESC)
@@ -151,7 +153,6 @@
       <div class="panel" style="margin-bottom: 20px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <span class="badge badge-spec">Schema</span>
             <h3 class="panel-title">Relational Tables &amp; Keys</h3>
           </div>
           <div style="display: flex; align-items: center; gap: 12px; font-size: 11.5px;">
@@ -166,7 +167,7 @@
           <div class="table-card">
             <div class="table-header-bar">
               <span class="table-name">
-                <span style="color: #38bdf8;">📁 Students</span>
+                <span style="color: #38bdf8; font-weight: 700;">Students</span>
                 <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">(Entity: Student Details)</span>
               </span>
               <span id="studentsRowCount" class="badge badge-paper1" style="font-size: 10px;">7 records</span>
@@ -193,7 +194,7 @@
           <div class="table-card">
             <div class="table-header-bar">
               <span class="table-name">
-                <span style="color: #c084fc;">📁 ExamResults</span>
+                <span style="color: #c084fc; font-weight: 700;">ExamResults</span>
                 <span style="font-size: 11px; color: var(--text-muted); font-weight: 500;">(Entity: Assessment Scores)</span>
               </span>
               <span id="examResultsRowCount" class="badge badge-paper2" style="font-size: 10px;">8 records</span>
@@ -219,7 +220,7 @@
         </div>
 
         <div style="font-size: 11px; color: var(--text-secondary); line-height: 1.5;">
-          🔗 <strong>Relationship:</strong> <code>ExamResults.StudentID</code> <span class="badge-fk">FK</span> links to <code>Students.StudentID</code> <span class="badge-pk">PK</span> (One student can have many exam results).
+          <strong>Relationship:</strong> <code>ExamResults.StudentID</code> <span class="badge-fk">FK</span> links to <code>Students.StudentID</code> <span class="badge-pk">PK</span> (One student can have many exam results).
         </div>
       </div>
 
@@ -227,7 +228,6 @@
       <div class="sql-workbench">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <span class="badge badge-live">Query Editor</span>
             <h3 class="panel-title">AQA SQL Builder</h3>
           </div>
           <div style="font-size: 11.5px; color: var(--text-muted); font-family: var(--font-mono);">
@@ -235,30 +235,30 @@
           </div>
         </div>
 
-        <!-- 1-Click Starter Queries -->
+        <!-- Starter Queries -->
         <div style="margin-bottom: 10px;">
           <div style="font-size: 11.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
-            <span>⚡ 1-Click Starter Queries:</span>
-            <span style="font-size: 10.5px; font-weight: 500; color: var(--text-muted);">(Click any chip to run instantly)</span>
+            <span>Starter Queries:</span>
+            <span style="font-size: 10.5px; font-weight: 500; color: var(--text-muted);">(Click any query to run instantly)</span>
           </div>
           <div style="display: flex; flex-wrap: wrap; gap: 7px;">
             <button class="preset-chip" data-query="SELECT * FROM Students WHERE YearGroup = 11">
-              🎮 Year 11 Students
+              Year 11 Students
             </button>
             <button class="preset-chip" data-query="SELECT FirstName, LastName, FormGroup FROM Students WHERE FormGroup = '11A' ORDER BY LastName ASC">
-              🎂 Form 11A Alphabetical
+              Form 11A Alphabetical
             </button>
             <button class="preset-chip" data-query="SELECT Subject, Score FROM ExamResults WHERE Score >= 70 AND Subject = 'Computing'">
-              ⭐ Computing Score ≥ 70
+              Computing Score ≥ 70
             </button>
             <button class="preset-chip" data-query="SELECT StudentID, Subject, Grade, Score FROM ExamResults WHERE Grade = '9'">
-              🏆 Grade 9 High Achievers
+              Grade 9 High Achievers
             </button>
             <button class="preset-chip" data-query="SELECT * FROM ExamResults ORDER BY Score DESC">
-              📊 Top Scores (Desc)
+              Top Scores (Desc)
             </button>
             <button class="preset-chip" data-query="SELECT FirstName, LastName FROM Students">
-              👥 Names Only
+              Names Only
             </button>
           </div>
         </div>
@@ -289,7 +289,6 @@
         <div class="panel">
           <div class="panel-title-bar">
             <div class="panel-title-group">
-              <span class="badge badge-paper1">Output</span>
               <h3 class="panel-title">Query Results</h3>
             </div>
             <span id="resultCountBadge" class="badge badge-live">0 rows returned</span>
@@ -311,10 +310,8 @@
         <div class="panel">
           <div class="panel-title-bar">
             <div class="panel-title-group">
-              <span class="badge badge-spec">Engine Tracer</span>
               <h3 class="panel-title">Query Execution Plan</h3>
             </div>
-            <span class="badge badge-topic">Step-by-Step</span>
           </div>
 
           <p style="font-size: 11.5px; color: var(--text-secondary); margin: 0 0 10px 0;">

@@ -14,10 +14,10 @@ Designed with an edutainment philosophy — turning abstract syllabus concepts i
 - **Visualizers**: Bubble Sort, Merge Sort, and Linear / Binary Search.
 - **Features**: Step-by-step playback, comparisons vs. swaps telemetry counters, intuitive step explanations, and an interactive step-by-step decision quiz.
 
-### 2. 📋 Trace Tables & Algorithm Tracing Lab (AQA §3.1.1 & §3.2)
-- **Features**: Live line-by-line code execution engine with synchronized memory state watchers.
-- **Trace Matrix**: Auto-updating trace table that only records values as lines execute, highlighting modified variables.
-- **Presets**: While-loops, linear searches, count-controlled iterations, and custom code playground.
+### 2. 📋 Design and Testing (AQA §3.1 & §3.2)
+- **Interactive Trace Tables**: Live line-by-line code execution engine with synchronized memory state watchers and exam practice mode.
+- **Structuring Code into Modules**: Interactive decomposition workbench where students analyze programs to identify modules, understand the role of the Main Module, and practice refactoring.
+- **Exam Traps**: While-loops, linear searches, count-controlled iterations, modulo operations, and boolean flags.
 
 ### 3. 🔢 Data Representation: Numbers & Characters (AQA §3.3.1 & §3.3.2)
 - **Binary Conversion Switchboard**: Interactive 8-bit registers with real-time decimal, binary, and hexadecimal translation.
@@ -34,11 +34,17 @@ Designed with an edutainment philosophy — turning abstract syllabus concepts i
 - **Fetch-Decode-Execute Simulator**: Complete architectural flow with glowing animated bus conduits (Address Bus, Data Bus, Control Bus) and dynamic data capsules.
 - **Color-Coded Registers**: Program Counter (PC), Memory Address Register (MAR), Memory Data Register (MDR), Current Instruction Register (CIR), and Accumulator (ACC) with real-time read/write pulse animations.
 - **Performance Sandbox**: Interactive clock speed, core count, and cache level simulations.
+- **Storage & Memory Workbench**: Mechanical hard drive vs solid-state drive simulation with file allocation tables, fragmentation, defragmentation, and realistic file overwriting.
 
 ### 6. 🗄️ Relational Databases & SQL Studio (AQA §3.7 / OCR 1.2)
 - **Interactive SQL Studio**: In-browser SQL execution engine with real-time relational table output.
 - **Exam Query Challenges**: Hands-on exercises covering `SELECT`, `WHERE`, `ORDER BY`, `LIKE`, and `JOIN`.
 - **Revision & Mark Schemes**: Clear reference cards on primary keys, foreign keys, composite keys, and relational schema integrity.
+
+### 7. 🎲 Random Numbers and Procedural Generation (AQA §3.2.1 / §3.2.10)
+- **Procedural Worlds & Art**: Interactive Minecraft voxel generator, recursive fractal trees, and city skylines.
+- **Deterministic PRNG Seeds**: Demonstrates why computers cannot generate true randomness and how seeds allow identical procedural worlds to be reproduced.
+- **PRNG Math & Cryptography**: Step-by-step float to integer mapping, linear congruential generators, and physical entropy sources.
 
 ---
 

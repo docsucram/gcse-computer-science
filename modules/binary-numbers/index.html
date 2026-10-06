@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="description" content="GCSE Numbers & Characters Revision - Interactive 8-bit binary register, two's complement, binary addition, shifts, data units (kB vs KiB), and ASCII/Unicode encoding.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
   <meta name="theme-color" content="#4f46e5">
   <title>Numbers &amp; Characters • GCSE Computer Science</title>
 
@@ -345,7 +347,6 @@
       <div class="panel" style="margin-top: 20px;" id="targetPracticePanel">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <span class="badge badge-paper1">Interactive Practice</span>
             <h3 class="panel-title">🎯 Binary Target Challenge</h3>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
@@ -465,10 +466,8 @@
       <div class="panel" style="margin-top: 20px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <span class="badge badge-paper1">Live Converter</span>
             <h3 class="panel-title">🔄 3-Way Number Converter</h3>
           </div>
-          <span style="font-size: 11px; color: var(--text-muted);">Type in any box to convert live!</span>
         </div>
 
         <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 14px 0;">
@@ -649,10 +648,36 @@
         <div class="panel" style="margin-bottom: 24px;">
           <div class="panel-title-bar">
             <div class="panel-title-group">
-              <span class="badge badge-paper1">Interactive Tool</span>
               <h3 class="panel-title">8-Bit Binary Adder</h3>
             </div>
-            <span style="font-size: 11px; color: var(--text-muted);">Click any cell in Row A or Row B to flip its bit</span>
+            <span style="font-size: 11px; color: var(--text-muted);">Enter numbers (0–255) or click any bit cell</span>
+          </div>
+
+          <!-- Calculator Input Bar -->
+          <div class="calc-calculator-bar">
+            <div class="calc-input-unit">
+              <span class="calc-input-label">Number A (0–255):</span>
+              <div class="calc-input-wrapper">
+                <input type="number" id="calcAddInputA" min="0" max="255" value="45" class="calc-num-input">
+                <span class="calc-hex-tag" id="calcAddHexA">0x2D</span>
+              </div>
+            </div>
+            <span class="calc-op-symbol">+</span>
+            <div class="calc-input-unit">
+              <span class="calc-input-label">Number B (0–255):</span>
+              <div class="calc-input-wrapper">
+                <input type="number" id="calcAddInputB" min="0" max="255" value="22" class="calc-num-input">
+                <span class="calc-hex-tag" id="calcAddHexB">0x16</span>
+              </div>
+            </div>
+            <span class="calc-op-symbol">=</span>
+            <div class="calc-input-unit">
+              <span class="calc-input-label">Sum:</span>
+              <div class="calc-result-box" id="calcAddResultBox">
+                <span id="calcAddResultNum">67</span>
+                <span class="calc-hex-tag" id="calcAddResultHex">0x43</span>
+              </div>
+            </div>
           </div>
 
           <div class="addition-table-container">
@@ -753,19 +778,46 @@
         <div class="panel" style="margin-bottom: 24px;">
           <div class="panel-title-bar">
             <div class="panel-title-group">
-              <span class="badge badge-paper1">Subtraction Workbench</span>
               <h3 class="panel-title">8-Bit Two's Complement Subtraction</h3>
             </div>
-            <span style="font-size: 11px; color: var(--text-muted);">Click cells in Row A or Row B to set numbers</span>
+            <span style="font-size: 11px; color: var(--text-muted);">Enter custom numbers (0–255) or click any bit in Row A or Row B</span>
+          </div>
+
+          <!-- Calculator Input Bar -->
+          <div class="calc-calculator-bar">
+            <div class="calc-input-unit">
+              <span class="calc-input-label">Number A (0–255):</span>
+              <div class="calc-input-wrapper">
+                <input type="number" id="calcSubInputA" min="0" max="255" value="52" class="calc-num-input">
+                <span class="calc-hex-tag" id="calcSubHexA">0x34</span>
+              </div>
+            </div>
+            <span class="calc-op-symbol">−</span>
+            <div class="calc-input-unit">
+              <span class="calc-input-label">Number B (0–255):</span>
+              <div class="calc-input-wrapper">
+                <input type="number" id="calcSubInputB" min="0" max="255" value="19" class="calc-num-input">
+                <span class="calc-hex-tag" id="calcSubHexB">0x13</span>
+              </div>
+            </div>
+            <span class="calc-op-symbol">=</span>
+            <div class="calc-input-unit">
+              <span class="calc-input-label">Difference:</span>
+              <div class="calc-result-box" id="calcSubResultBox">
+                <span id="calcSubResultNum">33</span>
+                <span class="calc-hex-tag" id="calcSubResultHex">0x21</span>
+              </div>
+            </div>
           </div>
 
           <!-- Presets -->
           <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
-            <span style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Try Examples:</span>
-            <button class="preset-pill-btn" id="btnSubPreset1" data-a="52" data-b="19">52 - 19 (= 33)</button>
-            <button class="preset-pill-btn" id="btnSubPreset2" data-a="105" data-b="42">105 - 42 (= 63)</button>
-            <button class="preset-pill-btn" id="btnSubPreset3" data-a="25" data-b="60">25 - 60 (= -35 negative)</button>
-            <button class="preset-pill-btn" id="btnSubPreset4" data-a="80" data-b="80">80 - 80 (= 0)</button>
+            <span style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Quick Presets:</span>
+            <button type="button" class="preset-pill-btn" id="btnSubPreset1" data-a="52" data-b="19">52 - 19 (= 33)</button>
+            <button type="button" class="preset-pill-btn" id="btnSubPreset2" data-a="105" data-b="42">105 - 42 (= 63)</button>
+            <button type="button" class="preset-pill-btn" id="btnSubPreset3" data-a="25" data-b="60">25 - 60 (= -35 negative)</button>
+            <button type="button" class="preset-pill-btn" id="btnSubPreset4" data-a="80" data-b="80">80 - 80 (= 0)</button>
+            <button type="button" class="preset-pill-btn" id="btnSubPreset5" data-a="200" data-b="75">200 - 75 (= 125)</button>
           </div>
 
           <!-- Walkthrough Step 1 & 2 -->
@@ -774,7 +826,7 @@
             <div class="sub-step-card">
               <div class="sub-step-header">
                 <span class="sub-step-title"><span>1️⃣</span> Step 1: Invert Number B (One's Comp)</span>
-                <span style="font-size: 11px; color: var(--text-muted);">Flip all bits (0 ↔ 1)</span>
+                <span style="font-size: 11px; color: var(--text-muted);">Flip every bit (0 ↔ 1)</span>
               </div>
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span class="sub-step-bits" id="subStep1Bits">11101100</span>
@@ -798,7 +850,7 @@
           <!-- Step 3: Addition Grid -->
           <div class="sub-step-card" style="margin-bottom: 14px;">
             <div class="sub-step-header">
-              <span class="sub-step-title"><span>3️⃣</span> Step 3: Binary Addition [ A + (-B) ]</span>
+              <span class="sub-step-title"><span>3️⃣</span> Step 3: Binary Addition [ Row A + (-B) ]</span>
               <span style="font-size: 12px; font-weight: 700; color: var(--accent-primary);" id="subVerificationLabel">52 + (-19) = 33</span>
             </div>
 
@@ -840,7 +892,19 @@
                 <div class="grid-cell digit-input-cell" data-sub-row="a" data-col="0">0</div>
                 <div class="row-label" id="subDenaryA" style="text-align:right; font-weight:800;">52</div>
 
-                <!-- Row -B -->
+                <!-- Row B (Clickable to customize B!) -->
+                <div class="row-label" style="color: var(--text-muted);">Row B:</div>
+                <div class="grid-cell digit-input-cell" data-sub-row="b" data-col="7">0</div>
+                <div class="grid-cell digit-input-cell" data-sub-row="b" data-col="6">0</div>
+                <div class="grid-cell digit-input-cell" data-sub-row="b" data-col="5">0</div>
+                <div class="grid-cell digit-input-cell" data-sub-row="b" data-col="4">1</div>
+                <div class="grid-cell digit-input-cell" data-sub-row="b" data-col="3">0</div>
+                <div class="grid-cell digit-input-cell" data-sub-row="b" data-col="2">0</div>
+                <div class="grid-cell digit-input-cell" data-sub-row="b" data-col="1">1</div>
+                <div class="grid-cell digit-input-cell" data-sub-row="b" data-col="0">1</div>
+                <div class="row-label" id="subDenaryOrigB" style="text-align:right; font-weight:800; color:var(--text-muted);">19</div>
+
+                <!-- Row -B (Two's comp) -->
                 <div class="row-label" style="color:#ef4444;">+ (-B):</div>
                 <div class="grid-cell" id="subNegB-7" style="font-weight:700; color:#ef4444;">1</div>
                 <div class="grid-cell" id="subNegB-6" style="font-weight:700; color:#ef4444;">1</div>
@@ -872,7 +936,11 @@
 
           <!-- Carry Rule Note -->
           <div id="subCarryRuleBox" style="background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 12px; color: var(--text-secondary);">
-            <strong>📌 Final Carry Rule:</strong> In Two's Complement subtraction, when A &ge; B, an extra 9th carry bit spills out of the MSB. <strong>This final carry is ignored/discarded</strong> by the CPU! The 8 remaining bits give the correct answer.
+            <strong>Final Carry Rule:</strong> In Two's Complement subtraction, when A &ge; B, an extra 9th carry bit spills out of the MSB. <strong>This final carry is ignored/discarded</strong> by the CPU! The 8 remaining bits give the correct answer.
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;">
+            <button class="control-btn" id="btnResetSub">Reset Subtraction</button>
           </div>
         </div>
       </div>
@@ -894,26 +962,51 @@
         <div class="panel" style="margin-bottom: 24px;">
           <div class="panel-title-bar">
             <div class="panel-title-group">
-              <span class="badge badge-paper1">Bitwise Workbench</span>
               <h3 class="panel-title">Bitwise Logic Lab</h3>
             </div>
-            <span style="font-size: 11px; color: var(--text-muted);">Choose an operator and click any bit to test</span>
+            <span style="font-size: 11px; color: var(--text-muted);">Enter numbers (0–255) or click any bit</span>
+          </div>
+
+          <!-- Calculator Input Bar -->
+          <div class="calc-calculator-bar">
+            <div class="calc-input-unit">
+              <span class="calc-input-label">Number A (0–255):</span>
+              <div class="calc-input-wrapper">
+                <input type="number" id="calcLogicInputA" min="0" max="255" value="214" class="calc-num-input">
+                <span class="calc-hex-tag" id="calcLogicHexA">0xD6</span>
+              </div>
+            </div>
+            <div class="calc-input-unit">
+              <span class="calc-input-label">Number B / Mask (0–255):</span>
+              <div class="calc-input-wrapper">
+                <input type="number" id="calcLogicInputB" min="0" max="255" value="15" class="calc-num-input">
+                <span class="calc-hex-tag" id="calcLogicHexB">0x0F</span>
+              </div>
+            </div>
+            <span class="calc-op-symbol">=</span>
+            <div class="calc-input-unit">
+              <span class="calc-input-label">Result:</span>
+              <div class="calc-result-box" id="calcLogicResultBox">
+                <span id="calcLogicResultNum">6</span>
+                <span class="calc-hex-tag" id="calcLogicResultHex">0x06</span>
+              </div>
+            </div>
           </div>
 
           <!-- Operation Buttons -->
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
             <div class="logic-op-group" style="margin-bottom: 0;">
-              <button class="logic-op-btn active" data-op="AND">AND (&amp;)</button>
-              <button class="logic-op-btn" data-op="OR">OR (|)</button>
-              <button class="logic-op-btn" data-op="XOR">XOR (^)</button>
-              <button class="logic-op-btn" data-op="NOT">NOT (~ Row A)</button>
+              <button type="button" class="logic-op-btn active" data-op="AND">AND (&amp;)</button>
+              <button type="button" class="logic-op-btn" data-op="OR">OR (|)</button>
+              <button type="button" class="logic-op-btn" data-op="XOR">XOR (^)</button>
+              <button type="button" class="logic-op-btn" data-op="NOT">NOT (~ Row A)</button>
             </div>
 
             <!-- Mask Presets -->
             <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <button class="preset-pill-btn" id="btnMaskNibble">Mask Lower Nibble</button>
-              <button class="preset-pill-btn" id="btnMaskOddEven">Check Odd/Even</button>
-              <button class="preset-pill-btn" id="btnMaskToggle">Toggle Upper Bits</button>
+              <button type="button" class="preset-pill-btn" id="btnMaskNibble">Mask Lower Nibble</button>
+              <button type="button" class="preset-pill-btn" id="btnMaskOddEven">Check Odd/Even</button>
+              <button type="button" class="preset-pill-btn" id="btnMaskToggle">Toggle Upper Bits</button>
             </div>
           </div>
 
@@ -982,8 +1075,12 @@
               Output bit is <strong>1</strong> ONLY if BOTH Bit A and Bit B are 1. If either is 0, the output is 0.
             </p>
             <div style="font-size: 12px; color: var(--accent-primary); font-weight: 600;" id="logicOpExamTip">
-              🎯 <strong>Exam Masking Use:</strong> Apply a mask of 0s to clear bits, or 1s to inspect specific bits. For example, <code>val AND 00000001</code> checks if a number is odd (result 1) or even (result 0).
+              <strong>Exam Masking Use:</strong> Apply a mask of 0s to clear bits, or 1s to inspect specific bits. For example, <code>val AND 00000001</code> checks if a number is odd (result 1) or even (result 0).
             </div>
+          </div>
+
+          <div style="display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap;">
+            <button class="control-btn" id="btnResetLogic">Reset Logic</button>
           </div>
         </div>
       </div>
@@ -995,7 +1092,6 @@
         <div class="panel">
           <div class="panel-title-bar">
             <div class="panel-title-group">
-              <span class="badge badge-paper1">Shifts</span>
               <h3 class="panel-title">Logical Binary Shifts</h3>
             </div>
             <span style="font-size: 11px; color: var(--text-muted);">AQA §3.3.1: Multiplication &amp; Division by Powers of 2</span>
@@ -1004,6 +1100,27 @@
           <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
             Moving bits to the left multiplies by 2 for each position shifted. Moving bits to the right divides by 2 (integer division, discarding the remainder).
           </p>
+
+          <!-- Custom Number Input Bar for Shifts -->
+          <div class="calc-calculator-bar">
+            <div class="calc-input-unit">
+              <span class="calc-input-label">Custom Number (0–255):</span>
+              <div class="calc-input-wrapper">
+                <input type="number" id="calcShiftInput" min="0" max="255" value="20" class="calc-num-input">
+                <span class="calc-hex-tag" id="calcShiftHex">0x14</span>
+              </div>
+            </div>
+            <div class="calc-input-unit">
+              <span class="calc-input-label">Shift Operations:</span>
+              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="control-btn" id="btnShiftLeft1" style="font-weight: 700;">Shift Left 1 bit (× 2)</button>
+                <button type="button" class="control-btn" id="btnShiftLeft2" style="font-weight: 700;">Shift Left 2 bits (× 4)</button>
+                <button type="button" class="control-btn" id="btnShiftRight1" style="font-weight: 700;">Shift Right 1 bit (÷ 2)</button>
+                <button type="button" class="control-btn" id="btnShiftRight2" style="font-weight: 700;">Shift Right 2 bits (÷ 4)</button>
+                <button type="button" class="control-btn" id="btnResetShift">Reset</button>
+              </div>
+            </div>
+          </div>
 
           <!-- Current Shift Value Display -->
           <div style="background: var(--bg-surface-elevated); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 14px;">
@@ -1021,15 +1138,6 @@
                 </div>
               </div>
             </div>
-          </div>
-
-          <!-- Shift Controls -->
-          <div class="shift-controls">
-            <button class="control-btn" id="btnShiftLeft1" style="font-weight: 700;">⬅️ Shift Left 1 bit (× 2)</button>
-            <button class="control-btn" id="btnShiftLeft2" style="font-weight: 700;">⬅️⬅️ Shift Left 2 bits (× 4)</button>
-            <button class="control-btn" id="btnShiftRight1" style="font-weight: 700;">Shift Right 1 bit (÷ 2) ➡️</button>
-            <button class="control-btn" id="btnShiftRight2" style="font-weight: 700;">Shift Right 2 bits (÷ 4) ➡️➡️</button>
-            <button class="control-btn" id="btnResetShift">Reset to 20</button>
           </div>
 
           <div id="shiftNote" style="font-size: 12px; color: var(--text-muted); font-style: italic; margin-top: 10px;">
@@ -1168,7 +1276,6 @@
       <div class="panel" style="margin-bottom: 24px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <span class="badge badge-paper1">Interactive Visualizer</span>
             <h3 class="panel-title">🎵 Scale of Data: How Big Is It in Real Life?</h3>
           </div>
           <span style="font-size: 11px; color: var(--text-muted);">Click or slide to explore from seconds to thousands of years</span>
@@ -1348,7 +1455,6 @@
       <div class="panel" style="margin-bottom: 24px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <span class="badge badge-paper1">Live Decoder</span>
             <h3 class="panel-title">Interactive Message Encoder</h3>
           </div>
           <span style="font-size: 11px; color: var(--text-muted);">Try typing letters, numbers, or emojis (e.g. 'Hello 👾')</span>
@@ -1639,7 +1745,6 @@
           <div class="panel">
             <div class="panel-title-bar">
               <div class="panel-title-group">
-                <span class="badge badge-paper1">Visualizer</span>
                 <h3 class="panel-title">2. Binary Huffman Tree</h3>
               </div>
               <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">Left = 0 &bull; Right = 1</span>
@@ -1668,7 +1773,6 @@
           <div class="panel">
             <div class="panel-title-bar">
               <div class="panel-title-group">
-                <span class="badge badge-live">Codebook</span>
                 <h3 class="panel-title">3. Generated Codebook &amp; Stats</h3>
               </div>
               <span id="huffmanSavedBadge" class="badge badge-live" style="font-size: 11px;">Saved 68%</span>
@@ -1741,7 +1845,6 @@
       <div class="panel">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <span class="badge badge-paper1">Exam Practice</span>
             <h3 class="panel-title">GCSE Exam Questions on Huffman Coding</h3>
           </div>
           <span class="badge badge-topic">Guaranteed Exam Topic</span>

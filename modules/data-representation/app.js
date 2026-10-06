@@ -364,6 +364,7 @@
     toolEraserBtn: document.getElementById('toolEraserBtn'),
     toolFillBtn: document.getElementById('toolFillBtn'),
     presetButtons: document.querySelectorAll('.preset-btn'),
+    btnResetSprite: document.getElementById('btnResetSprite'),
     paletteContainer: document.getElementById('paletteContainer'),
     activePaletteInfo: document.getElementById('activePaletteInfo'),
     pixelGrid: document.getElementById('pixelGrid'),
@@ -474,6 +475,7 @@
     voiceFileSizeDisplay: document.getElementById('voiceFileSizeDisplay'),
     voiceFileSavings: document.getElementById('voiceFileSavings'),
     voicePerceptionNote: document.getElementById('voicePerceptionNote'),
+    btnResetVoiceAudio: document.getElementById('btnResetVoiceAudio'),
   };
 
   // =========================================================================
@@ -2221,6 +2223,25 @@
     if (DOM.btnPlayVoice) {
       DOM.btnPlayVoice.addEventListener('click', playVoiceAudio);
     }
+
+    // Reset voice audio button
+    if (DOM.btnResetVoiceAudio) {
+      DOM.btnResetVoiceAudio.addEventListener('click', () => {
+        voiceLabState.sampleRate = 44100;
+        voiceLabState.bitDepth = 16;
+        if (DOM.voiceRateButtons) {
+          DOM.voiceRateButtons.forEach(b => {
+            b.classList.toggle('active', parseInt(b.getAttribute('data-rate'), 10) === 44100);
+          });
+        }
+        if (DOM.voiceDepthButtons) {
+          DOM.voiceDepthButtons.forEach(b => {
+            b.classList.toggle('active', parseInt(b.getAttribute('data-depth'), 10) === 16);
+          });
+        }
+        processVoiceAudio();
+      });
+    }
   }
 
   function decodeWavBase64(base64Str, targetSampleRate = 44100) {
@@ -2896,6 +2917,13 @@
           const presetName = btn.getAttribute('data-preset');
           applyPreset(presetName);
         });
+      });
+    }
+
+    // Reset Sprite Button
+    if (DOM.btnResetSprite) {
+      DOM.btnResetSprite.addEventListener('click', () => {
+        applyPreset('rainbow');
       });
     }
 
