@@ -15,8 +15,8 @@
   // =========================================================================
 
   const state = {
-    // Tab 1: Register
-    bits: [0, 0, 0, 0, 0, 0, 0, 0], // index 0 = LSB (1), index 7 = MSB (128 / -128)
+    // Tab 1: Register (Pre-populated with 21: 16 + 4 + 1 so students immediately see switches in action)
+    bits: [1, 0, 1, 0, 1, 0, 0, 0], // index 0 = LSB (1), index 7 = MSB (128 / -128)
     numberMode: 'unsigned', // 'unsigned' | 'twos'
 
     // Tab 2: Addition
@@ -302,6 +302,14 @@
         });
       });
     });
+
+    // Deep-linking support for tab query param or hash
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = urlParams.get('tab') || window.location.hash.replace('#', '').replace('tab-', '');
+    if (initialTab) {
+      const matchBtn = Array.from(DOM.tabButtons).find(b => b.getAttribute('data-tab') === initialTab);
+      if (matchBtn) matchBtn.click();
+    }
   }
 
   // =========================================================================
@@ -2554,6 +2562,16 @@
     initTheme();
     initTabs();
     setupRegisterEvents();
+    const urlParams = new URLSearchParams(window.location.search);
+    const valParam = urlParams.get('val');
+    if (valParam !== null) {
+      const num = parseInt(valParam, 10);
+      if (!isNaN(num) && num >= 0 && num <= 255) {
+        for (let i = 0; i < 8; i++) {
+          state.bits[i] = (num >> i) & 1;
+        }
+      }
+    }
     renderRegister();
     setupTargetPracticeEvents();
     setupHexPlaygroundEvents();

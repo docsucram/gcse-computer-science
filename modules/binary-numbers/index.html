@@ -361,8 +361,8 @@
           </div>
 
           <div style="display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 13px;">
-            <div id="streakBadge" style="background: var(--bg-surface-elevated); padding: 5px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); color: #ca8a04; font-weight: 800;">
-              Streak: <span id="currentStreakVal">0</span>
+            <div id="streakBadge" style="background: #fef3c7; padding: 5px 14px; border-radius: 6px; border: 1.5px solid #fcd34d; color: #92400e; font-weight: 800; display: flex; align-items: center; gap: 4px;">
+              <span>🔥</span> Streak: <span id="currentStreakVal">0</span>
             </div>
             <div id="sprintTimerBox" style="display: none; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); padding: 5px 14px; border-radius: var(--radius-sm); color: #ef4444; font-weight: 900; font-size: 14px;">
               <span id="sprintTimerVal">60</span>s
@@ -433,21 +433,21 @@
         </div>
 
         <!-- Target Display Card (Active in Relaxed OR during running Sprint) -->
-        <div id="targetCardContainer" style="background: var(--bg-surface-elevated); border: 2px dashed var(--border-color); border-radius: var(--radius-md); padding: 18px 24px; text-align: center; transition: all 0.25s ease;">
-          <div style="font-size: 12px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">
+        <div id="targetCardContainer" style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px 24px; text-align: center; transition: all 0.25s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);">
+          <div style="font-size: 11px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
             Target Number
           </div>
           <div style="display: flex; align-items: baseline; justify-content: center; gap: 8px; margin: 4px 0 10px;">
             <span id="targetBaseLabel" style="font-size: 15px; color: var(--text-secondary); font-weight: 700;">Denary:</span>
-            <span id="targetNumberDisplay" style="font-family: var(--font-mono); font-size: 42px; font-weight: 900; color: var(--accent-primary);">42</span>
+            <span id="targetNumberDisplay" style="font-family: var(--font-mono); font-size: 46px; font-weight: 900; color: #0f172a;">42</span>
           </div>
 
           <!-- Live Comparison Feedback -->
           <div style="display: flex; align-items: center; justify-content: center; gap: 12px; font-size: 13px; font-family: var(--font-mono); flex-wrap: wrap;">
             <span style="color: var(--text-muted);">Your Register:</span>
             <span id="targetCurrentVal" style="font-weight: 800; font-size: 16px; color: var(--text-primary);">0</span>
-            <span id="targetDiffBadge" style="font-size: 11.5px; padding: 2px 8px; border-radius: 4px; background: rgba(59, 130, 246, 0.15); color: #3b82f6; font-weight: 700;">Needs +42</span>
-            <button type="button" class="control-btn" id="btnSkipTarget" style="font-size: 11px; padding: 2px 8px; margin-left: 8px;">Skip →</button>
+            <span id="targetDiffBadge" style="font-size: 12px; padding: 3px 10px; border-radius: 6px; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; font-weight: 800;">Needs +42</span>
+            <button type="button" class="control-btn" id="btnSkipTarget" style="font-size: 11px; padding: 3px 10px; margin-left: 8px;">Skip →</button>
           </div>
         </div>
       </div>
