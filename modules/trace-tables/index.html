@@ -9,7 +9,12 @@
   <title>Design and Testing — AQA GCSE Computer Science</title>
   
   <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
-  <link rel="stylesheet" href="../../shared/styles.css">
+  
+  <!-- Google Fonts: Editorial Serif + Clean Sans + Technical Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="./modular.css">
   
   <script>
@@ -28,7 +33,293 @@
   </script>
   
   <style>
-    /* Trace Table Module Styles */
+    :root {
+      /* Warm Drafting Paper Revision Palette */
+      --paper-bg: #f5f3ec;
+      --paper-card: #fdfcf9;
+      --paper-recessed: #ede8db;
+      --paper-border: #ded7c6;
+      --paper-border-strong: #c2b8a3;
+
+      --ink-primary: #1e2229;
+      --ink-secondary: #585e6b;
+      --ink-faint: #8e95a2;
+
+      --oxford-navy: #1e3a5f;
+      --navy-tint: #edf3f9;
+      --navy-border: #cbd5e1;
+
+      --forest-green: #1a6b3c;
+      --green-tint: #edf7f0;
+
+      --cardinal-red: #a82020;
+      --red-tint: #fef2f2;
+
+      --amber-mid: #b45309;
+      --amber-tint: #fef3c7;
+
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      --radius-sm: 2px;
+      --radius-md: 3px;
+    }
+
+    html.dark {
+      --paper-bg: #0f172a;
+      --paper-card: #1e293b;
+      --paper-recessed: #141e30;
+      --paper-border: #334155;
+      --paper-border-strong: #475569;
+
+      --ink-primary: #f8fafc;
+      --ink-secondary: #cbd5e1;
+      --ink-faint: #94a3b8;
+
+      --navy-tint: rgba(59, 130, 246, 0.15);
+      --navy-border: rgba(59, 130, 246, 0.35);
+
+      --green-tint: rgba(16, 185, 129, 0.15);
+      --red-tint: rgba(239, 68, 68, 0.15);
+      --amber-tint: rgba(245, 158, 11, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--paper-bg);
+      background-image: 
+        linear-gradient(to right, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
+      background-size: 32px 32px;
+      color: var(--ink-primary);
+      font-family: var(--font-sans);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Top Sticky Navigation Header matching other revision modules */
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--paper-card);
+      border-bottom: 1px solid var(--paper-border);
+      border-top: 3px solid var(--oxford-navy);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      height: 60px;
+    }
+
+    .header-container {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 0 20px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .header-brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border-strong);
+      color: var(--ink-primary);
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .back-link:hover {
+      border-color: var(--oxford-navy);
+      color: var(--oxford-navy);
+    }
+
+    .brand-divider {
+      height: 18px;
+      width: 1px;
+      background: var(--paper-border);
+    }
+
+    .brand-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title {
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink-primary);
+      margin: 0;
+      line-height: 1;
+      letter-spacing: -0.01em;
+    }
+
+    .badge-topic {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--oxford-navy);
+      background: var(--navy-tint);
+      border: 1px solid var(--navy-border);
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.02em;
+    }
+
+    /* Tab switcher in header bar */
+    .view-tabs {
+      display: flex;
+      align-items: center;
+      padding: 3px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--paper-border-strong);
+      background: var(--paper-recessed);
+      gap: 3px;
+    }
+
+    .view-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--ink-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .view-tab-btn:hover {
+      color: var(--ink-primary);
+    }
+
+    .view-tab-btn.active {
+      background: var(--oxford-navy);
+      color: #ffffff;
+      font-weight: 700;
+      border-color: var(--oxford-navy);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .theme-toggle-btn {
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border-strong);
+      color: var(--ink-secondary);
+      border-radius: var(--radius-sm);
+      padding: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      color: var(--ink-primary);
+      border-color: var(--oxford-navy);
+    }
+
+    /* Main Container */
+    .module-container {
+      width: 100%;
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 24px 20px 60px 20px;
+      flex: 1;
+    }
+
+    /* Unboxed View Banner */
+    .view-banner {
+      margin-bottom: 22px;
+    }
+
+    .view-banner h2 {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ink-primary);
+      margin: 0 0 6px 0;
+      letter-spacing: -0.01em;
+    }
+
+    .view-banner p {
+      font-size: 13.5px;
+      color: var(--ink-secondary);
+      max-width: 820px;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* Challenge Selector Tabs */
+    .challenge-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 20px;
+    }
+
+    .challenge-pill-btn {
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border-strong);
+      color: var(--ink-secondary);
+      transition: all 0.15s ease;
+    }
+
+    .challenge-pill-btn:hover {
+      color: var(--ink-primary);
+      border-color: var(--oxford-navy);
+    }
+
+    .challenge-pill-btn.active {
+      background: var(--oxford-navy);
+      color: #ffffff;
+      border-color: var(--oxford-navy);
+      font-weight: 700;
+    }
+
+    /* Main Grid Layout */
     .trace-layout-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -42,45 +333,146 @@
       }
     }
 
-    /* Code Runner Card */
-    .code-viewer-container {
-      background: var(--bg-root);
-      border: 1px solid var(--border-color);
+    /* Panel Cards */
+    .panel {
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
       border-radius: var(--radius-md);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .panel-title {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink-primary);
+      margin: 0;
+    }
+
+    .marks-badge {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--oxford-navy);
+      background: var(--navy-tint);
+      border: 1px solid var(--navy-border);
+      padding: 2px 7px;
+      border-radius: var(--radius-sm);
+      letter-spacing: 0.03em;
+    }
+
+    /* Code Viewer */
+    .code-viewer-container {
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      border-radius: var(--radius-sm);
       overflow: hidden;
       font-family: var(--font-mono);
-      font-size: 13px;
+      font-size: 12.5px;
       line-height: 1.6;
     }
 
     .code-line {
       display: flex;
-      padding: 3px 12px;
+      padding: 3px 10px;
       border-left: 3px solid transparent;
-      transition: background 0.15s ease;
+      transition: background 0.12s ease;
     }
 
     .code-line.active {
-      background: rgba(59, 130, 246, 0.2);
-      border-left-color: #3b82f6;
+      background: var(--navy-tint);
+      border-left-color: var(--oxford-navy);
+      font-weight: 700;
     }
 
     .code-line.executed {
-      color: var(--text-secondary);
+      color: var(--ink-secondary);
     }
 
     .code-line-num {
-      width: 28px;
-      color: var(--text-muted);
+      width: 26px;
+      color: var(--ink-faint);
       user-select: none;
       text-align: right;
-      margin-right: 14px;
+      margin-right: 12px;
       font-size: 11px;
     }
 
     .code-line-text {
       flex: 1;
       white-space: pre;
+      color: var(--ink-primary);
+    }
+
+    /* Control Stepper Buttons */
+    .control-btn {
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--paper-border-strong);
+      background: var(--paper-card);
+      color: var(--ink-primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .control-btn:hover {
+      border-color: var(--oxford-navy);
+      color: var(--oxford-navy);
+    }
+
+    .btn-step-primary {
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--oxford-navy);
+      background: var(--oxford-navy);
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-step-primary:hover {
+      background: #152942;
+      border-color: #152942;
+    }
+
+    /* Explanation Callout */
+    .step-explain-box {
+      margin-top: 10px;
+      padding: 9px 12px;
+      background: var(--amber-tint);
+      border: 1px solid #fde68a;
+      border-left: 3px solid var(--amber-mid);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .step-explain-text {
+      color: #78350f;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.5;
     }
 
     /* Live Variables Watcher */
@@ -88,12 +480,12 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
       gap: 8px;
-      margin-top: 14px;
+      margin-top: 8px;
     }
 
     .var-chip {
-      background: var(--bg-root);
-      border: 1px solid var(--border-color);
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
       border-radius: var(--radius-sm);
       padding: 8px 10px;
       display: flex;
@@ -102,39 +494,100 @@
     }
 
     .var-chip.changed {
-      border-color: #10b981;
-      background: rgba(16, 185, 129, 0.1);
-      animation: varFlash 0.5s ease;
+      border-color: var(--forest-green);
+      background: var(--green-tint);
+      animation: varFlash 0.4s ease;
     }
 
     @keyframes varFlash {
-      0% { transform: scale(0.97); }
-      50% { transform: scale(1.03); }
+      0% { transform: scale(0.98); }
+      50% { transform: scale(1.02); }
       100% { transform: scale(1); }
     }
 
     .var-name {
-      font-size: 11px;
+      font-size: 10.5px;
       font-family: var(--font-mono);
-      color: var(--text-muted);
+      color: var(--ink-secondary);
       font-weight: 700;
       text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .var-value {
       font-size: 16px;
       font-weight: 800;
       font-family: var(--font-mono);
-      color: #38bdf8;
+      color: var(--oxford-navy);
+    }
+
+    /* Console Box */
+    .console-box {
+      background: var(--paper-recessed);
+      border: 1px solid var(--paper-border);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--ink-primary);
+      min-height: 38px;
+    }
+
+    /* Exam Tip Callout */
+    .exam-tip-card {
+      background: var(--amber-tint);
+      border: 1px solid #fde68a;
+      border-left: 4px solid var(--amber-mid);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+    }
+
+    .exam-tip-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #78350f;
+      margin-bottom: 4px;
+    }
+
+    .exam-tip-body {
+      font-size: 12px;
+      color: #78350f;
+      line-height: 1.55;
     }
 
     /* Trace Table Styles */
+    .mode-toggle-group {
+      display: inline-flex;
+      border-radius: var(--radius-sm);
+      background: var(--paper-recessed);
+      padding: 2px;
+      border: 1px solid var(--paper-border-strong);
+    }
+
+    .mode-btn {
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 600;
+      border: none;
+      background: transparent;
+      color: var(--ink-secondary);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .mode-btn.active {
+      background: var(--oxford-navy);
+      color: #ffffff;
+      font-weight: 700;
+    }
+
     .trace-table-wrapper {
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
-      background: var(--bg-root);
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      border-radius: var(--radius-sm);
       max-height: 480px;
       overflow-y: auto;
     }
@@ -147,39 +600,37 @@
     }
 
     .trace-table th {
-      background: var(--bg-surface-elevated);
-      color: var(--text-primary);
+      background: var(--paper-recessed);
+      color: var(--ink-primary);
       padding: 10px 14px;
       text-align: left;
-      border-bottom: 2px solid var(--border-color);
+      border-bottom: 2px solid var(--paper-border);
       position: sticky;
       top: 0;
       z-index: 2;
+      font-weight: 700;
     }
 
     .trace-table td {
       padding: 8px 14px;
-      border-bottom: 1px solid var(--border-color);
-      color: var(--text-secondary);
-    }
-
-    .trace-table tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
+      border-bottom: 1px solid var(--paper-border);
+      color: var(--ink-primary);
     }
 
     .trace-table tr.active-row td {
-      background: rgba(99, 102, 241, 0.08);
+      background: var(--navy-tint);
     }
 
     .trace-table td.cell-changed {
-      color: #34d399;
+      color: var(--forest-green);
       font-weight: 700;
-      background: rgba(16, 185, 129, 0.12);
+      background: var(--green-tint);
     }
 
     .trace-table td.cell-output {
-      color: #c084fc;
+      color: var(--oxford-navy);
       font-weight: 700;
+      background: var(--navy-tint);
     }
 
     .trace-table input.trace-input {
@@ -188,111 +639,110 @@
       padding: 5px 8px;
       font-family: var(--font-mono);
       font-size: 12px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border-strong);
       border-radius: var(--radius-sm);
-      color: var(--text-primary);
+      color: var(--ink-primary);
       outline: none;
     }
 
     .trace-table input.trace-input:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+      border-color: var(--oxford-navy);
+      box-shadow: 0 0 0 2px rgba(30, 58, 95, 0.15);
     }
 
     .trace-table input.trace-input.correct {
-      border-color: #10b981;
-      background: rgba(16, 185, 129, 0.15);
-      color: #34d399;
+      border-color: var(--forest-green);
+      background: var(--green-tint);
+      color: var(--forest-green);
+      font-weight: 700;
     }
 
     .trace-table input.trace-input.wrong {
-      border-color: #ef4444;
-      background: rgba(239, 68, 68, 0.15);
-      color: #f87171;
+      border-color: var(--cardinal-red);
+      background: var(--red-tint);
+      color: var(--cardinal-red);
+      font-weight: 700;
     }
 
-    /* Challenge Selector Tabs */
-    .challenge-pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 18px;
-    }
-
-    .challenge-pill-btn {
-      padding: 8px 14px;
-      border-radius: var(--radius-sm);
+    .btn-practice-primary {
+      padding: 7px 16px;
       font-size: 12px;
       font-weight: 700;
-      cursor: pointer;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      color: var(--text-secondary);
-      transition: all var(--transition-fast);
-    }
-
-    .challenge-pill-btn:hover {
-      color: var(--text-primary);
-      border-color: var(--border-hover);
-    }
-
-    .challenge-pill-btn.active {
-      background: var(--accent-primary);
+      background: var(--forest-green);
       color: #ffffff;
-      border-color: var(--accent-primary);
-    }
-
-    .mode-toggle-group {
-      display: inline-flex;
-      border-radius: var(--radius-sm);
-      background: var(--bg-root);
-      padding: 3px;
-      border: 1px solid var(--border-color);
-    }
-
-    .mode-btn {
-      padding: 4px 10px;
-      font-size: 11.5px;
-      font-weight: 700;
-      border: none;
-      background: transparent;
-      color: var(--text-secondary);
+      border: 1px solid var(--forest-green);
       border-radius: var(--radius-sm);
       cursor: pointer;
+      transition: all 0.15s ease;
     }
 
-    .mode-btn.active {
-      background: var(--bg-surface-elevated);
-      color: var(--text-primary);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    .btn-practice-primary:hover {
+      background: #14522e;
+    }
+
+    .mark-scheme-notes-box {
+      font-size: 12px;
+      color: var(--ink-primary);
+      line-height: 1.6;
+      background: var(--paper-recessed);
+      border: 1px solid var(--paper-border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
     }
   </style>
 </head>
 <body>
-  <!-- Ambient background glow & grid -->
-  <div class="bg-grid-ambient"></div>
 
-  <!-- Top Sticky Navigation -->
-  <header class="site-nav">
-    <div class="container nav-container">
-      <a href="../../index.html" class="brand-logo" title="Back to GCSE Computing Hub">
-        <div class="brand-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="15 18 9 12 15 6"></polyline>
+  <!-- Top Sticky Navigation Header -->
+  <header class="site-header">
+    <div class="header-container">
+      
+      <!-- Left: Back link & Title -->
+      <div class="header-brand-group">
+        <a href="../../index.html" class="back-link" title="Return to Revision Hub">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
-        </div>
-        <div class="brand-text">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <h1>Design and Testing</h1>
-          </div>
-          <p>Trace Tables, Testing &amp; Structuring Code into Modules</p>
-        </div>
-      </a>
+          Back to Hub
+        </a>
 
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <button id="themeToggleBtn" class="theme-toggle" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
-          <svg id="sunIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <div class="brand-divider"></div>
+
+        <div class="brand-title-wrap">
+          <h1 class="brand-title">Design &amp; Testing</h1>
+          <span class="badge-topic">AQA 8525 §3.2</span>
+        </div>
+      </div>
+
+      <!-- Center: Sub-Module Switcher Tabs in Header -->
+      <nav class="view-tabs" role="tablist">
+        <button type="button" class="view-tab-btn active" id="tabBtnTrace" role="tab" aria-selected="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="3" y1="15" x2="21" y2="15"></line>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+          </svg>
+          Trace Tables
+        </button>
+
+        <button type="button" class="view-tab-btn" id="tabBtnModules" role="tab" aria-selected="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          Structuring Code
+        </button>
+      </nav>
+
+      <!-- Right: Theme Toggle -->
+      <div class="header-actions">
+        <button id="themeToggleBtn" class="theme-toggle-btn" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
+          <svg id="sunIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="5"></circle>
             <line x1="12" y1="1" x2="12" y2="3"></line>
             <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -303,201 +753,185 @@
             <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
             <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
           </svg>
-          <svg id="moonIcon" style="display: none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg id="moonIcon" style="display: none;" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
           </svg>
         </button>
       </div>
+
     </div>
   </header>
 
   <!-- Main Container -->
-  <main class="container" style="padding-top: 20px; padding-bottom: 60px;">
-    
-    <!-- Sub-Module Navigation Tabs -->
-    <nav class="submodule-tabs-nav" role="tablist">
-      <button type="button" class="submodule-nav-btn active" id="tabBtnTrace" role="tab" aria-selected="true">
-        <span class="tab-icon">📊</span>
-        <span>1. Interactive Trace Tables</span>
-      </button>
-      <button type="button" class="submodule-nav-btn" id="tabBtnModules" role="tab" aria-selected="false">
-        <span class="tab-icon">🧩</span>
-        <span>2. Structuring Code into Modules</span>
-      </button>
-    </nav>
+  <main class="module-container">
 
     <!-- =================================================================== -->
     <!-- SUB-MODULE 1: INTERACTIVE TRACE TABLES                              -->
     <!-- =================================================================== -->
     <div id="submoduleTrace" class="submodule-view">
 
-      <!-- Hero / CGP Style Banner -->
-      <div style="margin-bottom: 24px;">
-        <h2 style="font-size: 24px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 6px 0;">
-          Interactive Trace Tables
-        </h2>
-        <p style="font-size: 13.5px; color: var(--text-secondary); max-width: 820px; line-height: 1.6; margin: 0;">
-          Trace line-by-line, update changing variables, and avoid off-by-one errors.
-        </p>
+      <!-- View Banner -->
+      <div class="view-banner">
+        <h2>Interactive Trace Tables</h2>
+        <p>Trace algorithms step-by-step, record changing variable states, and verify outputs against AQA mark scheme criteria.</p>
       </div>
 
-    <!-- Exam Problem Selector Tabs -->
-    <div class="challenge-pills" id="challengeSelectorBar">
-      <button type="button" class="challenge-pill-btn active" data-index="0">Q1: Counter &amp; While Loop (Warm-Up)</button>
-      <button type="button" class="challenge-pill-btn" data-index="1">Q2: Modulo &amp; If/Else Trap</button>
-      <button type="button" class="challenge-pill-btn" data-index="2">Q3: Search with Boolean Flag</button>
-      <button type="button" class="challenge-pill-btn" data-index="3">Q4: Integer Div &amp; Mod (Binary Converter)</button>
-    </div>
+      <!-- Problem Selector Tabs -->
+      <div class="challenge-pills" id="challengeSelectorBar">
+        <button type="button" class="challenge-pill-btn active" data-index="0">Q1: While Loop &amp; Counter</button>
+        <button type="button" class="challenge-pill-btn" data-index="1">Q2: Modulo &amp; Conditionals</button>
+        <button type="button" class="challenge-pill-btn" data-index="2">Q3: Linear Search &amp; Flag</button>
+        <button type="button" class="challenge-pill-btn" data-index="3">Q4: DIV / MOD Conversion</button>
+      </div>
 
-    <!-- Main Two-Column Layout -->
-    <div class="trace-layout-grid">
-      
-      <!-- Left Column: Code, Controls & Live Variable Watcher -->
-      <div style="display: flex; flex-direction: column; gap: 16px;">
+      <!-- Main Two-Column Layout -->
+      <div class="trace-layout-grid">
         
-        <!-- Code Execution Card -->
-        <div class="panel">
-          <div class="panel-title-bar">
-            <div class="panel-title-group">
+        <!-- Left Column: Code, Stepper Controls & Live Variable Watcher -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          
+          <!-- Code Execution Card -->
+          <div class="panel">
+            <div class="panel-title-bar">
               <h3 class="panel-title" id="problemTitle">Q1: Total Accumulator</h3>
+              <span id="problemMarksBadge" class="marks-badge">3 MARKS</span>
             </div>
-            <span id="problemMarksBadge" class="badge badge-paper1">3 MARKS</span>
-          </div>
 
-          <!-- Problem Prompt -->
-          <div id="problemPrompt" style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 12px;">
-            Trace this algorithm that sums numbers from 1 to 4 using a <code>while</code> loop.
-          </div>
+            <!-- Problem Prompt -->
+            <div id="problemPrompt" style="font-size: 13px; color: var(--ink-secondary); line-height: 1.55; margin-bottom: 12px;">
+              Trace this algorithm that sums numbers from 1 to 4 using a <code>while</code> loop.
+            </div>
 
-          <!-- Stepper Code Viewer -->
-          <div class="code-viewer-container" id="codeViewer">
-            <!-- Code lines injected dynamically -->
-          </div>
+            <!-- Stepper Code Viewer -->
+            <div class="code-viewer-container" id="codeViewer">
+              <!-- Code lines injected dynamically -->
+            </div>
 
-          <!-- Stepper Controls Bar -->
-          <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-top: 14px;">
-            <div style="display: flex; gap: 6px;">
-              <button type="button" id="btnStepBack" class="control-btn" title="Step Back">
-                ⏮ Back
+            <!-- Stepper Controls Bar -->
+            <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; margin-top: 14px;">
+              <div style="display: flex; gap: 6px;">
+                <button type="button" id="btnStepBack" class="control-btn" title="Step Back">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  Back
+                </button>
+                <button type="button" id="btnStepForward" class="btn-step-primary">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  Step Line
+                </button>
+                <button type="button" id="btnAutoPlay" class="control-btn" title="Auto Play">
+                  ▶ Auto Play
+                </button>
+              </div>
+              <button type="button" id="btnResetTrace" class="control-btn" title="Reset to Start">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+                Reset
               </button>
-              <button type="button" id="btnStepForward" class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;">
-                ⏭ Step Line
-              </button>
-              <button type="button" id="btnAutoPlay" class="control-btn" title="Auto Play">
-                ▶ Auto Play
-              </button>
             </div>
-            <button type="button" id="btnResetTrace" class="control-btn" title="Reset to Start">
-              🔄 Reset
-            </button>
-          </div>
- 
-          <!-- Step Explanation Callout -->
-          <div id="stepExplanationBox" style="margin-top: 10px; padding: 8px 12px; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-left: 3px solid var(--accent-primary); border-radius: var(--radius-sm); font-size: 12px; display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 14px;">💡</span>
-            <span id="stepExplanationText" style="color: var(--text-primary); font-family: var(--font-mono); font-size: 11.5px;">Click 'Step Line' to trace line 1</span>
+   
+            <!-- Step Explanation Callout -->
+            <div id="stepExplanationBox" class="step-explain-box">
+              <span style="font-size: 14px; line-height: 1;">💡</span>
+              <span id="stepExplanationText" class="step-explain-text">Click 'Step Line' to trace line 1</span>
+            </div>
+
+            <!-- Live Variables Watcher -->
+            <div style="margin-top: 16px; border-top: 1px solid var(--paper-border); padding-top: 14px;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--ink-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+                Live Variables Inspector:
+              </div>
+              <div class="var-watch-grid" id="varWatchGrid">
+                <!-- Live variables populated here -->
+              </div>
+            </div>
+
+            <!-- Live Output Console -->
+            <div style="margin-top: 14px; border-top: 1px solid var(--paper-border); padding-top: 12px;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--ink-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+                Terminal Output:
+              </div>
+              <div id="consoleOutputBox" class="console-box">
+                <span style="color: var(--ink-faint); font-style: italic;">(No output printed yet)</span>
+              </div>
+            </div>
+
           </div>
 
-          <!-- Live Variables Watcher -->
-          <div style="margin-top: 18px; border-top: 1px solid var(--border-color); padding-top: 14px;">
-            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
-              Live Variables Inspector:
+          <!-- Exam Tip Callout -->
+          <div class="exam-tip-card">
+            <div class="exam-tip-title">
+              💡 The Golden Rule of GCSE Trace Tables:
             </div>
-            <div class="var-watch-grid" id="varWatchGrid">
-              <!-- Live variables populated here -->
-            </div>
-          </div>
-
-          <!-- Live Output Console -->
-          <div style="margin-top: 14px; border-top: 1px solid var(--border-color); padding-top: 12px;">
-            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">
-              Terminal Output:
-            </div>
-            <div id="consoleOutputBox" style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 8px 12px; font-family: var(--font-mono); font-size: 12px; color: #c084fc; min-height: 38px;">
-              <span style="color: var(--text-muted); font-style: italic;">(No output printed yet)</span>
+            <div class="exam-tip-body">
+              <strong>Only write in a column when that variable's value changes!</strong><br>
+              If a variable keeps its old value across iterations, leave its column blank in that row. Writing the same number repeatedly clutters the table and risks losing marks on standard AQA mark schemes.
             </div>
           </div>
 
         </div>
 
-        <!-- CGP Exam Tip Callout -->
-        <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-left: 4px solid #f59e0b; border-radius: var(--radius-md); padding: 14px 16px;">
-          <div style="font-size: 12.5px; font-weight: 800; color: #fbbf24; margin-bottom: 4px;">
-            💡 The #1 Golden Rule of GCSE Trace Tables:
-          </div>
-          <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
-            <strong>Only write in a column when that variable's value changes!</strong><br>
-            If a variable keeps its old value across iterations, leave its column blank in that row. Writing the same number over and over clutters the table and makes marking harder!
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Right Column: Interactive Trace Table Grid & Feedback -->
-      <div style="display: flex; flex-direction: column; gap: 16px;">
-        
-        <div class="panel" style="display: flex; flex-direction: column; height: 100%;">
-          <div class="panel-title-bar">
-            <div class="panel-title-group">
+        <!-- Right Column: Interactive Trace Table Grid & Feedback -->
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          
+          <div class="panel" style="display: flex; flex-direction: column; height: 100%;">
+            <div class="panel-title-bar">
               <h3 class="panel-title">Interactive Trace Table</h3>
+
+              <!-- Mode Switcher: Auto-Trace vs Student Practice Mode -->
+              <div class="mode-toggle-group">
+                <button type="button" class="mode-btn active" id="modeAutoBtn">Auto-Sync Mode</button>
+                <button type="button" class="mode-btn" id="modePracticeBtn">Student Test Mode</button>
+              </div>
             </div>
 
-            <!-- Mode Switcher: Auto-Trace vs Student Practice Mode -->
-            <div class="mode-toggle-group">
-              <button type="button" class="mode-btn active" id="modeAutoBtn">🤖 Auto-Sync Mode</button>
-              <button type="button" class="mode-btn" id="modePracticeBtn">✏️ Student Test Mode</button>
+            <!-- Mode Description -->
+            <div id="modeDescText" style="font-size: 12px; color: var(--ink-secondary); margin-bottom: 12px;">
+              <strong>Auto-Sync Mode:</strong> As you click <strong>Step Line</strong>, the table fills automatically and highlights changing variables.
             </div>
-          </div>
 
-          <!-- Mode Description -->
-          <div id="modeDescText" style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
-            <strong>Auto-Sync Mode:</strong> As you click <strong>Step Line</strong>, the table fills automatically and highlights changing variables.
-          </div>
-
-          <!-- Table Container -->
-          <div class="trace-table-wrapper">
-            <table class="trace-table" id="traceGridTable">
-              <thead id="traceGridHead">
-                <!-- Dynamically populated -->
-              </thead>
-              <tbody id="traceGridBody">
-                <!-- Dynamically populated -->
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Student Mode Action Toolbar -->
-          <div id="practiceActionsBar" style="display: none; margin-top: 14px; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-            <div style="display: flex; gap: 8px;">
-              <button type="button" id="btnCheckPracticeAnswers" class="btn btn-primary" style="padding: 7px 16px; font-size: 12px;">
-                ✓ Check My Answers
-              </button>
-              <button type="button" id="btnRevealAnswers" class="control-btn" style="font-size: 12px;">
-                👁️ Reveal Solution
-              </button>
+            <!-- Table Container -->
+            <div class="trace-table-wrapper">
+              <table class="trace-table" id="traceGridTable">
+                <thead id="traceGridHead">
+                  <!-- Dynamically populated -->
+                </thead>
+                <tbody id="traceGridBody">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
             </div>
-            <span id="practiceScoreBadge" style="font-size: 12px; font-weight: 700; color: #10b981;"></span>
-          </div>
 
-          <!-- Practice Feedback Banner -->
-          <div id="practiceFeedbackBox" style="display: none; margin-top: 14px; padding: 12px 16px; border-radius: var(--radius-md); font-size: 12.5px; line-height: 1.5;">
-          </div>
+            <!-- Student Mode Action Toolbar -->
+            <div id="practiceActionsBar" style="display: none; margin-top: 14px; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+              <div style="display: flex; gap: 8px;">
+                <button type="button" id="btnCheckPracticeAnswers" class="btn-practice-primary">
+                  ✓ Check My Answers
+                </button>
+                <button type="button" id="btnRevealAnswers" class="control-btn">
+                  Reveal Solution
+                </button>
+              </div>
+              <span id="practiceScoreBadge" style="font-size: 12px; font-weight: 700; color: var(--forest-green);"></span>
+            </div>
 
-          <!-- Mark Scheme Breakdown -->
-          <div style="margin-top: auto; padding-top: 18px; border-top: 1px solid var(--border-color);">
-            <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">
-              Exam Mark Scheme Criteria:
+            <!-- Practice Feedback Banner -->
+            <div id="practiceFeedbackBox" style="display: none; margin-top: 14px; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 12.5px; line-height: 1.55;">
             </div>
-            <div id="markSchemeNotes" style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
-              <!-- Marks list -->
+
+            <!-- Mark Scheme Breakdown -->
+            <div style="margin-top: auto; padding-top: 18px; border-top: 1px solid var(--paper-border);">
+              <div style="font-size: 11px; font-weight: 700; color: var(--ink-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+                AQA Exam Mark Scheme Criteria:
+              </div>
+              <div id="markSchemeNotes" class="mark-scheme-notes-box">
+                <!-- Marks list -->
+              </div>
             </div>
+
           </div>
 
         </div>
 
       </div>
-
-    </div>
     </div>
     <!-- END SUB-MODULE 1 -->
 
@@ -506,67 +940,63 @@
     <!-- =================================================================== -->
     <div id="submoduleModular" class="submodule-view" style="display: none;">
 
-      <!-- Hero / CGP Style Banner -->
-      <div style="margin-bottom: 24px;">
-        <h2 style="font-size: 24px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 6px 0;">
-          Structuring Code into Modules
-        </h2>
-        <p style="font-size: 13.5px; color: var(--text-secondary); max-width: 860px; line-height: 1.6; margin: 0;">
-          Decomposition, subroutines, and AQA Structure Charts.
-        </p>
+      <!-- View Banner -->
+      <div class="view-banner">
+        <h2>Structuring Code into Modules</h2>
+        <p>Decomposition, subroutines (functions vs procedures), and AQA Structure Charts.</p>
       </div>
 
       <!-- 4 Core Theory Concept Cards -->
       <div class="modular-concept-grid">
         <div class="modular-concept-card">
           <div class="concept-card-head">
-            <div class="concept-icon" style="color: #6366f1;">🧩</div>
+            <div class="concept-icon">🧩</div>
             <h4 class="concept-title">What is a Subroutine?</h4>
           </div>
           <p class="concept-body">
-            A named, self-contained block of code that performs a <strong>single specific task</strong>. Divided into <strong>Functions</strong> (which return a value) and <strong>Procedures</strong> (which execute actions).
+            A named, self-contained block of code that performs a <strong>single specific task</strong>. Divided into <strong>Functions</strong> (which return a value) and <strong>Procedures</strong> (which execute actions without returning a value).
           </p>
         </div>
 
         <div class="modular-concept-card">
           <div class="concept-card-head">
-            <div class="concept-icon" style="color: #3b82f6;">👑</div>
-            <h4 class="concept-title">The "Main Module" (main())</h4>
+            <div class="concept-icon">👑</div>
+            <h4 class="concept-title">The Main Module</h4>
           </div>
           <p class="concept-body">
-            The master conductor / orchestrator of the program. It controls top-level sequence and flow, delegating detailed math, I/O, and validation to specialised subroutines.
+            The master orchestrator of the program. It controls top-level sequence and flow, delegating detailed calculations, data validation, and input/output to dedicated subroutines.
           </p>
         </div>
 
         <div class="modular-concept-card">
           <div class="concept-card-head">
-            <div class="concept-icon" style="color: #10b981;">🚀</div>
-            <h4 class="concept-title">4 Golden Exam Advantages</h4>
+            <div class="concept-icon">🚀</div>
+            <h4 class="concept-title">4 Key Exam Advantages</h4>
           </div>
           <p class="concept-body">
-            <strong>1. Reusability</strong> (eliminates duplicate code).<br>
-            <strong>2. Easier Debugging</strong> (isolate bugs to 1 module).<br>
-            <strong>3. Unit Testing</strong> (test algorithms alone).<br>
-            <strong>4. Teamwork</strong> (split modules between coders).
+            <strong>1. Reusability:</strong> Eliminates duplicated code.<br>
+            <strong>2. Simpler Debugging:</strong> Isolate defects to one subroutine.<br>
+            <strong>3. Unit Testing:</strong> Test modules independently.<br>
+            <strong>4. Team Collaboration:</strong> Divide modules across programmers.
           </p>
         </div>
 
         <div class="modular-concept-card">
           <div class="concept-card-head">
-            <div class="concept-icon" style="color: #f59e0b;">🎯</div>
+            <div class="concept-icon">🎯</div>
             <h4 class="concept-title">Single Responsibility</h4>
           </div>
           <p class="concept-body">
-            A good module does <strong>one job well</strong>. Don't create "god functions" that do 10 things at once, and don't make subroutines for trivial 1-liners like <code>x = x + 1</code>!
+            A well-designed module focuses on <strong>one job</strong>. Avoid monolithic subroutines that try to do everything, and avoid splitting off trivial one-liners like <code>x = x + 1</code>.
           </p>
         </div>
       </div>
 
       <!-- Interactive Module Architect Workbench -->
-      <div style="margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+      <div style="margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
         <div>
-          <h3 style="margin: 0; font-size: 18px; font-weight: 800;">
-            Module Architect: "Should This Block Be a Module?"
+          <h3 style="font-family: var(--font-serif); margin: 0; font-size: 18px; font-weight: 700; color: var(--ink-primary);">
+            Module Architect: "Should This Block Be a Subroutine?"
           </h3>
         </div>
         
@@ -576,7 +1006,7 @@
         </div>
       </div>
 
-      <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 18px 0; line-height: 1.5;">
+      <p style="font-size: 13px; color: var(--ink-secondary); margin: 0 0 16px 0; line-height: 1.55;">
         <span id="scenarioDesc">Inspect the monolithic script below. Notice blocks that are copy-pasted multiple times! Click on any highlighted candidate block to decide if it should be extracted into a separate subroutine or kept in the Main Module.</span>
       </p>
 
@@ -586,18 +1016,16 @@
         <!-- Left: Monolithic Code Inspector -->
         <div class="modular-code-card">
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <strong id="scenarioTitle" style="font-size: 13.5px; color: var(--text-primary);">Cinema Booking</strong>
-            </div>
-            <span style="font-size: 11px; color: var(--text-muted);">Click code blocks to evaluate</span>
+            <strong id="scenarioTitle" style="font-family: var(--font-serif); font-size: 15px; color: var(--ink-primary);">Cinema Booking</strong>
+            <span style="font-size: 11px; color: var(--ink-faint);">Click blocks to inspect</span>
           </div>
 
           <div class="monolith-viewer" id="monolithViewer">
             <!-- Populated dynamically with clickable block spans -->
           </div>
 
-          <div style="font-size: 11.5px; color: var(--text-muted); line-height: 1.45;">
-            💡 <strong>Exam Hint:</strong> Look for blocks that are copy-pasted or repeat the same logic. Extracting them into a subroutine follows the <strong>DRY principle</strong> (Don't Repeat Yourself)!
+          <div style="font-size: 11.5px; color: var(--ink-secondary); line-height: 1.5; background: var(--paper-recessed); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+            💡 <strong>Exam Hint:</strong> Look for blocks that are repeated or contain complex self-contained logic. Extracting them into subroutines reduces duplication and keeps the main algorithm clean.
           </div>
         </div>
 
@@ -605,41 +1033,41 @@
         <div class="modular-decision-card">
           
           <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 12px; font-weight: 700; color: var(--text-muted);">Evaluate Selection</span>
+            <span style="font-size: 11px; font-weight: 700; color: var(--ink-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Evaluate Candidate Block</span>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span id="scenarioScoreBadge" class="badge badge-success" style="font-size: 11px;">Score: 0 / 6 Correct</span>
-              <button type="button" id="btnResetModularChoices" class="btn btn-secondary btn-sm" style="font-size: 11px; padding: 2px 8px;">↺ Reset Choices</button>
+              <span id="scenarioScoreBadge" class="marks-badge" style="font-size: 11px;">Score: 0 / 6 Correct</span>
+              <button type="button" id="btnResetModularChoices" class="control-btn" style="font-size: 11px; padding: 2px 8px;">↺ Reset</button>
             </div>
           </div>
 
           <!-- Active Block Decision Box -->
           <div class="decision-block-box">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-              <strong id="activeBlockTitle" style="font-size: 13px; color: var(--text-primary);">Block 1: Age Validation</strong>
-              <button type="button" id="btnNextBlock" class="btn btn-secondary btn-sm" style="font-size: 11px; padding: 3px 10px;">
+              <strong id="activeBlockTitle" style="font-size: 13px; color: var(--ink-primary);">Block 1: Age Validation</strong>
+              <button type="button" id="btnNextBlock" class="control-btn" style="font-size: 11px; padding: 3px 10px;">
                 Next Block →
               </button>
             </div>
 
             <!-- Code snippet preview -->
-            <pre id="activeBlockSnippet" style="background: #0f172a; color: #38bdf8; padding: 10px 12px; border-radius: var(--radius-sm); font-size: 11.5px; margin: 0; overflow-x: auto; font-family: var(--font-mono);"></pre>
+            <pre id="activeBlockSnippet" style="background: #1e2229; color: #f1f5f9; padding: 10px 12px; border-radius: var(--radius-sm); font-size: 11.5px; margin: 0; overflow-x: auto; font-family: var(--font-mono);"></pre>
 
-            <div style="font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-top: 4px;">
+            <div style="font-size: 12px; font-weight: 700; color: var(--ink-secondary); margin-top: 4px;">
               Should this block be extracted into an independent subroutine?
             </div>
 
             <!-- Decision Action Buttons -->
             <div class="decision-buttons-row">
               <button type="button" id="btnDecisionExtract" class="btn-decision btn-decision-extract">
-                <span style="font-size: 15px; font-weight: 800;">YES</span>
-                <span>Extract as Subroutine</span>
-                <span style="font-size: 9.5px; font-weight: 500; opacity: 0.8;">(Reusable / Specific Task)</span>
+                <span style="font-size: 14px; font-weight: 800;">YES</span>
+                <span>Extract Subroutine</span>
+                <span style="font-size: 10px; font-weight: 500; opacity: 0.85;">(Reusable / Specific Task)</span>
               </button>
 
               <button type="button" id="btnDecisionMain" class="btn-decision btn-decision-main">
-                <span style="font-size: 15px; font-weight: 800;">NO</span>
-                <span>Keep in Main Module</span>
-                <span style="font-size: 9.5px; font-weight: 500; opacity: 0.8;">(Loop Controller / 1-Liner)</span>
+                <span style="font-size: 14px; font-weight: 800;">NO</span>
+                <span>Keep in Main</span>
+                <span style="font-size: 10px; font-weight: 500; opacity: 0.85;">(Controller / 1-Liner)</span>
               </button>
             </div>
 
@@ -654,13 +1082,13 @@
       </div>
 
       <!-- FULL-WIDTH AQA STRUCTURE CHART & ARCHITECTURE COMPARISON -->
-      <div class="panel structure-chart-panel" style="margin-bottom: 24px;">
+      <div class="structure-chart-panel" style="margin-bottom: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
           <div>
-            <h3 style="margin: 0; font-size: 16px; font-weight: 800;">
+            <h3 style="font-family: var(--font-serif); margin: 0; font-size: 17px; font-weight: 700; color: var(--ink-primary);">
               Program Architecture: Monolith vs AQA Structure Chart
             </h3>
-            <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-secondary);">
+            <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--ink-secondary);">
               Decomposition turns a monolithic script into an official AQA Structure Chart showing data flow and subroutines.
             </p>
           </div>
@@ -678,61 +1106,61 @@
 
         <!-- Legend / Key for AQA Structure Chart notation -->
         <div class="aqa-chart-legend" id="chartLegendBox">
-          <div class="legend-item"><span class="legend-symbol" style="color: #38bdf8;">○ ↓</span> <strong>Parameter:</strong> Data passed down into subroutine</div>
-          <div class="legend-item"><span class="legend-symbol" style="color: #10b981;">↑ ○</span> <strong>Return Value:</strong> Output returned up to caller</div>
+          <div class="legend-item"><span class="legend-symbol" style="color: var(--oxford-navy);">○ ↓</span> <strong>Parameter:</strong> Data passed down into subroutine</div>
+          <div class="legend-item"><span class="legend-symbol" style="color: var(--forest-green);">↑ ○</span> <strong>Return Value:</strong> Output returned up to caller</div>
           <div class="legend-item"><span class="badge-mini badge-func">FUNCTION</span> Returns a value</div>
           <div class="legend-item"><span class="badge-mini badge-proc">PROCEDURE</span> Executes action (no return)</div>
-          <div class="legend-item"><span class="legend-symbol" style="color: #fbbf24;">🔁</span> Eliminates duplicate code</div>
+          <div class="legend-item"><span class="legend-symbol" style="color: var(--amber-mid);">🔁</span> Eliminates duplicate code</div>
         </div>
       </div>
 
       <!-- AQA Exam Essentials: Functions vs Procedures & Variable Scope -->
-      <div class="theory-essentials-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px;">
         
         <!-- Card 1: Function vs Procedure -->
-        <div class="theory-essential-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid #10b981; border-radius: var(--radius-md); padding: 16px 18px;">
-          <div style="font-size: 13.5px; font-weight: 800; color: #10b981; margin-bottom: 6px;">
-            ✓ Functions vs Procedures (Core Exam Definition)
+        <div style="background: var(--paper-card); border: 1px solid var(--paper-border); border-left: 4px solid var(--forest-green); border-radius: var(--radius-md); padding: 16px 18px;">
+          <div style="font-family: var(--font-serif); font-size: 15px; font-weight: 700; color: var(--forest-green); margin-bottom: 6px;">
+            Functions vs Procedures (Core Exam Definition)
           </div>
-          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 10px 0;">
-            AQA examiners frequently ask: <em>"State one difference between a function and a procedure."</em>
+          <p style="font-size: 12.5px; color: var(--ink-secondary); line-height: 1.55; margin: 0 0 10px 0;">
+            AQA mark schemes distinguish between functions and procedures based on return values:
           </p>
-          <div style="font-size: 12px; line-height: 1.6; background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-sm);">
-            • <strong>Function:</strong> Must calculate and <strong>return a value</strong> back to the calling statement (e.g. <code>price = calculate_ticket_price(age)</code>). Represented by the <span style="color: #10b981; font-weight: 700;">↑ ○ Return Arrow</span> on Structure Charts.<br>
-            • <strong>Procedure:</strong> Executes instructions (e.g. printing a receipt or updating a database) but <strong>does NOT return a value</strong>.
+          <div style="font-size: 12px; line-height: 1.6; background: var(--paper-recessed); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+            • <strong>Function:</strong> Calculates and <strong>returns a value</strong> back to the calling statement (e.g. <code>price = calc_ticket_price(age)</code>). Represented by the <span style="color: var(--forest-green); font-weight: 700;">↑ ○ Return Arrow</span> on Structure Charts.<br>
+            • <strong>Procedure:</strong> Executes actions (e.g. printing a ticket receipt or updating a database record) but <strong>does not return a value</strong>.
           </div>
         </div>
 
         <!-- Card 2: Local vs Global Variables -->
-        <div class="theory-essential-card" style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid #3b82f6; border-radius: var(--radius-md); padding: 16px 18px;">
-          <div style="font-size: 13.5px; font-weight: 800; color: #38bdf8; margin-bottom: 6px;">
-            🔒 Local vs Global Scope &amp; Parameters
+        <div style="background: var(--paper-card); border: 1px solid var(--paper-border); border-left: 4px solid var(--oxford-navy); border-radius: var(--radius-md); padding: 16px 18px;">
+          <div style="font-family: var(--font-serif); font-size: 15px; font-weight: 700; color: var(--oxford-navy); margin-bottom: 6px;">
+            Local vs Global Scope &amp; Parameters
           </div>
-          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; margin: 0 0 10px 0;">
-            Why does modular code keep software free from accidental bugs?
+          <p style="font-size: 12.5px; color: var(--ink-secondary); line-height: 1.55; margin: 0 0 10px 0;">
+            Why does modular code keep software free from accidental side effects?
           </p>
-          <div style="font-size: 12px; line-height: 1.6; background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-sm);">
-            • <strong>Local Variables:</strong> Declared inside a subroutine. Accessible <em>only</em> within that subroutine. Automatically deleted from memory when the subroutine finishes.<br>
-            • <strong>Global Variables:</strong> Declared in the main script. Accessible anywhere. Risky because any function can accidentally modify them, causing unexpected bugs.<br>
-            • <strong>Parameters:</strong> The safe, professional way to pass data into subroutines without relying on global variables.
+          <div style="font-size: 12px; line-height: 1.6; background: var(--paper-recessed); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+            • <strong>Local Variables:</strong> Declared inside a subroutine. Accessible only within that subroutine and freed from memory when execution ends.<br>
+            • <strong>Global Variables:</strong> Declared in the main program. Accessible everywhere, but risky because unintended modifications can introduce subtle bugs.<br>
+            • <strong>Parameters:</strong> The controlled mechanism for passing values into subroutines without relying on global variables.
           </div>
         </div>
 
       </div>
 
-      <!-- GCSE Exam Theory Quick Quiz -->
+      <!-- Theory Quick Quiz -->
       <div class="modular-quiz-card">
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-          <h4 style="margin: 0; font-size: 16px; font-weight: 800;">
+        <div style="margin-bottom: 6px;">
+          <h4 style="font-family: var(--font-serif); margin: 0; font-size: 17px; font-weight: 700; color: var(--ink-primary);">
             Modular Programming Theory Quiz
           </h4>
         </div>
-        <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 16px 0;">
-          Test your understanding of subroutines, decomposition, and main modules with typical AQA Paper 1 multiple-choice questions:
+        <p style="font-size: 13px; color: var(--ink-secondary); margin: 0 0 16px 0;">
+          Test your understanding of subroutines, decomposition, and main modules with typical Paper 1 multiple-choice questions:
         </p>
 
         <div id="modularQuizContainer">
-          <!-- Dynamically populated 4 quiz questions -->
+          <!-- Dynamically populated quiz questions -->
         </div>
       </div>
 

@@ -11,7 +11,7 @@
 
 ## 1. Types of Content
 
-The platform balances three main types of content:
+The platform balances different main types of content:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -108,6 +108,7 @@ Explanations and notes should talk **to** the student like a smart, witty older 
    - **Worst-Case with Concrete Numbers** (*e.g. Searching 1,000 items takes at most 10 checks ($2^{10} \approx 1,000$).*).
 3. **Exam Trap / Tip Box**:
    A focused amber callout highlighting the exact mistake students regularly lose marks on in AQA exams.
+4. Don't try to be too cool for school, don't call anything 'Lab' or 'Laboratory' or 'Experiment hub' Write like a human and  don't lay on analogies too thick. 
 
 ---
 

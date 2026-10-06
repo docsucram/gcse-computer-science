@@ -708,7 +708,7 @@
           typeBadgeHtml = `
             <div style="margin-top: 8px; padding: 6px 10px; background: var(--bg-root); border-radius: var(--radius-sm); border: 1px solid var(--border-color); font-size: 11.5px;">
               <span class="badge-mini ${isFunc ? 'badge-func' : 'badge-proc'}">${block.subroutineType}</span>
-              ${isFunc ? '<span style="color: #10b981; font-weight: 700;">Returns a value (↑○ Return Arrow)</span>' : '<span style="color: #38bdf8; font-weight: 700;">Executes actions (No return value)</span>'}
+              ${isFunc ? '<span style="color: var(--forest-green, #1a6b3c); font-weight: 700;">Returns a value (↑○ Return Arrow)</span>' : '<span style="color: var(--oxford-navy, #1e3a5f); font-weight: 700;">Executes actions (No return value)</span>'}
               <div style="margin-top: 4px; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">
                 Parameters (Inputs): <code>${block.params}</code> | Return (Output): <code>${block.returns}</code>
               </div>
@@ -719,7 +719,7 @@
         let repeatNoteHtml = '';
         if (block.isRepeated && block.repeatedNote) {
           repeatNoteHtml = `
-            <div style="margin-top: 6px; font-size: 11.5px; color: #fbbf24; font-weight: 700;">
+            <div style="margin-top: 6px; font-size: 11.5px; color: var(--amber-mid, #b45309); font-weight: 700;">
               🔁 Reusability Benefit: ${block.repeatedNote}
             </div>
           `;
@@ -915,8 +915,9 @@
         if (explainBox) {
           explainBox.style.display = 'block';
           const isCorrect = (optIdx === qData.correct);
-          explainBox.style.background = isCorrect ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)';
-          explainBox.style.borderLeft = `3.5px solid ${isCorrect ? '#10b981' : '#ef4444'}`;
+          explainBox.style.background = isCorrect ? 'var(--green-tint, #edf7f0)' : 'var(--red-tint, #fef2f2)';
+          explainBox.style.borderLeft = `3.5px solid ${isCorrect ? 'var(--forest-green, #1a6b3c)' : 'var(--cardinal-red, #a82020)'}`;
+          explainBox.style.color = isCorrect ? 'var(--forest-green, #1a6b3c)' : 'var(--cardinal-red, #a82020)';
           explainBox.innerHTML = `
             <strong>${isCorrect ? '✓ Correct!' : '✗ Exam Explanation:'}</strong> ${qData.explain}
           `;
@@ -948,6 +949,7 @@
         if (viewTrace) viewTrace.style.display = 'none';
         if (viewModular) viewModular.style.display = 'block';
         localStorage.setItem('designTestingActiveTab', 'modules');
+        try { window.location.hash = 'modules'; } catch (e) {}
       } else {
         if (tabModules) {
           tabModules.classList.remove('active');
@@ -960,14 +962,16 @@
         if (viewTrace) viewTrace.style.display = 'block';
         if (viewModular) viewModular.style.display = 'none';
         localStorage.setItem('designTestingActiveTab', 'trace');
+        try { window.location.hash = 'trace'; } catch (e) {}
       }
     }
 
     if (tabTrace) tabTrace.addEventListener('click', () => switchView('trace'));
     if (tabModules) tabModules.addEventListener('click', () => switchView('modules'));
 
+    const hash = window.location.hash.replace('#', '');
     const savedTab = localStorage.getItem('designTestingActiveTab');
-    if (savedTab === 'modules') {
+    if (hash === 'modules' || (!hash && savedTab === 'modules')) {
       switchView('modules');
     } else {
       switchView('trace');

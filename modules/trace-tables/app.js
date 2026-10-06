@@ -564,7 +564,7 @@
     if (consoleBox) {
       if (latestOutput) {
         consoleBox.textContent = `> ${latestOutput}`;
-        consoleBox.style.color = '#34d399';
+        consoleBox.style.color = 'var(--forest-green, #1a6b3c)';
       } else {
         consoleBox.innerHTML = '<span style="color: var(--text-muted); font-style: italic;">(No output printed yet)</span>';
       }
@@ -685,20 +685,20 @@
     if (feedbackBox) {
       feedbackBox.style.display = 'block';
       if (scorePct === 100) {
-        feedbackBox.style.background = 'rgba(16, 185, 129, 0.15)';
-        feedbackBox.style.border = '1px solid rgba(16, 185, 129, 0.3)';
-        feedbackBox.style.color = '#34d399';
+        feedbackBox.style.background = 'var(--green-tint, #edf7f0)';
+        feedbackBox.style.border = '1px solid var(--forest-green, #1a6b3c)';
+        feedbackBox.style.color = 'var(--forest-green, #1a6b3c)';
         feedbackBox.innerHTML = `
-          <strong>🎉 Flawless Robot Trace! Full Marks (${correctCells}/${totalCells}):</strong><br>
-          You correctly updated variables only on lines where they changed, correctly handled loop boundaries, and gave the exact terminal output!
+          <strong>✓ Full Marks (${correctCells}/${totalCells}):</strong><br>
+          You correctly recorded variable updates only on the lines where values changed, maintained correct loop bounds, and traced the terminal output accurately.
         `;
       } else {
-        feedbackBox.style.background = 'rgba(239, 68, 68, 0.12)';
-        feedbackBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
-        feedbackBox.style.color = '#f87171';
+        feedbackBox.style.background = 'var(--red-tint, #fef2f2)';
+        feedbackBox.style.border = '1px solid var(--cardinal-red, #a82020)';
+        feedbackBox.style.color = 'var(--cardinal-red, #a82020)';
         feedbackBox.innerHTML = `
-          <strong>⚠️ Almost! ${correctCells} of ${totalCells} cells matched:</strong><br>
-          Red boxes highlight errors. Check for off-by-one errors in loop boundaries, or make sure you left rows blank when a variable kept its previous value!
+          <strong>⚠️ Check Your Trace (${correctCells} of ${totalCells} cells matched):</strong><br>
+          Red cells highlight where your trace differed from the mark scheme. Check loop conditions carefully, and remember only to write in a column when that variable changes value.
         `;
       }
     }
