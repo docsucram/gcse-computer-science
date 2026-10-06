@@ -13,9 +13,9 @@ export default function CustomArrayModal({
   if (!isOpen) return null;
 
   const pastPaperPresets = [
-    { label: 'OCR J277 Sample', values: [12, 7, 34, 2, 8] },
     { label: 'AQA 8525 Paper 1', values: [9, 4, 2, 7, 6, 1, 8] },
-    { label: 'Edexcel GCSE Spec', values: [55, 23, 78, 12, 9, 31] },
+    { label: 'AQA Specimen Sample', values: [12, 7, 34, 2, 8] },
+    { label: 'Reversed Worst Case', values: [55, 43, 38, 22, 19, 11] },
     { label: 'Nearly Sorted Exam List', values: [2, 5, 8, 14, 11, 20, 25] },
   ];
 

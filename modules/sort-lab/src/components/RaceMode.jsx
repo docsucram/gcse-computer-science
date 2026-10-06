@@ -32,7 +32,13 @@ export default function RaceMode({
     setWinner(null);
     clearInterval(timerRef.current);
 
-    const arr = Array.from({ length: size }, () => Math.floor(Math.random() * 95) + 5);
+    // Generate distinct random values
+    const pool = Array.from({ length: 90 }, (_, i) => i + 10);
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const arr = pool.slice(0, size);
     setInitialArray(arr);
 
     const s1 = generateSteps(algo1Id, arr);
@@ -105,8 +111,8 @@ export default function RaceMode({
       {/* 1. CLEAN EDITORIAL HEADER */}
       <header className="revision-header">
         <div className="revision-title-block">
-          <span className="spec-pill">AQA 3.1.1 // OCR J277 2.1</span>
-          <h1 style={{ marginTop: '6px' }}>Algorithm Duel: Head-to-Head Sorting Race</h1>
+          <span className="spec-pill">AQA 8525 §3.1.1</span>
+          <h1 style={{ marginTop: '6px' }}>Sorting Race: Head-to-Head Algorithm Duel</h1>
           <p>
             Direct head-to-head performance race. Compare O(n log n) divide-and-conquer against O(n²) quadratic algorithms in real time on identical lists.
           </p>

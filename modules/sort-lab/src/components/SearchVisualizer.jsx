@@ -362,7 +362,7 @@ export default function SearchVisualizer({
       {/* 1. CLEAN EDITORIAL HEADER */}
       <header className="revision-header">
         <div className="revision-title-block">
-          <span className="spec-pill">AQA 3.1.1 // OCR J277 2.1</span>
+          <span className="spec-pill">AQA 8525 §3.1.1</span>
           <h1 style={{ marginTop: '6px' }}>Searching Algorithms: Linear vs Binary Search</h1>
           <p>
             How computers locate data in memory. Compare trudging through every item one-by-one against repeatedly halving the search space.

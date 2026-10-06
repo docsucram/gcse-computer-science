@@ -102,8 +102,13 @@ export default function App() {
       const distinct = [15, 38, 65, 90];
       arr = Array.from({ length: size }, () => distinct[Math.floor(Math.random() * distinct.length)]);
     } else {
-      // random
-      arr = Array.from({ length: size }, () => Math.floor(Math.random() * 90) + 10);
+      // random: generate distinct values when size <= 85
+      const pool = Array.from({ length: 88 }, (_, i) => i + 10);
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+      arr = pool.slice(0, size);
     }
     return arr;
   }, [arraySize]);
@@ -343,7 +348,7 @@ export default function App() {
               {/* 1. CLEAN EDITORIAL HEADER */}
               <header className="revision-header">
                 <div className="revision-title-block">
-                  <span className="spec-pill">AQA 3.1.1 // OCR J277 2.1</span>
+                  <span className="spec-pill">AQA 8525 §3.1.1</span>
                   <h1 style={{ marginTop: '6px' }}>Sorting Algorithms: {currentAlgo.name}</h1>
                   <p>{currentAlgo.description}</p>
                 </div>
@@ -495,7 +500,7 @@ export default function App() {
       {/* Footer */}
       <footer className="w-full py-6 border-t border-[#ded7c6] text-center text-xs bg-[#fdfcf9] text-[#585e6b]">
         <p className="font-medium">
-          GCSE Computer Science Searching &amp; Sorting Algorithms • Aligned with AQA 8525 §3.1 &amp; OCR J277
+          GCSE Computer Science Searching &amp; Sorting Algorithms • Aligned with AQA 8525 §3.1
         </p>
         <p className="mt-1 text-[11.5px] text-[#8e95a2]">
           Client-side Web Audio synthesis • Zero server dependencies • Fast on school Chromebooks &amp; tablets

@@ -289,7 +289,7 @@ export default function TraceTable({
             ? '📝 AQA Paper 1 Rule: Only record variable values in a column when they change!'
             : '💡 Click any pass row to jump straight to that pass.'}
         </span>
-        <span className="hidden sm:inline">AQA 8525 & OCR J277 Trace Table</span>
+        <span className="hidden sm:inline">AQA 8525 Trace Table</span>
       </div>
         </>
       )}

@@ -467,8 +467,6 @@ export const ALGORITHMS = {
     name: "I Can't Believe It Can Sort (ICBICS)",
     category: 'Educational Curiosity',
     aqaCore: false,
-    ocrCore: false,
-    edexcelCore: false,
     examBoardRelevance: 'Algorithmic Curiosity & Code Analysis (Stanley P. Y. Fung, 2021)',
     complexity: {
       bestTime: 'Θ(n²)',

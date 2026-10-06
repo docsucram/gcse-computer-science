@@ -33,10 +33,10 @@ The platform balances three distinct types of content:
 
 ## 2. Structure & Syllabus Alignment (CGP Parallel)
 
-- **Curriculum Anchor**: Aligned primarily with the **AQA 8525** syllabus (and relevant OCR J277 equivalents).
+- **Curriculum Anchor**: Aligned primarily with the **AQA 8525** syllabus.
 - **Match the CGP Revision Book Flow**: Where possible, structure topics and terminology parallel to the popular CGP AQA Revision Guide so students studying from the book can immediately jump into the corresponding simulation.
-- **Subtle, Not Stuffy**: Keep syllabus badge codes (`AQA 3.1.1`) neat, small, and discreet. Never let exam bureaucracy overpower the excitement of the interactive tool.
-- **Room for Stretch**: Include concepts that go slightly beyond the minimum syllabus requirements when they make the simulation dramatically cooler or spark genuine interest in computer science.
+- **Subtle, Not Stuffy**: Keep syllabus badge codes (`AQA 3.1.1`) neat, small, and discreet. Never let exam bureaucracy overpower the excitement of the interactive tool. Mainly keep this to the universal top header/ front page navigation. 
+- **Room for Stretch**: Include concepts that go slightly beyond the minimum syllabus requirements when they make the simulation cooler or spark genuine interest in computer science. e.g.  A-level topics.
 
 ---
 

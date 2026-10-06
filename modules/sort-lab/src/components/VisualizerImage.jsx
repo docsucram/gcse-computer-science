@@ -81,21 +81,29 @@ export default function VisualizerImage({
     const stripWidth = width / n;
     const srcStripWidth = loadedImg.width / n;
 
-    // Map each value in array to a slice index [0..n-1]
+    // Stable slice mapping: bucket each unique value so duplicates never collide or omit slices
     const sortedValues = [...array].sort((a, b) => a - b);
-    const valueToSliceMap = new Map();
+    const valueSlicesMap = new Map();
     sortedValues.forEach((val, idx) => {
-      if (!valueToSliceMap.has(val)) {
-        valueToSliceMap.set(val, idx);
+      if (!valueSlicesMap.has(val)) {
+        valueSlicesMap.set(val, []);
       }
+      valueSlicesMap.get(val).push(idx);
+    });
+
+    const valueCounters = new Map();
+    const sliceIndices = array.map((val) => {
+      const slices = valueSlicesMap.get(val) || [];
+      const usedCount = valueCounters.get(val) || 0;
+      valueCounters.set(val, usedCount + 1);
+      return slices[usedCount % slices.length] ?? 0;
     });
 
     const activeSet = new Set(activeIndices);
 
     // 1. Draw sliced image strips
     for (let i = 0; i < n; i++) {
-      const val = array[i];
-      const sliceIdx = valueToSliceMap.get(val) ?? (val % n);
+      const sliceIdx = sliceIndices[i];
 
       const sx = sliceIdx * srcStripWidth;
       const sy = 0;
@@ -111,24 +119,24 @@ export default function VisualizerImage({
 
       // Subtle indicator tabs (top and bottom only, keeping image clean)
       if (activeSet.has(i)) {
-        let tabColor = '#fbbf24'; // amber for compare
+        let tabColor = '#b45309'; // warm amber for compare
         if (stepType === 'swap' || stepType === 'shift') {
-          tabColor = '#ef4444'; // coral red
+          tabColor = '#a82020'; // cardinal red
         } else if (stepType === 'pivot' || stepType === 'key') {
-          tabColor = '#c084fc'; // purple
+          tabColor = '#1e3a5f'; // oxford navy
         }
 
         ctx.fillStyle = tabColor;
         // Top indicator tab
-        ctx.fillRect(dx, 0, stripWidth, 6);
+        ctx.fillRect(dx, 0, stripWidth, 5);
         // Bottom indicator tab
-        ctx.fillRect(dx, height - 6, stripWidth, 6);
+        ctx.fillRect(dx, height - 5, stripWidth, 5);
 
         // Active notch triangle at top
         ctx.beginPath();
-        ctx.moveTo(dx + stripWidth / 2, 12);
-        ctx.lineTo(dx + stripWidth / 2 - 4, 6);
-        ctx.lineTo(dx + stripWidth / 2 + 4, 6);
+        ctx.moveTo(dx + stripWidth / 2, 10);
+        ctx.lineTo(dx + stripWidth / 2 - 4, 5);
+        ctx.lineTo(dx + stripWidth / 2 + 4, 5);
         ctx.closePath();
         ctx.fill();
       }
@@ -136,9 +144,9 @@ export default function VisualizerImage({
 
     // 2. Celebratory perimeter glow when fully sorted
     if (isCompleted) {
-      ctx.strokeStyle = '#10b981';
-      ctx.lineWidth = 6;
-      ctx.strokeRect(3, 3, width - 6, height - 6);
+      ctx.strokeStyle = '#1a6b3c';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(2, 2, width - 4, height - 4);
     }
   }, [array, activeIndices, sortedIndices, stepType, isCompleted, loadedImg]);
 
@@ -174,38 +182,38 @@ export default function VisualizerImage({
         onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
         onDragLeave={() => setIsDragging(false)}
         onDrop={handleDrop}
-        className={`relative w-full h-[360px] sm:h-[420px] rounded-2xl overflow-hidden flex items-center justify-center transition-all ${
-          isCompleted ? 'celebration-glow ring-4 ring-emerald-500/80 shadow-2xl' : 'border border-slate-700/50'
-        } ${isDarkMode ? 'bg-slate-950' : 'bg-slate-900'} ${isDragging ? 'ring-4 ring-indigo-500 border-indigo-400' : ''}`}
+        className={`relative w-full h-[360px] sm:h-[420px] rounded-[2px] overflow-hidden flex items-center justify-center transition-all ${
+          isCompleted ? 'ring-2 ring-[#1a6b3c] shadow-md' : 'border border-[#ded7c6]'
+        } bg-[#1e2229] ${isDragging ? 'ring-2 ring-[#1e3a5f] border-[#1e3a5f]' : ''}`}
       >
         <canvas ref={canvasRef} className="w-full h-full block" />
 
         {/* Celebratory Completion Banner */}
         {isCompleted && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-emerald-500/90 text-white font-semibold text-xs sm:text-sm flex items-center gap-1.5 shadow-lg backdrop-blur-sm animate-bounce">
-            <Sparkles className="w-4 h-4" />
-            Image Assembled & Sorted!
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 px-3.5 py-1.5 rounded-[2px] bg-[#edf7f0] border border-[#bbf7d0] text-[#1a6b3c] font-bold text-xs sm:text-sm flex items-center gap-1.5 shadow-sm">
+            <Sparkles className="w-4 h-4 text-[#1a6b3c]" />
+            Image Correctly Assembled &amp; Sorted!
           </div>
         )}
 
         {/* Drag-and-drop overlay hint */}
         {isDragging && (
-          <div className="absolute inset-0 bg-indigo-950/80 backdrop-blur-sm flex flex-col items-center justify-center text-white pointer-events-none">
-            <Upload className="w-12 h-12 mb-2 text-indigo-400 animate-pulse" />
-            <p className="font-bold text-lg">Drop your image here to scramble & sort!</p>
+          <div className="absolute inset-0 bg-[#1e3a5f]/90 flex flex-col items-center justify-center text-white pointer-events-none">
+            <Upload className="w-10 h-10 mb-2 text-white animate-pulse" />
+            <p className="font-bold text-sm">Drop your image here to scramble &amp; sort!</p>
           </div>
         )}
       </div>
 
       {/* Image Strip Controls Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-slate-500 dark:text-slate-400">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-[#585e6b]">
         <div className="flex items-center gap-2">
-          <span className="font-medium text-slate-700 dark:text-slate-300 flex items-center gap-1">
-            <ImageIcon className="w-3.5 h-3.5 text-indigo-500" />
+          <span className="font-semibold text-[#1e2229] flex items-center gap-1">
+            <ImageIcon className="w-3.5 h-3.5 text-[#1e3a5f]" />
             {isCustomImage ? 'Custom Photo Slices' : '80s Synthwave Sunset'}
           </span>
           <span>•</span>
-          <span>{array.length} vertical strips</span>
+          <span className="font-mono">{array.length} vertical strips</span>
         </div>
 
         <div className="flex items-center gap-2">
@@ -218,16 +226,16 @@ export default function VisualizerImage({
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60 text-indigo-600 dark:text-indigo-400 font-medium transition-colors flex items-center gap-1"
-            title="Upload any family photo, pet, or wallpaper"
+            className="px-2.5 py-1 rounded-[2px] bg-[#fdfcf9] border border-[#c2b8a3] hover:border-[#1e3a5f] text-[#1e2229] font-semibold transition-colors flex items-center gap-1 cursor-pointer"
+            title="Upload any image file"
           >
-            <Upload className="w-3 h-3" />
+            <Upload className="w-3 h-3 text-[#1e3a5f]" />
             Upload Picture
           </button>
           {isCustomImage && (
             <button
               onClick={resetToSynthwave}
-              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium transition-colors flex items-center gap-1"
+              className="px-2.5 py-1 rounded-[2px] bg-[#fdfcf9] border border-[#c2b8a3] hover:border-[#1e3a5f] text-[#585e6b] hover:text-[#1e2229] font-medium transition-colors flex items-center gap-1 cursor-pointer"
               title="Reset back to default Synthwave artwork"
             >
               <RotateCcw className="w-3 h-3" />
