@@ -9,9 +9,9 @@
 
 ---
 
-## 1. The Three Pillars of Content
+## 1. Types of Content
 
-The platform balances three distinct types of content:
+The platform balances three main types of content:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -20,8 +20,9 @@ The platform balances three distinct types of content:
 │ internal processes down step-by-step (e.g. Binary Search, F-D-E cycle).│
 ├────────────────────────────────────────────────────────────────────────┤
 │ 2. SANDBOX SIMULATIONS                                                 │
-│ Genuine edutainment "toys" and open-ended sandboxes with rich feature  │
-│ sets to experiment with (e.g. CPU architecture, packet routing, RLE).  │
+│ Edutainment "toys" and open-ended sandboxes with rich feature  │
+│ sets to experiment with (e.g. CPU architecture, packet routing, RLE).
+│ Should be the sort of thing people want to come back and experiment with even when nor actively looking to learn. 
 ├────────────────────────────────────────────────────────────────────────┤
 │ 3. CGP-STYLE REVISION NOTES                                            │
 │ Short, punchy explainers that introduce each sim and distill the key   │
@@ -42,7 +43,7 @@ The platform balances three distinct types of content:
 
 ## 3. Freedom & Fun: The "Edutainment First" Rule
 
-Simulations and visualizers should **never be overly constrained by rigid UI dogmatism**. Above all, they must be engaging, tactile, and rewarding to interact with.
+Simulations and visualizers should **never be overly constrained by rigid UI dogmatism**. Above all, they must be engaging, tactile, and rewarding to interact with. a sim or visulasation does not have to conform to other guidelines if it'd improve it. 
 
 Embrace playful, high-agency features:
 - **Head-to-Head Duels & Races**: Put algorithms against each other (e.g. Binary Search vs. Linear Search, or Bubble vs. Merge) with live comparative metrics.
