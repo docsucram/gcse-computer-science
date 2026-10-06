@@ -822,8 +822,9 @@
       } else {
         DOM.targetDiffBadge.textContent = `Needs +${diff}`;
       }
-      DOM.targetDiffBadge.style.background = 'rgba(59, 130, 246, 0.15)';
-      DOM.targetDiffBadge.style.color = '#3b82f6';
+      DOM.targetDiffBadge.style.background = 'var(--isaac-magenta-tint)';
+      DOM.targetDiffBadge.style.color = 'var(--isaac-magenta)';
+      DOM.targetDiffBadge.style.borderColor = 'var(--isaac-magenta)';
     } else {
       const over = Math.abs(diff);
       if (targetState.targetBase === 'hex') {
@@ -831,8 +832,9 @@
       } else {
         DOM.targetDiffBadge.textContent = `Over by ${over}`;
       }
-      DOM.targetDiffBadge.style.background = 'rgba(245, 158, 11, 0.15)';
-      DOM.targetDiffBadge.style.color = '#ca8a04';
+      DOM.targetDiffBadge.style.background = 'var(--isaac-yellow-tint)';
+      DOM.targetDiffBadge.style.color = '#b45309';
+      DOM.targetDiffBadge.style.borderColor = 'var(--isaac-yellow-border)';
     }
   }
 
