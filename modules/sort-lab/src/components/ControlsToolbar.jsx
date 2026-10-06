@@ -6,10 +6,8 @@ import {
   SkipForward,
   FastForward,
   RotateCcw,
-  Shuffle,
   Volume2,
   VolumeX,
-  Sliders,
   HelpCircle,
   Edit3,
 } from 'lucide-react';
@@ -21,7 +19,6 @@ export default function ControlsToolbar({
   onStepForward = () => {},
   onNextPass = () => {},
   onReset = () => {},
-  onShuffle = () => {},
   onPresetChange = () => {},
   currentStepIndex = 0,
   totalSteps = 1,
@@ -36,25 +33,20 @@ export default function ControlsToolbar({
   onCycleAudio = () => {},
   quizMode = false,
   onToggleQuizMode = () => {},
-  isDarkMode = true,
 }) {
   const progressPercent = totalSteps > 1 ? (currentStepIndex / (totalSteps - 1)) * 100 : 0;
 
   return (
-    <div className={`p-4 sm:p-5 rounded-2xl border flex flex-col gap-4 transition-colors ${
-      isDarkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-    }`}>
-      {/* 1. Main Playback Buttons & Timeline Scrubber */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="bg-[#fdfcf9] border border-[#ded7c6] rounded-[2px] p-3.5 sm:p-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col gap-3.5 transition-colors">
+      {/* 1. Main Playback Buttons & Action Cluster */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Playback Button Group */}
         <div className="flex items-center gap-2">
           {/* Step Back */}
           <button
             onClick={onStepBack}
             disabled={currentStepIndex <= 0 || isPlaying}
-            className={`p-2.5 rounded-xl border text-xs font-semibold transition-colors disabled:opacity-40 disabled:pointer-events-none ${
-              isDarkMode ? 'border-slate-800 bg-slate-800 hover:bg-slate-700 text-slate-200' : 'border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700'
-            }`}
+            className="p-2 rounded-[2px] border border-[#c2b8a3] bg-[#fdfcf9] text-[#1e2229] hover:border-[#1e3a5f] hover:text-[#1e3a5f] transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
             title="Step Back [Left Arrow]"
           >
             <SkipBack className="w-4 h-4" />
@@ -63,7 +55,7 @@ export default function ControlsToolbar({
           {/* Play / Pause Primary Button */}
           <button
             onClick={onTogglePlay}
-            className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2 shadow-lg shadow-indigo-600/30 active:scale-95"
+            className="px-4 py-2 rounded-[2px] bg-[#1e3a5f] hover:bg-[#152b47] text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
             title="Play / Pause [Spacebar]"
           >
             {isPlaying ? <Pause className="w-4 h-4 fill-white" /> : <Play className="w-4 h-4 fill-white" />}
@@ -74,9 +66,7 @@ export default function ControlsToolbar({
           <button
             onClick={onStepForward}
             disabled={currentStepIndex >= totalSteps - 1 || isPlaying}
-            className={`p-2.5 rounded-xl border text-xs font-semibold transition-colors disabled:opacity-40 disabled:pointer-events-none ${
-              isDarkMode ? 'border-slate-800 bg-slate-800 hover:bg-slate-700 text-slate-200' : 'border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700'
-            }`}
+            className="p-2 rounded-[2px] border border-[#c2b8a3] bg-[#fdfcf9] text-[#1e2229] hover:border-[#1e3a5f] hover:text-[#1e3a5f] transition-all disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
             title="Step Forward [Right Arrow or S]"
           >
             <SkipForward className="w-4 h-4" />
@@ -86,11 +76,7 @@ export default function ControlsToolbar({
           <button
             onClick={onNextPass}
             disabled={currentStepIndex >= totalSteps - 1 || isPlaying}
-            className={`px-3.5 py-2.5 rounded-xl border font-semibold text-xs sm:text-sm transition-all flex items-center gap-1.5 disabled:opacity-40 disabled:pointer-events-none ${
-              isDarkMode
-                ? 'bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border-emerald-500/30'
-                : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-300 font-bold'
-            }`}
+            className="px-3 py-2 rounded-[2px] border border-[#bbf7d0] bg-[#edf7f0] hover:bg-[#dcfce7] text-[#1a6b3c] font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
             title="Advance one full outer loop pass [P]"
           >
             <FastForward className="w-4 h-4" />
@@ -100,40 +86,36 @@ export default function ControlsToolbar({
           {/* Reset */}
           <button
             onClick={onReset}
-            className={`p-2.5 rounded-xl border text-xs font-semibold transition-colors ${
-              isDarkMode ? 'border-slate-800 bg-slate-800 hover:bg-slate-700 text-slate-300' : 'border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-700'
-            }`}
+            className="p-2 rounded-[2px] border border-[#c2b8a3] bg-[#fdfcf9] text-[#585e6b] hover:text-[#1e2229] hover:border-[#1e3a5f] transition-all cursor-pointer"
             title="Reset to beginning of list [R]"
           >
             <RotateCcw className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Right utility buttons: Audio toggle & Quiz Mode */}
+        {/* Right utility buttons: Audio & Quiz Mode */}
         <div className="flex items-center gap-2">
           {/* Audio Synthesizer Cycler */}
           <button
             onClick={onCycleAudio}
-            className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-colors flex items-center gap-1.5 ${
-              audioMode === 'muted'
-                ? isDarkMode ? 'border-slate-700 bg-slate-800/40 text-slate-400' : 'border-slate-300 bg-slate-100 text-slate-600'
-                : isDarkMode ? 'border-indigo-500/30 bg-indigo-500/10 text-indigo-400' : 'border-indigo-300 bg-indigo-50 text-indigo-800'
+            className={`px-2.5 py-1.5 rounded-[2px] border text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
+              audioMode === 'off'
+                ? 'border-[#c2b8a3] bg-[#fdfcf9] text-[#8e95a2] hover:text-[#1e2229]'
+                : 'border-[#1e3a5f] bg-[#edf3f9] text-[#1e3a5f] font-bold'
             }`}
             title="Toggle Synthesizer Sound (Chimes / Clicks / Mute)"
           >
-            {audioMode === 'muted' ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            {audioMode === 'off' ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#1e3a5f]" />}
             <span className="capitalize">{audioMode}</span>
           </button>
 
           {/* Active Recall / Quiz Mode Toggle */}
           <button
             onClick={onToggleQuizMode}
-            className={`px-3 py-2 rounded-xl border text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+            className={`px-2.5 py-1.5 rounded-[2px] border text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
               quizMode
-                ? isDarkMode ? 'bg-amber-500/20 text-amber-400 border-amber-500/40 shadow-xs ring-1 ring-amber-500/40' : 'bg-amber-100 text-amber-900 border-amber-400 font-bold ring-1 ring-amber-400'
-                : isDarkMode
-                ? 'border-slate-800 bg-slate-800 text-slate-400 hover:text-slate-200'
-                : 'border-slate-200 bg-slate-100 text-slate-700 hover:text-slate-900'
+                ? 'bg-[#fef3c7] text-[#78350f] border-[#fde68a] font-bold'
+                : 'border-[#c2b8a3] bg-[#fdfcf9] text-[#585e6b] hover:text-[#1e2229]'
             }`}
             title="Enable Active Recall Quiz Mode"
           >
@@ -145,8 +127,8 @@ export default function ControlsToolbar({
 
       {/* 2. Interactive Timeline Scrub Bar */}
       <div className="flex flex-col gap-1.5">
-        <div className={`flex items-center justify-between text-xs font-mono ${isDarkMode ? 'text-slate-400' : 'text-slate-700 font-semibold'}`}>
-          <span>Step {currentStepIndex} of {Math.max(0, totalSteps - 1)}</span>
+        <div className="flex items-center justify-between text-xs font-mono text-[#585e6b]">
+          <span>Step <strong>{currentStepIndex}</strong> of {Math.max(0, totalSteps - 1)}</span>
           <span>{Math.round(progressPercent)}%</span>
         </div>
         <input
@@ -155,15 +137,15 @@ export default function ControlsToolbar({
           max={Math.max(0, totalSteps - 1)}
           value={currentStepIndex}
           onChange={(e) => onScrub(Number(e.target.value))}
-          className={`w-full accent-indigo-500 cursor-pointer h-2 rounded-lg ${isDarkMode ? 'bg-slate-700/50' : 'bg-slate-200'}`}
+          className="w-full accent-[#1e3a5f] cursor-pointer h-1.5 rounded-[2px] bg-[#ede8db]"
         />
       </div>
 
       {/* 3. Input Presets & Sliders */}
-      <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 pt-3 border-t text-xs ${isDarkMode ? 'border-slate-800/40' : 'border-slate-200'}`}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 pt-3 border-t border-[#ded7c6] text-xs">
         {/* Preset Buttons */}
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className={`font-semibold mr-1 ${isDarkMode ? 'text-slate-400' : 'text-slate-700'}`}>Input Presets:</span>
+          <span className="font-bold text-[#585e6b] mr-1">Presets:</span>
           {[
             { id: 'random', label: 'Random' },
             { id: 'reversed', label: 'Reversed (Worst)' },
@@ -173,12 +155,10 @@ export default function ControlsToolbar({
             <button
               key={p.id}
               onClick={() => onPresetChange(p.id)}
-              className={`px-2.5 py-1 rounded-lg font-medium transition-colors ${
+              className={`px-2.5 py-1 rounded-[2px] font-semibold transition-colors cursor-pointer border ${
                 activePreset === p.id
-                  ? 'bg-indigo-600 text-white shadow-2xs'
-                  : isDarkMode
-                  ? 'bg-slate-800 hover:bg-slate-750 text-slate-300'
-                  : 'bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-200'
+                  ? 'bg-[#1e3a5f] text-white border-[#1e3a5f] shadow-2xs'
+                  : 'bg-[#fdfcf9] text-[#1e2229] border-[#c2b8a3] hover:border-[#1e3a5f]'
               }`}
             >
               {p.label}
@@ -188,11 +168,7 @@ export default function ControlsToolbar({
           {/* Custom Array Input Button */}
           <button
             onClick={onOpenCustomModal}
-            className={`px-2.5 py-1 rounded-lg font-medium transition-colors flex items-center gap-1 ${
-              isDarkMode
-                ? 'bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400'
-                : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 font-semibold'
-            }`}
+            className="px-2.5 py-1 rounded-[2px] font-semibold transition-colors flex items-center gap-1 bg-[#edf3f9] text-[#1e3a5f] border border-[#cbd5e1] hover:bg-[#dbeafe] cursor-pointer"
             title="Type custom comma-separated array for exam questions"
           >
             <Edit3 className="w-3 h-3" />
@@ -204,8 +180,8 @@ export default function ControlsToolbar({
         <div className="flex flex-wrap items-center gap-4 sm:gap-6 sm:justify-end">
           {/* Size slider */}
           <div className="flex items-center gap-2">
-            <span className={`whitespace-nowrap min-w-[62px] ${isDarkMode ? 'text-slate-400' : 'text-slate-700 font-medium'}`}>
-              Size: <strong className={isDarkMode ? 'text-indigo-400' : 'text-indigo-700 font-bold'}>{arraySize}</strong>
+            <span className="whitespace-nowrap min-w-[62px] text-[#585e6b] font-medium">
+              Size: <strong className="text-[#1e3a5f] font-mono font-bold">{arraySize}</strong>
             </span>
             <input
               type="range"
@@ -215,14 +191,14 @@ export default function ControlsToolbar({
               value={arraySize}
               onChange={(e) => onArraySizeChange(Number(e.target.value))}
               disabled={isPlaying}
-              className="w-28 sm:w-36 accent-indigo-500 cursor-pointer"
+              className="w-24 sm:w-32 accent-[#1e3a5f] cursor-pointer"
             />
           </div>
 
           {/* Speed slider */}
           <div className="flex items-center gap-2">
-            <span className={`whitespace-nowrap min-w-[105px] ${isDarkMode ? 'text-slate-400' : 'text-slate-700 font-medium'}`}>
-              Speed: <strong className={isDarkMode ? 'text-indigo-400' : 'text-indigo-700 font-bold'}>{speed} steps/s</strong>
+            <span className="whitespace-nowrap min-w-[105px] text-[#585e6b] font-medium">
+              Speed: <strong className="text-[#1e3a5f] font-mono font-bold">{speed} steps/s</strong>
             </span>
             <input
               type="range"
@@ -231,7 +207,7 @@ export default function ControlsToolbar({
               step="1"
               value={speed}
               onChange={(e) => onSpeedChange(Number(e.target.value))}
-              className="w-28 sm:w-36 accent-indigo-500 cursor-pointer"
+              className="w-24 sm:w-32 accent-[#1e3a5f] cursor-pointer"
             />
           </div>
         </div>

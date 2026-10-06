@@ -55,43 +55,33 @@ export default function TraceTable({
   };
 
   return (
-    <div className={`flex flex-col h-full rounded-2xl border transition-colors ${
-      isDarkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-    }`}>
+    <div className="flex flex-col h-full rounded-[2px] border border-[#ded7c6] bg-[#fdfcf9] shadow-[0_1px_3px_rgba(0,0,0,0.03)] transition-colors">
       {/* Header */}
-      <div className={`flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b text-xs font-semibold ${
-        isDarkMode ? 'border-slate-800 text-slate-300' : 'border-slate-100 text-slate-700'
-      }`}>
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-b border-[#ded7c6] text-xs font-semibold text-[#1e2229]">
         <div className="flex items-center gap-2">
-          <Table className="w-4 h-4 text-emerald-500" />
+          <Table className="w-4 h-4 text-[#1a6b3c]" />
           <span>Trace Table</span>
         </div>
 
         {/* View Toggle: Pass-by-Pass vs AQA Variable Grid */}
         <div className="flex items-center gap-2">
-          <div className={`flex items-center p-0.5 rounded-lg border text-[11px] ${
-            isDarkMode ? 'bg-slate-800/80 border-slate-700/60' : 'bg-slate-100 border-slate-200'
-          }`}>
+          <div className="flex items-center p-0.5 rounded-[2px] border border-[#c2b8a3] bg-[#ede8db] text-[11px]">
             <button
               onClick={() => setTableMode('pass')}
-              className={`px-2 py-1 rounded-md transition-all ${
+              className={`px-2 py-0.5 rounded-[2px] transition-all cursor-pointer font-sans ${
                 tableMode === 'pass'
-                  ? 'bg-emerald-600 text-white font-bold shadow-2xs'
-                  : isDarkMode
-                  ? 'text-slate-400 hover:text-slate-200'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-[#1e3a5f] text-white font-bold shadow-2xs'
+                  : 'text-[#585e6b] hover:text-[#1e2229]'
               }`}
             >
               Pass-by-Pass
             </button>
             <button
               onClick={() => setTableMode('aqa_variable')}
-              className={`px-2 py-1 rounded-md transition-all ${
+              className={`px-2 py-0.5 rounded-[2px] transition-all cursor-pointer font-sans ${
                 tableMode === 'aqa_variable'
-                  ? 'bg-emerald-600 text-white font-bold shadow-2xs'
-                  : isDarkMode
-                  ? 'text-slate-400 hover:text-slate-200'
-                  : 'text-slate-600 hover:text-slate-900'
+                  ? 'bg-[#1e3a5f] text-white font-bold shadow-2xs'
+                  : 'text-[#585e6b] hover:text-[#1e2229]'
               }`}
               title="AQA Paper 1 variable-by-variable mark-scheme grid"
             >
@@ -101,25 +91,17 @@ export default function TraceTable({
 
           <button
             onClick={() => copyToClipboard('markdown')}
-            className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors flex items-center gap-1 ${
-              copied
-                ? 'bg-emerald-500/20 text-emerald-500'
-                : isDarkMode
-                ? 'bg-slate-800 hover:bg-slate-700 text-slate-300'
-                : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
-            }`}
+            className="px-2.5 py-1 rounded-[2px] text-xs font-medium transition-colors flex items-center gap-1 border border-[#c2b8a3] bg-[#fdfcf9] text-[#1e2229] hover:border-[#1e3a5f] cursor-pointer"
             title="Copy trace table formatted as Markdown for homework or notes"
           >
-            {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+            {copied ? <Check className="w-3 h-3 text-[#1a6b3c]" /> : <Copy className="w-3 h-3 text-[#585e6b]" />}
             {copied ? 'Copied!' : 'Copy'}
           </button>
 
           {/* Collapse Toggle Button */}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`p-1.5 rounded-lg border text-xs transition-colors flex items-center gap-1 ${
-              isDarkMode ? 'border-slate-700 hover:bg-slate-800 text-slate-400' : 'border-slate-200 hover:bg-slate-100 text-slate-600'
-            }`}
+            className="p-1 rounded-[2px] border border-[#c2b8a3] bg-[#fdfcf9] text-[#585e6b] hover:text-[#1e2229] hover:border-[#1e3a5f] text-xs transition-colors flex items-center gap-1 cursor-pointer"
             title={isCollapsed ? 'Expand Trace Table' : 'Collapse Trace Table'}
           >
             {isCollapsed ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
@@ -131,15 +113,13 @@ export default function TraceTable({
       {!isCollapsed && (
         <>
           {/* Table Container */}
-          <div className="flex-1 p-3 overflow-auto max-h-[340px]">
+          <div className="flex-1 p-3 overflow-auto max-h-[340px] bg-[#fdfcf9]">
         {tableMode === 'pass' ? (
           // 1. Pass-by-Pass Table
           passSteps.length > 0 ? (
             <table className="w-full text-left text-xs font-mono border-collapse">
               <thead>
-                <tr className={`border-b ${
-                  isDarkMode ? 'border-slate-800 text-slate-400' : 'border-slate-300 text-slate-800 font-bold bg-slate-50'
-                }`}>
+                <tr className="border-b border-[#ded7c6] text-[#585e6b] font-bold bg-[#ede8db]">
                   <th className="py-2 px-2.5 font-bold">Pass</th>
                   <th className="py-2 px-2.5 font-bold">Array State</th>
                   <th className="py-2 px-2 font-bold text-center">Cmp</th>
@@ -156,23 +136,19 @@ export default function TraceTable({
                     <tr
                       key={idx}
                       onClick={() => stepIdx !== -1 && onJumpToStep(stepIdx)}
-                      className={`cursor-pointer border-b transition-colors ${
+                      className={`cursor-pointer border-b border-[#ded7c6] transition-colors ${
                         isActiveRow
-                          ? isDarkMode
-                            ? 'bg-emerald-950/40 text-emerald-200 font-semibold'
-                            : 'bg-emerald-50 text-emerald-950 font-bold'
-                          : isDarkMode
-                          ? 'border-slate-800/60 hover:bg-slate-800/40 text-slate-300'
-                          : 'border-slate-200 hover:bg-slate-50 text-slate-900'
+                          ? 'bg-[#edf7f0] text-[#1a6b3c] font-bold'
+                          : 'hover:bg-[#f5f3ec] text-[#1e2229]'
                       }`}
                     >
                       <td className="py-2 px-2.5 whitespace-nowrap">
-                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[11px] font-bold ${
+                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-[2px] text-[11px] font-bold ${
                           s.pass === 0
-                            ? isDarkMode ? 'bg-slate-500/10 text-slate-400' : 'bg-slate-100 text-slate-800 border border-slate-300'
+                            ? 'bg-[#ede8db] text-[#585e6b]'
                             : isActiveRow
-                            ? isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-900 border border-emerald-300'
-                            : isDarkMode ? 'bg-indigo-500/10 text-indigo-400' : 'bg-indigo-100 text-indigo-900 border border-indigo-200'
+                            ? 'bg-[#dcfce7] text-[#1a6b3c] border border-[#bbf7d0]'
+                            : 'bg-[#edf3f9] text-[#1e3a5f] border border-[#cbd5e1]'
                         }`}>
                           {s.pass === 0 ? 'Initial' : `Pass ${s.pass}`}
                         </span>

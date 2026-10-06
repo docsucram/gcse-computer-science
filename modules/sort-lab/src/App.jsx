@@ -20,18 +20,24 @@ import confetti from 'canvas-confetti';
 
 export default function App() {
   // Navigation & View State
-  const [activeView, setActiveView] = useState('visualizer'); // 'visualizer' | 'search' | 'race' | 'revision'
+  const [activeView, setActiveView] = useState(() => {
+    try {
+      const hash = window.location.hash.replace('#', '');
+      if (['search', 'race', 'revision', 'visualizer'].includes(hash)) return hash;
+    } catch {}
+    return 'visualizer'; // 'visualizer' | 'search' | 'race' | 'revision'
+  });
   const [visualizerMode, setVisualizerMode] = useState('bars'); // 'bars' | 'image'
   const [selectedAlgorithm, setSelectedAlgorithm] = useState('bubble');
-  const [isDarkMode, setIsDarkMode] = useState(() => {
+  const [isDarkMode, setIsDarkMode] = useState(false); // default warm paper revision theme
+
+  // Handle View Change with hash support
+  const handleViewChange = (view) => {
+    setActiveView(view);
     try {
-      const saved = localStorage.getItem('theme');
-      if (saved !== null) return saved === 'dark';
-      return true; // default dark for modern IDE feel
-    } catch {
-      return true;
-    }
-  });
+      window.location.hash = view;
+    } catch {}
+  };
 
   // Sync theme with <html> class and localStorage
   useEffect(() => {
@@ -316,13 +322,11 @@ export default function App() {
   const isCompleted = currentStepIndex === steps.length - 1 && steps.length > 1;
 
   return (
-    <div className={`min-h-screen flex flex-col font-sans transition-colors duration-200 ${
-      isDarkMode ? 'dark bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'
-    }`}>
+    <div className="min-h-screen flex flex-col font-sans">
       {/* Top Navigation */}
       <Navbar
         activeView={activeView}
-        onViewChange={setActiveView}
+        onViewChange={handleViewChange}
         isDarkMode={isDarkMode}
         onToggleTheme={() => setIsDarkMode(!isDarkMode)}
         audioMode={audioMode}
@@ -332,228 +336,137 @@ export default function App() {
 
       {/* Main Content Area */}
       <main className="flex-1 w-full max-w-7xl mx-auto p-4 sm:p-6 flex flex-col gap-6">
-        {activeView === 'visualizer' && (
-          <div className="flex flex-col gap-6">
-            {/* 1. Visualizer Canvas Chart Area (At the Top) */}
-            {visualizerMode === 'bars' ? (
-              <VisualizerBars
-                array={currentStep.array}
-                activeIndices={currentStep.indices}
-                sortedIndices={currentStep.sortedIndices}
-                stepType={currentStep.type}
-                sublistBounds={currentStep.sublistBounds}
-                isDarkMode={isDarkMode}
-              />
-            ) : (
-              <VisualizerImage
-                array={currentStep.array}
-                activeIndices={currentStep.indices}
-                sortedIndices={currentStep.sortedIndices}
-                stepType={currentStep.type}
-                isCompleted={isCompleted}
-                isDarkMode={isDarkMode}
-              />
-            )}
+        {activeView === 'visualizer' && (() => {
+          const currentAlgo = ALGORITHMS[selectedAlgorithm] || ALGORITHMS.bubble;
+          return (
+            <div className="editorial-container py-6">
+              {/* 1. CLEAN EDITORIAL HEADER */}
+              <header className="revision-header">
+                <div className="revision-title-block">
+                  <span className="spec-pill">AQA 3.1.1 // OCR J277 2.1</span>
+                  <h1 style={{ marginTop: '6px' }}>Sorting Algorithms: {currentAlgo.name}</h1>
+                  <p>{currentAlgo.description}</p>
+                </div>
+              </header>
 
-            {/* 2. Algorithm Selector & Plain-English Explainer (Positioned directly under the chart) */}
-            {(() => {
-              const currentAlgo = ALGORITHMS[selectedAlgorithm] || ALGORITHMS.bubble;
-              return (
-                <div className={`p-4 sm:p-5 rounded-2xl border transition-all ${
-                  isDarkMode ? 'bg-slate-900/90 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-                }`}>
-                  <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-                    {/* Left: Selector Dropdown & Mode Toggles */}
-                    <div className="flex flex-wrap items-center gap-3 shrink-0">
-                      <div>
-                        <label className={`block text-[11px] font-bold uppercase tracking-wider mb-1.5 ${
-                          isDarkMode ? 'text-slate-400' : 'text-slate-600'
-                        }`}>
-                          Select Algorithm:
-                        </label>
-                        <select
-                          value={selectedAlgorithm}
-                          onChange={(e) => setSelectedAlgorithm(e.target.value)}
-                          className={`px-3 py-2 rounded-xl text-xs sm:text-sm font-bold border transition-all cursor-pointer outline-none focus:ring-2 focus:ring-indigo-500 ${
-                            isDarkMode
-                              ? 'bg-slate-800 border-slate-700 text-white'
-                              : 'bg-slate-100 border-slate-300 text-slate-900'
-                          }`}
-                        >
-                          {Object.values(ALGORITHMS).map((a) => (
-                            <option key={a.id} value={a.id}>
-                              {a.name} {a.aqaCore ? '★ [AQA Core]' : ''}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+              {/* 2. SELF-CONTAINED APPLICATION WORKBENCH */}
+              <div className="workbench-chassis">
+                {/* TOP COMMAND BAR */}
+                <div className="workbench-command-bar">
+                  <div className="algo-selector-group">
+                    {Object.values(ALGORITHMS).map((a) => (
+                      <button
+                        key={a.id}
+                        onClick={() => setSelectedAlgorithm(a.id)}
+                        className={`algo-tab-btn ${selectedAlgorithm === a.id ? 'active' : ''}`}
+                      >
+                        {a.name}
+                      </button>
+                    ))}
+                  </div>
 
-                      {/* Mode Toggle: Bars vs Image Slices */}
-                      <div className="self-end mb-0.5">
-                        <div className={`flex items-center p-0.5 rounded-xl border text-xs ${
-                          isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-100 border-slate-200'
-                        }`}>
-                          <button
-                            onClick={() => setVisualizerMode('bars')}
-                            className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 font-semibold cursor-pointer ${
-                              visualizerMode === 'bars'
-                                ? 'bg-indigo-600 text-white shadow-2xs font-bold'
-                                : isDarkMode
-                                ? 'text-slate-400 hover:text-slate-200'
-                                : 'text-slate-600 hover:text-slate-900'
-                            }`}
-                            title="Animated Bar Chart"
-                          >
-                            <BarChart3 className="w-3.5 h-3.5" />
-                            <span>Bars</span>
-                          </button>
-                          <button
-                            onClick={() => setVisualizerMode('image')}
-                            className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 font-semibold cursor-pointer ${
-                              visualizerMode === 'image'
-                                ? 'bg-indigo-600 text-white shadow-2xs font-bold'
-                                : isDarkMode
-                                ? 'text-slate-400 hover:text-slate-200'
-                                : 'text-slate-600 hover:text-slate-900'
-                            }`}
-                            title="Vertical Image Slice Sorting"
-                          >
-                            <ImageIcon className="w-3.5 h-3.5" />
-                            <span>Image</span>
-                          </button>
-                        </div>
-                      </div>
+                  <div className="workbench-tools-group">
+                    <div className="flex items-center p-0.5 rounded-[2px] border border-[#c2b8a3] bg-[#fdfcf9] text-xs">
+                      <button
+                        onClick={() => setVisualizerMode('bars')}
+                        className={`px-2.5 py-1 rounded-[2px] font-semibold transition-all cursor-pointer ${
+                          visualizerMode === 'bars' ? 'bg-[#1e3a5f] text-white font-bold' : 'text-[#585e6b] hover:text-[#1e2229]'
+                        }`}
+                      >
+                        Bars
+                      </button>
+                      <button
+                        onClick={() => setVisualizerMode('image')}
+                        className={`px-2.5 py-1 rounded-[2px] font-semibold transition-all cursor-pointer ${
+                          visualizerMode === 'image' ? 'bg-[#1e3a5f] text-white font-bold' : 'text-[#585e6b] hover:text-[#1e2229]'
+                        }`}
+                      >
+                        Image
+                      </button>
                     </div>
 
-                    {/* Right: How It Works Explainer */}
-                    <div className={`flex-1 p-3.5 rounded-xl border flex flex-col transition-colors ${
-                      isDarkMode ? 'bg-slate-950/60 border-slate-800/80' : 'bg-indigo-50/50 border-indigo-100'
-                    }`}>
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <span className={`text-xs font-extrabold ${isDarkMode ? 'text-slate-100' : 'text-slate-900'}`}>
-                            How {currentAlgo.name} Works:
-                          </span>
-                          {currentAlgo.aqaCore && (
-                            <span className="px-1.5 py-0.2 rounded bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/30">
-                              AQA Core
-                            </span>
-                          )}
-                          <span className={`text-[11px] font-semibold ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
-                            ({currentAlgo.category})
-                          </span>
-                        </div>
-                        <button
-                          onClick={() => setIsExplainerCollapsed(!isExplainerCollapsed)}
-                          className={`px-2 py-0.5 rounded text-[10px] font-bold border transition-colors ${
-                            isDarkMode ? 'border-slate-700 hover:bg-slate-800 text-slate-400' : 'border-slate-200 hover:bg-slate-100 text-slate-600'
-                          }`}
-                        >
-                          {isExplainerCollapsed ? 'Show' : 'Hide'}
-                        </button>
-                      </div>
-                      {!isExplainerCollapsed && (
-                        <p className={`text-xs sm:text-[12.5px] leading-relaxed m-0 mt-1.5 ${
-                          isDarkMode ? 'text-slate-300' : 'text-slate-700'
-                        }`}>
-                          {currentAlgo.description}
-                        </p>
-                      )}
+                    <div className="hud-stats-cluster">
+                      <span className="stat-badge">Pass: <strong>{currentStep.pass ?? 1}</strong></span>
+                      <span className="stat-badge">Checks: <strong>{currentStep.comparisons}</strong></span>
+                      <span className="stat-badge">Swaps: <strong>{currentStep.swaps}</strong></span>
                     </div>
                   </div>
                 </div>
-              );
-            })()}
 
-            {/* 3. Playback Controls & Timeline Toolbar */}
-            <ControlsToolbar
-              isPlaying={isPlaying}
-              onTogglePlay={() => setIsPlaying(!isPlaying)}
-              onStepBack={handleStepBack}
-              onStepForward={handleStepForward}
-              onNextPass={handleNextPass}
-              onReset={handleReset}
-              onShuffle={handleShuffle}
-              onPresetChange={handlePresetChange}
-              currentStepIndex={currentStepIndex}
-              totalSteps={steps.length}
-              onScrub={(idx) => executeStep(idx)}
-              speed={speed}
-              onSpeedChange={setSpeed}
-              arraySize={arraySize}
-              onArraySizeChange={setArraySize}
-              activePreset={activePreset}
-              onOpenCustomModal={() => setIsCustomModalOpen(true)}
-              audioMode={audioMode}
-              onCycleAudio={handleCycleAudio}
-              quizMode={quizMode}
-              onToggleQuizMode={() => setQuizMode(!quizMode)}
-              isDarkMode={isDarkMode}
-            />
+                {/* WORKBENCH ARENA */}
+                <div className="workbench-arena">
+                  {visualizerMode === 'bars' ? (
+                    <VisualizerBars
+                      array={currentStep.array}
+                      activeIndices={currentStep.indices}
+                      sortedIndices={currentStep.sortedIndices}
+                      stepType={currentStep.type}
+                      sublistBounds={currentStep.sublistBounds}
+                    />
+                  ) : (
+                    <VisualizerImage
+                      array={currentStep.array}
+                      activeIndices={currentStep.indices}
+                      sortedIndices={currentStep.sortedIndices}
+                      stepType={currentStep.type}
+                      isCompleted={isCompleted}
+                    />
+                  )}
 
-            {/* 4. Side-by-Side: Pseudocode Tracer & Trace Table */}
-            <div className="flex flex-col gap-3">
-              {/* Mobile Inspection Switcher Pill */}
-              <div className={`flex lg:hidden items-center justify-between p-1.5 rounded-xl border text-xs ${
-                isDarkMode ? 'bg-slate-900/80 border-slate-800' : 'bg-white border-slate-200 shadow-sm'
-              }`}>
-                <span className={`text-[11px] font-bold px-2 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>Inspect:</span>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => setMobileInspectorTab('pseudocode')}
-                    className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
-                      mobileInspectorTab === 'pseudocode'
-                        ? 'bg-indigo-600 text-white shadow-2xs'
-                        : isDarkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    Code & Variables
-                  </button>
-                  <button
-                    onClick={() => setMobileInspectorTab('table')}
-                    className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
-                      mobileInspectorTab === 'table'
-                        ? 'bg-emerald-600 text-white shadow-2xs'
-                        : isDarkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    Trace Table
-                  </button>
-                  <button
-                    onClick={() => setMobileInspectorTab('both')}
-                    className={`px-2.5 py-1 rounded-lg font-semibold transition-all ${
-                      mobileInspectorTab === 'both'
-                        ? 'bg-slate-700 text-white shadow-2xs'
-                        : isDarkMode ? 'text-slate-400 hover:text-white' : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    Both
-                  </button>
+                  {/* Narrative Strip */}
+                  <div className={`narrative-strip ${isCompleted ? 'matched' : ''}`}>
+                    <div className="narrative-text">
+                      {currentStep.explanation || 'Ready. Click Play or Next Step to begin.'}
+                    </div>
+                    <div className="formula-tag">
+                      {currentAlgo.name} • {currentAlgo.complexity.worstTime}
+                    </div>
+                  </div>
                 </div>
+
+                {/* 3. Playback Toolbar */}
+                <ControlsToolbar
+                  isPlaying={isPlaying}
+                  onTogglePlay={() => setIsPlaying(!isPlaying)}
+                  onStepBack={handleStepBack}
+                  onStepForward={handleStepForward}
+                  onNextPass={handleNextPass}
+                  onReset={handleReset}
+                  onPresetChange={handlePresetChange}
+                  currentStepIndex={currentStepIndex}
+                  totalSteps={steps.length}
+                  onScrub={(idx) => executeStep(idx)}
+                  speed={speed}
+                  onSpeedChange={setSpeed}
+                  arraySize={arraySize}
+                  onArraySizeChange={setArraySize}
+                  activePreset={activePreset}
+                  onOpenCustomModal={() => setIsCustomModalOpen(true)}
+                  audioMode={audioMode}
+                  onCycleAudio={handleCycleAudio}
+                  quizMode={quizMode}
+                  onToggleQuizMode={() => setQuizMode(!quizMode)}
+                />
               </div>
 
+              {/* 4. Side-by-Side: Pseudocode Tracer & Trace Table */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className={mobileInspectorTab === 'table' ? 'hidden lg:block' : 'block'}>
-                  <PseudocodeTracer
-                    algorithmId={selectedAlgorithm}
-                    activeLine={currentStep.codeLine}
-                    variables={currentStep.variables}
-                    explanation={currentStep.explanation}
-                    isDarkMode={isDarkMode}
-                  />
-                </div>
-                <div className={mobileInspectorTab === 'pseudocode' ? 'hidden lg:block' : 'block'}>
-                  <TraceTable
-                    steps={steps}
-                    currentStepIndex={currentStepIndex}
-                    onJumpToStep={(idx) => executeStep(idx)}
-                    isDarkMode={isDarkMode}
-                  />
-                </div>
+                <PseudocodeTracer
+                  algorithmId={selectedAlgorithm}
+                  activeLine={currentStep.codeLine}
+                  variables={currentStep.variables}
+                  explanation={currentStep.explanation}
+                />
+                <TraceTable
+                  steps={steps}
+                  currentStepIndex={currentStepIndex}
+                  onJumpToStep={(idx) => executeStep(idx)}
+                />
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
+
 
         {/* View 2: Searching Algorithms Laboratory (Linear vs Binary Search) */}
         {activeView === 'search' && (
@@ -580,14 +493,12 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className={`w-full py-6 border-t text-center text-xs transition-colors ${
-        isDarkMode ? 'border-slate-800 text-slate-500 bg-slate-950/60' : 'border-slate-200 text-slate-500 bg-white/60'
-      }`}>
-        <p>
-          GCSE Computer Science Searching &amp; Sorting Algorithms Lab • Built for AQA 8525, OCR J277 &amp; Edexcel
+      <footer className="w-full py-6 border-t border-[#ded7c6] text-center text-xs bg-[#fdfcf9] text-[#585e6b]">
+        <p className="font-medium">
+          GCSE Computer Science Searching &amp; Sorting Algorithms • Aligned with AQA 8525 §3.1 &amp; OCR J277
         </p>
-        <p className="mt-1 text-[11px] text-slate-400">
-          Client-side Web Audio synthesis • Zero server dependencies • Optimized for Chromebooks, iPads, and Laptops
+        <p className="mt-1 text-[11.5px] text-[#8e95a2]">
+          Client-side Web Audio synthesis • Zero server dependencies • Fast on school Chromebooks &amp; tablets
         </p>
       </footer>
 

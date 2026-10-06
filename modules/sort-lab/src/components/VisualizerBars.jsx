@@ -22,6 +22,15 @@ export default function VisualizerBars({
     const container = containerRef.current;
     if (!container) return;
 
+    const measure = () => {
+      const w = container.clientWidth || Math.floor(container.getBoundingClientRect().width);
+      const h = container.clientHeight || Math.floor(container.getBoundingClientRect().height);
+      if (w > 0 && h > 0) {
+        setDimensions({ width: w, height: h });
+      }
+    };
+    measure();
+
     const ro = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width, height } = entry.contentRect;
@@ -32,7 +41,11 @@ export default function VisualizerBars({
     });
 
     ro.observe(container);
-    return () => ro.disconnect();
+    window.addEventListener('resize', measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+    };
   }, []);
 
   useEffect(() => {
@@ -43,10 +56,10 @@ export default function VisualizerBars({
     const ctx = canvas.getContext('2d');
     const dpr = window.devicePixelRatio || 1;
 
-    // Use observed dimensions or fallback to bounding client rect
+    // Use observed dimensions or fallback to container client size
     const rect = container.getBoundingClientRect();
-    const width = dimensions.width || Math.floor(rect.width) || 400;
-    const height = dimensions.height || Math.floor(rect.height) || 280;
+    const width = dimensions.width || Math.floor(container.clientWidth) || Math.floor(rect.width) || 800;
+    const height = dimensions.height || Math.floor(container.clientHeight) || Math.floor(rect.height) || 360;
 
     canvas.width = Math.floor(width * dpr);
     canvas.height = Math.floor(height * dpr);
@@ -98,41 +111,41 @@ export default function VisualizerBars({
       const isActive = activeSet.has(i);
       const isSorted = sortedSet.has(i);
 
-      let gradTop = '#4f46e5';
-      let gradBottom = '#312e81';
+      let gradTop = '#1e3a5f';
+      let gradBottom = '#152b47';
       let glowColor = null;
 
       if (isActive) {
         if (stepType === 'swap' || stepType === 'shift') {
-          // Vibrant coral / red
-          gradTop = '#ef4444';
-          gradBottom = '#991b1b';
-          glowColor = 'rgba(239, 68, 68, 0.7)';
+          // Cardinal red for swap/shift
+          gradTop = '#dc2626';
+          gradBottom = '#a82020';
+          glowColor = 'rgba(168, 32, 32, 0.4)';
         } else if (stepType === 'pivot' || stepType === 'key') {
-          // Orchid purple
-          gradTop = '#c084fc';
-          gradBottom = '#7e22ce';
-          glowColor = 'rgba(192, 132, 252, 0.7)';
+          // Terracotta / Purple accent for pivot
+          gradTop = '#9333ea';
+          gradBottom = '#6b21a8';
+          glowColor = 'rgba(147, 51, 234, 0.4)';
         } else {
-          // Glowing amber / orange for comparison
-          gradTop = '#fbbf24';
+          // Rich Amber for comparison
+          gradTop = '#d97706';
           gradBottom = '#b45309';
-          glowColor = 'rgba(251, 191, 36, 0.7)';
+          glowColor = 'rgba(180, 83, 9, 0.4)';
         }
       } else if (isSorted) {
-        // Emerald green
-        gradTop = '#34d399';
-        gradBottom = '#065f46';
+        // Forest green for sorted elements
+        gradTop = '#22c55e';
+        gradBottom = '#1a6b3c';
       } else {
-        // Base soft steel blue / indigo
-        gradTop = isDarkMode ? '#6366f1' : '#4f46e5';
-        gradBottom = isDarkMode ? '#312e81' : '#818cf8';
+        // Base Oxford Navy ink
+        gradTop = '#1e3a5f';
+        gradBottom = '#152b47';
       }
 
       ctx.save();
       if (glowColor) {
         ctx.shadowColor = glowColor;
-        ctx.shadowBlur = 10;
+        ctx.shadowBlur = 8;
       }
 
       const grad = ctx.createLinearGradient(x, y, x, y + barHeight);
@@ -140,8 +153,8 @@ export default function VisualizerBars({
       grad.addColorStop(1, gradBottom);
       ctx.fillStyle = grad;
 
-      // Rounded bar top
-      const radius = Math.min(barWidth / 2, 5);
+      // Crisp subtle bar top
+      const radius = Math.min(barWidth / 2, 2);
       ctx.beginPath();
       ctx.moveTo(x, y + barHeight);
       ctx.lineTo(x, y + radius);
@@ -169,23 +182,23 @@ export default function VisualizerBars({
 
       // Draw value text inside or above bar only if there is sufficient width
       if (barWidth >= 18) {
-        ctx.font = `600 ${barWidth >= 28 ? 12 : 10}px system-ui, sans-serif`;
+        ctx.font = `700 ${barWidth >= 28 ? 12 : 10}px 'JetBrains Mono', monospace`;
         ctx.textAlign = 'center';
         const textY = barHeight > 24 ? y + 14 : Math.max(10, y - 5);
-        ctx.fillStyle = barHeight > 24 ? '#ffffff' : (isDarkMode ? '#e5e7eb' : '#0f172a');
+        ctx.fillStyle = barHeight > 24 ? '#ffffff' : '#1e2229';
         ctx.fillText(`${val}`, x + barWidth / 2, textY);
       }
 
       // Index labels at bottom: only when not cramped
       if (n <= 16) {
-        ctx.fillStyle = isDarkMode ? '#9ca3af' : '#334155';
-        ctx.font = '600 10px monospace';
+        ctx.fillStyle = '#8e95a2';
+        ctx.font = "600 10px 'JetBrains Mono', monospace";
         ctx.textAlign = 'center';
         ctx.fillText(`[${i}]`, x + barWidth / 2, height - paddingBottom + 15);
       } else if (n <= 35 && (i % 5 === 0 || i === n - 1)) {
         // Show every 5th index and last index cleanly
-        ctx.fillStyle = isDarkMode ? '#9ca3af' : '#334155';
-        ctx.font = '600 9px monospace';
+        ctx.fillStyle = '#8e95a2';
+        ctx.font = "600 9px 'JetBrains Mono', monospace";
         ctx.textAlign = 'center';
         ctx.fillText(`[${i}]`, x + barWidth / 2, height - paddingBottom + 13);
       }
@@ -195,10 +208,8 @@ export default function VisualizerBars({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full overflow-hidden rounded-2xl flex items-center justify-center transition-colors ${
+      className={`relative w-full overflow-hidden rounded-[2px] flex items-center justify-center transition-colors bg-[#fdfcf9] border border-[#ded7c6] shadow-[0_2px_6px_rgba(0,0,0,0.03)] ${
         className ? className : 'h-[340px] sm:h-[400px]'
-      } ${
-        isDarkMode ? 'bg-slate-900/90 border border-slate-800' : 'bg-white border border-slate-200 shadow-sm'
       }`}
     >
       <canvas ref={canvasRef} className="w-full h-full block" />

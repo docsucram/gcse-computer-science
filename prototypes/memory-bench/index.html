@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Engineering Workbench — Primary Memory &amp; Storage Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    /* ========================================================================= */
+    /* HARDWARE WORKBENCH DESIGN SYSTEM (ZERO-TAILWIND, ZERO-MARSHMALLOW)        */
+    /* Inspired by Tektronix oscilloscopes, industrial testbenches & PCB silicon */
+    /* ========================================================================= */
+    :root {
+      --bg-bench: #0a0d13;
+      --bg-chassis: #121720;
+      --bg-chassis-deep: #0e1219;
+      --bg-recessed: #080a0f;
+      --pcb-substrate: #0e2018; /* Dark green FR-4 solder-mask */
+      --pcb-trace: #2a5a3a;
+      --pcb-trace-active: #4ade80;
+      --copper-trace: #b45309;
+      --copper-active: #f59e0b;
+      
+      --metal-rim: #2d3748;
+      --metal-highlight: #4a5568;
+      --screw-head: #1a202c;
+      
+      --silkscreen: #94a3b8;
+      --silkscreen-bright: #f8fafc;
+      --silkscreen-gold: #fbbf24;
+      --silkscreen-cyan: #38bdf8;
+      
+      --led-red-off: #450a0a;
+      --led-red-on: #ef4444;
+      --led-green-off: #052e16;
+      --led-green-on: #22c55e;
+      --led-amber-off: #451a03;
+      --led-amber-on: #f59e0b;
+      
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      --font-ui: 'Space Grotesk', -apple-system, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-bench);
+      background-image: 
+        radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 24px 24px, 120px 120px, 120px 120px;
+      color: #e2e8f0;
+      font-family: var(--font-mono);
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* TOP INSTRUMENT HEADER BAR */
+    .bench-masthead {
+      width: 100%;
+      max-width: 1360px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 18px;
+      background: var(--bg-chassis);
+      border: 1px solid var(--metal-rim);
+      border-bottom: 2px solid #000;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 12px rgba(0, 0, 0, 0.5);
+      margin-bottom: 16px;
+    }
+
+    .bench-identity {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .bench-brand-badge {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      background: #000;
+      color: var(--silkscreen-gold);
+      padding: 4px 8px;
+      border: 1px solid #334155;
+      text-transform: uppercase;
+    }
+
+    .bench-title-block h1 {
+      font-family: var(--font-ui);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--silkscreen-bright);
+      text-transform: uppercase;
+    }
+
+    .bench-title-block span {
+      font-size: 11px;
+      color: var(--silkscreen);
+      letter-spacing: 0.06em;
+    }
+
+    .bench-telemetry {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .telemetry-node {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .telemetry-label {
+      font-size: 9px;
+      color: #64748b;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .telemetry-value {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--silkscreen-cyan);
+    }
+
+    /* MAIN RACK CHASSIS */
+    .main-chassis {
+      width: 100%;
+      max-width: 1360px;
+      background: var(--bg-chassis);
+      border: 2px solid var(--metal-rim);
+      box-shadow: 
+        0 12px 36px rgba(0, 0, 0, 0.8),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 0 40px rgba(0, 0, 0, 0.6);
+      display: grid;
+      grid-template-columns: 820px 1fr;
+      position: relative;
+    }
+
+    /* CORNER MOUNTING BOLTS (Hardware Realism) */
+    .chassis-bolt {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 50%;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+      z-index: 10;
+    }
+    .chassis-bolt::after {
+      content: '';
+      position: absolute;
+      top: 4px;
+      left: 1px;
+      width: 6px;
+      height: 1px;
+      background: #64748b;
+    }
+    .bolt-tl { top: 6px; left: 6px; }
+    .bolt-tr { top: 6px; right: 6px; }
+    .bolt-bl { bottom: 6px; left: 6px; }
+    .bolt-br { bottom: 6px; right: 6px; }
+
+    /* ========================================================================= */
+    /* LEFT SECTION: MOTHERBOARD HARDWARE SILICON SUBSTRATE                      */
+    /* ========================================================================= */
+    .motherboard-bay {
+      background: var(--pcb-substrate);
+      border-right: 2px solid var(--metal-rim);
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Silkscreen Grid Pattern */
+    .motherboard-bay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+    }
+
+    .pcb-silkscreen-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.35);
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.15);
+      padding-bottom: 6px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* HARDWARE COMPONENT CARRIER LAYOUT */
+    .pcb-grid {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      grid-template-rows: auto auto;
+      gap: 22px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* HARDWARE COMPONENT HOUSING */
+    .silicon-package {
+      background: #0f1512;
+      border: 1px solid #1f3627;
+      padding: 14px;
+      position: relative;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+    }
+
+    .silicon-package::after {
+      content: attr(data-ref);
+      position: absolute;
+      top: -8px;
+      left: 10px;
+      font-size: 9px;
+      font-weight: 800;
+      background: var(--pcb-substrate);
+      color: var(--silkscreen-gold);
+      padding: 0 4px;
+      letter-spacing: 0.08em;
+    }
+
+    /* 1. CPU SOCKET (Top Left) */
+    .cpu-package {
+      grid-column: 1;
+      grid-row: 1;
+      height: 190px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 2px solid #2e4334;
+      background: radial-gradient(#15201b, #0d1411);
+    }
+
+    .cpu-heatspreader {
+      border: 1px solid #3d5644;
+      background: #1b2822;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+    }
+
+    /* Gold corner triangle on CPU */
+    .cpu-heatspreader::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-style: solid;
+      border-width: 8px 8px 0 0;
+      border-color: #fbbf24 transparent transparent transparent;
+    }
+
+    .chip-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #f1f5f9;
+      letter-spacing: 0.05em;
+    }
+
+    .chip-sub {
+      font-size: 9.5px;
+      color: #94a3b8;
+    }
+
+    .cpu-bus-readout {
+      background: #000;
+      border: 1px solid #1e293b;
+      padding: 6px 8px;
+      font-size: 10.5px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .bus-readout-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+    }
+
+    .bus-readout-row .tag { color: #64748b; }
+    .bus-readout-row .val { color: var(--silkscreen-cyan); font-weight: 700; }
+
+    /* 2. ROM DIP CHIP (Bottom Left) */
+    .rom-package {
+      grid-column: 1;
+      grid-row: 2;
+      border: 2px solid #334155;
+      background: #090d12;
+      position: relative;
+      padding: 14px 10px;
+    }
+
+    /* Dual Inline Pins (DIP) styling */
+    .rom-dip-housing {
+      background: #030712;
+      border: 1px solid #374151;
+      border-radius: 2px;
+      padding: 12px;
+      position: relative;
+    }
+
+    /* IC orientation notch at the top */
+    .rom-dip-housing::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 6px;
+      background: #090d12;
+      border: 1px solid #374151;
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+    }
+
+    .ic-print {
+      font-size: 10px;
+      font-weight: 800;
+      color: #9ca3af;
+      letter-spacing: 0.08em;
+      text-align: center;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #1f2937;
+      padding-bottom: 4px;
+    }
+
+    .firmware-blocks {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .firmware-block {
+      background: #111827;
+      border: 1px solid #1f2937;
+      padding: 4px 6px;
+      font-size: 9.5px;
+      display: flex;
+      justify-content: space-between;
+      color: #cbd5e1;
+    }
+
+    .firmware-block.active {
+      border-color: #fbbf24;
+      background: rgba(251, 191, 36, 0.15);
+      color: #fef08a;
+    }
+
+    .firmware-block .status-pill {
+      font-size: 8.5px;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .rom-fuse-lock {
+      margin-top: 8px;
+      font-size: 9px;
+      color: #10b981;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 700;
+    }
+
+    /* 3. PRIMARY RAM DIMM STICK (Top Right) */
+    .ram-package {
+      grid-column: 2;
+      grid-row: 1;
+      border: 2px solid #1e3a8a;
+      background: #0a1120;
+      height: 190px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .dimm-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 6px;
+    }
+
+    .capacitor-charge-meter {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+    }
+
+    .charge-bar-frame {
+      width: 70px;
+      height: 7px;
+      background: #020617;
+      border: 1px solid #334155;
+      padding: 1px;
+    }
+
+    .charge-bar-fill {
+      width: 100%;
+      height: 100%;
+      background: #22c55e;
+      transition: width 0.3s ease, background-color 0.3s ease;
+    }
+
+    .ram-slots-matrix {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin: 8px 0;
+    }
+
+    .ram-cell {
+      background: #020617;
+      border: 1px solid #1e293b;
+      padding: 6px 8px;
+      font-size: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      transition: all 0.25s ease;
+    }
+
+    .ram-cell.allocated {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.08);
+    }
+
+    .ram-cell.wiped {
+      border-color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+      color: #fca5a5;
+    }
+
+    .ram-cell-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: #64748b;
+    }
+
+    .ram-cell-data {
+      font-weight: 700;
+      color: #f8fafc;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .gold-fingers-bus {
+      height: 10px;
+      background: repeating-linear-gradient(
+        90deg,
+        #f59e0b 0px,
+        #f59e0b 4px,
+        #0a1120 4px,
+        #0a1120 7px
+      );
+      border-top: 1px solid #78350f;
+    }
+
+    /* 4. SECONDARY STORAGE NVME / DISK (Bottom Right) */
+    .storage-package {
+      grid-column: 2;
+      grid-row: 2;
+      border: 2px solid #334155;
+      background: #0f172a;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .nand-storage-tray {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+
+    .nand-block {
+      background: #020617;
+      border: 1px solid #334155;
+      padding: 6px 8px;
+      font-size: 10px;
+    }
+
+    .nand-block .sector-tag {
+      font-size: 8.5px;
+      color: #94a3b8;
+      margin-bottom: 2px;
+    }
+
+    .nand-block .file-name {
+      font-weight: 700;
+      color: #e2e8f0;
+      font-size: 9.5px;
+    }
+
+    .nand-block .tech-state {
+      font-size: 8.5px;
+      color: #10b981;
+      font-weight: 700;
+    }
+
+    /* DYNAMIC COPPER BUS TRACES (Overlaid on PCB) */
+    .bus-trace-overlay {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ========================================================================= */
+    /* RIGHT SECTION: INSTRUMENT SCREEN & CONTROL CONSOLE                       */
+    /* ========================================================================= */
+    .console-bay {
+      background: var(--bg-chassis-deep);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      border-left: 1px solid #000;
+    }
+
+    /* REAL CRT / LCD TERMINAL DISPLAY */
+    .terminal-housing {
+      background: #000;
+      border: 3px solid #334155;
+      border-radius: 4px;
+      padding: 10px 12px;
+      box-shadow: 
+        inset 0 0 20px rgba(0, 0, 0, 0.9),
+        0 4px 14px rgba(0, 0, 0, 0.6);
+      position: relative;
+      min-height: 190px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* CRT Phosphor Scanline Texture */
+    .terminal-housing::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 3px;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .terminal-top-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9.5px;
+      color: #64748b;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 4px;
+    }
+
+    .screen-crt-output {
+      font-size: 11.5px;
+      line-height: 1.45;
+      color: #22c55e;
+      text-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+      margin: 8px 0;
+      font-family: var(--font-mono);
+      min-height: 110px;
+    }
+
+    .screen-crt-output.dead {
+      color: #475569;
+      text-shadow: none;
+    }
+
+    .terminal-status-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: #475569;
+      border-top: 1px solid #1e293b;
+      padding-top: 4px;
+    }
+
+    /* HEAVY INDUSTRIAL TOGGLE BREAKER SWITCH */
+    .breaker-control-panel {
+      background: #030712;
+      border: 1px solid var(--metal-rim);
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+    }
+
+    .breaker-label-col {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .breaker-title {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #f8fafc;
+      text-transform: uppercase;
+    }
+
+    .breaker-desc {
+      font-size: 9.5px;
+      color: #64748b;
+    }
+
+    /* TACTILE INDUSTRIAL ROCKER SWITCH */
+    .industrial-switch-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .toggle-rocker {
+      width: 44px;
+      height: 72px;
+      background: #1e293b;
+      border: 2px solid #0f172a;
+      border-radius: 3px;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 
+        inset 0 2px 4px rgba(0, 0, 0, 0.8),
+        0 2px 6px rgba(0, 0, 0, 0.6);
+      user-select: none;
+    }
+
+    .rocker-paddle {
+      position: absolute;
+      left: 2px;
+      right: 2px;
+      height: 34px;
+      background: #dc2626;
+      border: 1px solid #991b1b;
+      border-radius: 2px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      transition: top 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    .toggle-rocker.power-on .rocker-paddle {
+      top: 2px;
+      background: #16a34a;
+      border-color: #15803d;
+    }
+
+    .toggle-rocker.power-off .rocker-paddle {
+      top: 32px;
+      background: #dc2626;
+      border-color: #991b1b;
+    }
+
+    .pilot-led {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid #1e293b;
+      background: var(--led-red-off);
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+      transition: all 0.2s ease;
+    }
+
+    .pilot-led.lit-green {
+      background: var(--led-green-on);
+      box-shadow: 0 0 12px #22c55e, inset 0 1px 1px #fff;
+    }
+
+    .pilot-led.lit-red {
+      background: var(--led-red-on);
+      box-shadow: 0 0 12px #ef4444, inset 0 1px 1px #fff;
+    }
+
+    /* INTERACTIVE EXPERIMENT STATIONS */
+    .experiment-deck {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .deck-section-title {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: #94a3b8;
+      text-transform: uppercase;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 4px;
+    }
+
+    .tactile-action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .instrument-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #f1f5f9;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 9px 12px;
+      border-radius: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.1s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .instrument-btn:hover {
+      background: #334155;
+      border-color: #475569;
+    }
+
+    .instrument-btn:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+    }
+
+    .instrument-btn.primary {
+      background: #0284c7;
+      border-color: #0369a1;
+    }
+    .instrument-btn.primary:hover {
+      background: #0369a1;
+    }
+
+    .instrument-btn.danger {
+      background: #991b1b;
+      border-color: #7f1d1d;
+    }
+    .instrument-btn.danger:hover {
+      background: #7f1d1d;
+    }
+
+    /* REAL-TIME LOG RECORDER TAPE */
+    .log-recorder-frame {
+      background: #000;
+      border: 1px solid #1e293b;
+      padding: 8px 10px;
+      font-size: 10px;
+      line-height: 1.5;
+      color: #94a3b8;
+      height: 90px;
+      overflow-y: auto;
+      border-radius: 2px;
+    }
+
+    .log-entry { margin-bottom: 2px; }
+    .log-entry .time { color: #475569; margin-right: 6px; }
+    .log-entry.ok { color: #4ade80; }
+    .log-entry.warn { color: #fbbf24; }
+    .log-entry.err { color: #f87171; }
+
+    /* FOOTER SPECS BAR */
+    .bench-footer {
+      width: 100%;
+      max-width: 1360px;
+      margin-top: 14px;
+      background: var(--bg-chassis);
+      border: 1px solid var(--metal-rim);
+      padding: 10px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: #64748b;
+    }
+
+    .bench-footer a {
+      color: var(--silkscreen-cyan);
+      text-decoration: none;
+    }
+    .bench-footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP INSTRUMENT HEADER -->
+  <header class="bench-masthead">
+    <div class="bench-identity">
+      <div class="bench-brand-badge">ARCH-LAB // 01</div>
+      <div class="bench-title-block">
+        <h1>Primary Memory &amp; Storage Test Console</h1>
+        <span>DIRECT SILICON BUS &amp; VOLATILITY BENCHMARK • AQA 3.4.1 / OCR J277 1.2</span>
+      </div>
+    </div>
+
+    <div class="bench-telemetry">
+      <div class="telemetry-node">
+        <span class="telemetry-label">Capacitor Rail</span>
+        <span class="telemetry-value" id="meterVoltage">1.35 V (STABLE)</span>
+      </div>
+      <div class="telemetry-node">
+        <span class="telemetry-label">System State</span>
+        <span class="telemetry-value" id="meterSystemState" style="color: #4ade80;">RUNNING // DESKTOP</span>
+      </div>
+      <div class="telemetry-node">
+        <span class="telemetry-label">Active Bus Clock</span>
+        <span class="telemetry-value" id="meterBusClock">3200 MT/s</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CHASSIS BENCH -->
+  <main class="main-chassis">
+    <!-- Corner Hardware Bolts -->
+    <div class="chassis-bolt bolt-tl"></div>
+    <div class="chassis-bolt bolt-tr"></div>
+    <div class="chassis-bolt bolt-bl"></div>
+    <div class="chassis-bolt bolt-br"></div>
+
+    <!-- LEFT BAY: MOTHERBOARD SILICON SUBSTRATE -->
+    <section class="motherboard-bay">
+      <div class="pcb-silkscreen-title">
+        <span>PCB CARRIER // 64-BIT DUAL-CHANNEL MEMORY INTERFACE</span>
+        <span>FR-4 HIGH-TG SUBSTRATE</span>
+      </div>
+
+      <div class="pcb-grid">
+        
+        <!-- 1. CPU SOCKET (Top Left) -->
+        <div class="silicon-package cpu-package" data-ref="IC_00 // CPU_CORE">
+          <div class="cpu-heatspreader">
+            <div class="chip-label">CENTRAL PROCESSING UNIT</div>
+            <div class="chip-sub">Von Neumann Microarchitecture • 64-bit</div>
+          </div>
+
+          <div class="cpu-bus-readout">
+            <div class="bus-readout-row">
+              <span class="tag">Program Counter (PC):</span>
+              <span class="val" id="cpuPcVal">0x04 (RAM)</span>
+            </div>
+            <div class="bus-readout-row">
+              <span class="tag">Current Instruction:</span>
+              <span class="val" id="cpuInstVal">EXEC_ESSAY_WORD</span>
+            </div>
+            <div class="bus-readout-row">
+              <span class="tag">Bus Arbiter State:</span>
+              <span class="val" id="cpuBusState" style="color:#22c55e;">RAM ACTIVE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. PRIMARY RAM (Top Right) -->
+        <div class="silicon-package ram-package" data-ref="DIMM_0 // PRIMARY_DRAM (VOLATILE)">
+          <div>
+            <div class="dimm-header">
+              <div>
+                <div class="chip-label" style="color: #38bdf8;">RAM (RANDOM ACCESS MEMORY)</div>
+                <div class="chip-sub">DRAM Capacitor Matrix • Read &amp; Write</div>
+              </div>
+              <div class="capacitor-charge-meter">
+                <span style="font-size: 8.5px; color:#64748b;">CAP_CHARGE:</span>
+                <div class="charge-bar-frame">
+                  <div class="charge-bar-fill" id="chargeBar"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Addressable slots -->
+            <div class="ram-slots-matrix" id="ramSlots">
+              <div class="ram-cell allocated" id="cell0">
+                <div class="ram-cell-header"><span>0x00</span><span>OS KERNEL</span></div>
+                <div class="ram-cell-data">SYSTEM_CORE.SYS</div>
+              </div>
+              <div class="ram-cell allocated" id="cell1">
+                <div class="ram-cell-header"><span>0x04</span><span>ACTIVE APP</span></div>
+                <div class="ram-cell-data">ESSAY_DOCX (UNSAVED)</div>
+              </div>
+              <div class="ram-cell allocated" id="cell2">
+                <div class="ram-cell-header"><span>0x08</span><span>USER DATA</span></div>
+                <div class="ram-cell-data">BROWSER_CACHE</div>
+              </div>
+              <div class="ram-cell" id="cell3">
+                <div class="ram-cell-header"><span>0x0C</span><span>FREE SLOT</span></div>
+                <div class="ram-cell-data">[EMPTY_BLOCK]</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="gold-fingers-bus" title="Gold Contact Edge Connector Pins"></div>
+        </div>
+
+        <!-- 3. ROM CHIP (Bottom Left) -->
+        <div class="silicon-package rom-package" data-ref="IC_01 // ROM_FIRMWARE (NON-VOLATILE)">
+          <div class="rom-dip-housing">
+            <div class="ic-print">ROM // 27C256 MASK-PROGRAMMED</div>
+            <div class="firmware-blocks">
+              <div class="firmware-block" id="romPost">
+                <span>0xFF00 : POST Routine</span>
+                <span class="status-pill">SELF-TEST</span>
+              </div>
+              <div class="firmware-block" id="romBios">
+                <span>0xFF04 : BIOS / UEFI Config</span>
+                <span class="status-pill">HW SETUP</span>
+              </div>
+              <div class="firmware-block active" id="romBoot">
+                <span>0xFF08 : Bootstrap Loader</span>
+                <span class="status-pill">FINDS OS</span>
+              </div>
+            </div>
+            <div class="rom-fuse-lock">
+              <span>🔒 HARDWARE WRITE-PROTECT PERMANENT</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. SECONDARY STORAGE (Bottom Right) -->
+        <div class="silicon-package storage-package" data-ref="NVME_0 // SECONDARY_STORAGE (NON-VOLATILE)">
+          <div>
+            <div class="chip-label" style="color: #94a3b8;">SECONDARY STORAGE (NVMe SSD / HDD)</div>
+            <div class="chip-sub">Permanent Magnetic / Flash Media • Holds Inactive Programs</div>
+          </div>
+
+          <div class="nand-storage-tray">
+            <div class="nand-block">
+              <div class="sector-tag">BLOCK_0 (PERSISTENT)</div>
+              <div class="file-name">WINDOWS_OS.IMG</div>
+              <div class="tech-state">SAFE ON DISK</div>
+            </div>
+            <div class="nand-block">
+              <div class="sector-tag">BLOCK_1 (PERSISTENT)</div>
+              <div class="file-name">MINECRAFT.EXE</div>
+              <div class="tech-state">SAFE ON DISK</div>
+            </div>
+            <div class="nand-block">
+              <div class="sector-tag">BLOCK_2 (LAST SAVE)</div>
+              <div class="file-name">ESSAY_V1.DOCX</div>
+              <div class="tech-state">LAST SAVED 14:00</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- RIGHT BAY: REAL-TIME CRT DISPLAY & TACTILE CONSOLE -->
+    <section class="console-bay">
+      
+      <!-- REAL CRT / LCD TERMINAL -->
+      <div class="terminal-housing">
+        <div class="terminal-top-row">
+          <span>HOST_DISPLAY // CRT-01</span>
+          <span id="crtFps">60.0 Hz • VSYNC</span>
+        </div>
+
+        <div class="screen-crt-output" id="crtScreen">
+          <div>&gt; OS ACTIVE // RUNNING DESKTOP</div>
+          <div>&gt; Word Processor open: "Chemistry Essay" (1,240 words)</div>
+          <div>&gt; STATUS: Changes made in RAM. Unsaved to disk!</div>
+          <div style="color:#fbbf24; margin-top:8px;">&gt; CPU continuously executing from volatile DRAM...</div>
+        </div>
+
+        <div class="terminal-status-bar">
+          <span id="terminalStatus">SYSTEM STABLE • ALL RAILS UP</span>
+          <span>DRAM CHG: 100%</span>
+        </div>
+      </div>
+
+      <!-- INDUSTRIAL MAINS POWER BREAKER (NO IOS TOGGLE) -->
+      <div class="breaker-control-panel">
+        <div class="breaker-label-col">
+          <span class="breaker-title">MAINS POWER BUS (240V AC)</span>
+          <span class="breaker-desc">Cutting power drains volatile capacitors in RAM</span>
+        </div>
+
+        <div class="industrial-switch-wrap">
+          <div class="pilot-led lit-green" id="pilotLed"></div>
+          <div class="toggle-rocker power-on" id="powerRocker" title="Click to flip mechanical power breaker!">
+            <div class="rocker-paddle" id="rockerPaddle">I</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE EXPERIMENT DECK -->
+      <div class="experiment-deck">
+        <div class="deck-section-title">Hardware Experiments &amp; Mark-Scheme Mechanics</div>
+        
+        <div class="tactile-action-grid">
+          <button class="instrument-btn danger" id="btnPullPlug">
+            <span>⚡ Pull Power Cord</span>
+          </button>
+          <button class="instrument-btn primary" id="btnRunBoot">
+            <span>↺ Execute Cold Boot</span>
+          </button>
+          <button class="instrument-btn" id="btnIllegalRomWrite">
+            <span>✎ Attempt Write to ROM</span>
+          </button>
+          <button class="instrument-btn" id="btnLoadApp">
+            <span>⬇ Load App (SSD ➔ RAM)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- REAL-TIME HARDWARE RECORDER TAPE -->
+      <div>
+        <div class="deck-section-title" style="margin-bottom: 6px;">Bus Telemetry &amp; Error Logger</div>
+        <div class="log-recorder-frame" id="logTape">
+          <div class="log-entry ok"><span class="time">00:00:01</span>[POWER] 240V line active. Capacitors charged to 1.35V.</div>
+          <div class="log-entry ok"><span class="time">00:00:02</span>[BOOT] Bootstrap loader loaded OS from SSD into RAM slot 0x00.</div>
+          <div class="log-entry ok"><span class="time">00:00:03</span>[CPU] Program counter executing active desktop thread.</div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <footer class="bench-footer">
+    <div><strong>Engineering Principle:</strong> The CPU can only execute code directly from Primary Memory (RAM/ROM). Secondary storage is too slow and not byte-addressable.</div>
+    <div>Prototype for GCSE Computer Science Architecture Module</div>
+  </footer>
+
+  <!-- TACTILE INTERACTION LOGIC (PURE VANILLA JAVASCRIPT) -->
+  <script>
+    let isPowered = true;
+    let isBooting = false;
+
+    // DOM Elements
+    const powerRocker = document.getElementById('powerRocker');
+    const rockerPaddle = document.getElementById('rockerPaddle');
+    const pilotLed = document.getElementById('pilotLed');
+    const crtScreen = document.getElementById('crtScreen');
+    const chargeBar = document.getElementById('chargeBar');
+    const meterVoltage = document.getElementById('meterVoltage');
+    const meterSystemState = document.getElementById('meterSystemState');
+    const meterBusClock = document.getElementById('meterBusClock');
+    const logTape = document.getElementById('logTape');
+    const cpuPcVal = document.getElementById('cpuPcVal');
+    const cpuInstVal = document.getElementById('cpuInstVal');
+    const cpuBusState = document.getElementById('cpuBusState');
+    const terminalStatus = document.getElementById('terminalStatus');
+
+    // RAM Cells
+    const cell0 = document.getElementById('cell0');
+    const cell1 = document.getElementById('cell1');
+    const cell2 = document.getElementById('cell2');
+    const cell3 = document.getElementById('cell3');
+
+    // Audio clicks (synthetic Web Audio for tactile realism)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playClack(freq = 120, decay = 0.08) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + decay);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + decay);
+    }
+
+    function appendLog(text, type = 'ok') {
+      const now = new Date();
+      const timeStr = now.toTimeString().split(' ')[0];
+      const entry = document.createElement('div');
+      entry.className = `log-entry ${type}`;
+      entry.innerHTML = `<span class="time">${timeStr}</span>${text}`;
+      logTape.appendChild(entry);
+      logTape.scrollTop = logTape.scrollHeight;
+    }
+
+    function cutPower() {
+      playClack(80, 0.15);
+      isPowered = false;
+      isBooting = false;
+
+      // Update Rocker & LED
+      powerRocker.className = 'toggle-rocker power-off';
+      rockerPaddle.textContent = 'O';
+      pilotLed.className = 'pilot-led lit-red';
+
+      // Drain Voltage & Capacitors
+      chargeBar.style.width = '0%';
+      chargeBar.style.backgroundColor = '#ef4444';
+      meterVoltage.textContent = '0.00 V (DEAD)';
+      meterVoltage.style.color = '#ef4444';
+      meterSystemState.textContent = 'POWER LOSS // HALTED';
+      meterSystemState.style.color = '#ef4444';
+      meterBusClock.textContent = '0 MT/s';
+
+      // CRT Screen goes black!
+      crtScreen.className = 'screen-crt-output dead';
+      crtScreen.innerHTML = `
+        <div style="color: #ef4444; font-weight: 800;">[CRITICAL POWER FAULT]</div>
+        <div>Mains electrical line severed.</div>
+        <div>All volatile RAM storage lost due to capacitor discharge!</div>
+        <div style="margin-top: 10px; color: #64748b;">(Monitor offline. Press "Execute Cold Boot" or flip switch to restart.)</div>
+      `;
+      terminalStatus.textContent = 'NO CARRIER • VOLTAGE COLLAPSED';
+
+      // Wipe RAM Cells
+      [cell0, cell1, cell2, cell3].forEach((c, idx) => {
+        c.className = 'ram-cell wiped';
+        c.querySelector('.ram-cell-data').textContent = '0x00000000 [DISCHARGED]';
+      });
+
+      // CPU goes offline
+      cpuPcVal.textContent = '0x0000 (HALTED)';
+      cpuInstVal.textContent = 'NONE (NO POWER)';
+      cpuBusState.textContent = 'BUS FLOATING';
+      cpuBusState.style.color = '#ef4444';
+
+      appendLog('[POWER] Electrical line opened! All volatile DRAM capacitors discharged to 0V.', 'err');
+      appendLog('[DATA LOSS] The Unsaved Chemistry Essay in RAM was permanently destroyed!', 'err');
+      appendLog('[PRESERVED] ROM Firmware and SSD Storage remain 100% intact (Non-Volatile).', 'warn');
+    }
+
+    function restorePowerAndBoot() {
+      playClack(160, 0.1);
+      if (isBooting) return;
+      isBooting = true;
+      isPowered = true;
+
+      // Update Rocker & LED
+      powerRocker.className = 'toggle-rocker power-on';
+      rockerPaddle.textContent = 'I';
+      pilotLed.className = 'pilot-led lit-green';
+
+      // Restore Voltage Meter
+      meterVoltage.textContent = '1.35 V (STABLE)';
+      meterVoltage.style.color = 'var(--silkscreen-cyan)';
+      meterSystemState.textContent = 'BOOT SEQUENCE ACTIVE';
+      meterSystemState.style.color = '#fbbf24';
+      meterBusClock.textContent = '800 MT/s';
+
+      // Re-charge RAM capacitors
+      chargeBar.style.width = '100%';
+      chargeBar.style.backgroundColor = '#22c55e';
+
+      // CRT Screen Boot Sequence Animation
+      crtScreen.className = 'screen-crt-output';
+      crtScreen.innerHTML = `<div>&gt; BIOS ROM v3.2 POST INITIALISING...</div>`;
+      appendLog('[ROM] CPU wakes up. PC points to ROM Address 0xFF00.', 'warn');
+
+      cpuPcVal.textContent = '0xFF00 (ROM)';
+      cpuInstVal.textContent = 'ROM_POST_DIAG';
+      cpuBusState.textContent = 'READING ROM';
+      cpuBusState.style.color = '#fbbf24';
+
+      // Step 1: POST
+      setTimeout(() => {
+        crtScreen.innerHTML += `<div>&gt; POST Diagnostic: CPU OK, Bus OK, 16GB DRAM Tested OK</div>`;
+        appendLog('[ROM] POST routine finished. Invoking Bootstrap Loader at 0xFF08...', 'ok');
+        cpuPcVal.textContent = '0xFF08 (ROM)';
+        cpuInstVal.textContent = 'ROM_BOOTSTRAP';
+      }, 700);
+
+      // Step 2: Bootstrap copies OS from SSD into RAM
+      setTimeout(() => {
+        crtScreen.innerHTML += `<div>&gt; Bootstrap Loader: Locating OS on NVMe SSD...</div>`;
+        crtScreen.innerHTML += `<div>&gt; Copying WINDOWS_OS.IMG from SSD into RAM 0x00...</div>`;
+        appendLog('[STORAGE] Copying operating system kernel from SSD into RAM.', 'warn');
+        
+        cell0.className = 'ram-cell allocated';
+        cell0.querySelector('.ram-cell-data').textContent = 'SYSTEM_CORE.SYS';
+        
+        cpuBusState.textContent = 'DMA COPY: SSD ➔ RAM';
+      }, 1500);
+
+      // Step 3: Desktop ready
+      setTimeout(() => {
+        cell1.className = 'ram-cell';
+        cell1.querySelector('.ram-cell-data').textContent = '[EMPTY_BLOCK]';
+        cell2.className = 'ram-cell';
+        cell2.querySelector('.ram-cell-data').textContent = '[EMPTY_BLOCK]';
+        cell3.className = 'ram-cell';
+        cell3.querySelector('.ram-cell-data').textContent = '[EMPTY_BLOCK]';
+
+        crtScreen.innerHTML = `
+          <div>&gt; OS ACTIVE // RUNNING DESKTOP (FRESH BOOT)</div>
+          <div>&gt; Notice: Previous unsaved essay is GONE from RAM!</div>
+          <div style="color: #4ade80;">&gt; System waiting for user command.</div>
+        `;
+        meterSystemState.textContent = 'RUNNING // DESKTOP';
+        meterSystemState.style.color = '#4ade80';
+        meterBusClock.textContent = '3200 MT/s';
+        terminalStatus.textContent = 'SYSTEM STABLE • FRESH BOOT';
+
+        cpuPcVal.textContent = '0x00 (RAM)';
+        cpuInstVal.textContent = 'OS_IDLE_LOOP';
+        cpuBusState.textContent = 'RAM ACTIVE';
+        cpuBusState.style.color = '#22c55e';
+
+        appendLog('[READY] Cold boot complete! CPU is now executing programs exclusively from RAM.', 'ok');
+        isBooting = false;
+      }, 2300);
+    }
+
+    // Toggle power
+    powerRocker.addEventListener('click', () => {
+      if (isPowered) cutPower();
+      else restorePowerAndBoot();
+    });
+
+    document.getElementById('btnPullPlug').addEventListener('click', () => {
+      cutPower();
+    });
+
+    document.getElementById('btnRunBoot').addEventListener('click', () => {
+      restorePowerAndBoot();
+    });
+
+    // Experiment: Attempt Illegal Write to ROM
+    document.getElementById('btnIllegalRomWrite').addEventListener('click', () => {
+      playClack(260, 0.08);
+      if (!isPowered) {
+        appendLog('[ERROR] Cannot interact with hardware while power is off!', 'err');
+        return;
+      }
+      appendLog('[BUS ALERT] CPU attempted WRITE strobe to ROM address 0xFF04!', 'warn');
+      appendLog('[HARDWARE EXCEPTION] WRITE REJECTED: ROM is physically Read-Only! Write-protect gate held at 0V.', 'err');
+      
+      const prevCrt = crtScreen.innerHTML;
+      crtScreen.innerHTML = `
+        <div style="color: #ef4444; font-weight: 800;">[HARDWARE WRITE FAULT: ROM VIOLATION]</div>
+        <div>Attempted: WRITE 0x1A ➔ ROM 0xFF04</div>
+        <div>Error: ROM circuits are permanently set at the factory. CPU can ONLY read!</div>
+      `;
+      setTimeout(() => { crtScreen.innerHTML = prevCrt; }, 2800);
+    });
+
+    // Experiment: Load App into RAM
+    document.getElementById('btnLoadApp').addEventListener('click', () => {
+      playClack(180, 0.08);
+      if (!isPowered) {
+        appendLog('[ERROR] Turn on system power first!', 'err');
+        return;
+      }
+      cell1.className = 'ram-cell allocated';
+      cell1.querySelector('.ram-cell-data').textContent = 'MINECRAFT.EXE (LOADED)';
+      
+      appendLog('[DMA BUS] MINECRAFT.EXE copied from persistent SSD into RAM Slot 0x04.', 'ok');
+      appendLog('[CPU] CPU switched Program Counter to RAM 0x04 to begin execution.', 'ok');
+
+      cpuPcVal.textContent = '0x04 (RAM)';
+      cpuInstVal.textContent = 'EXEC_GAME_THREAD';
+
+      crtScreen.innerHTML = `
+        <div>&gt; Program Launched: MINECRAFT.EXE</div>
+        <div>&gt; Binary successfully copied: Secondary Storage ➔ Volatile RAM.</div>
+        <div style="color: #4ade80;">&gt; CPU is now actively executing game frames from RAM.</div>
+      `;
+    });
+  </script>
+</body>
+</html>

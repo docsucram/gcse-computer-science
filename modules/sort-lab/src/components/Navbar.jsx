@@ -1,85 +1,59 @@
 import React from 'react';
-import { ALGORITHMS } from '../constants/algorithms';
 import {
   ArrowLeft,
-  Sparkles,
   BarChart3,
   Search,
-  Image as ImageIcon,
   Swords,
   BookOpen,
-  Sun,
-  Moon,
   Volume2,
   VolumeX,
   Keyboard,
-  GraduationCap,
 } from 'lucide-react';
 
 export default function Navbar({
   activeView = 'visualizer', // 'visualizer' | 'search' | 'race' | 'revision'
   onViewChange = () => {},
-  visualizerMode = 'bars', // 'bars' | 'image'
-  onVisualizerModeChange = () => {},
-  selectedAlgorithm = 'bubble',
-  onAlgorithmChange = () => {},
-  isDarkMode = true,
-  onToggleTheme = () => {},
   audioMode = 'chimes',
   onCycleAudio = () => {},
   onOpenShortcuts = () => {},
 }) {
   return (
-    <header className={`sticky top-0 z-40 w-full border-b backdrop-blur-md transition-colors ${
-      isDarkMode ? 'bg-slate-950/85 border-slate-800 text-white' : 'bg-white/85 border-slate-200 text-slate-900'
-    }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 w-full border-b border-[#ded7c6] border-t-3 border-t-[#1e3a5f] bg-[#fdfcf9] shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-15 flex items-center justify-between gap-4">
         {/* Navigation & Brand */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-3">
           <a
             href="../../index.html"
-            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] ${
-              isDarkMode
-                ? 'border-slate-800 bg-slate-900/90 text-slate-300 hover:text-white hover:bg-slate-800 hover:border-slate-700 shadow-2xs'
-                : 'border-slate-200 bg-slate-100 text-slate-700 hover:text-slate-900 hover:bg-slate-200 shadow-2xs'
-            }`}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-[2px] border border-[#c2b8a3] bg-[#fdfcf9] text-[#1e2229] text-xs font-semibold hover:border-[#1e3a5f] hover:text-[#1e3a5f] transition-all"
             title="Return to Revision Hub"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Back to Hub</span>
-            <span className="inline sm:hidden">Hub</span>
+            <span className="hidden sm:inline">Hub</span>
           </a>
 
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 flex items-center justify-center shadow-md shadow-indigo-500/20 text-white shrink-0">
-            <GraduationCap className="w-5 h-5" />
-          </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-extrabold text-sm sm:text-base tracking-tight leading-none">
+              <h1 className="font-serif text-lg font-bold text-[#1e2229] leading-none tracking-tight">
                 Searching &amp; Sorting
               </h1>
-              <span className="hidden sm:inline-flex px-1.5 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 font-bold text-[10px] tracking-wide border border-indigo-500/20">
-                AQA 8525 §3.1
+              <span className="font-mono text-[10.5px] font-bold text-[#1e3a5f] bg-[#edf3f9] border border-[#cbd5e1] px-1.5 py-0.5 rounded-[2px] tracking-wide">
+                AQA 3.1 // OCR 2.1
               </span>
             </div>
-            <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
-              Interactive GCSE Computer Science Algorithms Lab
+            <p className="text-[11.5px] text-[#585e6b] hidden sm:block">
+              Interactive GCSE Computer Science Algorithms
             </p>
           </div>
         </div>
 
         {/* View Switcher Tabs (Sorting | Searching | Race | Revision) */}
-        <nav className={`flex items-center p-1 rounded-xl border text-xs font-semibold ${
-          isDarkMode ? 'bg-slate-900 border-slate-800' : 'bg-slate-100 border-slate-200'
-        }`}>
+        <nav className="flex items-center p-0.5 rounded-[2px] border border-[#c2b8a3] bg-[#ede8db] text-xs font-semibold gap-1">
           <button
             onClick={() => onViewChange('visualizer')}
-            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-[2px] transition-all flex items-center gap-1.5 cursor-pointer ${
               activeView === 'visualizer'
-                ? 'bg-indigo-600 text-white shadow-2xs font-bold'
-                : isDarkMode
-                ? 'text-slate-400 hover:text-slate-200'
-                : 'text-slate-600 hover:text-slate-900 font-medium'
+                ? 'bg-[#1e3a5f] text-white font-bold shadow-2xs'
+                : 'text-[#585e6b] hover:text-[#1e2229]'
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
@@ -88,12 +62,10 @@ export default function Navbar({
 
           <button
             onClick={() => onViewChange('search')}
-            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-[2px] transition-all flex items-center gap-1.5 cursor-pointer ${
               activeView === 'search'
-                ? 'bg-sky-600 text-white shadow-2xs font-bold'
-                : isDarkMode
-                ? 'text-slate-400 hover:text-slate-200'
-                : 'text-slate-600 hover:text-slate-900 font-medium'
+                ? 'bg-[#1e3a5f] text-white font-bold shadow-2xs'
+                : 'text-[#585e6b] hover:text-[#1e2229]'
             }`}
           >
             <Search className="w-3.5 h-3.5" />
@@ -102,26 +74,22 @@ export default function Navbar({
 
           <button
             onClick={() => onViewChange('race')}
-            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-[2px] transition-all flex items-center gap-1.5 cursor-pointer ${
               activeView === 'race'
-                ? 'bg-indigo-600 text-white shadow-2xs font-bold'
-                : isDarkMode
-                ? 'text-slate-400 hover:text-slate-200'
-                : 'text-slate-600 hover:text-slate-900 font-medium'
+                ? 'bg-[#1e3a5f] text-white font-bold shadow-2xs'
+                : 'text-[#585e6b] hover:text-[#1e2229]'
             }`}
           >
             <Swords className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Race Mode</span>
+            <span className="hidden sm:inline">Duel / Race</span>
           </button>
 
           <button
             onClick={() => onViewChange('revision')}
-            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-[2px] transition-all flex items-center gap-1.5 cursor-pointer ${
               activeView === 'revision'
-                ? 'bg-indigo-600 text-white shadow-2xs font-bold'
-                : isDarkMode
-                ? 'text-slate-400 hover:text-slate-200'
-                : 'text-slate-600 hover:text-slate-900 font-medium'
+                ? 'bg-[#1e3a5f] text-white font-bold shadow-2xs'
+                : 'text-[#585e6b] hover:text-[#1e2229]'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
@@ -129,26 +97,22 @@ export default function Navbar({
           </button>
         </nav>
 
-        {/* Right Tools: Sound Toggle, Keyboard Shortcuts, Theme Toggle */}
+        {/* Right Tools: Sound Toggle, Keyboard Shortcuts */}
         <div className="flex items-center gap-2">
-          {/* Sound Toggle (visible in all views including Race Mode) */}
+          {/* Sound Toggle */}
           <button
             onClick={onCycleAudio}
-            className={`px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-2.5 py-1.5 rounded-[2px] border text-xs font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               audioMode === 'off'
-                ? isDarkMode
-                  ? 'border-slate-800 bg-slate-800/80 text-slate-400 hover:text-slate-200'
-                  : 'border-slate-200 bg-slate-100 text-slate-500 hover:text-slate-700'
-                : isDarkMode
-                ? 'border-indigo-500/40 bg-indigo-500/20 text-indigo-300 font-bold'
-                : 'border-indigo-300 bg-indigo-50 text-indigo-700 font-bold'
+                ? 'border-[#c2b8a3] bg-[#fdfcf9] text-[#8e95a2] hover:text-[#1e2229]'
+                : 'border-[#1e3a5f] bg-[#edf3f9] text-[#1e3a5f] font-bold'
             }`}
-            title={`Sound: ${audioMode.toUpperCase()} (Click to change)`}
+            title={`Sound: ${audioMode.toUpperCase()} (Click to toggle)`}
           >
             {audioMode === 'off' ? (
               <VolumeX className="w-4 h-4" />
             ) : (
-              <Volume2 className="w-4 h-4 text-indigo-500" />
+              <Volume2 className="w-4 h-4 text-[#1e3a5f]" />
             )}
             <span className="capitalize">{audioMode}</span>
           </button>
@@ -156,23 +120,10 @@ export default function Navbar({
           {/* Keyboard Shortcuts Button */}
           <button
             onClick={onOpenShortcuts}
-            className={`p-2 rounded-xl border text-xs transition-colors hidden md:flex items-center ${
-              isDarkMode ? 'border-slate-800 bg-slate-800/80 text-slate-300 hover:text-white' : 'border-slate-200 bg-slate-100 text-slate-600 hover:text-slate-900'
-            }`}
+            className="p-1.5 rounded-[2px] border border-[#c2b8a3] bg-[#fdfcf9] text-[#585e6b] hover:text-[#1e2229] hover:border-[#1e3a5f] text-xs transition-colors hidden md:flex items-center cursor-pointer"
             title="Keyboard shortcuts [?]"
           >
             <Keyboard className="w-4 h-4" />
-          </button>
-
-          {/* Dark / Light Mode Toggle */}
-          <button
-            onClick={onToggleTheme}
-            className={`p-2 rounded-xl border text-xs transition-colors ${
-              isDarkMode ? 'border-slate-800 bg-slate-800/80 text-amber-400 hover:bg-slate-700' : 'border-slate-200 bg-slate-100 text-slate-700 hover:bg-slate-200'
-            }`}
-            title="Toggle Dark / Light Mode"
-          >
-            {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </button>
         </div>
       </div>

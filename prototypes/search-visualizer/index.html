@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Searching Algorithms: Linear vs Binary Search — GCSE Computer Science</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <style>
+    /* ========================================================================= */
+    /* EDITORIAL REVISION PALETTE (WARM PAPER, NATURAL INK & TEXTBOOK HIGHLIGHTS)*/
+    /* No generic dark-mode SaaS, no eye-burning pure white, zero emoji spam     */
+    /* ========================================================================= */
+    :root {
+      --paper-bg: #f5f3ec;         /* Calming warm paper substrate */
+      --paper-card: #fdfcf9;       /* Unbleached paper surface */
+      --paper-recessed: #ede8db;   /* Inset tool tray & discarded card slots */
+      --paper-border: #ded7c6;     /* Natural drafting border */
+      --paper-border-strong: #c2b8a3;
+
+      --ink-primary: #1e2229;      /* Rich charcoal printing ink */
+      --ink-secondary: #585e6b;    /* Muted pencil notes */
+      --ink-faint: #8e95a2;        /* Card index marks */
+
+      /* Textbook Highlighters (Rich, Non-Neon) */
+      --oxford-navy: #1e3a5f;      /* Classic British textbook navy */
+      --navy-tint: #edf3f9;
+      --cardinal-red: #a82020;     /* Mismatch / Eliminated line */
+      --red-tint: #faecec;
+      --amber-mid: #b45309;        /* Midpoint pivot */
+      --amber-tint: #fef3c7;
+      --forest-green: #1a6b3c;     /* Match found / Sorted state */
+      --green-tint: #edf7f0;
+
+      --font-body: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --font-serif: 'Newsreader', Georgia, serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--paper-bg);
+      background-image: 
+        linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+      color: var(--ink-primary);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .editorial-container {
+      width: 100%;
+      max-width: 1140px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* 1. CLEAN EDITORIAL HEADER (NO TOOL CONTROLS WEDGED INSIDE) */
+    .revision-header {
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      border-top: 3px solid var(--oxford-navy);
+      padding: 22px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+
+    .revision-title-block h1 {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--ink-primary);
+      margin-bottom: 4px;
+    }
+
+    .revision-title-block p {
+      font-size: 13.5px;
+      color: var(--ink-secondary);
+      max-width: 720px;
+      line-height: 1.5;
+    }
+
+    .spec-pill {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--oxford-navy);
+      background: var(--navy-tint);
+      border: 1px solid #cbd5e1;
+      padding: 4px 10px;
+      border-radius: 2px;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    /* 2. SELF-CONTAINED APPLICATION WORKBENCH */
+    .workbench-chassis {
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* WORKBENCH TOP COMMAND BAR (ALL CONFIG & ARRAY TOOLS ARE HERE) */
+    .workbench-command-bar {
+      background: var(--paper-recessed);
+      border-bottom: 1px solid var(--paper-border);
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Algorithm Mode Switcher */
+    .algo-selector-group {
+      display: flex;
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border-strong);
+      padding: 2px;
+      border-radius: 2px;
+      gap: 2px;
+    }
+
+    .algo-tab-btn {
+      background: transparent;
+      border: none;
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-secondary);
+      padding: 6px 14px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: all 0.15s ease;
+    }
+
+    .algo-tab-btn:hover {
+      color: var(--ink-primary);
+    }
+
+    .algo-tab-btn.active {
+      background: var(--oxford-navy);
+      color: #ffffff;
+      font-weight: 700;
+    }
+
+    /* Target & Array Action Tools */
+    .workbench-tools-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tool-inline-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--ink-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .target-select {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--ink-primary);
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border-strong);
+      padding: 5px 10px;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+
+    .tool-btn {
+      font-family: var(--font-body);
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 5px 10px;
+      border-radius: 2px;
+      border: 1px solid var(--paper-border-strong);
+      background: var(--paper-card);
+      color: var(--ink-primary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .tool-btn:hover {
+      border-color: var(--oxford-navy);
+      color: var(--oxford-navy);
+    }
+
+    .tool-btn.warning {
+      color: var(--cardinal-red);
+      background: var(--red-tint);
+      border-color: #fecaca;
+    }
+    .tool-btn.warning:hover {
+      background: #fee2e2;
+    }
+
+    .tool-btn.success {
+      color: var(--forest-green);
+      background: var(--green-tint);
+      border-color: #bbf7d0;
+    }
+    .tool-btn.success:hover {
+      background: #dcfce7;
+    }
+
+    /* WORKBENCH INTERACTIVE ARENA */
+    .workbench-arena {
+      padding: 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    /* STAGE HUD */
+    .stage-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px dashed var(--paper-border);
+      padding-bottom: 10px;
+    }
+
+    .hud-title-col {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .hud-algo-name {
+      font-family: var(--font-serif);
+      font-size: 19px;
+      font-weight: 600;
+      color: var(--ink-primary);
+    }
+
+    .hud-algo-desc {
+      font-size: 12.5px;
+      color: var(--ink-secondary);
+    }
+
+    .hud-stats-cluster {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+
+    .stat-badge {
+      padding: 3px 8px;
+      background: var(--paper-recessed);
+      border: 1px solid var(--paper-border);
+      border-radius: 2px;
+    }
+    .stat-badge strong {
+      color: var(--oxford-navy);
+      font-weight: 700;
+    }
+
+    /* SINGLE MODE CARD SHELF */
+    .card-shelf-container {
+      padding: 10px 0;
+    }
+
+    .shelf-track {
+      display: grid;
+      grid-template-columns: repeat(16, 1fr);
+      gap: 7px;
+      width: 100%;
+    }
+
+    .shelf-card {
+      background: var(--paper-card);
+      border: 1.5px solid var(--paper-border-strong);
+      border-radius: 3px;
+      height: 84px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 6px 3px 7px 3px;
+      text-align: center;
+      position: relative;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      cursor: pointer;
+    }
+
+    .shelf-card:hover {
+      border-color: var(--oxford-navy);
+    }
+
+    .card-index {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--ink-faint);
+    }
+
+    .card-value {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink-primary);
+    }
+
+    .card-marker-slot {
+      height: 12px;
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    /* CARD ACTIVE STATES */
+    .shelf-card.is-mid {
+      background: var(--amber-tint);
+      border-color: var(--amber-mid);
+      transform: translateY(-4px);
+      box-shadow: 0 4px 8px rgba(180, 83, 9, 0.15);
+    }
+    .shelf-card.is-mid .card-value { color: var(--amber-mid); font-size: 18px; }
+    .shelf-card.is-mid .card-marker-slot { color: var(--amber-mid); }
+
+    .shelf-card.is-low,
+    .shelf-card.is-high {
+      border-color: var(--oxford-navy);
+      background: var(--navy-tint);
+    }
+    .shelf-card.is-low .card-marker-slot,
+    .shelf-card.is-high .card-marker-slot { color: var(--oxford-navy); }
+
+    .shelf-card.is-discarded {
+      background: var(--paper-recessed);
+      border-color: var(--paper-border);
+      opacity: 0.35;
+      transform: scale(0.97);
+    }
+    .shelf-card.is-discarded .card-value { color: var(--ink-faint); text-decoration: line-through; }
+
+    .shelf-card.is-match {
+      background: var(--green-tint);
+      border-color: var(--forest-green);
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(26, 107, 60, 0.2);
+    }
+    .shelf-card.is-match .card-value { color: var(--forest-green); font-size: 19px; }
+    .shelf-card.is-match .card-marker-slot { color: var(--forest-green); }
+
+    /* DUAL HEAD-TO-HEAD DUEL ARENA */
+    .duel-arena {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 6px 0;
+    }
+
+    .duel-track-card {
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .duel-track-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 12.5px;
+      font-weight: 700;
+    }
+
+    .duel-track-score {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--oxford-navy);
+    }
+
+    .duel-scoreboard-banner {
+      background: var(--navy-tint);
+      border: 1px solid #bfdbfe;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    /* STEP NARRATIVE STRIP (CGP-STYLE DIALOGUE) */
+    .narrative-strip {
+      background: var(--paper-recessed);
+      border: 1px solid var(--paper-border);
+      border-left: 3px solid var(--oxford-navy);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .narrative-strip.matched {
+      border-left-color: var(--forest-green);
+      background: var(--green-tint);
+    }
+
+    .narrative-strip.warning {
+      border-left-color: var(--cardinal-red);
+      background: var(--red-tint);
+    }
+
+    .narrative-text {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--ink-primary);
+    }
+
+    .formula-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--oxford-navy);
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      padding: 4px 8px;
+      border-radius: 2px;
+      white-space: nowrap;
+    }
+
+    /* WORKBENCH BOTTOM PLAYBACK CONTROLS */
+    .workbench-playback-bar {
+      border-top: 1px solid var(--paper-border);
+      background: var(--paper-card);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .btn-cluster {
+      display: flex;
+      gap: 8px;
+    }
+
+    .action-btn {
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border-strong);
+      color: var(--ink-primary);
+      font-family: var(--font-body);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      transition: all 0.1s ease;
+    }
+
+    .action-btn:hover {
+      border-color: var(--oxford-navy);
+      color: var(--oxford-navy);
+    }
+
+    .action-btn.primary {
+      background: var(--oxford-navy);
+      border-color: var(--oxford-navy);
+      color: #ffffff;
+    }
+    .action-btn.primary:hover {
+      background: #152b47;
+    }
+
+    .action-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      border-color: var(--paper-border);
+    }
+
+    .step-counter-label {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--ink-secondary);
+    }
+
+    /* 3. CGP-STYLE REVISION SUMMARY DECK (SCANNABLE BULLET POINTS) */
+    .cgp-revision-deck {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .cgp-note-card {
+      background: var(--paper-card);
+      border: 1px solid var(--paper-border);
+      padding: 18px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+
+    .cgp-note-header {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--oxford-navy);
+      border-bottom: 1.5px solid var(--paper-border);
+      padding-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .cgp-intro-para {
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--ink-secondary);
+      margin-bottom: 2px;
+    }
+
+    .cgp-intro-para strong {
+      color: var(--ink-primary);
+    }
+
+    .cgp-bullet-list {
+      list-style-type: disc;
+      padding-left: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: var(--ink-secondary);
+    }
+
+    .cgp-bullet-list li strong {
+      color: var(--ink-primary);
+    }
+
+    .cgp-exam-tip-box {
+      background: var(--amber-tint);
+      border: 1px solid #fde68a;
+      padding: 8px 12px;
+      border-radius: 2px;
+      font-size: 12px;
+      color: #78350f;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="editorial-container">
+    
+    <!-- 1. CLEAN EDITORIAL HEADER (PURE TEXT, ZERO FORM CLUTTER) -->
+    <header class="revision-header">
+      <div class="revision-title-block">
+        <span class="spec-pill">AQA 3.1.1 // OCR J277 2.1</span>
+        <h1 style="margin-top: 6px;">Searching Algorithms: Linear vs Binary Search</h1>
+        <p>How computers locate data in memory. Compare trudging through every item one-by-one against repeatedly halving the search space.</p>
+      </div>
+    </header>
+
+    <!-- 2. SELF-CONTAINED APPLICATION WORKBENCH -->
+    <div class="workbench-chassis">
+      
+      <!-- TOP COMMAND BAR: MODE TABS & SELF-CONTAINED ARRAY CONTROLS -->
+      <div class="workbench-command-bar">
+        <!-- Algorithm Tabs -->
+        <div class="algo-selector-group" id="algoTabs">
+          <button class="algo-tab-btn active" data-mode="binary">Binary Search (Divide &amp; Conquer)</button>
+          <button class="algo-tab-btn" data-mode="linear">Linear Search (Sequential)</button>
+          <button class="algo-tab-btn" data-mode="duel">Head-to-Head Duel</button>
+        </div>
+
+        <!-- Array & Target Controls (Self-Contained Inside App) -->
+        <div class="workbench-tools-group">
+          <span class="tool-inline-label">Target:</span>
+          <select id="targetSelect" class="target-select">
+            <!-- Dynamically populated -->
+          </select>
+
+          <button id="btnNewArray" class="tool-btn" title="Generate fresh numbers">↺ New Numbers</button>
+          <button id="btnSortArray" class="tool-btn success" title="Restore sorted order">⇈ Sort List</button>
+          <button id="btnUnsortArray" class="tool-btn warning" title="Scramble order to test search failure">⇄ Scramble (Unsort)</button>
+        </div>
+      </div>
+
+      <!-- WORKBENCH ARENA -->
+      <div class="workbench-arena">
+        
+        <!-- STANDARD SINGLE-ALGORITHM STAGE -->
+        <div id="singleStage">
+          <div class="stage-hud">
+            <div class="hud-title-col">
+              <span class="hud-algo-name" id="stageAlgoTitle">Binary Search</span>
+              <span class="hud-algo-desc" id="stageAlgoDesc">Requires a sorted list. Checks the middle, then discards the wrong half.</span>
+            </div>
+
+            <div class="hud-stats-cluster">
+              <span class="stat-badge">List Size: <strong>16 items</strong></span>
+              <span class="stat-badge" id="comparisonsBadge">Checks: <strong>0</strong></span>
+              <span class="stat-badge" id="worstCaseBadge">Worst Case: <strong>4 checks</strong></span>
+            </div>
+          </div>
+
+          <!-- THE CARD SHELF -->
+          <div class="card-shelf-container">
+            <div class="shelf-track" id="cardShelf">
+              <!-- Cards rendered dynamically -->
+            </div>
+          </div>
+        </div>
+
+        <!-- DUAL HEAD-TO-HEAD DUEL STAGE (SHOWN IN DUEL MODE) -->
+        <div id="duelStage" class="duel-arena" style="display: none;">
+          <!-- Track 1: Binary -->
+          <div class="duel-track-card">
+            <div class="duel-track-header">
+              <span style="color: var(--oxford-navy);">Binary Search (Halving Strategy)</span>
+              <span class="duel-track-score" id="duelBinaryScore">Checks: 0</span>
+            </div>
+            <div class="shelf-track" id="duelBinaryShelf"></div>
+          </div>
+
+          <!-- Track 2: Linear -->
+          <div class="duel-track-card">
+            <div class="duel-track-header">
+              <span style="color: var(--oxford-navy);">Linear Search (Sequential Step-by-Step)</span>
+              <span class="duel-track-score" id="duelLinearScore">Checks: 0</span>
+            </div>
+            <div class="shelf-track" id="duelLinearShelf"></div>
+          </div>
+
+          <!-- Scoreboard Banner -->
+          <div class="duel-scoreboard-banner" id="duelScoreboard">
+            <span><strong>Head-to-Head Race:</strong> Tap <strong>Next Step</strong> to run both algorithms simultaneously against the same list.</span>
+            <span id="duelRatioTag" style="font-family: var(--font-mono); font-weight: 700;">Binary vs Linear</span>
+          </div>
+        </div>
+
+        <!-- CGP-STYLE NARRATIVE STRIP -->
+        <div class="narrative-strip" id="narrativeStrip">
+          <div class="narrative-text" id="narrativeText">
+            Ready to search. Pick your target number and click <strong>Next Step</strong> to watch the algorithm execute.
+          </div>
+          <div class="formula-tag" id="formulaTag">Mid = ⌊(0 + 15) / 2⌋ = 7</div>
+        </div>
+
+      </div>
+
+      <!-- WORKBENCH PLAYBACK TOOLBAR -->
+      <div class="workbench-playback-bar">
+        <div class="btn-cluster">
+          <button class="action-btn primary" id="btnNextStep">Next Step &rarr;</button>
+          <button class="action-btn" id="btnAutoPlay">Auto Play</button>
+          <button class="action-btn" id="btnReset">Reset</button>
+        </div>
+
+        <div class="step-counter-label" id="statusMessage">
+          Ready • 0 of 4 steps
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 3. CGP REVISION SUMMARY DECK (PARAGRAPH + BULLET POINTS) -->
+    <div class="cgp-revision-deck">
+      
+      <!-- Binary Search Card -->
+      <div class="cgp-note-card">
+        <div class="cgp-note-header">
+          <span>Binary Search</span>
+          <span style="font-family: var(--font-mono); font-size: 11px;">O(log₂ N)</span>
+        </div>
+        <p class="cgp-intro-para">
+          Binary Search is a fast algorithm for finding an item in a <strong>SORTED</strong> list. Instead of checking every item one by one from the start, it jumps straight to the middle item. If the target is smaller, it throws away the entire right half of the list; if larger, it throws away the entire left half. Then it repeats until it finds the target.
+        </p>
+        <ul class="cgp-bullet-list">
+          <li>Data <strong>must be sorted</strong> beforehand. It does not work on random lists.</li>
+          <li><strong>Efficiency:</strong> Extremely fast on big datasets. Doubling the list size only adds 1 extra check!</li>
+          <li><strong>Worst case:</strong> Searching 1,000 items takes at most <strong>10 checks</strong> (2¹⁰ ≈ 1,000).</li>
+        </ul>
+        <div class="cgp-exam-tip-box">
+          <strong>Exam Rule:</strong> If an exam question asks you to search an unsorted list using Binary Search, the answer is: <em>you can't &mdash; you must sort it first or use Linear Search!</em>
+        </div>
+      </div>
+
+      <!-- Linear Search Card -->
+      <div class="cgp-note-card">
+        <div class="cgp-note-header">
+          <span>Linear Search</span>
+          <span style="font-family: var(--font-mono); font-size: 11px;">O(N)</span>
+        </div>
+        <p class="cgp-intro-para">
+          Linear Search is a straightforward algorithm that starts at the very beginning of a list and checks every single item one by one in order until it either finds the target or runs out of items. It doesn't need the list to be in any special order, but it gets painfully slow on large datasets.
+        </p>
+        <ul class="cgp-bullet-list">
+          <li>Works on <strong>any list</strong> &mdash; even completely unsorted, messy data.</li>
+          <li><strong>Efficiency:</strong> Inefficient on big datasets. Every extra item means one more possible check.</li>
+          <li><strong>Worst case:</strong> Searching 1,000 items might take all <strong>1,000 checks</strong>.</li>
+        </ul>
+        <div class="cgp-exam-tip-box">
+          <strong>Efficiency Comparison:</strong> On 1,000,000 items, Linear search might need 1,000,000 checks. Binary search finishes in just <strong>20 checks</strong>.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- INTERACTIVE LOGIC -->
+  <script>
+    let currentArray = [4, 9, 14, 18, 23, 29, 35, 42, 48, 55, 61, 68, 74, 82, 91, 99];
+    let target = 74;
+    let mode = 'binary'; // 'binary' | 'linear' | 'duel'
+    let stepIndex = 0;
+    let steps = [];
+    let isAutoPlaying = false;
+    let autoTimer = null;
+
+    // Duel mode step tracking
+    let binaryDuelSteps = [];
+    let linearDuelSteps = [];
+    let duelMaxSteps = 0;
+    let hasConfettiTriggered = false;
+
+    function triggerConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({
+          particleCount: 85,
+          spread: 75,
+          origin: { y: 0.62 },
+          colors: ['#1e3a5f', '#1a6b3c', '#b45309', '#0284c7', '#10b981', '#f59e0b']
+        });
+      }
+    }
+
+    // DOM Elements
+    const singleStage = document.getElementById('singleStage');
+    const duelStage = document.getElementById('duelStage');
+    const cardShelf = document.getElementById('cardShelf');
+    const duelBinaryShelf = document.getElementById('duelBinaryShelf');
+    const duelLinearShelf = document.getElementById('duelLinearShelf');
+    const duelBinaryScore = document.getElementById('duelBinaryScore');
+    const duelLinearScore = document.getElementById('duelLinearScore');
+    const duelScoreboard = document.getElementById('duelScoreboard');
+    const duelRatioTag = document.getElementById('duelRatioTag');
+
+    const targetSelect = document.getElementById('targetSelect');
+    const btnNewArray = document.getElementById('btnNewArray');
+    const btnSortArray = document.getElementById('btnSortArray');
+    const btnUnsortArray = document.getElementById('btnUnsortArray');
+
+    const narrativeStrip = document.getElementById('narrativeStrip');
+    const narrativeText = document.getElementById('narrativeText');
+    const formulaTag = document.getElementById('formulaTag');
+    const stageAlgoTitle = document.getElementById('stageAlgoTitle');
+    const stageAlgoDesc = document.getElementById('stageAlgoDesc');
+    const comparisonsBadge = document.getElementById('comparisonsBadge');
+    const worstCaseBadge = document.getElementById('worstCaseBadge');
+    const statusMessage = document.getElementById('statusMessage');
+
+    const btnNextStep = document.getElementById('btnNextStep');
+    const btnAutoPlay = document.getElementById('btnAutoPlay');
+    const btnReset = document.getElementById('btnReset');
+    const algoTabs = document.querySelectorAll('.algo-tab-btn');
+
+    // Populate target select dropdown
+    function populateTargetOptions() {
+      targetSelect.innerHTML = '';
+      currentArray.forEach(val => {
+        const opt = document.createElement('option');
+        opt.value = val;
+        opt.textContent = `${val}`;
+        if (val === target) opt.selected = true;
+        targetSelect.appendChild(opt);
+      });
+      // Add a missing option
+      const missingOpt = document.createElement('option');
+      missingOpt.value = 50;
+      missingOpt.textContent = '50 (Not in list)';
+      if (target === 50) missingOpt.selected = true;
+      targetSelect.appendChild(missingOpt);
+    }
+
+    // Binary Search Step Generator
+    function generateBinarySteps(arr, tgt) {
+      let stepList = [];
+      let low = 0;
+      let high = arr.length - 1;
+      let comparisons = 0;
+
+      while (low <= high) {
+        let mid = Math.floor((low + high) / 2);
+        comparisons++;
+        let midVal = arr[mid];
+
+        if (midVal === tgt) {
+          stepList.push({
+            low, high, mid,
+            comparisons,
+            status: 'found',
+            discardedBefore: low,
+            discardedAfter: high,
+            msg: `<strong>Match found at index ${mid}!</strong> Value <code>${midVal}</code> equals target <code>${tgt}</code>. Search complete in just ${comparisons} check${comparisons > 1 ? 's' : ''}!`,
+            formula: `Mid = ⌊(${low} + ${high}) / 2⌋ = ${mid} [MATCH FOUND ✓]`
+          });
+          return stepList;
+        } else if (midVal > tgt) {
+          stepList.push({
+            low, high, mid,
+            comparisons,
+            status: 'too_high',
+            discardedBefore: low,
+            discardedAfter: high,
+            msg: `Middle card <code>${midVal}</code> (index ${mid}) is <strong>too big</strong>. Discarding everything from index ${mid} upwards!`,
+            formula: `Mid = ⌊(${low} + ${high}) / 2⌋ = ${mid} [${midVal} > ${tgt} ➔ High becomes ${mid - 1}]`
+          });
+          high = mid - 1;
+        } else {
+          stepList.push({
+            low, high, mid,
+            comparisons,
+            status: 'too_low',
+            discardedBefore: low,
+            discardedAfter: high,
+            msg: `Middle card <code>${midVal}</code> (index ${mid}) is <strong>too small</strong>. Discarding everything from index ${mid} downwards!`,
+            formula: `Mid = ⌊(${low} + ${high}) / 2⌋ = ${mid} [${midVal} < ${tgt} ➔ Low becomes ${mid + 1}]`
+          });
+          low = mid + 1;
+        }
+      }
+
+      stepList.push({
+        low, high, mid: -1,
+        comparisons,
+        status: 'not_found',
+        discardedBefore: arr.length,
+        discardedAfter: -1,
+        msg: `<strong>Target ${tgt} not found!</strong> Low passed High without finding a match.`,
+        formula: `Low (${low}) > High (${high}) ➔ Return -1 [NOT FOUND]`
+      });
+      return stepList;
+    }
+
+    // Linear Search Step Generator
+    function generateLinearSteps(arr, tgt) {
+      let stepList = [];
+      let comparisons = 0;
+
+      for (let i = 0; i < arr.length; i++) {
+        comparisons++;
+        let val = arr[i];
+
+        if (val === tgt) {
+          stepList.push({
+            currentIndex: i,
+            comparisons,
+            status: 'found',
+            msg: `<strong>Match found at index ${i}!</strong> Card <code>${val}</code> equals target <code>${tgt}</code> after ${comparisons} sequential checks.`,
+            formula: `arr[${i}] == ${tgt} [MATCH FOUND ✓]`
+          });
+          return stepList;
+        } else {
+          stepList.push({
+            currentIndex: i,
+            comparisons,
+            status: 'mismatch',
+            msg: `Checking index ${i}: Card is <code>${val}</code> &ne; <code>${tgt}</code>. Moving forward one card...`,
+            formula: `arr[${i}] (${val}) != ${tgt} ➔ Increment index to ${i + 1}`
+          });
+        }
+      }
+
+      stepList.push({
+        currentIndex: arr.length,
+        comparisons,
+        status: 'not_found',
+        msg: `Reached the end of the entire list. Target <code>${tgt}</code> was not found after ${comparisons} checks!`,
+        formula: `Checked 0..${arr.length - 1} ➔ Return -1`
+      });
+      return stepList;
+    }
+
+    // Render cards on a given shelf
+    function renderShelf(container, prefix = 'card') {
+      container.innerHTML = '';
+      currentArray.forEach((val, idx) => {
+        const card = document.createElement('div');
+        card.className = 'shelf-card';
+        card.id = `${prefix}-${idx}`;
+        card.innerHTML = `
+          <div class="card-index">${idx}</div>
+          <div class="card-value">${val}</div>
+          <div class="card-marker-slot" id="${prefix}-marker-${idx}"></div>
+        `;
+        card.addEventListener('click', () => {
+          target = val;
+          targetSelect.value = val;
+          resetSearch();
+        });
+        container.appendChild(card);
+      });
+    }
+
+    // Update single-algorithm visual state
+    function updateSingleStep() {
+      if (steps.length === 0) return;
+      const step = steps[stepIndex];
+
+      // Reset card styling
+      currentArray.forEach((_, idx) => {
+        const card = document.getElementById(`card-${idx}`);
+        const marker = document.getElementById(`card-marker-${idx}`);
+        if (!card) return;
+        card.className = 'shelf-card';
+        marker.textContent = '';
+      });
+
+      if (mode === 'binary') {
+        // Discarded halves
+        currentArray.forEach((_, idx) => {
+          const card = document.getElementById(`card-${idx}`);
+          if (idx < step.discardedBefore || idx > step.discardedAfter) {
+            card.classList.add('is-discarded');
+          }
+        });
+
+        // Mark Low & High
+        if (step.low >= 0 && step.low < currentArray.length) {
+          const cardLow = document.getElementById(`card-${step.low}`);
+          const markerLow = document.getElementById(`card-marker-${step.low}`);
+          if (cardLow) cardLow.classList.add('is-low');
+          if (markerLow && step.low !== step.mid) markerLow.textContent = 'LOW';
+        }
+        if (step.high >= 0 && step.high < currentArray.length) {
+          const cardHigh = document.getElementById(`card-${step.high}`);
+          const markerHigh = document.getElementById(`card-marker-${step.high}`);
+          if (cardHigh) cardHigh.classList.add('is-high');
+          if (markerHigh && step.high !== step.mid) markerHigh.textContent = 'HIGH';
+        }
+
+        // Mark Mid
+        if (step.mid >= 0 && step.mid < currentArray.length) {
+          const cardMid = document.getElementById(`card-${step.mid}`);
+          const markerMid = document.getElementById(`card-marker-${step.mid}`);
+          if (step.status === 'found') {
+            cardMid.className = 'shelf-card is-match';
+            markerMid.textContent = 'MATCH ✓';
+          } else {
+            cardMid.classList.add('is-mid');
+            markerMid.textContent = 'MID';
+          }
+        }
+      } else {
+        // Linear mode
+        currentArray.forEach((_, idx) => {
+          const card = document.getElementById(`card-${idx}`);
+          const marker = document.getElementById(`card-marker-${idx}`);
+          if (idx < step.currentIndex) {
+            card.classList.add('is-discarded');
+          } else if (idx === step.currentIndex) {
+            if (step.status === 'found') {
+              card.className = 'shelf-card is-match';
+              marker.textContent = 'MATCH ✓';
+            } else {
+              card.classList.add('is-mid');
+              marker.textContent = 'CHECK';
+            }
+          }
+        });
+      }
+
+      // Update narrative & telemetry
+      narrativeText.innerHTML = step.msg;
+      formulaTag.textContent = step.formula;
+      comparisonsBadge.innerHTML = `Checks: <strong>${step.comparisons}</strong>`;
+      statusMessage.textContent = `Step ${stepIndex + 1} of ${steps.length}`;
+
+      if (step.status === 'found') {
+        narrativeStrip.className = 'narrative-strip matched';
+        if (!hasConfettiTriggered) {
+          hasConfettiTriggered = true;
+          triggerConfetti();
+        }
+      } else if (step.status === 'not_found') {
+        narrativeStrip.className = 'narrative-strip warning';
+      } else {
+        narrativeStrip.className = 'narrative-strip';
+      }
+
+      btnNextStep.disabled = (stepIndex >= steps.length - 1);
+    }
+
+    // Update duel mode visual state
+    function updateDuelStep() {
+      const bStep = binaryDuelSteps[Math.min(stepIndex, binaryDuelSteps.length - 1)];
+      const lStep = linearDuelSteps[Math.min(stepIndex, linearDuelSteps.length - 1)];
+
+      // Check confetti on first match in duel
+      if ((bStep.status === 'found' || lStep.status === 'found') && !hasConfettiTriggered) {
+        hasConfettiTriggered = true;
+        triggerConfetti();
+      }
+
+      // 1. Update Binary Shelf
+      currentArray.forEach((_, idx) => {
+        const card = document.getElementById(`duel-b-${idx}`);
+        const marker = document.getElementById(`duel-b-marker-${idx}`);
+        if (!card) return;
+        card.className = 'shelf-card';
+        marker.textContent = '';
+
+        if (idx < bStep.discardedBefore || idx > bStep.discardedAfter) {
+          card.classList.add('is-discarded');
+        }
+      });
+
+      if (bStep.mid >= 0 && bStep.mid < currentArray.length) {
+        const cardMid = document.getElementById(`duel-b-${bStep.mid}`);
+        const markerMid = document.getElementById(`duel-b-marker-${bStep.mid}`);
+        if (bStep.status === 'found') {
+          cardMid.className = 'shelf-card is-match';
+          markerMid.textContent = 'MATCH ✓';
+        } else {
+          cardMid.classList.add('is-mid');
+          markerMid.textContent = 'MID';
+        }
+      }
+      duelBinaryScore.innerHTML = `Checks: <strong>${bStep.comparisons}</strong> ${bStep.status === 'found' ? '• FOUND ✓' : ''}`;
+
+      // 2. Update Linear Shelf
+      currentArray.forEach((_, idx) => {
+        const card = document.getElementById(`duel-l-${idx}`);
+        const marker = document.getElementById(`duel-l-marker-${idx}`);
+        if (!card) return;
+        card.className = 'shelf-card';
+        marker.textContent = '';
+
+        if (idx < lStep.currentIndex) {
+          card.classList.add('is-discarded');
+        } else if (idx === lStep.currentIndex) {
+          if (lStep.status === 'found') {
+            card.className = 'shelf-card is-match';
+            marker.textContent = 'MATCH ✓';
+          } else {
+            card.classList.add('is-mid');
+            marker.textContent = 'CHECK';
+          }
+        }
+      });
+      duelLinearScore.innerHTML = `Checks: <strong>${lStep.comparisons}</strong> ${lStep.status === 'found' ? '• FOUND ✓' : ''}`;
+
+      // 3. Scoreboard update
+      const bDone = (stepIndex >= binaryDuelSteps.length - 1);
+      const lDone = (stepIndex >= linearDuelSteps.length - 1);
+
+      if (bDone && !lDone) {
+        duelScoreboard.innerHTML = `
+          <span><strong>Binary Search Finished!</strong> Found target <code>${target}</code> in <strong>${bStep.comparisons} checks</strong>. Linear Search is still plodding along...</span>
+          <span style="font-family: var(--font-mono); font-weight: 700; color: var(--forest-green);">Binary Wins</span>
+        `;
+      } else if (bDone && lDone) {
+        const ratio = (lStep.comparisons / bStep.comparisons).toFixed(1);
+        duelScoreboard.innerHTML = `
+          <span><strong>Both Finished:</strong> Binary took <strong>${bStep.comparisons} checks</strong>. Linear took <strong>${lStep.comparisons} checks</strong>.</span>
+          <span style="font-family: var(--font-mono); font-weight: 700; color: var(--oxford-navy);">Binary was ${ratio}x faster!</span>
+        `;
+      } else {
+        duelScoreboard.innerHTML = `
+          <span>Racing step ${stepIndex + 1} of ${duelMaxSteps}...</span>
+          <span style="font-family: var(--font-mono); font-weight: 700;">Simultaneous Step</span>
+        `;
+      }
+
+      statusMessage.textContent = `Duel Step ${stepIndex + 1} of ${duelMaxSteps}`;
+      btnNextStep.disabled = (stepIndex >= duelMaxSteps - 1);
+    }
+
+    function resetSearch() {
+      stopAutoPlay();
+      stepIndex = 0;
+      hasConfettiTriggered = false;
+
+      if (mode === 'duel') {
+        singleStage.style.display = 'none';
+        duelStage.style.display = 'flex';
+        renderShelf(duelBinaryShelf, 'duel-b');
+        renderShelf(duelLinearShelf, 'duel-l');
+
+        binaryDuelSteps = generateBinarySteps(currentArray, target);
+        linearDuelSteps = generateLinearSteps(currentArray, target);
+        duelMaxSteps = Math.max(binaryDuelSteps.length, linearDuelSteps.length);
+
+        duelBinaryScore.innerHTML = `Checks: <strong>0</strong>`;
+        duelLinearScore.innerHTML = `Checks: <strong>0</strong>`;
+        duelScoreboard.innerHTML = `
+          <span><strong>Head-to-Head Duel:</strong> Click <strong>Next Step</strong> to run both algorithms against the same list!</span>
+          <span style="font-family: var(--font-mono); font-weight: 700;">Ready</span>
+        `;
+        narrativeStrip.style.display = 'none';
+        statusMessage.textContent = `Duel Ready • 0 of ${duelMaxSteps} steps`;
+      } else {
+        singleStage.style.display = 'block';
+        duelStage.style.display = 'none';
+        narrativeStrip.style.display = 'flex';
+        renderShelf(cardShelf, 'card');
+
+        if (mode === 'binary') {
+          steps = generateBinarySteps(currentArray, target);
+          stageAlgoTitle.textContent = 'Binary Search (Divide & Conquer)';
+          stageAlgoDesc.textContent = 'Requires a sorted list. Checks the middle, then discards the wrong half.';
+          worstCaseBadge.innerHTML = `Worst Case: <strong>4 checks</strong> [log₂ 16]`;
+        } else {
+          steps = generateLinearSteps(currentArray, target);
+          stageAlgoTitle.textContent = 'Linear Search (Sequential Check)';
+          stageAlgoDesc.textContent = 'Inspects each item one-by-one. Works on messy data, but slow on big lists.';
+          worstCaseBadge.innerHTML = `Worst Case: <strong>16 checks</strong> [O(N)]`;
+        }
+
+        narrativeStrip.className = 'narrative-strip';
+        narrativeText.innerHTML = `Target: <strong>${target}</strong>. Click <strong>Next Step</strong> to begin the ${mode === 'binary' ? 'Binary' : 'Linear'} search.`;
+        formulaTag.textContent = mode === 'binary' ? 'Mid = ⌊(0 + 15) / 2⌋ = 7' : 'Start index: 0';
+        comparisonsBadge.innerHTML = `Checks: <strong>0</strong>`;
+        statusMessage.textContent = `Ready • 0 of ${steps.length} steps`;
+      }
+
+      btnNextStep.disabled = false;
+    }
+
+    function stopAutoPlay() {
+      isAutoPlaying = false;
+      clearInterval(autoTimer);
+      autoTimer = null;
+      btnAutoPlay.textContent = 'Auto Play';
+    }
+
+    // Step button
+    btnNextStep.addEventListener('click', () => {
+      stopAutoPlay();
+      const maxSteps = (mode === 'duel') ? duelMaxSteps : steps.length;
+      if (stepIndex < maxSteps - 1) {
+        stepIndex++;
+        if (mode === 'duel') updateDuelStep();
+        else updateSingleStep();
+      }
+    });
+
+    // Auto Play button
+    btnAutoPlay.addEventListener('click', () => {
+      if (isAutoPlaying) {
+        stopAutoPlay();
+      } else {
+        isAutoPlaying = true;
+        btnAutoPlay.textContent = 'Pause';
+        const maxSteps = (mode === 'duel') ? duelMaxSteps : steps.length;
+        if (stepIndex >= maxSteps - 1) stepIndex = 0;
+
+        if (mode === 'duel') updateDuelStep();
+        else updateSingleStep();
+
+        autoTimer = setInterval(() => {
+          if (stepIndex < maxSteps - 1) {
+            stepIndex++;
+            if (mode === 'duel') updateDuelStep();
+            else updateSingleStep();
+          } else {
+            stopAutoPlay();
+          }
+        }, 850);
+      }
+    });
+
+    // Reset button
+    btnReset.addEventListener('click', resetSearch);
+
+    // Target dropdown
+    targetSelect.addEventListener('change', (e) => {
+      target = parseInt(e.target.value, 10);
+      resetSearch();
+    });
+
+    // New Random Numbers
+    btnNewArray.addEventListener('click', () => {
+      let arr = [];
+      const used = new Set();
+      while (arr.length < 16) {
+        const val = Math.floor(Math.random() * 95) + 4;
+        if (!used.has(val)) {
+          used.add(val);
+          arr.push(val);
+        }
+      }
+      arr.sort((a, b) => a - b);
+      currentArray = arr;
+      target = currentArray[Math.floor(Math.random() * currentArray.length)];
+      populateTargetOptions();
+      resetSearch();
+    });
+
+    // Sort List
+    btnSortArray.addEventListener('click', () => {
+      currentArray.sort((a, b) => a - b);
+      populateTargetOptions();
+      resetSearch();
+    });
+
+    // Scramble / Unsort Array
+    btnUnsortArray.addEventListener('click', () => {
+      for (let i = currentArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [currentArray[i], currentArray[j]] = [currentArray[j], currentArray[i]];
+      }
+      populateTargetOptions();
+      resetSearch();
+      narrativeText.innerHTML = `<strong style="color:var(--cardinal-red);">WARNING: The list is now unsorted!</strong> Try running Binary Search now &mdash; it will make incorrect directional decisions and fail to find values!`;
+      narrativeStrip.className = 'narrative-strip warning';
+    });
+
+    // Algorithm Tab Switching
+    algoTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        algoTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        mode = tab.dataset.mode;
+        
+        // Ensure sorted when returning to binary or duel
+        if (mode === 'binary' || mode === 'duel') {
+          currentArray.sort((a, b) => a - b);
+          populateTargetOptions();
+        }
+        resetSearch();
+      });
+    });
+
+    // Initial load
+    populateTargetOptions();
+    resetSearch();
+
+    const initialHash = window.location.hash.replace('#', '');
+    if (initialHash) {
+      const matchingTab = Array.from(algoTabs).find(t => t.dataset.mode === initialHash);
+      if (matchingTab) matchingTab.click();
+    }
+  </script>
+</body>
+</html>
