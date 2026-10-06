@@ -108,7 +108,7 @@ export default function PseudocodeTracer({
                   }`}
                 >
                   <span className={`w-5 shrink-0 text-right select-none text-[11px] font-mono ${
-                    isActive ? 'text-[#b45309] font-bold' : 'text-[#8e95a2]'
+                    isActive ? 'text-[#78350f] font-bold' : 'text-[#585e6b]'
                   }`}>
                     {lineObj.line}
                   </span>

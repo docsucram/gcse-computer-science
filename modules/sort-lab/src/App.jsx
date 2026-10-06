@@ -466,6 +466,7 @@ export default function App() {
                   steps={steps}
                   currentStepIndex={currentStepIndex}
                   onJumpToStep={(idx) => executeStep(idx)}
+                  isDarkMode={isDarkMode}
                 />
               </div>
             </div>

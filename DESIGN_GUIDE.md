@@ -106,7 +106,7 @@ Explanations and notes should talk **to** the student like a smart, witty older 
    - **Real-World Efficiency** (*e.g. Doubling the list size only adds 1 extra check!*).
    - **Worst-Case with Concrete Numbers** (*e.g. Searching 1,000 items takes at most 10 checks ($2^{10} \approx 1,000$).*).
 3. **Exam Trap / Tip Box**:
-   A focused amber callout highlighting the exact mistake students regularly lose marks on in AQA/OCR exams.
+   A focused amber callout highlighting the exact mistake students regularly lose marks on in AQA exams.
 
 ---
 
@@ -123,3 +123,28 @@ While simulations have full creative freedom, interactive pages benefit from a f
    - **Playback Bar**: Standard controls (`Next Step →`, `Auto Play`, `Reset`) and step counter.
 3. **Revision Summary Deck**:
    - Clean 2-column comparative notes (e.g. Binary vs. Linear) following the CGP Paragraph + Bullets + Exam Trap format.
+
+---
+
+## 8. Contrast & Legibility Guardrails (Strict WCAG Standard)
+
+Clear legibility is non-negotiable for students revising on varied screens (smartphones, dim classroom projectors, Chromebooks with poor color gamut). Every visual element must maintain sharp contrast:
+
+### 1. The "No Tint-on-Tint" Rule
+- **Never put pale text on a light tint background**: e.g., never light pink text on a light pink pill (`text-rose-300` on `bg-rose-100`).
+- Status pills and condition flags MUST use **deep, saturated inks** on soft tints:
+  - `True` / Condition met / Swap needed: `#991b1b` (Crimson) on `#fee2e2` (Soft pink) $\rightarrow$ **8.2:1 contrast (AAA)**.
+  - `False` / Unchanged: `#374151` (Slate) on `#ede8db` (Drafting tray) $\rightarrow$ **5.4:1 contrast (AA)**.
+  - Match / Found: `#14532d` (Deep forest) on `#dcfce7` (Soft mint) $\rightarrow$ **8.5:1 contrast (AAA)**.
+
+### 2. The "No Grey-on-Grey" Rule
+- Toolbars, footnotes, table footers, and note boxes must NEVER place grey text on a muted grey backdrop (e.g. `text-slate-400` on `bg-slate-950/20`).
+- Recessed drafting trays (`#ede8db`) must always pair with rich charcoal ink `#1e2229` or deep Oxford Navy `#1e3a5f` ($\ge 10:1$ contrast).
+
+### 3. The "No Pale Numbers on Yellow" Rule
+- Highlighted rows, active cards, or warning boxes on yellow/amber (`#fef3c7`) must NEVER use light grey (`#8e95a2`), pale yellow, or amber-300 for numbers, line indices, or labels.
+- Any text or digits on amber backgrounds must be deep terracotta/brown (`#78350f` or `#92400e`, $>7:1$ contrast) or solid charcoal (`#1e2229`).
+
+### 4. Data & Array Value Crispness
+- Array elements, variable values, and numbers in trace tables must always render in solid primary ink (`#1e2229`), deep navy (`#1e3a5f`), or purple (`#6b21a8`), never faded grey.
+
