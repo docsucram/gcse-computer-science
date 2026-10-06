@@ -67,12 +67,15 @@
         const targetView = document.getElementById(`tab-${tabKey}`);
         if (targetView) {
           targetView.classList.add('active');
-          if (tabKey === 'perf' && typeof resizePerfCanvas === 'function') {
-            setTimeout(resizePerfCanvas, 20);
-          }
         }
       });
     });
+
+    const initialHash = window.location.hash.replace('#', '');
+    if (initialHash) {
+      const targetBtn = document.querySelector(`.view-tab-btn[data-tab="${initialHash}"]`);
+      if (targetBtn) targetBtn.click();
+    }
   }
 
   // =========================================================================

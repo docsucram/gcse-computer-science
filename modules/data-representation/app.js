@@ -541,6 +541,12 @@
         }
       });
     });
+
+    const initialHash = window.location.hash.replace('#', '');
+    if (initialHash) {
+      const targetBtn = document.querySelector(`.view-tab-btn[data-tab="${initialHash}"]`);
+      if (targetBtn) targetBtn.click();
+    }
   }
 
   // =========================================================================

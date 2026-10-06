@@ -244,7 +244,7 @@
   // =========================================================================
 
   function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedTheme = localStorage.getItem('theme') || 'light';
     applyTheme(savedTheme);
 
     if (DOM.themeToggleBtn) {

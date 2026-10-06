@@ -5,9 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="googlebot" content="index, follow">
-  <title>CPU Architecture &amp; Hardware • GCSE Computer Science</title>
-  <link rel="stylesheet" href="./style.css">
+  <title>CPU Architecture &amp; Hardware — GCSE Computer Science</title>
   <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+
+  <!-- Google Fonts: Editorial Serif + Clean Sans + Technical Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 
@@ -1381,43 +1386,39 @@
       <!-- Card 1: MAR vs MDR -->
       <div class="trap-card">
         <div class="trap-header">
-          <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">
-            EXAM TRAP 1: REGISTERS
-          </span>
+          <span class="badge badge-topic">EXAM TRAP 1: REGISTERS</span>
           <h4 class="trap-title">Never Confuse the MAR and the MDR</h4>
         </div>
-        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+        <p style="font-size: 13.5px; color: var(--ink-secondary); line-height: 1.6; margin: 0 0 12px 0;">
           This is one of the most frequently lost marks on GCSE Computer Science papers. Remember their exact roles:
         </p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #38bdf8;">
-            <strong style="color: #38bdf8;">MAR (Memory Address Register):</strong><br>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div style="background: var(--paper-recessed); padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; border-left: 3px solid var(--oxford-navy);">
+            <strong style="color: var(--oxford-navy);">MAR (Memory Address Register):</strong><br>
             • Holds the memory <strong>address</strong> (location) where data or an instruction is to be fetched from or written to.<br>
             • Connected to the <strong>Address Bus</strong>.
           </div>
-          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #34d399;">
-            <strong style="color: #34d399;">MDR (Memory Data Register):</strong><br>
+          <div style="background: var(--paper-recessed); padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; border-left: 3px solid var(--forest-green);">
+            <strong style="color: var(--forest-green);">MDR (Memory Data Register):</strong><br>
             • Holds the <strong>actual data value or instruction</strong> that has been read from RAM or is waiting to be written to RAM.<br>
             • Connected to the <strong>Data Bus</strong>.
           </div>
         </div>
-        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: #fbbf24;">
+        <div style="background: var(--amber-tint); border: 1px solid var(--border-warning); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 13px; color: var(--text-warning);">
           <strong>Memory Hook:</strong> MAR = <strong>A</strong>ddress (where to look); MDR = <strong>D</strong>ata (what was found).
         </div>
       </div>
 
       <!-- Card 2: 3 Factors of Performance -->
-      <div class="trap-card" style="border-left-color: #ec4899;">
+      <div class="trap-card">
         <div class="trap-header">
-          <span class="badge" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4);">
-            EXAM TRAP 2: CPU PERFORMANCE
-          </span>
-          <h4 class="trap-title" style="color: #f472b6;">Why More Cores Does Not Guarantee Faster Performance</h4>
+          <span class="badge badge-topic">EXAM TRAP 2: CPU PERFORMANCE</span>
+          <h4 class="trap-title">Why More Cores Does Not Guarantee Faster Performance</h4>
         </div>
-        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+        <p style="font-size: 13.5px; color: var(--ink-secondary); line-height: 1.6; margin: 0 0 12px 0;">
           A common exam question asks why a quad-core CPU will not run four times faster than a single-core CPU:
         </p>
-        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; line-height: 1.6; margin-bottom: 10px;">
+        <div style="background: var(--paper-recessed); padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.6; color: var(--ink-primary);">
           • <strong>Software Parallelism:</strong> Many programs are written sequentially (Step 2 depends on Step 1). Extra cores remain idle if software cannot be split into concurrent threads.<br>
           • <strong>Overhead &amp; Communication:</strong> The operating system must coordinate and synchronise threads across cores, consuming clock cycles.<br>
           • <strong>Resource Contention:</strong> All cores share the same memory bus and RAM. Accessing RAM creates a bottleneck.
@@ -1425,37 +1426,33 @@
       </div>
 
       <!-- Card 3: Von Neumann Architecture -->
-      <div class="trap-card" style="border-left-color: #6366f1;">
+      <div class="trap-card">
         <div class="trap-header">
-          <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4);">
-            SPECIFICATION §3.4.1
-          </span>
-          <h4 class="trap-title" style="color: #818cf8;">The Stored Program Concept (Von Neumann)</h4>
+          <span class="badge badge-topic">SPECIFICATION §3.4.1</span>
+          <h4 class="trap-title">The Stored Program Concept (Von Neumann)</h4>
         </div>
-        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: #34d399; line-height: 1.6;">
-          ✓ <strong>Key Definition:</strong> In the Von Neumann architecture, both <strong>program instructions and data</strong> are stored together in the <strong>same physical memory (RAM)</strong> and fetched across shared system buses. Instructions are executed sequentially unless an explicit branch occurs.
+        <div style="background: var(--green-tint); border: 1px solid var(--border-success); padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; color: var(--forest-green); line-height: 1.6;">
+          <strong>Key Definition:</strong> In the Von Neumann architecture, both <strong>program instructions and data</strong> are stored together in the <strong>same physical memory (RAM)</strong> and fetched across shared system buses. Instructions are executed sequentially unless an explicit branch occurs.
         </div>
       </div>
 
       <!-- Card 4: RAM vs ROM -->
-      <div class="trap-card" style="border-left-color: #10b981;">
+      <div class="trap-card">
         <div class="trap-header">
-          <span class="badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
-            PRIMARY MEMORY TRAP
-          </span>
-          <h4 class="trap-title" style="color: #34d399;">Never Confuse RAM and ROM</h4>
+          <span class="badge badge-topic">PRIMARY MEMORY TRAP</span>
+          <h4 class="trap-title">Never Confuse RAM and ROM</h4>
         </div>
-        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+        <p style="font-size: 13.5px; color: var(--ink-secondary); line-height: 1.6; margin: 0 0 12px 0;">
           Both are primary storage chips directly wired to the CPU, but their physical characteristics are opposites:
         </p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
-          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #ef4444;">
-            <strong style="color: #ef4444;">RAM (Random Access Memory):</strong><br>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+          <div style="background: var(--paper-recessed); padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; border-left: 3px solid var(--cardinal-red);">
+            <strong style="color: var(--cardinal-red);">RAM (Random Access Memory):</strong><br>
             • <strong>Volatile:</strong> Needs constant electrical power; wipes completely on shutdown.<br>
             • <strong>Read &amp; Write:</strong> CPU continuously loads and modifies active apps, OS code, and open files.
           </div>
-          <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #10b981;">
-            <strong style="color: #10b981;">ROM (Read-Only Memory):</strong><br>
+          <div style="background: var(--paper-recessed); padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; border-left: 3px solid var(--forest-green);">
+            <strong style="color: var(--forest-green);">ROM (Read-Only Memory):</strong><br>
             • <strong>Non-Volatile:</strong> Retains data permanently when powered off.<br>
             • <strong>Read-Only:</strong> Factory burned. Stores BIOS/UEFI firmware and the <strong>Bootstrap Loader</strong>.
           </div>
@@ -1463,17 +1460,15 @@
       </div>
 
       <!-- Card 5: Secondary Storage & 6 Factors -->
-      <div class="trap-card" style="border-left-color: #06b6d4;">
+      <div class="trap-card">
         <div class="trap-header">
-          <span class="badge" style="background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4);">
-            SECONDARY STORAGE ESSENTIALS
-          </span>
-          <h4 class="trap-title" style="color: #22d3ee;">Why Secondary Storage is Needed &amp; 6 Assessment Factors</h4>
+          <span class="badge badge-topic">SECONDARY STORAGE ESSENTIALS</span>
+          <h4 class="trap-title">Why Secondary Storage is Needed &amp; 6 Assessment Factors</h4>
         </div>
-        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+        <p style="font-size: 13.5px; color: var(--ink-secondary); line-height: 1.6; margin: 0 0 12px 0;">
           RAM is volatile (temporary) and small in capacity. Secondary storage is <strong>non-volatile</strong> and provides high-capacity, long-term file retention.
         </p>
-        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; line-height: 1.6; margin-bottom: 10px;">
+        <div style="background: var(--paper-recessed); padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.6; color: var(--ink-primary);">
           <strong>The 6 Factors for Comparing Media:</strong><br>
           1. <strong>Capacity:</strong> HDD (Huge TBs) &gt; SSD (High GBs/TBs) &gt; Optical (CD 700MB, DVD 4.7GB, BD 25GB).<br>
           2. <strong>Speed:</strong> SSD (instant, 500–7000 MB/s) &gt; HDD (150 MB/s, physical seek) &gt; Optical (~15 MB/s).<br>
@@ -1485,17 +1480,15 @@
       </div>
 
       <!-- Card 6: Defragmentation & SSD Wear -->
-      <div class="trap-card" style="border-left-color: #f59e0b;">
+      <div class="trap-card">
         <div class="trap-header">
-          <span class="badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">
-            UTILITY SOFTWARE &amp; EXAM TRAP
-          </span>
-          <h4 class="trap-title" style="color: #fbbf24;">Defragmentation (HDD) vs Why You NEVER Defrag an SSD</h4>
+          <span class="badge badge-topic">UTILITY SOFTWARE &amp; EXAM TRAP</span>
+          <h4 class="trap-title">Defragmentation (HDD) vs Why You NEVER Defrag an SSD</h4>
         </div>
-        <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+        <p style="font-size: 13.5px; color: var(--ink-secondary); line-height: 1.6; margin: 0 0 12px 0;">
           A frequent exam question explores how file fragmentation affects performance:
         </p>
-        <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; line-height: 1.6;">
+        <div style="background: var(--paper-recessed); padding: 12px 14px; border-radius: var(--radius-sm); font-size: 13px; line-height: 1.6; color: var(--ink-primary);">
           • <strong>On a Magnetic HDD:</strong> Files become scattered across non-contiguous sectors over time. The mechanical arm must swing back and forth (seek time) to read all blocks, slowing down the drive. <strong>Defragmentation</strong> reorganises sectors contiguously so the file can be read in a single smooth rotation.<br>
           • <strong>On an SSD:</strong> Access time to any flash cell is identical (instant electrical pulse, zero seek time). Non-contiguous blocks do not slow it down. Furthermore, flash cells have a <strong>finite number of write cycles (P/E wear)</strong>. Defragmenting an SSD needlessly writes gigabytes of data, wearing out the flash cells prematurely!
         </div>

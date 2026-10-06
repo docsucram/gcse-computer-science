@@ -7,14 +7,14 @@
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="googlebot" content="index, follow">
   <meta name="theme-color" content="#4f46e5">
-  <title>Numbers &amp; Characters • GCSE Computer Science</title>
+  <title>Numbers &amp; Characters — GCSE Computer Science</title>
 
   <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 
   <!-- Preconnect for modern typography -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="./style.css">
@@ -1542,8 +1542,8 @@
             <!-- Uppercase Box -->
             <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <span style="font-size: 12px; font-weight: 700; color: #38bdf8; text-transform: uppercase;">UPPERCASE:</span>
-                <span id="upperCharBadge" style="font-size: 20px; font-weight: 900; font-family: var(--font-mono); color: #38bdf8;">'A'</span>
+                <span style="font-size: 12px; font-weight: 700; color: var(--oxford-navy); text-transform: uppercase;">UPPERCASE:</span>
+                <span id="upperCharBadge" style="font-size: 20px; font-weight: 900; font-family: var(--font-mono); color: var(--oxford-navy);">'A'</span>
               </div>
               <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;">
                 Denary: <strong id="upperDenaryVal" style="color: var(--text-primary); font-family: var(--font-mono);">65</strong>
@@ -1803,22 +1803,22 @@
             <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px; margin-bottom: 16px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <span style="font-size: 11.5px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Storage Comparison:</span>
-                <span id="huffmanBitRatio" style="font-family: var(--font-mono); font-size: 13px; font-weight: 800; color: #34d399;">9 bits vs 48 bits</span>
+                <span id="huffmanBitRatio" style="font-family: var(--font-mono); font-size: 13px; font-weight: 800; color: var(--forest-green);">9 bits vs 48 bits</span>
               </div>
 
               <!-- Storage Bar -->
-              <div style="width: 100%; height: 10px; background: var(--bg-surface-elevated); border-radius: 5px; overflow: hidden; margin-bottom: 8px; display: flex;">
-                <div id="huffmanMeterBar" style="height: 100%; width: 19%; background: #34d399; transition: width 300ms ease;"></div>
+              <div style="width: 100%; height: 10px; background: var(--paper-recessed); border-radius: 5px; overflow: hidden; margin-bottom: 8px; display: flex;">
+                <div id="huffmanMeterBar" style="height: 100%; width: 19%; background: var(--forest-green); transition: width 300ms ease;"></div>
               </div>
 
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11.5px; font-family: var(--font-mono);">
-                <div style="background: var(--bg-surface-elevated); padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-                  <span style="color: var(--text-muted); display: block; font-size: 10px;">STANDARD ASCII:</span>
-                  <span id="huffmanAsciiFormula" style="font-weight: 700; color: #f87171;">8 chars &times; 8 = 64 bits</span>
+                <div style="background: var(--paper-recessed); padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+                  <span style="color: var(--ink-faint); display: block; font-size: 10px;">STANDARD ASCII:</span>
+                  <span id="huffmanAsciiFormula" style="font-weight: 700; color: var(--cardinal-red);">8 chars &times; 8 = 64 bits</span>
                 </div>
-                <div style="background: var(--bg-surface-elevated); padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-                  <span style="color: var(--text-muted); display: block; font-size: 10px;">HUFFMAN COMPRESSED:</span>
-                  <span id="huffmanCalcFormula" style="font-weight: 700; color: #34d399;">Total = 20 bits</span>
+                <div style="background: var(--paper-recessed); padding: 8px 10px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+                  <span style="color: var(--ink-faint); display: block; font-size: 10px;">HUFFMAN COMPRESSED:</span>
+                  <span id="huffmanCalcFormula" style="font-weight: 700; color: var(--forest-green);">Total = 20 bits</span>
                 </div>
               </div>
             </div>
@@ -1827,11 +1827,11 @@
             <div>
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                 <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Encoded Binary Bitstream:</span>
-                <button type="button" id="btnDecodeHuffmanStream" class="control-btn" style="font-size: 11px; padding: 3px 10px; font-weight: 700; background: var(--accent-primary); color: #fff; border-color: var(--accent-primary);">
+                <button type="button" id="btnDecodeHuffmanStream" class="control-btn" style="font-size: 11px; padding: 3px 10px; font-weight: 700; background: var(--oxford-navy); color: #fff; border-color: var(--oxford-navy);">
                   ▶ Step-by-Step Tree Decode
                 </button>
               </div>
-              <div id="huffmanBitstreamDisplay" style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 10px 12px; font-family: var(--font-mono); font-size: 12.5px; color: #38bdf8; word-break: break-all; min-height: 40px; line-height: 1.6;">
+              <div id="huffmanBitstreamDisplay" style="background: var(--paper-recessed); border: 1px solid var(--paper-border); border-radius: var(--radius-sm); padding: 10px 12px; font-family: var(--font-mono); font-size: 12.5px; color: var(--oxford-navy); font-weight: 700; word-break: break-all; min-height: 40px; line-height: 1.6;">
                 <!-- Populated via JS -->
               </div>
               <div id="huffmanDecodeTraceLog" style="display: none; margin-top: 8px; padding: 8px 12px; background: rgba(56, 189, 248, 0.08); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: var(--radius-sm); font-size: 11.5px; color: var(--text-primary); font-family: var(--font-mono);">

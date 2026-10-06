@@ -891,6 +891,12 @@
       });
     });
 
+    const initialHash = window.location.hash.replace('#', '');
+    if (initialHash) {
+      const targetBtn = document.querySelector(`.view-tab-btn[data-tab="${initialHash}"]`);
+      if (targetBtn) targetBtn.click();
+    }
+
     // 2. Mode Tabs
     const modeBtns = document.querySelectorAll('.rl-mode-btn');
     modeBtns.forEach(btn => {
