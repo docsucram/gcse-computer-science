@@ -36,7 +36,7 @@ The platform balances different main types of content:
 
 - **Curriculum Anchor**: Aligned primarily with the **AQA 8525** syllabus.
 - **Match the CGP Revision Book Flow**: Where possible, structure topics and terminology parallel to the popular CGP AQA Revision Guide so students studying from the book can immediately jump into the corresponding simulation.
-- **Subtle, Not Stuffy**: Keep syllabus badge codes (`AQA 3.1.1`) neat, small, and discreet. Never let exam bureaucracy overpower the excitement of the interactive tool. Mainly keep this to the universal top header/ front page navigation. 
+- **Subtle, Not Stuffy**: Keep syllabus badge codes (`AQA 3.1.1`) neat, small, and discreet. Never let exam bureaucracy overpower the excitement of the interactive tool. Mainly keep this to the universal top header/ front page navigation. Don't fill page with text going 'AQA this and AQA that' 
 - **Room for Stretch**: Include concepts that go slightly beyond the minimum syllabus requirements when they make the simulation cooler or spark genuine interest in computer science. e.g.  A-level topics.
 
 ---
@@ -97,17 +97,11 @@ The design language is inspired by physical British notebooks, drafting benches,
 
 ## 6. Tone of Voice: The CGP Revision Standard
 
-Explanations and notes should talk **to** the student like a smart, witty older sibling or engaging tutor, not a lecturing professor.
+Explanations and notes should talk **to** the student like a smart, older sibling or engaging tutor, not a lecturing professor.
 
-### The 3-Part Topic Card Template:
-1. **The Big Idea (1 concise paragraph)**:
-   Explain what the algorithm or concept actually does in plain English using vivid, memorable analogies. Highlight key terms in **bold**.
-2. **Scannable Bullets**:
-   - **Crucial Requirement / Rule** (*e.g. Data must be sorted beforehand. It will fail on random lists.*).
-   - **Real-World Efficiency** (*e.g. Doubling the list size only adds 1 extra check!*).
-   - **Worst-Case with Concrete Numbers** (*e.g. Searching 1,000 items takes at most 10 checks ($2^{10} \approx 1,000$).*).
-3. **Exam Trap / Tip Box**:
-   A focused amber callout highlighting the exact mistake students regularly lose marks on in AQA exams.
+1.   Explain what the algorithm or concept actually does in plain English using vivid, memorable analogies. Highlight key terms in **bold**. But never write 'Explained in Plain English' or 'ELI5 text' 
+2. Use key technical words, but make sure they are clear and don't fill text with Jargon. Make use of clear, precise bullet points where reasonable to highlight key things to remember. 
+3. On revision page if there is a key exam thing to highlight    A focused amber callout highlighting the exact mistake students regularly lose marks on in exams. Normally keep exam tips like on a revision page, or at the end. of a page. 
 4. Don't try to be too cool for school, don't call anything 'Lab' or 'Laboratory' or 'Experiment hub' Write like a human and  don't lay on analogies too thick. 
 
 ---

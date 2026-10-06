@@ -123,7 +123,7 @@
           params: 'age1, p1, age2, p2, total',
           returns: 'None (Procedure)',
           isRepeated: false,
-          rationale: '<strong>Extract as Subroutine (PROCEDURE)!</strong> This is a presentation task. It formats and outputs text to the screen, but does not calculate or return any value. Hence, it is an AQA <strong>Procedure</strong>. Separating output logic means you can change receipt branding without risking bugs in ticket calculations.'
+          rationale: '<strong>Extract as Subroutine (PROCEDURE)!</strong> This is a presentation task. It formats and outputs text to the screen, but does not calculate or return any value. Hence, it is a <strong>Procedure</strong>. Separating output logic means you can change receipt branding without risking bugs in ticket calculations.'
         },
         {
           id: 4,
@@ -532,7 +532,7 @@
         'A Function always runs faster than a Procedure on modern CPUs'
       ],
       correct: 0,
-      explain: 'A Function calculates and returns a value using a return statement (look for the return arrow ↑○ on an AQA Structure Chart). A Procedure performs an action (e.g. printing or file saving) without returning a value.'
+      explain: 'A Function calculates and returns a value using a return statement (look for the return arrow ↑○ on a Structure Chart). A Procedure performs an action (e.g. printing or file saving) without returning a value.'
     },
     {
       q: '4. Why are Local Variables preferred over Global Variables in structured programming?',
@@ -817,7 +817,7 @@
             <div class="aqa-module-box ${isUnlocked ? 'unlocked' : 'locked'}">
               <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span class="badge-mini ${isFunc ? 'badge-func' : 'badge-proc'}">${sub.type}</span>
-                ${sub.repeated ? '<span class="aqa-repeat-badge">🔁 Called 2×</span>' : ''}
+                ${sub.repeated ? '<span class="aqa-repeat-badge">Called 2×</span>' : ''}
               </div>
               <div class="aqa-module-name">${sub.name}</div>
               <div class="aqa-module-desc">${sub.desc}</div>
@@ -833,7 +833,7 @@
         <div class="aqa-chart-wrap">
           <!-- Root Main Module Box -->
           <div class="aqa-root-box">
-            <div class="aqa-root-title">👑 ${chartData.root.name}</div>
+            <div class="aqa-root-title">${chartData.root.name}</div>
             <div class="aqa-root-role">${chartData.root.role}</div>
           </div>
 

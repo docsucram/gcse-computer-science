@@ -692,12 +692,21 @@
           <strong>✓ Full Marks (${correctCells}/${totalCells}):</strong><br>
           You correctly recorded variable updates only on the lines where values changed, maintained correct loop bounds, and traced the terminal output accurately.
         `;
+        try {
+          if (typeof confetti === 'function') {
+            confetti({
+              particleCount: 60,
+              spread: 70,
+              origin: { y: 0.6 }
+            });
+          }
+        } catch (e) {}
       } else {
         feedbackBox.style.background = 'var(--red-tint, #fef2f2)';
         feedbackBox.style.border = '1px solid var(--cardinal-red, #a82020)';
         feedbackBox.style.color = 'var(--cardinal-red, #a82020)';
         feedbackBox.innerHTML = `
-          <strong>⚠️ Check Your Trace (${correctCells} of ${totalCells} cells matched):</strong><br>
+          <strong>Check Your Trace (${correctCells} of ${totalCells} cells matched):</strong><br>
           Red cells highlight where your trace differed from the mark scheme. Check loop conditions carefully, and remember only to write in a column when that variable changes value.
         `;
       }

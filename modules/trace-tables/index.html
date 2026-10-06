@@ -6,7 +6,7 @@
   <meta name="description" content="Design & Testing - Interactive GCSE Trace Tables & Structuring Code into Modules for AQA GCSE Computer Science (8525).">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="googlebot" content="index, follow">
-  <title>Design and Testing — AQA GCSE Computer Science</title>
+  <title>Design &amp; Testing — GCSE Computer Science</title>
   
   <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
   
@@ -16,6 +16,7 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   
   <link rel="stylesheet" href="./modular.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   
   <script>
     (function() {
@@ -773,7 +774,7 @@
       <!-- View Banner -->
       <div class="view-banner">
         <h2>Interactive Trace Tables</h2>
-        <p>Trace algorithms step-by-step, record changing variable states, and verify outputs against AQA mark scheme criteria.</p>
+        <p>Trace algorithms step-by-step, record changing variable states, and verify outputs against exam mark scheme criteria.</p>
       </div>
 
       <!-- Problem Selector Tabs -->
@@ -830,7 +831,6 @@
    
             <!-- Step Explanation Callout -->
             <div id="stepExplanationBox" class="step-explain-box">
-              <span style="font-size: 14px; line-height: 1;">💡</span>
               <span id="stepExplanationText" class="step-explain-text">Click 'Step Line' to trace line 1</span>
             </div>
 
@@ -854,17 +854,6 @@
               </div>
             </div>
 
-          </div>
-
-          <!-- Exam Tip Callout -->
-          <div class="exam-tip-card">
-            <div class="exam-tip-title">
-              💡 The Golden Rule of GCSE Trace Tables:
-            </div>
-            <div class="exam-tip-body">
-              <strong>Only write in a column when that variable's value changes!</strong><br>
-              If a variable keeps its old value across iterations, leave its column blank in that row. Writing the same number repeatedly clutters the table and risks losing marks on standard AQA mark schemes.
-            </div>
           </div>
 
         </div>
@@ -917,20 +906,34 @@
             <div id="practiceFeedbackBox" style="display: none; margin-top: 14px; padding: 12px 16px; border-radius: var(--radius-sm); font-size: 12.5px; line-height: 1.55;">
             </div>
 
-            <!-- Mark Scheme Breakdown -->
-            <div style="margin-top: auto; padding-top: 18px; border-top: 1px solid var(--paper-border);">
-              <div style="font-size: 11px; font-weight: 700; color: var(--ink-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
-                AQA Exam Mark Scheme Criteria:
-              </div>
-              <div id="markSchemeNotes" class="mark-scheme-notes-box">
-                <!-- Marks list -->
-              </div>
-            </div>
-
           </div>
 
         </div>
 
+      </div>
+
+      <!-- Revision Summary Deck: Golden Rule & Mark Scheme Criteria -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 10px; margin-bottom: 30px;">
+        <!-- Card 1: The Golden Rule of Trace Tables -->
+        <div class="exam-tip-card">
+          <div class="exam-tip-title">
+            The Golden Rule of Trace Tables:
+          </div>
+          <div class="exam-tip-body">
+            <strong>Only write in a column when that variable's value changes!</strong><br>
+            If a variable keeps its old value across iterations, leave its column blank in that row. Writing the same number repeatedly clutters the table and risks losing marks in the exam.
+          </div>
+        </div>
+
+        <!-- Card 2: Exam Mark Scheme Criteria -->
+        <div style="background: var(--paper-card); border: 1px solid var(--paper-border); border-radius: var(--radius-md); padding: 14px 16px;">
+          <div style="font-size: 11px; font-weight: 700; color: var(--ink-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+            Exam Mark Scheme Criteria:
+          </div>
+          <div id="markSchemeNotes" class="mark-scheme-notes-box">
+            <!-- Marks list dynamically populated -->
+          </div>
+        </div>
       </div>
     </div>
     <!-- END SUB-MODULE 1 -->
@@ -943,14 +946,16 @@
       <!-- View Banner -->
       <div class="view-banner">
         <h2>Structuring Code into Modules</h2>
-        <p>Decomposition, subroutines (functions vs procedures), and AQA Structure Charts.</p>
+        <p>Decomposition, subroutines (functions vs procedures), and Structure Charts.</p>
       </div>
 
       <!-- 4 Core Theory Concept Cards -->
       <div class="modular-concept-grid">
         <div class="modular-concept-card">
           <div class="concept-card-head">
-            <div class="concept-icon">🧩</div>
+            <div class="concept-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+            </div>
             <h4 class="concept-title">What is a Subroutine?</h4>
           </div>
           <p class="concept-body">
@@ -960,7 +965,9 @@
 
         <div class="modular-concept-card">
           <div class="concept-card-head">
-            <div class="concept-icon">👑</div>
+            <div class="concept-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </div>
             <h4 class="concept-title">The Main Module</h4>
           </div>
           <p class="concept-body">
@@ -970,7 +977,9 @@
 
         <div class="modular-concept-card">
           <div class="concept-card-head">
-            <div class="concept-icon">🚀</div>
+            <div class="concept-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
             <h4 class="concept-title">4 Key Exam Advantages</h4>
           </div>
           <p class="concept-body">
@@ -983,7 +992,9 @@
 
         <div class="modular-concept-card">
           <div class="concept-card-head">
-            <div class="concept-icon">🎯</div>
+            <div class="concept-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle></svg>
+            </div>
             <h4 class="concept-title">Single Responsibility</h4>
           </div>
           <p class="concept-body">
@@ -1025,7 +1036,7 @@
           </div>
 
           <div style="font-size: 11.5px; color: var(--ink-secondary); line-height: 1.5; background: var(--paper-recessed); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
-            💡 <strong>Exam Hint:</strong> Look for blocks that are repeated or contain complex self-contained logic. Extracting them into subroutines reduces duplication and keeps the main algorithm clean.
+            <strong>Exam Hint:</strong> Look for blocks that are repeated or contain complex self-contained logic. Extracting them into subroutines reduces duplication and keeps the main algorithm clean.
           </div>
         </div>
 
@@ -1081,40 +1092,40 @@
 
       </div>
 
-      <!-- FULL-WIDTH AQA STRUCTURE CHART & ARCHITECTURE COMPARISON -->
+      <!-- FULL-WIDTH STRUCTURE CHART & ARCHITECTURE COMPARISON -->
       <div class="structure-chart-panel" style="margin-bottom: 24px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
           <div>
             <h3 style="font-family: var(--font-serif); margin: 0; font-size: 17px; font-weight: 700; color: var(--ink-primary);">
-              Program Architecture: Monolith vs AQA Structure Chart
+              Program Architecture: Monolith vs Structure Chart
             </h3>
             <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--ink-secondary);">
-              Decomposition turns a monolithic script into an official AQA Structure Chart showing data flow and subroutines.
+              Decomposition turns a monolithic script into a modular Structure Chart showing data flow and subroutines.
             </p>
           </div>
 
           <div class="refactor-tabs-group" style="margin-bottom: 0;">
             <button type="button" id="tabChartMonolith" class="refactor-tab-btn">Monolithic (Before)</button>
-            <button type="button" id="tabChartAqa" class="refactor-tab-btn active">AQA Structure Chart (After)</button>
+            <button type="button" id="tabChartAqa" class="refactor-tab-btn active">Structure Chart (After)</button>
           </div>
         </div>
 
         <!-- Chart Container Area -->
         <div id="chartDisplayArea" style="min-height: 240px; margin-bottom: 14px;">
-          <!-- Dynamically populated via JS: Either Monolithic View or Full AQA Structure Chart -->
+          <!-- Dynamically populated via JS: Either Monolithic View or Full Structure Chart -->
         </div>
 
-        <!-- Legend / Key for AQA Structure Chart notation -->
+        <!-- Legend / Key for Structure Chart notation -->
         <div class="aqa-chart-legend" id="chartLegendBox">
           <div class="legend-item"><span class="legend-symbol" style="color: var(--oxford-navy);">○ ↓</span> <strong>Parameter:</strong> Data passed down into subroutine</div>
           <div class="legend-item"><span class="legend-symbol" style="color: var(--forest-green);">↑ ○</span> <strong>Return Value:</strong> Output returned up to caller</div>
           <div class="legend-item"><span class="badge-mini badge-func">FUNCTION</span> Returns a value</div>
           <div class="legend-item"><span class="badge-mini badge-proc">PROCEDURE</span> Executes action (no return)</div>
-          <div class="legend-item"><span class="legend-symbol" style="color: var(--amber-mid);">🔁</span> Eliminates duplicate code</div>
+          <div class="legend-item"><span class="badge-mini" style="background: var(--amber-tint); color: var(--amber-mid); border: 1px solid rgba(180, 83, 9, 0.3);">Reused</span> Eliminates duplicate code</div>
         </div>
       </div>
 
-      <!-- AQA Exam Essentials: Functions vs Procedures & Variable Scope -->
+      <!-- Exam Essentials: Functions vs Procedures & Variable Scope -->
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px;">
         
         <!-- Card 1: Function vs Procedure -->
@@ -1123,7 +1134,7 @@
             Functions vs Procedures (Core Exam Definition)
           </div>
           <p style="font-size: 12.5px; color: var(--ink-secondary); line-height: 1.55; margin: 0 0 10px 0;">
-            AQA mark schemes distinguish between functions and procedures based on return values:
+            Mark schemes distinguish between functions and procedures based on return values:
           </p>
           <div style="font-size: 12px; line-height: 1.6; background: var(--paper-recessed); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
             • <strong>Function:</strong> Calculates and <strong>returns a value</strong> back to the calling statement (e.g. <code>price = calc_ticket_price(age)</code>). Represented by the <span style="color: var(--forest-green); font-weight: 700;">↑ ○ Return Arrow</span> on Structure Charts.<br>
