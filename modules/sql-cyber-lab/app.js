@@ -600,7 +600,7 @@
     if (modelBox) modelBox.style.display = 'none';
     if (modelSql) modelSql.textContent = c.modelSql;
     if (modelMarks) modelMarks.innerHTML = c.marksBreakdown;
-    if (toggleModelBtn) toggleModelBtn.textContent = '💡 Show Worked Model Answer ▾';
+    if (toggleModelBtn) toggleModelBtn.textContent = 'Show Worked Model Answer ▾';
   }
 
   function checkChallengeAnswer() {
@@ -619,7 +619,7 @@
       feedbackBox.style.background = 'rgba(239, 68, 68, 0.12)';
       feedbackBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
       feedbackBox.style.color = '#f87171';
-      feedbackBox.innerHTML = '<strong>⚠️ Empty Query:</strong> Please write an SQL query before clicking check!';
+      feedbackBox.innerHTML = '<strong>Empty Query:</strong> Please write an SQL query before clicking check!';
       return;
     }
 
@@ -629,7 +629,7 @@
       feedbackBox.style.background = 'rgba(239, 68, 68, 0.12)';
       feedbackBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
       feedbackBox.style.color = '#f87171';
-      feedbackBox.innerHTML = `<strong>⚠️ Syntax / Database Error:</strong> ${escapeHTML(result.error)}`;
+      feedbackBox.innerHTML = `<strong>Syntax / Database Error:</strong> ${escapeHTML(result.error)}`;
       resultsWrapper.style.display = 'none';
       return;
     }
@@ -644,7 +644,7 @@
       feedbackBox.style.background = 'rgba(239, 68, 68, 0.12)';
       feedbackBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
       feedbackBox.style.color = '#f87171';
-      feedbackBox.innerHTML = `<strong>❌ Wrong Table:</strong> You queried <code>${result.tableKey}</code>, but this question requires <code>${c.expectedTable}</code>.`;
+      feedbackBox.innerHTML = `<strong>Wrong Table:</strong> You queried <code>${result.tableKey}</code>, but this question requires <code>${c.expectedTable}</code>.`;
       return;
     }
 
@@ -654,7 +654,7 @@
       feedbackBox.style.background = 'rgba(245, 158, 11, 0.15)';
       feedbackBox.style.border = '1px solid rgba(245, 158, 11, 0.3)';
       feedbackBox.style.color = '#fbbf24';
-      feedbackBox.innerHTML = `<strong>⚠️ Partial Credit (Near Miss):</strong> You used <code>SELECT *</code>. In GCSE exams, you lose a mark for wildcards when the question asks for specific fields (<code>${c.expectedCols.join(', ')}</code>). Replace <code>*</code> with the exact column names!`;
+      feedbackBox.innerHTML = `<strong>Partial Credit (Near Miss):</strong> You used <code>SELECT *</code>. In GCSE exams, you lose a mark for wildcards when the question asks for specific fields (<code>${c.expectedCols.join(', ')}</code>). Replace <code>*</code> with the exact column names!`;
       return;
     }
 
@@ -669,7 +669,7 @@
       feedbackBox.style.background = 'rgba(245, 158, 11, 0.15)';
       feedbackBox.style.border = '1px solid rgba(245, 158, 11, 0.3)';
       feedbackBox.style.color = '#fbbf24';
-      feedbackBox.innerHTML = `<strong>⚠️ Column Mismatch:</strong> Expected columns <code>${c.expectedCols.join(', ')}</code>, but your query returned <code>${result.columns.join(', ')}</code>.`;
+      feedbackBox.innerHTML = `<strong>Column Mismatch:</strong> Expected columns <code>${c.expectedCols.join(', ')}</code>, but your query returned <code>${result.columns.join(', ')}</code>.`;
       return;
     }
 
@@ -680,7 +680,7 @@
       feedbackBox.style.background = 'rgba(239, 68, 68, 0.12)';
       feedbackBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
       feedbackBox.style.color = '#f87171';
-      feedbackBox.innerHTML = `<strong>❌ Incorrect Records Filtered:</strong> Your query returned <strong>${result.rows.length}</strong> rows, but this does not match the target criteria. Re-check your <code>WHERE</code> or <code>ORDER BY</code> clause!`;
+      feedbackBox.innerHTML = `<strong>Incorrect Records Filtered:</strong> Your query returned <strong>${result.rows.length}</strong> rows, but this does not match the target criteria. Re-check your <code>WHERE</code> or <code>ORDER BY</code> clause!`;
       return;
     }
 
@@ -690,7 +690,7 @@
     feedbackBox.style.border = '1px solid rgba(16, 185, 129, 0.3)';
     feedbackBox.style.color = '#34d399';
     feedbackBox.innerHTML = `
-      <div style="font-size: 14px; font-weight: 800; margin-bottom: 4px;">🎉 Spot on! Full Marks!</div>
+      <div style="font-size: 14px; font-weight: 800; margin-bottom: 4px;">Spot on! Full Marks!</div>
       <div>Your query met every specification criterion and produced the exact required dataset. You earned full marks for this exam problem.</div>
     `;
   }
@@ -723,7 +723,7 @@
       btnToggleModel.addEventListener('click', () => {
         const isHidden = modelBox.style.display === 'none' || !modelBox.style.display;
         modelBox.style.display = isHidden ? 'block' : 'none';
-        btnToggleModel.textContent = isHidden ? '💡 Hide Model Answer ▴' : '💡 Show Worked Model Answer ▾';
+        btnToggleModel.textContent = isHidden ? 'Hide Model Answer ▴' : 'Show Worked Model Answer ▾';
       });
     }
 

@@ -7,7 +7,7 @@
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="googlebot" content="index, follow">
   <meta name="theme-color" content="#4f46e5">
-  <title>Data Representation &amp; Bitmaps • GCSE Computer Science</title>
+  <title>Media Representation • GCSE Computer Science</title>
 
   <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 
@@ -79,7 +79,7 @@
             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
             <circle cx="12" cy="13" r="4"></circle>
           </svg>
-          <span>Photo Colour Depth Lab</span>
+          <span>Photo Colour Depth</span>
         </button>
 
         <button class="view-tab-btn" data-tab="comparison">
@@ -160,7 +160,6 @@
       <details class="explainer-card">
         <summary>
           <div class="summary-left">
-            <span>🎨</span>
             <span>How Computers Store Images</span>
           </div>
           <span class="summary-toggle-pill"></span>
@@ -391,7 +390,7 @@
                 <span class="meta-chip">File Type: <strong>BMP/PNG</strong></span>
               </div>
               <div style="margin-top: 10px; font-size: 11px; color: var(--text-secondary); line-height: 1.5;">
-                📌 <strong>Think of metadata as a shipping label:</strong> Without it, the computer just sees a continuous stream of 1s and 0s and wouldn't know when a row ends or which colour belongs where.
+                <strong>Think of metadata as a shipping label:</strong> Without it, the computer just sees a continuous stream of 1s and 0s and wouldn't know when a row ends or which colour belongs where.
               </div>
             </div>
           </div>
@@ -422,7 +421,7 @@
               <h3 class="panel-title">Binary Stream (Row by Row)</h3>
             </div>
             <button id="copyBinaryBtn" class="control-btn" style="font-size: 11px;">
-              📋 Copy Bits
+              Copy Bits
             </button>
           </div>
 
@@ -500,7 +499,7 @@
             </svg>
           </div>
           <div class="banner-text">
-            <h2>Photo Colour Depth &amp; Posterization Lab</h2>
+            <h2>Photo Colour Depth &amp; Posterization</h2>
             <p>From 16.7 Million Colours down to 1-Bit: See how colour depth creates colour banding, affects image realism, and calculates true file size.</p>
           </div>
         </div>
@@ -514,7 +513,6 @@
       <details class="explainer-card">
         <summary>
           <div class="summary-left">
-            <span>🌈</span>
             <span>Why Real Photos Need Millions of Colours (Colour Banding)</span>
           </div>
           <span class="summary-toggle-pill"></span>
@@ -524,12 +522,12 @@
             Human eyes can perceive around 10 million distinct colours. In <strong>24-bit True Colour</strong>, computers use 8 bits for Red, 8 for Green, and 8 for Blue (256 &times; 256 &times; 256 = <strong>16,777,216 colours</strong>), allowing buttery-smooth gradients in skies and skin tones.
           </p>
           <p style="font-size: 12px; color: #f59e0b; margin: 0; line-height: 1.45;">
-            ⚡ <strong>Look for "Colour Banding" (Posterization):</strong> When you drop to 8-bit, 4-bit, or 2-bit, the computer runs out of intermediate color codes. Smooth sky gradients split into harsh, visible blocks of solid stripes!
+            <strong>Look for "Colour Banding" (Posterization):</strong> When you drop to 8-bit, 4-bit, or 2-bit, the computer runs out of intermediate color codes. Smooth sky gradients split into harsh, visible blocks of solid stripes!
           </p>
         </div>
       </details>
 
-      <!-- Interactive Photo Lab Workspace -->
+      <!-- Interactive Photo Workspace -->
       <div class="panel" style="margin-bottom: 24px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
@@ -538,7 +536,7 @@
           <div style="display: flex; align-items: center; gap: 8px;">
             <input type="file" id="photoLabFileInput" accept="image/*" style="display: none;">
             <button id="photoLabUploadBtn" class="btn btn-primary" style="font-size: 12px; padding: 6px 14px;">
-              📷 Upload Your Own Photo
+              Upload Your Own Photo
             </button>
           </div>
         </div>
@@ -549,10 +547,10 @@
           <div class="control-group">
             <span class="control-label">Sample Photo:</span>
             <div class="btn-group" id="photoPresetGroup">
-              <button type="button" class="control-btn photo-sample-btn active" data-sample="sunset">🌅 Sunset</button>
-              <button type="button" class="control-btn photo-sample-btn" data-sample="parrot">🦜 Parrot</button>
-              <button type="button" class="control-btn photo-sample-btn" data-sample="car">🏎️ Cyber Car</button>
-              <button type="button" class="control-btn photo-sample-btn" data-sample="dog">🐶 Puppy</button>
+              <button type="button" class="control-btn photo-sample-btn active" data-sample="sunset">Sunset</button>
+              <button type="button" class="control-btn photo-sample-btn" data-sample="parrot">Parrot</button>
+              <button type="button" class="control-btn photo-sample-btn" data-sample="car">Cyber Car</button>
+              <button type="button" class="control-btn photo-sample-btn" data-sample="dog">Puppy</button>
             </div>
           </div>
 
@@ -588,7 +586,7 @@
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
               <button type="button" id="btnPeekOriginal" class="control-btn" style="font-size: 11.5px; padding: 4px 12px; user-select: none;" title="Click or hold to peek at original 24-bit True Colour">
-                👁️ Hold to Peek Original (24-bit)
+                Hold to Peek Original (24-bit)
               </button>
             </div>
           </div>
@@ -614,7 +612,7 @@
         <!-- Live File Size Comparison Table -->
         <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 16px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-            <strong style="font-size: 13px; color: var(--text-primary);">📊 File Size Comparison Table (Formula: Width &times; Height &times; Colour Depth)</strong>
+            <strong style="font-size: 13px; color: var(--text-primary);">File Size Comparison Table (Formula: Width &times; Height &times; Colour Depth)</strong>
             <span style="font-size: 11px; color: var(--text-muted);">Current Photo: <span id="photoTableDimensions" class="font-mono">400 &times; 280</span></span>
           </div>
 
@@ -664,10 +662,10 @@
         <div class="control-group">
           <span class="control-label">Sample Image:</span>
           <select id="compareSubjectSelect" class="control-select">
-            <option value="parrot" selected>🦜 Tropical Parrot</option>
-            <option value="sunset">🌅 Sunset Horizon &amp; Lake</option>
-            <option value="arcade">🕹️ Retro Arcade Machine</option>
-            <option value="alien">👾 Space Invader Hero</option>
+            <option value="parrot" selected>Tropical Parrot</option>
+            <option value="sunset">Sunset Horizon &amp; Lake</option>
+            <option value="arcade">Retro Arcade Machine</option>
+            <option value="alien">Space Invader Hero</option>
           </select>
         </div>
       </div>
@@ -858,7 +856,6 @@
       <details class="explainer-card">
         <summary>
           <div class="summary-left">
-            <span>🌊</span>
             <span>How Sound is Digitized</span>
           </div>
           <span class="summary-toggle-pill"></span>
@@ -921,17 +918,17 @@
           <div class="control-group">
             <span class="control-label">Melody Preset:</span>
             <div class="btn-group" id="soundWaveformGroup">
-              <button type="button" class="control-btn sound-wave-btn active" data-wave="flute" title="Smooth up-and-down slide">🎵 Siren Slide</button>
-              <button type="button" class="control-btn sound-wave-btn" data-wave="chiptune" title="Retro video game arpeggio">👾 8-Bit Chiptune</button>
-              <button type="button" class="control-btn sound-wave-btn" data-wave="bass" title="Deep synth bass progression">🎸 Synth Bass</button>
-              <button type="button" class="control-btn sound-wave-btn" data-wave="robot" title="Robotic octave jumps">🤖 Robot Beeps</button>
-              <button type="button" class="control-btn sound-wave-btn" data-wave="custom" title="Draw your own melody directly on the canvas!">✏️ Draw Custom</button>
+              <button type="button" class="control-btn sound-wave-btn active" data-wave="flute" title="Smooth up-and-down slide">Siren Slide</button>
+              <button type="button" class="control-btn sound-wave-btn" data-wave="chiptune" title="Retro video game arpeggio">8-Bit Chiptune</button>
+              <button type="button" class="control-btn sound-wave-btn" data-wave="bass" title="Deep synth bass progression">Synth Bass</button>
+              <button type="button" class="control-btn sound-wave-btn" data-wave="robot" title="Robotic octave jumps">Robot Beeps</button>
+              <button type="button" class="control-btn sound-wave-btn" data-wave="custom" title="Draw your own melody directly on the canvas!">Draw Custom</button>
             </div>
           </div>
 
           <div class="control-group">
             <button id="btnPlaySound" class="control-btn" style="background: var(--accent-primary); color: #ffffff; font-weight: 700; padding: 6px 16px;">
-              🔊 Play Melody &amp; Steps (2s)
+              Play Melody &amp; Steps (2s)
             </button>
           </div>
         </div>
@@ -940,7 +937,7 @@
         <div class="sound-canvas-container">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 11.5px;">
             <span style="color: var(--text-secondary); display: flex; align-items: center; gap: 6px;">
-              <span>✏️</span> <strong>Interactive Waveform:</strong> Click &amp; drag anywhere across the canvas to draw your own custom melody!
+              <strong>Interactive Waveform:</strong> Click &amp; drag anywhere across the canvas to draw your own custom melody!
             </span>
             <span id="soundPlayheadStatus" class="badge badge-paper1" style="font-family: var(--font-mono); font-size: 10.5px;">IDLE • CLICK PLAY TO HEAR</span>
           </div>
@@ -968,11 +965,11 @@
         </div>
       </div>
 
-      <!-- Voice & Microphone Recording Lab: Real-World Audio Degradation -->
+      <!-- Voice & Microphone Recording: Real-World Audio Degradation -->
       <div class="panel" style="margin-bottom: 24px; border-top: 3px solid #ec4899;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <h3 class="panel-title">🎙️ Voice &amp; Microphone Audio Degradation Lab</h3>
+            <h3 class="panel-title">Voice &amp; Microphone Audio Sampling</h3>
           </div>
         </div>
 
@@ -1055,7 +1052,7 @@
           <!-- Exam Sound Effect Guide -->
           <div style="background: rgba(59, 130, 246, 0.08); padding: 14px 18px; border-radius: var(--radius-md); border: 1px solid rgba(59, 130, 246, 0.25);">
             <div style="font-size: 12px; font-weight: 800; color: #3b82f6; margin-bottom: 4px;">
-              💡 What your ears are hearing (GCSE Exam Rule):
+              What your ears are hearing (GCSE Exam Rule):
             </div>
             <div id="voicePerceptionNote" style="font-size: 12px; color: var(--text-secondary); line-height: 1.5;">
               <strong>Full Studio Quality:</strong> Crystal clear reproduction with full treble, rich harmonics, and zero audible background noise.
@@ -1069,7 +1066,7 @@
         <div class="panel-title-bar">
           <div class="panel-title-group">
             <span class="badge badge-paper1">Formula</span>
-            <h3 class="panel-title">Sound File Size Calculator (AQA §3.3.4)</h3>
+            <h3 class="panel-title">Sound File Size Calculator (§3.3.4)</h3>
           </div>
           <span style="font-size: 11px; color: var(--text-muted);">
             Formula: Rate (Hz) &times; Resolution (bits) &times; Duration (s) &times; Channels
@@ -1130,7 +1127,7 @@
             </div>
           </div>
           <div style="font-size: 12px; color: #ca8a04; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.25); padding: 8px 12px; border-radius: var(--radius-sm);">
-            ⚠️ <strong>AQA Mark Scheme Rule:</strong> Remember to multiply by 2 if the question specifies <strong>stereo</strong> sound! Show whether you divided by 1,000 or 1,024.
+            <strong>Exam Mark Scheme Rule:</strong> Remember to multiply by 2 if the question specifies <strong>stereo</strong> sound! Show whether you divided by 1,000 or 1,024.
           </div>
         </div>
       </div>
@@ -1158,26 +1155,26 @@
         </div>
 
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="badge badge-topic">AQA 8525 §3.3 Specification Focus</span>
+          <span class="badge badge-topic">Specification Focus §3.3</span>
         </div>
       </div>
 
       <!-- Key Exam Revision Cards Section -->
       <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 14px 0; display: flex; align-items: center; gap: 8px;">
-        <span style="color: #f59e0b;">📌</span> AQA Core Revision Topics &amp; Mark Scheme Rules
+        Core Revision Topics &amp; Mark Scheme Rules
       </h3>
 
       <!-- Card 1: kB vs KiB -->
       <div class="trap-card">
         <div class="trap-header">
           <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">
-            AQA RULE 1: FILE SIZE &amp; PREFIXES
+            RULE 1: FILE SIZE &amp; PREFIXES
           </span>
           <h4 class="trap-title">Dual Prefix Conventions (kB vs KiB)</h4>
         </div>
         <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
           The formula <code>Width &times; Height &times; Colour Depth</code> yields raw <strong>BITS</strong>. Divide by 8 to obtain <strong>Bytes (B)</strong>.
-          AQA tests both decimal and binary prefix conventions:
+          Exam mark schemes test both decimal and binary prefix conventions:
         </p>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
           <div style="background: var(--bg-root); padding: 10px 12px; border-radius: var(--radius-md); font-size: 12px; border-left: 3px solid #38bdf8;">
@@ -1192,7 +1189,7 @@
           </div>
         </div>
         <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: #fbbf24; line-height: 1.5;">
-          ⚠️ <strong>AQA Mark Scheme Rule:</strong> In arithmetic questions, marks are awarded for dividing by either 1,000 or 1,024, provided your working clearly states which convention you used. Always state your units explicitly!
+          <strong>Exam Mark Scheme Rule:</strong> In arithmetic questions, marks are awarded for dividing by either 1,000 or 1,024, provided your working clearly states which convention you used. Always state your units explicitly!
         </div>
       </div>
 
@@ -1200,7 +1197,7 @@
       <div class="trap-card" style="border-left-color: #ec4899;">
         <div class="trap-header">
           <span class="badge" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4);">
-            AQA RULE 2: IMAGE PARAMETERS
+            RULE 2: IMAGE PARAMETERS
           </span>
           <h4 class="trap-title" style="color: #f472b6;">Resolution vs Colour Depth (Impact &amp; Trade-offs)</h4>
         </div>
@@ -1222,7 +1219,7 @@
           </div>
         </div>
         <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-          💡 <strong>Key Trade-off:</strong> Higher quality requires more memory, greater storage capacity, and longer network transmission / download times.
+          <strong>Key Trade-off:</strong> Higher quality requires more memory, greater storage capacity, and longer network transmission / download times.
         </div>
       </div>
 
@@ -1230,7 +1227,7 @@
       <div class="trap-card" style="border-left-color: #6366f1;">
         <div class="trap-header">
           <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4);">
-            AQA RULE 3: SPECIFICATION §3.3
+            RULE 3: SPECIFICATION §3.3
           </span>
           <h4 class="trap-title" style="color: #818cf8;">Role &amp; Examples of Image Metadata</h4>
         </div>
@@ -1238,7 +1235,7 @@
           Never write only <em>"metadata is data about data"</em>—that is worth at most 1 mark. For full marks, specify the exact attributes and explain why the computer needs them.
         </p>
         <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; line-height: 1.6; margin-bottom: 10px;">
-          <div style="color: #818cf8; font-weight: 700; margin-bottom: 4px;">AQA Required Header Attributes:</div>
+          <div style="color: #818cf8; font-weight: 700; margin-bottom: 4px;">Key Header Attributes:</div>
           • <strong>Width</strong> and <strong>Height</strong> (in pixels)<br>
           • <strong>Colour Depth</strong> (bits per pixel, bpp)<br>
           • <strong>Resolution</strong> (dots/pixels per inch, dpi)<br>
@@ -1251,7 +1248,7 @@
 
       <!-- Past Paper Questions Section -->
       <h3 style="font-size: 16px; font-weight: 800; margin: 32px 0 14px 0; display: flex; align-items: center; gap: 8px;">
-        <span>📝</span> AQA Past Paper Style Questions with Mark Schemes
+        Exam Style Questions with Mark Schemes
       </h3>
 
       <!-- Question 1 -->

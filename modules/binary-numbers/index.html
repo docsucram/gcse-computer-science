@@ -189,8 +189,8 @@
           <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <span style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Number Mode:</span>
             <div class="btn-group" id="numberModeGroup">
-              <button type="button" class="control-btn active" id="btnModeBinary" data-mode="binary">🔢 Binary Switches</button>
-              <button type="button" class="control-btn" id="btnModeHex" data-mode="hex">⚡ Hexadecimal (e.g. 1F)</button>
+              <button type="button" class="control-btn active" id="btnModeBinary" data-mode="binary">Binary Switches</button>
+              <button type="button" class="control-btn" id="btnModeHex" data-mode="hex">Hexadecimal (e.g. 1F)</button>
               <button type="button" class="control-btn" id="btnModeTwosComp" data-mode="twos">Two's Complement (-128 to +127)</button>
             </div>
           </div>
@@ -331,7 +331,7 @@
         <!-- Two's complement step-by-step box (visible when mode is twos) -->
         <div id="twosComplementExplainer" style="display: none; margin-top: 18px; padding: 14px 18px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: var(--radius-md);">
           <div style="font-weight: 800; color: #ef4444; font-size: 13px; margin-bottom: 4px;">
-            💡 Why Two's Complement? (Flip the Bits + Add 1)
+            Why Two's Complement? (Flip the Bits + Add 1)
           </div>
           <p style="font-size: 12.5px; color: var(--text-secondary); margin: 0 0 8px 0; line-height: 1.5;">
             <strong>Why do this?</strong> To make a negative number, flip the bits and add 1. It saves chip makers millions of pounds by letting computer processors use the exact same addition circuit for subtraction!
@@ -347,10 +347,10 @@
       <div class="panel" style="margin-top: 20px;" id="targetPracticePanel">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <h3 class="panel-title">🎯 Binary Target Challenge</h3>
+            <h3 class="panel-title">Binary Target Challenge</h3>
           </div>
           <div style="display: flex; align-items: center; gap: 8px;">
-            <button type="button" class="control-btn" id="btnToggleAudio" title="Toggle Sound Effects" style="font-size: 11.5px; padding: 4px 10px;">🔊 Sound: ON</button>
+            <button type="button" class="control-btn" id="btnToggleAudio" title="Toggle Sound Effects" style="font-size: 11.5px; padding: 4px 10px;">Sound: ON</button>
           </div>
         </div>
 
@@ -364,28 +364,28 @@
             <!-- Practice Style -->
             <div class="btn-group">
               <button type="button" class="control-btn active" id="btnPracticeRelaxed">Relaxed Practice</button>
-              <button type="button" class="control-btn" id="btnPracticeSprint">⏱️ 60s Speed Sprint</button>
+              <button type="button" class="control-btn" id="btnPracticeSprint">60s Speed Sprint</button>
             </div>
 
             <!-- Target Format: Denary vs Hex -->
             <div class="btn-group" id="targetBaseGroup">
-              <button type="button" class="control-btn active" id="btnTargetBaseDenary" title="Target in everyday Denary (Base 10)">🔢 Denary</button>
-              <button type="button" class="control-btn" id="btnTargetBaseHex" title="Target in Hexadecimal (Base 16) - Practice 4-bit nibbles!">⚡ Hex (00–FF)</button>
+              <button type="button" class="control-btn active" id="btnTargetBaseDenary" title="Target in everyday Denary (Base 10)">Denary</button>
+              <button type="button" class="control-btn" id="btnTargetBaseHex" title="Target in Hexadecimal (Base 16) - Practice 4-bit nibbles!">Hex (00–FF)</button>
             </div>
           </div>
 
           <div style="display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 13px;">
             <div id="streakBadge" style="background: var(--bg-surface-elevated); padding: 5px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); color: #ca8a04; font-weight: 800;">
-              🔥 Streak: <span id="currentStreakVal">0</span>
+              Streak: <span id="currentStreakVal">0</span>
             </div>
             <div id="sprintTimerBox" style="display: none; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); padding: 5px 14px; border-radius: var(--radius-sm); color: #ef4444; font-weight: 900; font-size: 14px;">
-              ⏱️ <span id="sprintTimerVal">60</span>s
+              <span id="sprintTimerVal">60</span>s
             </div>
             <div id="sprintScoreBox" style="display: none; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.4); padding: 5px 12px; border-radius: var(--radius-sm); color: #10b981; font-weight: 800;">
               Score: <span id="sprintScoreVal">0</span>
             </div>
             <div id="sprintBestBox" style="display: none; background: var(--bg-surface-elevated); padding: 5px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); color: var(--accent-primary); font-weight: 800;">
-              🏆 Best: <span id="sprintBestVal">0</span>
+              Best: <span id="sprintBestVal">0</span>
             </div>
           </div>
         </div>
@@ -393,8 +393,8 @@
         <!-- Prominent Big Sprint Countdown Bar (Visible during active sprint) -->
         <div id="sprintActiveTimerBanner" style="display: none; background: rgba(239, 68, 68, 0.08); border: 2px solid #ef4444; border-radius: var(--radius-md); padding: 10px 18px; margin-bottom: 16px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span style="font-weight: 800; color: #ef4444; font-size: 13px; display: flex; align-items: center; gap: 6px;">
-              <span>⏱️</span> SPRINT TIME REMAINING:
+            <span style="font-weight: 800; color: #ef4444; font-size: 13px;">
+              SPRINT TIME REMAINING:
             </span>
             <span id="sprintBigCountdown" style="font-family: var(--font-mono); font-size: 24px; font-weight: 900; color: #ef4444;">60s</span>
           </div>
@@ -405,7 +405,9 @@
 
         <!-- Sprint Launcher Screen (Shown before pressing Start) -->
         <div id="sprintStartLauncherCard" style="display: none; background: var(--bg-surface-elevated); border: 2px dashed var(--accent-primary); border-radius: var(--radius-md); padding: 32px 24px; text-align: center;">
-          <div style="font-size: 32px; margin-bottom: 8px;">⚡</div>
+          <div style="margin-bottom: 8px;">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-primary);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
           <h3 style="font-size: 18px; font-weight: 900; color: var(--text-primary); margin: 0 0 6px 0;">
             60-Second Speed Sprint
           </h3>
@@ -413,16 +415,18 @@
             The target is hidden! Press Start below to reveal your first number and start the 60-second clock. Flip the 8-bit switches above as fast as you can!
           </p>
           <div style="font-size: 13px; font-weight: 700; color: var(--accent-primary); margin-bottom: 16px;">
-            🏆 Personal Best: <span id="sprintLauncherBestVal" style="font-family: var(--font-mono); font-size: 16px;">0</span> targets
+            Personal Best: <span id="sprintLauncherBestVal" style="font-family: var(--font-mono); font-size: 16px;">0</span> targets
           </div>
           <button type="button" class="btn btn-primary" id="btnStartSprint" style="padding: 10px 32px; font-size: 14px; font-weight: 800;">
-            🚀 Start 60s Speed Sprint
+            Start 60s Speed Sprint
           </button>
         </div>
 
         <!-- Sprint Game Over Screen -->
         <div id="sprintGameOverCard" style="display: none; background: var(--bg-surface-elevated); border: 2px solid #10b981; border-radius: var(--radius-md); padding: 32px 24px; text-align: center;">
-          <div style="font-size: 36px; margin-bottom: 6px;">🎉</div>
+          <div style="margin-bottom: 6px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
           <h3 style="font-size: 20px; font-weight: 900; color: #10b981; margin: 0 0 8px 0;">
             TIME'S UP!
           </h3>
@@ -430,11 +434,11 @@
             You converted <strong id="sprintFinalScoreVal" style="font-family: var(--font-mono); font-size: 22px; color: var(--accent-primary);">0</strong> targets in 60 seconds!
           </p>
           <div id="sprintNewRecordBadge" style="display: none; font-size: 12px; font-weight: 800; color: #ca8a04; background: rgba(234, 179, 8, 0.15); padding: 4px 12px; border-radius: 20px; width: fit-content; margin: 0 auto 16px auto;">
-            ⭐ NEW HIGH SCORE! ⭐
+            NEW HIGH SCORE!
           </div>
           <div style="display: flex; justify-content: center; gap: 10px; margin-top: 14px;">
             <button type="button" class="btn btn-primary" id="btnPlayAgainSprint" style="padding: 9px 24px; font-size: 13px;">
-              🔄 Play Again (60s)
+              Play Again (60s)
             </button>
             <button type="button" class="control-btn" id="btnBackToRelaxed" style="font-size: 13px;">
               Back to Relaxed
@@ -466,7 +470,7 @@
       <div class="panel" style="margin-top: 20px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <h3 class="panel-title">🔄 3-Way Number Converter</h3>
+            <h3 class="panel-title">3-Way Number Converter</h3>
           </div>
         </div>
 
@@ -527,7 +531,7 @@
         <div class="panel-title-bar">
           <div class="panel-title-group">
             <span class="badge badge-paper1">Why We Use Hex</span>
-            <h3 class="panel-title">🎨 Hex RGB Colour Playground</h3>
+            <h3 class="panel-title">Hex RGB Colour Playground</h3>
           </div>
           <span style="font-size: 11px; color: var(--text-muted);">3 bytes = 16.7 Million colours</span>
         </div>
@@ -542,7 +546,7 @@
             <!-- Red -->
             <div style="background: var(--bg-surface-elevated); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); border-left: 4px solid #ef4444;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <span style="font-size: 12px; font-weight: 800; color: #ef4444;">🔴 Red Byte</span>
+                <span style="font-size: 12px; font-weight: 800; color: #ef4444;">Red Byte</span>
                 <span style="font-family: var(--font-mono); font-size: 12.5px; font-weight: 800;" id="hexRLabel">FF (255)</span>
               </div>
               <input type="range" id="sliderHexR" min="0" max="255" value="255" style="width: 100%; accent-color: #ef4444; cursor: pointer;">
@@ -551,7 +555,7 @@
             <!-- Green -->
             <div style="background: var(--bg-surface-elevated); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); border-left: 4px solid #10b981;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <span style="font-size: 12px; font-weight: 800; color: #10b981;">🟢 Green Byte</span>
+                <span style="font-size: 12px; font-weight: 800; color: #10b981;">Green Byte</span>
                 <span style="font-family: var(--font-mono); font-size: 12.5px; font-weight: 800;" id="hexGLabel">87 (135)</span>
               </div>
               <input type="range" id="sliderHexG" min="0" max="255" value="135" style="width: 100%; accent-color: #10b981; cursor: pointer;">
@@ -560,7 +564,7 @@
             <!-- Blue -->
             <div style="background: var(--bg-surface-elevated); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); border-left: 4px solid #3b82f6;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <span style="font-size: 12px; font-weight: 800; color: #3b82f6;">🔵 Blue Byte</span>
+                <span style="font-size: 12px; font-weight: 800; color: #3b82f6;">Blue Byte</span>
                 <span style="font-family: var(--font-mono); font-size: 12.5px; font-weight: 800;" id="hexBLabel">33 (51)</span>
               </div>
               <input type="range" id="sliderHexB" min="0" max="255" value="51" style="width: 100%; accent-color: #3b82f6; cursor: pointer;">
@@ -577,10 +581,10 @@
 
             <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;">
               <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; align-self: center; margin-right: 4px;">Presets:</span>
-              <button type="button" class="preset-pill-btn color-preset-btn" data-r="91" data-g="140" data-b="50">🟩 Minecraft Grass</button>
-              <button type="button" class="preset-pill-btn color-preset-btn" data-r="0" data-g="255" data-b="204">👾 Neon Cyan</button>
-              <button type="button" class="preset-pill-btn color-preset-btn" data-r="255" data-g="87" data-b="51">🌅 Sunset</button>
-              <button type="button" class="preset-pill-btn color-preset-btn" data-r="88" data-g="101" data-b="242">🔵 Discord</button>
+              <button type="button" class="preset-pill-btn color-preset-btn" data-r="91" data-g="140" data-b="50">Minecraft Grass</button>
+              <button type="button" class="preset-pill-btn color-preset-btn" data-r="0" data-g="255" data-b="204">Neon Cyan</button>
+              <button type="button" class="preset-pill-btn color-preset-btn" data-r="255" data-g="87" data-b="51">Sunset</button>
+              <button type="button" class="preset-pill-btn color-preset-btn" data-r="88" data-g="101" data-b="242">Discord</button>
             </div>
           </div>
         </div>
@@ -613,10 +617,10 @@
 
       <!-- Maths Mode Switcher -->
       <div class="maths-mode-selector">
-        <button type="button" class="maths-mode-btn active" data-maths-section="addition">➕ Addition &amp; Overflow</button>
-        <button type="button" class="maths-mode-btn" data-maths-section="subtraction">➖ Subtraction (Two's Comp)</button>
-        <button type="button" class="maths-mode-btn" data-maths-section="logic">🔀 Bitwise Logic (AND/OR/XOR)</button>
-        <button type="button" class="maths-mode-btn" data-maths-section="shifts">⏩ Logical Shifts (×2 / ÷2)</button>
+        <button type="button" class="maths-mode-btn active" data-maths-section="addition">Addition &amp; Overflow</button>
+        <button type="button" class="maths-mode-btn" data-maths-section="subtraction">Subtraction (Two's Comp)</button>
+        <button type="button" class="maths-mode-btn" data-maths-section="logic">Bitwise Logic (AND/OR/XOR)</button>
+        <button type="button" class="maths-mode-btn" data-maths-section="shifts">Logical Shifts (×2 / ÷2)</button>
       </div>
 
       <!-- ============================================================= -->
@@ -626,7 +630,7 @@
         <!-- Binary Addition Rules Cheatsheet -->
         <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
           <div style="font-size: 13px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px;">
-            📖 The 4 Golden Rules of Binary Addition
+            The 4 Golden Rules of Binary Addition
           </div>
           <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-family: var(--font-mono); font-size: 13px;">
             <div style="background: var(--bg-surface-elevated); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
@@ -952,7 +956,7 @@
         <!-- Concept Intro -->
         <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
           <div style="font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">
-            💡 Bitwise Logic: Operating on Individual Bits
+            Bitwise Logic: Operating on Individual Bits
           </div>
           <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin: 0;">
             CPUs frequently manipulate raw bits rather than whole arithmetic numbers. This is called <strong>Bitwise Logic</strong>. In GCSE exams, the most important use case is <strong>Bit Masking</strong>: isolating, testing, clearing, or setting specific bits in a byte.
@@ -962,7 +966,7 @@
         <div class="panel" style="margin-bottom: 24px;">
           <div class="panel-title-bar">
             <div class="panel-title-group">
-              <h3 class="panel-title">Bitwise Logic Lab</h3>
+              <h3 class="panel-title">Bitwise Logic</h3>
             </div>
             <span style="font-size: 11px; color: var(--text-muted);">Enter numbers (0–255) or click any bit</span>
           </div>
@@ -1267,8 +1271,7 @@
         </div>
 
         <div style="margin-top: 14px; background: rgba(59, 130, 246, 0.06); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12.5px; color: var(--text-secondary); display: flex; align-items: center; gap: 8px;">
-          <span>💡</span>
-          <span><strong>AQA Exam Guidance:</strong> In written exam calculation questions, AQA officially accepts calculations using <strong>1,000</strong> (decimal) OR <strong>1,024</strong> (binary) as full marks, as long as you show your workings!</span>
+          <span><strong>Exam Guidance:</strong> In written exam calculation questions, calculations using either <strong>1,000</strong> (decimal) OR <strong>1,024</strong> (binary) are accepted for full marks, as long as you show your workings!</span>
         </div>
       </div>
 
@@ -1276,7 +1279,7 @@
       <div class="panel" style="margin-bottom: 24px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <h3 class="panel-title">🎵 Scale of Data: How Big Is It in Real Life?</h3>
+            <h3 class="panel-title">Scale of Data: How Big Is It in Real Life?</h3>
           </div>
           <span style="font-size: 11px; color: var(--text-muted);">Click or slide to explore from seconds to thousands of years</span>
         </div>
@@ -1337,7 +1340,7 @@
             <!-- MP3 Music Equivalent -->
             <div style="background: rgba(236, 72, 153, 0.08); border: 1px solid rgba(236, 72, 153, 0.3); border-radius: var(--radius-md); padding: 16px;">
               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                <span style="font-size: 18px;">🎧</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2"><path d="M3 18v-6a9 9 0 0 1 18 0v6"></path><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"></path></svg>
                 <strong style="color: #ec4899; font-size: 14px;">Continuous MP3 Music Time:</strong>
               </div>
               <div id="scaleMp3Time" style="font-family: var(--font-mono); font-size: 19px; font-weight: 900; color: var(--text-primary); margin-bottom: 6px;">
@@ -1351,7 +1354,7 @@
             <!-- Real-World Equivalent -->
             <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: var(--radius-md); padding: 16px;">
               <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                <span style="font-size: 18px;">🌍</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
                 <strong style="color: #10b981; font-size: 14px;">Real-World Media Equivalent:</strong>
               </div>
               <div id="scaleRealWorldSummary" style="font-size: 15px; font-weight: 800; color: var(--text-primary); margin-bottom: 6px;">
@@ -1372,7 +1375,7 @@
         <div class="panel-title-bar">
           <div class="panel-title-group">
             <span class="badge badge-topic">Deep Dive &amp; Real World</span>
-            <h3 class="panel-title">📦 Deep Dive: Why Do Both kB and KiB Exist? (The Hard Drive Storage Mystery)</h3>
+            <h3 class="panel-title">Deep Dive: Why Do Both kB and KiB Exist? (The Hard Drive Storage Mystery)</h3>
           </div>
           <span style="font-size: 11px; color: var(--text-muted);">The secret behind "missing" gigabytes</span>
         </div>
@@ -1396,7 +1399,7 @@
         <!-- Interactive Hard Drive & SSD Storage Calculator -->
         <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 18px;">
           <div style="font-size: 14px; font-weight: 800; color: var(--text-primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-            <span>💾</span> Live Storage Drive Capacity Calculator:
+            Live Storage Drive Capacity Calculator:
           </div>
 
           <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 14px;">
@@ -1468,7 +1471,7 @@
           <button class="control-btn preset-text-btn" data-text="A">Letter 'A' (65)</button>
           <button class="control-btn preset-text-btn" data-text="a">Letter 'a' (97)</button>
           <button class="control-btn preset-text-btn" data-text="Hello World">Hello World</button>
-          <button class="control-btn preset-text-btn" data-text="👾 Gaming 🎮">👾 Gaming 🎮 (Unicode)</button>
+          <button class="control-btn preset-text-btn" data-text="👾 Gaming 🎮">Gaming (Unicode)</button>
         </div>
 
         <!-- Full Binary Output Stream Box -->
@@ -1476,12 +1479,12 @@
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
             <div style="display: flex; align-items: center; gap: 10px;">
               <span style="font-size: 13px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
-                <span>💾</span> Encoded Binary Stream Output:
+                Encoded Binary Stream Output:
               </span>
               <span class="badge badge-paper1" id="encoderByteStats">8 Characters • 10 Bytes (80 bits)</span>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-              <button type="button" class="control-btn" id="btnCopyBinary" style="padding: 4px 10px; font-size: 11.5px; font-weight: 600;">📋 Copy Binary</button>
+              <button type="button" class="control-btn" id="btnCopyBinary" style="padding: 4px 10px; font-size: 11.5px; font-weight: 600;">Copy Binary</button>
             </div>
           </div>
 
@@ -1503,15 +1506,15 @@
       </div>
 
       <!-- ============================================================= -->
-      <!-- CHARACTER SETS LAB: INTERACTIVE EXPLORATION                     -->
+      <!-- CHARACTER SETS: INTERACTIVE EXPLORATION                       -->
       <!-- ============================================================= -->
 
-      <!-- Lab 1: The "+32" Bit 5 Case-Flipper Visualizer -->
+      <!-- Part 1: The "+32" Bit 5 Case-Flipper Visualizer -->
       <div class="panel" style="margin-bottom: 24px; border-top: 3px solid #8b5cf6;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
             <span class="badge badge-topic">ASCII Discovery</span>
-            <h3 class="panel-title">🔤 The ASCII "+32" Case-Flipper (The Bit 5 Secret)</h3>
+            <h3 class="panel-title">The ASCII "+32" Case-Flipper (The Bit 5 Secret)</h3>
           </div>
           <span style="font-size: 11px; color: var(--text-muted);">How computers flip case with a single bit</span>
         </div>
@@ -1530,7 +1533,7 @@
               </select>
             </div>
             <button type="button" id="btnToggleBit5" class="btn btn-primary" style="padding: 6px 14px; font-size: 12px;">
-              ⚡ Toggle Bit 5 (Flip Case)
+              Toggle Bit 5 (Flip Case)
             </button>
           </div>
 
@@ -1573,12 +1576,12 @@
         </div>
       </div>
 
-      <!-- Lab 2: Character Offset Calculator -->
+      <!-- Part 2: Character Offset Calculator -->
       <div class="panel" style="margin-bottom: 24px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
             <span class="badge badge-paper1">Sequential Offsets</span>
-            <h3 class="panel-title">📐 Character Offset Calculator</h3>
+            <h3 class="panel-title">Character Offset Calculator</h3>
           </div>
           <span style="font-size: 11px; color: var(--text-muted);">"If 'A' is 65, what is the code for..."</span>
         </div>
@@ -1607,12 +1610,12 @@
         </div>
       </div>
 
-      <!-- Lab 3: Storage Impact Analyzer (ASCII vs UTF-8 vs UTF-32) -->
+      <!-- Part 3: Storage Impact Analyzer (ASCII vs UTF-8 vs UTF-32) -->
       <div class="panel" style="margin-bottom: 24px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
             <span class="badge badge-topic">Storage Impact</span>
-            <h3 class="panel-title">💾 Storage Trade-Off: ASCII vs Unicode</h3>
+            <h3 class="panel-title">Storage Trade-Off: ASCII vs Unicode</h3>
           </div>
           <span style="font-size: 11px; color: var(--text-muted);">Why we don't just use 32-bit for everything</span>
         </div>
@@ -1675,20 +1678,20 @@
             </svg>
           </div>
           <div>
-            <h2 class="banner-title">Huffman Coding &amp; Lossless Compression Lab</h2>
+            <h2 class="banner-title">Huffman Coding &amp; Lossless Compression</h2>
             <p class="banner-desc">Explore variable-length prefix trees: frequent characters get short bit patterns, rare characters get longer ones!</p>
           </div>
         </div>
 
         <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="badge badge-topic">AQA 8525 §3.3.5 &bull; OCR J277 §2.1 &bull; Lossless Compression</span>
+          <span class="badge badge-topic">AQA 8525 §3.3.5 &bull; Lossless Compression</span>
         </div>
       </div>
 
       <!-- Huffman Explainer Card -->
       <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-primary); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px;">
         <div style="font-size: 13.5px; font-weight: 800; color: var(--text-primary); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
-          <span>⚡</span> Why Huffman Coding Works
+          Why Huffman Coding Works
         </div>
         <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
           Standard ASCII allocates a fixed <strong>8 bits (1 byte)</strong> for every character, whether it's common like 'E' or rare like 'Z'.
@@ -1721,15 +1724,15 @@
           <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 12px;">
             <div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
               <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary);">Quick Presets:</span>
-              <button type="button" class="control-btn huffman-preset-btn active" data-preset="BANANA">🍌 "BANANA"</button>
-              <button type="button" class="control-btn huffman-preset-btn" data-preset="ABRACADABRA">🪄 "ABRACADABRA"</button>
-              <button type="button" class="control-btn huffman-preset-btn" data-preset="MISSISSIPPI">🌊 "MISSISSIPPI"</button>
-              <button type="button" class="control-btn huffman-preset-btn" data-preset="SUPERNOVA">✨ "SUPERNOVA"</button>
-              <button type="button" class="control-btn huffman-preset-btn" data-preset="COFFEE BEAN">☕ "COFFEE BEAN"</button>
+              <button type="button" class="control-btn huffman-preset-btn active" data-preset="BANANA">"BANANA"</button>
+              <button type="button" class="control-btn huffman-preset-btn" data-preset="ABRACADABRA">"ABRACADABRA"</button>
+              <button type="button" class="control-btn huffman-preset-btn" data-preset="MISSISSIPPI">"MISSISSIPPI"</button>
+              <button type="button" class="control-btn huffman-preset-btn" data-preset="SUPERNOVA">"SUPERNOVA"</button>
+              <button type="button" class="control-btn huffman-preset-btn" data-preset="COFFEE BEAN">"COFFEE BEAN"</button>
             </div>
 
             <button type="button" id="btnResetHuffmanText" class="control-btn" style="font-size: 11.5px; padding: 4px 10px;">
-              🔄 Clear
+              Clear
             </button>
           </div>
 

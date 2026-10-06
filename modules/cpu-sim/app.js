@@ -437,7 +437,7 @@
         `<strong>Instruction Copied:</strong> The instruction in the MDR ("${ramEntry.val}") is copied into the Current Instruction Register (CIR).`,
         '<strong>MDR Ready:</strong> This frees up the MDR so it can be used to hold data during the upcoming Execute stage.'
       ],
-      examTakeaway: 'Syllabus Note: In OCR & advanced architectures, the CIR holds the instruction. For AQA GCSE, you only need to know that the instruction is decoded by the Control Unit.',
+      examTakeaway: 'Syllabus Note: In detailed architectures, the CIR holds the instruction while the Control Unit decodes the opcode.',
       activeElements: { source: 'regMDR', target: 'regCIR', internalWire: 'wireMDRtoCIR' },
       action: () => {
         fdeState.cir = ramEntry.val;

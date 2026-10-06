@@ -859,7 +859,7 @@
           <div>Formula: (${LCG_PARAMS.a} × ${prevX} + ${LCG_PARAMS.c}) mod 2³²</div>
           <div>New 32-bit Integer: <strong>${res.nextX}</strong></div>
           <div>Normalized Float (0.0 to 1.0): <strong>${normalizedFloat}</strong></div>
-          <div style="color: #10b981; font-weight: bold; margin-top: 4px;">➔ Scaled to Die Roll (1–6): [ ${diceRoll} ] 🎲</div>
+          <div style="color: #10b981; font-weight: bold; margin-top: 4px;">➔ Scaled to Die Roll (1–6): [ ${diceRoll} ]</div>
         `;
       }
 

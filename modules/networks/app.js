@@ -683,10 +683,10 @@ document.addEventListener('DOMContentLoaded', () => {
           // Message blocked from rendering! Show explicit error card
           destChatBubble.className = 'dest-chat-bubble corrupt-blocked';
           destBubbleContent.innerHTML = `
-            <div class="corrupt-alert-badge">⚠️ TCP CRC Checksum Failed</div>
+            <div class="corrupt-alert-badge">TCP CRC Checksum Failed</div>
             <div class="corrupt-alert-body">Packet #2 rejected (corrupted in transit). Message cannot assemble!</div>
             <button id="tcpRetransmitActionBtn" class="tcp-retransmit-action-btn">
-              ⚡ Send TCP Retransmission Request (Resend #2)
+              Send TCP Retransmission Request (Resend #2)
             </button>
           `;
           destTickMarks.style.display = 'none';
@@ -1004,7 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tabModeChat.classList.add('active');
     tabModeWeb.classList.remove('active');
     state.scenario = 'chat';
-    senderAppLabel.textContent = 'WhatsApp';
+    senderAppLabel.textContent = 'Chat';
     senderChatView.style.display = 'flex';
     senderWebView.style.display = 'none';
     stopPlay();
@@ -1369,7 +1369,7 @@ document.addEventListener('DOMContentLoaded', () => {
     label.setAttribute('font-size', '13');
     label.setAttribute('font-weight', '800');
     label.setAttribute('fill', isBroken ? '#ef4444' : 'currentColor');
-    label.textContent = isBroken ? '💥 SWITCH OFFLINE' : 'Central Switch';
+    label.textContent = isBroken ? 'SWITCH OFFLINE' : 'Central Switch';
 
     const sub = document.createElementNS('http://www.w3.org/2000/svg', 'text');
     sub.setAttribute('y', '66');
@@ -1504,22 +1504,22 @@ document.addEventListener('DOMContentLoaded', () => {
       if (isSwitchBroken) {
         topoHealthBadge.className = 'topo-health-badge offline';
         topoHealthBadge.textContent = '● TOTAL NETWORK CRASH (SPOF)';
-        topoFeedbackIcon.textContent = '💥';
+        topoFeedbackIcon.textContent = '✕';
         topoFeedbackText.innerHTML = `<strong style="color:#ef4444;">Central Switch Failed!</strong> Because all devices connect through the switch, NO devices can communicate. This is the classic GCSE <em>Single Point of Failure</em>!`;
       } else if (cutCables.has('cable-switch-n1')) {
         topoHealthBadge.className = 'topo-health-badge degraded';
         topoHealthBadge.textContent = '● Partial Outage (Node 1 Isolated)';
-        topoFeedbackIcon.textContent = '⚠️';
+        topoFeedbackIcon.textContent = '!';
         topoFeedbackText.innerHTML = `<strong>Node 1 Disconnected:</strong> Only Node 1 lost connection. All other workstations (Nodes 2, 3, 4, Server) communicate normally at full speed!`;
       } else if (cutCables.has('cable-switch-n4')) {
         topoHealthBadge.className = 'topo-health-badge degraded';
         topoHealthBadge.textContent = '● Partial Outage (Node 4 Isolated)';
-        topoFeedbackIcon.textContent = '⚠️';
+        topoFeedbackIcon.textContent = '!';
         topoFeedbackText.innerHTML = `<strong>Node 4 Disconnected:</strong> Node 4 cannot receive data, but the rest of the star network is completely unaffected.`;
       } else if (cutCables.size > 0) {
         topoHealthBadge.className = 'topo-health-badge degraded';
         topoHealthBadge.textContent = `● Isolated Devices (${cutCables.size} cables cut)`;
-        topoFeedbackIcon.textContent = 'ℹ️';
+        topoFeedbackIcon.textContent = 'i';
         topoFeedbackText.innerHTML = `Workstations with cut cables are isolated. The remaining devices continue operating normally through the switch.`;
       } else {
         topoHealthBadge.className = 'topo-health-badge online';
@@ -1531,17 +1531,17 @@ document.addEventListener('DOMContentLoaded', () => {
       if (cutCables.has('cable-backbone')) {
         topoHealthBadge.className = 'topo-health-badge offline';
         topoHealthBadge.textContent = '● TOTAL NETWORK FAILURE';
-        topoFeedbackIcon.textContent = '💥';
+        topoFeedbackIcon.textContent = '✕';
         topoFeedbackText.innerHTML = `<strong style="color:#ef4444;">Backbone Severed!</strong> Without a continuous cable, signals hit the break and bounce back. Colliding signals destroy all traffic across the entire bus!`;
       } else if (isTerminatorBroken) {
         topoHealthBadge.className = 'topo-health-badge offline';
         topoHealthBadge.textContent = '● SIGNAL BOUNCE / REFLECTION';
-        topoFeedbackIcon.textContent = '⚠️';
+        topoFeedbackIcon.textContent = '!';
         topoFeedbackText.innerHTML = `<strong style="color:#ef4444;">Missing Terminator:</strong> Signals reach the end of the cable without being absorbed. They reflect back down the bus and collide with oncoming packets!`;
       } else if (cutCables.has('cable-drop-n1') || cutCables.has('cable-drop-n4')) {
         topoHealthBadge.className = 'topo-health-badge degraded';
         topoHealthBadge.textContent = '● Drop Cable Severed';
-        topoFeedbackIcon.textContent = 'ℹ️';
+        topoFeedbackIcon.textContent = 'i';
         topoFeedbackText.innerHTML = `A drop cable broke. Only that single device loses access; the backbone cable continues functioning.`;
       } else {
         topoHealthBadge.className = 'topo-health-badge online';
@@ -1592,15 +1592,15 @@ document.addEventListener('DOMContentLoaded', () => {
       animateLinePacket(packetsG, 190, 110, 410, 200, '#3b82f6', (progress) => {
         if (p1Cut && progress > 0.3) {
           showTopoBurst(packetsG, 190 + 66, 110 + 27, '#ef4444', 'Dropped at break');
-          finishTopoAnimation('❌ Dropped: Cable to switch is cut! Packet could not reach the switch.');
+          finishTopoAnimation('Dropped: Cable to switch is cut! Packet could not reach the switch.');
           return false;
         }
         return true;
       }, () => {
         // Reached switch!
         if (isSwitchBroken) {
-          showTopoBurst(packetsG, 410, 200, '#ef4444', '💥 SWITCH DEAD');
-          finishTopoAnimation('❌ Dropped: Central Switch is broken! Single Point of Failure stopped the packet.');
+          showTopoBurst(packetsG, 410, 200, '#ef4444', 'SWITCH DEAD');
+          finishTopoAnimation('Dropped: Central Switch is broken! Single Point of Failure stopped the packet.');
           return;
         }
 
@@ -1608,13 +1608,13 @@ document.addEventListener('DOMContentLoaded', () => {
         animateLinePacket(packetsG, 410, 200, 190, 290, '#10b981', (progress) => {
           if (p4Cut && progress > 0.3) {
             showTopoBurst(packetsG, 410 - 66, 200 + 27, '#ef4444', 'Cable to Node 4 Cut');
-            finishTopoAnimation('❌ Dropped: Outgoing cable to Node 4 is cut. Switch could not deliver packet.');
+            finishTopoAnimation('Dropped: Outgoing cable to Node 4 is cut. Switch could not deliver packet.');
             return false;
           }
           return true;
         }, () => {
           showTopoBurst(packetsG, 190, 290, '#10b981', 'Delivered ✓');
-          finishTopoAnimation('✅ Success: Central switch forwarded packet directly to Node 4 port without broadcasting to other machines.');
+          finishTopoAnimation('Success: Central switch forwarded packet directly to Node 4 port without broadcasting to other machines.');
         });
       });
 
@@ -1626,7 +1626,7 @@ document.addEventListener('DOMContentLoaded', () => {
       animateLinePacket(packetsG, 210, 95, 210, 200, '#3b82f6', (prog) => {
         if (drop1Cut && prog > 0.3) {
           showTopoBurst(packetsG, 210, 130, '#ef4444', 'Drop Cut');
-          finishTopoAnimation('❌ Dropped: Drop cable from Node 1 is cut; packet cannot enter backbone.');
+          finishTopoAnimation('Dropped: Drop cable from Node 1 is cut; packet cannot enter backbone.');
           return false;
         }
         return true;
@@ -1634,16 +1634,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // On backbone!
         if (backboneCut) {
           animateLinePacket(packetsG, 210, 200, 410, 200, '#ef4444', () => true, () => {
-            showTopoBurst(packetsG, 410, 200, '#ef4444', '💥 COLLISION / REFLECT');
-            finishTopoAnimation('❌ Fatal Crash: Packet hit severed backbone! Signals reflect and collide, taking down the whole bus.');
+            showTopoBurst(packetsG, 410, 200, '#ef4444', 'COLLISION / REFLECT');
+            finishTopoAnimation('Fatal Crash: Packet hit severed backbone! Signals reflect and collide, taking down the whole bus.');
           });
           return;
         }
 
         if (isTerminatorBroken) {
           animateLinePacket(packetsG, 210, 200, 690, 200, '#f59e0b', () => true, () => {
-            showTopoBurst(packetsG, 690, 200, '#ef4444', '⚡ SIGNAL BOUNCE');
-            finishTopoAnimation('❌ Error: Missing terminator! Signal bounced off cable end and caused a data collision.');
+            showTopoBurst(packetsG, 690, 200, '#ef4444', 'SIGNAL BOUNCE');
+            finishTopoAnimation('Error: Missing terminator! Signal bounced off cable end and caused a data collision.');
           });
           return;
         }
@@ -1652,11 +1652,11 @@ document.addEventListener('DOMContentLoaded', () => {
         animateLinePacket(packetsG, 210, 200, 610, 200, '#10b981', () => true, () => {
           if (cutCables.has('cable-drop-n4')) {
             showTopoBurst(packetsG, 610, 240, '#ef4444', 'Drop 4 Cut');
-            finishTopoAnimation('❌ Dropped: Node 4 drop cable is severed; packet passed along bus without reaching workstation.');
+            finishTopoAnimation('Dropped: Node 4 drop cable is severed; packet passed along bus without reaching workstation.');
           } else {
             animateLinePacket(packetsG, 610, 200, 610, 305, '#10b981', () => true, () => {
               showTopoBurst(packetsG, 610, 305, '#10b981', 'Accepted ✓');
-              finishTopoAnimation('✅ Success: Broadcast signal traveled along the bus. Node 4 accepted its packet, and terminators absorbed leftover energy.');
+              finishTopoAnimation('Success: Broadcast signal traveled along the bus. Node 4 accepted its packet, and terminators absorbed leftover energy.');
             });
           }
         });
@@ -1671,7 +1671,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Direct route Node 1 -> Node 4
         animateLinePacket(packetsG, 200, 120, 200, 280, '#10b981', () => true, () => {
           showTopoBurst(packetsG, 200, 280, '#10b981', 'Delivered (Direct) ✓');
-          finishTopoAnimation('✅ Success (Direct Path): Packet traveled directly from Node 1 to Node 4 (1 hop, fastest).');
+          finishTopoAnimation('Success (Direct Path): Packet traveled directly from Node 1 to Node 4 (1 hop, fastest).');
         });
       } else if (!relay1Cut && !relay2Cut) {
         // Self-healing detour via Relay Node 5!
@@ -1680,14 +1680,14 @@ document.addEventListener('DOMContentLoaded', () => {
           showTopoBurst(packetsG, 410, 200, '#06b6d4', 'Rerouted ➔');
           animateLinePacket(packetsG, 410, 200, 200, 280, '#06b6d4', () => true, () => {
             showTopoBurst(packetsG, 200, 280, '#10b981', 'Delivered (Detour) ✓');
-            finishTopoAnimation('✅ Self-Healing Success: Direct wire was cut, but mesh routing dynamically steered packet via Relay Node 5!');
+            finishTopoAnimation('Self-Healing Success: Direct wire was cut, but mesh routing dynamically steered packet via Relay Node 5!');
           });
         });
       } else {
         // All paths broken
         animateLinePacket(packetsG, 200, 120, 200, 180, '#ef4444', () => true, () => {
           showTopoBurst(packetsG, 200, 180, '#ef4444', 'No Path Found');
-          finishTopoAnimation('❌ Dropped: Both direct and relay paths are severed. Target is completely unreachable.');
+          finishTopoAnimation('Dropped: Both direct and relay paths are severed. Target is completely unreachable.');
         });
       }
     }
@@ -2100,7 +2100,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentLayerStep === 0) {
         conduitContent4.innerHTML = `
           <div class="conduit-action-header">
-            <span style="font-size: 13px;">📝</span> <strong>Application Formatting:</strong> Raw Request Created
+            <strong>Application Formatting:</strong> Raw Request Created
           </div>
           <div class="split-packet-card" style="border-color: #10b981;">
             <div class="split-packet-header" style="color: #059669;">
@@ -2114,7 +2114,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (currentLayerStep === 7) {
         conduitContent4.innerHTML = `
           <div class="conduit-action-header">
-            <span style="font-size: 13px;">🎉</span> <strong>Application Delivery:</strong> Request Processed (200 OK)
+            <strong>Application Delivery:</strong> Request Processed (200 OK)
           </div>
           <div class="split-packet-card" style="border-color: #10b981;">
             <div class="split-packet-header" style="color: #059669;">
@@ -2149,7 +2149,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         conduitContent3.innerHTML = `
           <div class="conduit-action-header">
-            <span style="font-size: 13px;">✂️</span> <strong>TCP Segmentation: Message sliced into ${chunks.length} numbered packets!</strong>
+            <strong>TCP Segmentation: Message sliced into ${chunks.length} numbered packets!</strong>
           </div>
           <div class="split-packets-grid">
             ${packetCardsHtml}
@@ -2166,7 +2166,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         conduitContent3.innerHTML = `
           <div class="conduit-action-header">
-            <span style="font-size: 13px;">🧩</span> <strong>TCP Reassembly: Ordering Packets &amp; Delivering to Port ${escapeHtml(presetData.port.split(' ')[0])}</strong>
+            <strong>TCP Reassembly: Ordering Packets &amp; Delivering to Port ${escapeHtml(presetData.port.split(' ')[0])}</strong>
           </div>
           <div class="reassemble-chain-card">
             ${reassembleChainHtml}
@@ -2190,7 +2190,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentLayerStep === 2) {
         conduitContent2.innerHTML = `
           <div class="conduit-action-header">
-            <span style="font-size: 13px;">🌐</span> <strong>IP Encapsulation: Stamping Global Logical Addresses</strong>
+            <strong>IP Encapsulation: Stamping Global Logical Addresses</strong>
           </div>
           <div class="split-packet-card" style="border-color: #3b82f6;">
             <div class="split-packet-header" style="color: #2563eb;">
@@ -2208,7 +2208,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (currentLayerStep === 5) {
         conduitContent2.innerHTML = `
           <div class="conduit-action-header">
-            <span style="font-size: 13px;">🔍</span> <strong>Internet Decapsulation: Destination IP Verified</strong>
+            <strong>Internet Decapsulation: Destination IP Verified</strong>
           </div>
           <div class="split-packet-card" style="border-color: #3b82f6;">
             <div class="split-packet-header" style="color: #059669;">
@@ -2237,7 +2237,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentLayerStep === 3) {
         conduitContent1.innerHTML = `
           <div class="conduit-action-header">
-            <span style="font-size: 13px;">⚡</span> <strong>Link Framing: MAC Address &amp; Physical Signalling</strong>
+            <strong>Link Framing: MAC Address &amp; Physical Signalling</strong>
           </div>
           <div class="split-packet-card" style="border-color: #f59e0b;">
             <div class="split-packet-header" style="color: #d97706;">
@@ -2255,7 +2255,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (currentLayerStep === 4) {
         conduitContent1.innerHTML = `
           <div class="conduit-action-header">
-            <span style="font-size: 13px;">📥</span> <strong>Link Ingestion: Frame Received Across Wire</strong>
+            <strong>Link Ingestion: Frame Received Across Wire</strong>
           </div>
           <div class="split-packet-card" style="border-color: #f59e0b;">
             <div class="split-packet-header" style="color: #059669;">

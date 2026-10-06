@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
   <meta name="googlebot" content="index, follow">
-  <title>CPU Architecture &amp; LMC • GCSE Computer Science</title>
+  <title>CPU Architecture &amp; Hardware • GCSE Computer Science</title>
   <link rel="stylesheet" href="./style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💻</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
 </head>
 <body>
 
@@ -31,7 +31,7 @@
           <h1 style="font-size: 15px; font-weight: 800; color: var(--text-primary); margin: 0;">
             CPU Architecture
           </h1>
-          <span class="badge badge-topic" style="font-size: 10px;">AQA 8525 §3.4.1 (Systems Architecture)</span>
+          <span class="badge badge-topic" style="font-size: 10px;">AQA 8525 §3.4</span>
         </div>
       </div>
 
@@ -208,7 +208,7 @@
           <!-- Component Inspector Tooltip (Restored on component hover) -->
           <div id="componentInspectorCard" class="component-tooltip" style="display: none; position: absolute; top: 12px; z-index: 50; max-width: 260px;">
             <div class="tooltip-header">
-              <span id="inspectorIcon" class="tooltip-icon">🔍</span>
+              <span id="inspectorIcon" class="tooltip-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
               <div>
                 <h5 id="inspectorName" class="tooltip-title">Program Counter (PC)</h5>
                 <span id="inspectorNickname" class="tooltip-nick">"The Bookmark"</span>
@@ -286,7 +286,6 @@
       <details class="under-hood-drawer">
         <summary class="under-hood-summary">
           <div class="under-hood-summary-left">
-            <span>🔧</span>
             <span>Under The Hood: Live Register State &amp; Full 32-Cell RAM Inspector</span>
           </div>
           <span class="summary-toggle-pill"></span>
@@ -378,7 +377,7 @@
           <!-- AQA Exam Phrasing Reference Box -->
           <div class="aqa-exam-box" style="margin-top: 14px;">
             <div class="aqa-exam-header">
-              <span>📝 AQA Mark Scheme Phrasing Reference:</span>
+              <span>Exam Mark Scheme Phrasing Reference:</span>
             </div>
             <p id="aqaExamQuote" class="aqa-exam-text">
               "The contents of the Program Counter (PC) are copied to the Memory Address Register (MAR) via the address bus."
@@ -617,7 +616,7 @@
         <!-- Bottleneck Diagnosis Banner -->
         <div class="perf-bottleneck-card" id="perfBottleneckCard">
           <div class="bottleneck-header">
-            <div class="bottleneck-icon" id="perfBottleneckIcon">ℹ️</div>
+            <div class="bottleneck-icon" id="perfBottleneckIcon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg></div>
             <div style="flex: 1;">
               <div class="bottleneck-badge-row">
                 <span class="badge badge-warning" id="perfBottleneckType">NOTE</span>
@@ -830,7 +829,7 @@
           <div class="memory-chip-card ram-card">
             <div class="chip-card-head">
               <div class="chip-title-group">
-                <span class="chip-icon">⚡</span>
+                <span class="chip-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span>
                 <div>
                   <h4 style="margin: 0; font-size: 15px; font-weight: 800;">RAM (Random Access Memory)</h4>
                   <span class="chip-sub">Direct working workspace for active CPU execution</span>
@@ -857,7 +856,7 @@
 
             <div class="chip-actions">
               <button id="btnWriteRam" class="btn btn-secondary btn-sm">
-                <span>➕ Write New Process to RAM</span>
+                <span>Write New Process to RAM</span>
               </button>
             </div>
           </div>
@@ -866,7 +865,7 @@
           <div class="memory-chip-card rom-card">
             <div class="chip-card-head">
               <div class="chip-title-group">
-                <span class="chip-icon">🔒</span>
+                <span class="chip-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
                 <div>
                   <h4 style="margin: 0; font-size: 15px; font-weight: 800;">ROM (Read-Only Memory)</h4>
                   <span class="chip-sub">Permanent factory-burned firmware for system startup</span>
@@ -893,7 +892,7 @@
 
             <div class="chip-actions">
               <button id="btnWriteRom" class="btn btn-secondary btn-sm" title="Attempt to write into ROM chip">
-                <span>🚫 Attempt Write to ROM</span>
+                <span>Attempt Write to ROM</span>
               </button>
             </div>
           </div>
@@ -961,7 +960,7 @@
         <div class="secondary-reasons-grid">
           <div class="reason-card">
             <div class="reason-icon-wrapper" style="background: rgba(239, 68, 68, 0.15); color: #ef4444;">
-              ⚡
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             </div>
             <div>
               <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 800; color: var(--text-primary);">
@@ -975,7 +974,7 @@
 
           <div class="reason-card">
             <div class="reason-icon-wrapper" style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
-              💾
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
             </div>
             <div>
               <h4 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 800; color: var(--text-primary);">
@@ -1003,10 +1002,10 @@
           <!-- Secondary Mode Switcher -->
           <div class="storage-mode-tabs" role="tablist">
             <button class="storage-mode-btn active" data-mode="hdd" role="tab" aria-selected="true">
-              <span>💽 Magnetic Platter (HDD)</span>
+              <span>Magnetic Platter (HDD)</span>
             </button>
             <button class="storage-mode-btn" data-mode="ssd" role="tab" aria-selected="false">
-              <span>⚡ Solid-State Flash (SSD)</span>
+              <span>Solid-State Flash (SSD)</span>
             </button>
           </div>
         </div>
@@ -1041,7 +1040,7 @@
 
               <!-- Mouseover Inspector HUD -->
               <div id="hddInspectorHud" class="hdd-inspector-hud">
-                <span class="hud-icon">🔍</span>
+                <span class="hud-icon"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
                 <span id="hddInspectorText" class="hud-text">Move mouse over tracks, sectors, spindle, or actuator head to inspect hardware components.</span>
               </div>
 
@@ -1080,22 +1079,22 @@
               <!-- Interactive Buttons -->
               <div class="hdd-btn-stack">
                 <button id="btnHddReadFileA" class="btn btn-primary" style="width: 100%; justify-content: center;">
-                  ▶ Read File A (game_levels.pak)
+                  Read File A (game_levels.pak)
                 </button>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                   <button id="btnHddDefrag" class="btn btn-secondary btn-sm" style="justify-content: center;">
-                    🧹 Run Disk Defragmenter
+                    Run Disk Defragmenter
                   </button>
                   <button id="btnHddDelete" class="btn btn-secondary btn-sm" style="justify-content: center;">
-                    🗑️ Delete File B (vacation.mp4)
+                    Delete File B (vacation.mp4)
                   </button>
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                   <button id="btnHddWriteD" class="btn btn-secondary btn-sm" style="justify-content: center;">
-                    💾 Write File D (save_data.dat)
+                    Write File D (save_data.dat)
                   </button>
                   <button id="btnHddReset" class="btn btn-secondary btn-sm" style="justify-content: center;">
-                    ↺ Reset Drive
+                    Reset Drive
                   </button>
                 </div>
               </div>
@@ -1190,18 +1189,18 @@
               <!-- Interactive Buttons -->
               <div class="hdd-btn-stack">
                 <button id="btnSsdRead" class="btn btn-primary" style="width: 100%; justify-content: center;">
-                  ⚡ Read File A Across Flash Cells
+                  Read File A Across Flash Cells
                 </button>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                   <button id="btnSsdReadB" class="btn btn-secondary btn-sm" style="justify-content: center;">
-                    ⚡ Read File B
+                    Read File B
                   </button>
                   <button id="btnSsdReadC" class="btn btn-secondary btn-sm" style="justify-content: center;">
-                    ⚡ Read File C
+                    Read File C
                   </button>
                 </div>
                 <button id="btnSsdDefrag" class="btn btn-secondary" style="width: 100%; justify-content: center; border-color: #ef4444; color: #ef4444;">
-                  ⚠️ Try to Defragment SSD
+                  Try to Defragment SSD
                 </button>
               </div>
 
@@ -1298,9 +1297,9 @@
             <thead>
               <tr>
                 <th style="width: 140px;">Characteristic</th>
-                <th>💽 Magnetic (HDD / Tape)</th>
-                <th>⚡ Solid-State (SSD / USB Flash)</th>
-                <th>💿 Optical (CD / DVD / Blu-Ray)</th>
+                <th>Magnetic (HDD / Tape)</th>
+                <th>Solid-State (SSD / USB Flash)</th>
+                <th>Optical (CD / DVD / Blu-Ray)</th>
               </tr>
             </thead>
             <tbody>
@@ -1376,14 +1375,14 @@
 
       <!-- Revision Cards Section -->
       <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 14px 0; display: flex; align-items: center; gap: 8px;">
-        <span style="color: #f59e0b;">📌</span> Key Exam Traps &amp; Core Concepts
+        Key Exam Traps &amp; Core Concepts
       </h3>
 
       <!-- Card 1: MAR vs MDR -->
       <div class="trap-card">
         <div class="trap-header">
           <span class="badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4);">
-            AQA TRAP 1: REGISTERS
+            EXAM TRAP 1: REGISTERS
           </span>
           <h4 class="trap-title">Never Confuse the MAR and the MDR</h4>
         </div>
@@ -1403,7 +1402,7 @@
           </div>
         </div>
         <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: #fbbf24;">
-          💡 <strong>Memory Hook:</strong> MAR = <strong>A</strong>ddress (where to look); MDR = <strong>D</strong>ata (what was found).
+          <strong>Memory Hook:</strong> MAR = <strong>A</strong>ddress (where to look); MDR = <strong>D</strong>ata (what was found).
         </div>
       </div>
 
@@ -1411,7 +1410,7 @@
       <div class="trap-card" style="border-left-color: #ec4899;">
         <div class="trap-header">
           <span class="badge" style="background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4);">
-            AQA TRAP 2: CPU PERFORMANCE
+            EXAM TRAP 2: CPU PERFORMANCE
           </span>
           <h4 class="trap-title" style="color: #f472b6;">Why More Cores Does Not Guarantee Faster Performance</h4>
         </div>
@@ -1429,12 +1428,12 @@
       <div class="trap-card" style="border-left-color: #6366f1;">
         <div class="trap-header">
           <span class="badge" style="background: rgba(99, 102, 241, 0.2); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.4);">
-            AQA SPECIFICATION §3.4.1
+            SPECIFICATION §3.4.1
           </span>
           <h4 class="trap-title" style="color: #818cf8;">The Stored Program Concept (Von Neumann)</h4>
         </div>
         <div style="background: var(--bg-root); padding: 10px 14px; border-radius: var(--radius-md); font-size: 12px; color: #34d399; line-height: 1.6;">
-          ✓ <strong>AQA Definition:</strong> In the Von Neumann architecture, both <strong>program instructions and data</strong> are stored together in the <strong>same physical memory (RAM)</strong> and fetched across shared system buses. Instructions are executed sequentially unless an explicit branch occurs.
+          ✓ <strong>Key Definition:</strong> In the Von Neumann architecture, both <strong>program instructions and data</strong> are stored together in the <strong>same physical memory (RAM)</strong> and fetched across shared system buses. Instructions are executed sequentially unless an explicit branch occurs.
         </div>
       </div>
 
@@ -1504,7 +1503,7 @@
 
       <!-- Practice Questions with Mark Schemes -->
       <h3 style="font-size: 16px; font-weight: 800; margin: 32px 0 14px 0; display: flex; align-items: center; gap: 8px;">
-        <span>📝</span> AQA Past Paper Style Questions with Mark Schemes
+        Exam Style Questions with Mark Schemes
       </h3>
 
       <!-- Question 1 -->
