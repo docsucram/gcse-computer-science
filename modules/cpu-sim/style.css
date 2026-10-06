@@ -41,23 +41,15 @@
 
 /* Common View Banner - Clean Unboxed Page Header */
 .view-banner {
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  padding: 4px 0 14px 0;
-  margin-bottom: 14px;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 4px 0 16px 0 !important;
+  margin-bottom: 20px !important;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  box-shadow: none;
-}
-
-@media (min-width: 768px) {
-  .view-banner {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
+  gap: 6px;
+  box-shadow: none !important;
 }
 
 .banner-left {
@@ -67,23 +59,26 @@
 }
 
 .banner-icon {
-  display: none;
+  display: none !important;
 }
 
-.banner-text h2 {
-  font-size: 21px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+.view-banner h2, .banner-text h2 {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
-  margin: 0 0 4px 0;
-  text-transform: uppercase;
+  margin: 0;
+  text-transform: none;
 }
 
-.banner-text p {
+.view-banner p, .banner-text p {
+  font-family: var(--font-sans);
   font-size: 13.5px;
   color: var(--text-secondary);
   margin: 0;
-  line-height: 1.45;
+  line-height: 1.55;
+  max-width: 820px;
 }
 
 /* Layout Grids */
@@ -529,12 +524,16 @@
 
 /* Motherboard Schematic Frame & Canvas */
 .motherboard-frame {
-  background: var(--bg-root);
+  background: #ffffff;
   border: 1.5px solid var(--border-color);
   border-radius: var(--radius-xl);
   padding: 16px;
   position: relative;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+html.dark .motherboard-frame {
+  background: var(--bg-surface);
 }
 
 .motherboard-top-controls {

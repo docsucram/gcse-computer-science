@@ -189,13 +189,9 @@ h1, h2, h3, h4 {
 .font-sans {
   font-family: var(--font-sans);
 }
-  background-color: var(--bg-root);
-  color: var(--text-primary);
-  min-height: 100vh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
-  transition: background-color var(--transition-normal), color var(--transition-normal);
+
+.font-mono {
+  font-family: var(--font-mono);
 }
 
 /* Custom Scrollbars */
@@ -800,6 +796,44 @@ details.explainer-card .explainer-content {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
+}
+
+/* Universal Unboxed Page Header (Gold Standard: Fetch-Decode-Execute Simulator) */
+.view-banner, .standalone-stage-header {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 4px 0 16px 0 !important;
+  margin-bottom: 20px !important;
+  box-shadow: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  align-items: flex-start !important;
+}
+
+.view-banner h2, .standalone-stage-header h2, .banner-title {
+  font-family: var(--font-serif) !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.01em !important;
+  color: var(--ink-primary) !important;
+  margin: 0 !important;
+  text-transform: none !important;
+}
+
+.view-banner p, .standalone-stage-header p, .banner-desc {
+  font-family: var(--font-sans) !important;
+  font-size: 13.5px !important;
+  color: var(--ink-secondary) !important;
+  line-height: 1.55 !important;
+  max-width: 820px !important;
+  margin: 0 !important;
+}
+
+.view-banner .banner-icon,
+.standalone-stage-header .banner-icon {
+  display: none !important;
 }
 
 

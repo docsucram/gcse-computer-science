@@ -168,16 +168,15 @@
 
 /* Banner */
 .view-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 16px 20px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 4px 0 16px 0 !important;
+  margin-bottom: 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  box-shadow: none !important;
 }
 
 .banner-left {
@@ -187,38 +186,40 @@
 }
 
 .banner-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  display: none !important;
 }
 
-.banner-title {
-  margin: 0 0 2px 0;
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--text-primary);
+.view-banner h2, .banner-title {
+  margin: 0 !important;
+  font-family: var(--font-serif) !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  color: var(--text-primary) !important;
+  letter-spacing: -0.01em !important;
+  text-transform: none !important;
 }
 
-.banner-desc {
-  margin: 0;
-  font-size: 13px;
-  color: var(--text-secondary);
+.view-banner p, .banner-desc {
+  margin: 0 !important;
+  font-family: var(--font-sans) !important;
+  font-size: 13.5px !important;
+  color: var(--text-secondary) !important;
+  line-height: 1.55 !important;
+  max-width: 820px !important;
 }
 
 /* Bit Register Visualizer */
 .register-container {
-  background: var(--bg-surface);
+  background: #ffffff;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 24px;
   margin-bottom: 24px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+html.dark .register-container {
+  background: var(--bg-surface);
 }
 
 .nibbles-wrapper {
@@ -235,12 +236,17 @@
 }
 
 .nibble-box {
-  background: var(--bg-surface-elevated);
-  border: 2px solid var(--border-color);
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
   border-radius: var(--radius-md);
   padding: 16px;
   position: relative;
   transition: border-color var(--transition-fast);
+}
+
+html.dark .nibble-box {
+  background: var(--bg-surface-elevated);
+  border-color: var(--border-color);
 }
 
 .nibble-box.nibble-high {
@@ -288,7 +294,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: var(--bg-surface);
+  background: #ffffff;
   border: 2px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 12px 6px;
@@ -296,6 +302,10 @@
   user-select: none;
   transition: all var(--transition-fast);
   position: relative;
+}
+
+html.dark .bit-card {
+  background: var(--bg-surface);
 }
 
 .bit-card:hover {
@@ -397,11 +407,16 @@
 /* Interactive Binary Addition Grid */
 .addition-table-container {
   overflow-x: auto;
-  background: var(--bg-surface);
+  background: #ffffff;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 20px;
   margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+html.dark .addition-table-container {
+  background: var(--bg-surface);
 }
 
 .addition-grid {
@@ -445,11 +460,16 @@
 }
 
 .digit-input-cell {
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-color);
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
   cursor: pointer;
   user-select: none;
   transition: all var(--transition-fast);
+}
+
+html.dark .digit-input-cell {
+  background: var(--bg-surface-elevated);
+  border-color: var(--border-color);
 }
 
 .digit-input-cell:hover {
@@ -471,11 +491,15 @@
 }
 
 .sum-cell {
-  background: var(--bg-surface-elevated);
+  background: #ffffff;
   border: 2px solid var(--accent-primary);
   font-size: 18px;
   font-weight: 900;
   color: var(--accent-primary);
+}
+
+html.dark .sum-cell {
+  background: var(--bg-surface-elevated);
 }
 
 .overflow-indicator {

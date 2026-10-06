@@ -136,24 +136,10 @@
     <!-- TAB 1: VISUALIZER                          -->
     <!-- ========================================== -->
     <div id="tab-visualizer" class="tab-view active">
-      <!-- Overview Banner -->
+      <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
-        <div class="banner-left">
-          <div class="banner-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 20h9"></path>
-              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-            </svg>
-          </div>
-          <div class="banner-text">
-            <h2>Interactive Pixel Grid &amp; Binary Inspector</h2>
-            <p>Paint on the grid to see how images are stored as binary, check file size calculations, and see how RLE compression works.</p>
-          </div>
-        </div>
-
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="badge badge-topic">Formula: Width × Height × Depth</span>
-        </div>
+        <h2>Interactive Pixel Grid &amp; Binary Inspector</h2>
+        <p>Paint on the grid to see how images are stored as binary, check file size calculations, and see how RLE compression works.</p>
       </div>
 
       <!-- Images Explainer Card -->
@@ -489,24 +475,10 @@
     <!-- TAB: PHOTO COLOUR DEPTH LAB (Dedicated)    -->
     <!-- ========================================== -->
     <div id="tab-photolab" class="tab-view">
-      <!-- Overview Banner -->
+      <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
-        <div class="banner-left">
-          <div class="banner-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #ec4899 100%);">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-              <circle cx="12" cy="13" r="4"></circle>
-            </svg>
-          </div>
-          <div class="banner-text">
-            <h2>Photo Colour Depth &amp; Posterization</h2>
-            <p>From 16.7 Million Colours down to 1-Bit: See how colour depth creates colour banding, affects image realism, and calculates true file size.</p>
-          </div>
-        </div>
-
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="badge badge-topic">AQA 8525 §3.3.3 (Bitmaps)</span>
-        </div>
+        <h2>Photo Colour Depth &amp; Posterization</h2>
+        <p>From 16.7 Million Colours down to 1-Bit: See how colour depth creates colour banding, affects image realism, and calculates true file size.</p>
       </div>
 
       <!-- Concept Card -->
@@ -643,31 +615,20 @@
     <!-- TAB 2: COMPARISON MODE                     -->
     <!-- ========================================== -->
     <div id="tab-comparison" class="tab-view">
-      <!-- Overview Banner -->
+      <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
-        <div class="banner-left">
-          <div class="banner-icon" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
-              <line x1="8" y1="21" x2="16" y2="21"></line>
-              <line x1="12" y1="17" x2="12" y2="21"></line>
-            </svg>
-          </div>
-          <div class="banner-text">
-            <h2>Resolution &amp; Colour Depth Comparison</h2>
-            <p>Compare how changing image dimensions and colour depth affects file size and download time.</p>
-          </div>
-        </div>
+        <h2>Resolution &amp; Colour Depth Comparison</h2>
+        <p>Compare how changing image dimensions and colour depth affects file size and download time.</p>
+      </div>
 
-        <div class="control-group">
-          <span class="control-label">Sample Image:</span>
-          <select id="compareSubjectSelect" class="control-select">
-            <option value="parrot" selected>Tropical Parrot</option>
-            <option value="sunset">Sunset Horizon &amp; Lake</option>
-            <option value="arcade">Retro Arcade Machine</option>
-            <option value="alien">Space Invader Hero</option>
-          </select>
-        </div>
+      <div class="control-group" style="margin-bottom: 16px;">
+        <span class="control-label">Sample Image:</span>
+        <select id="compareSubjectSelect" class="control-select">
+          <option value="parrot" selected>Tropical Parrot</option>
+          <option value="sunset">Sunset Horizon &amp; Lake</option>
+          <option value="arcade">Retro Arcade Machine</option>
+          <option value="alien">Space Invader Hero</option>
+        </select>
       </div>
 
       <!-- Side-by-Side Dual Canvas Cards -->
@@ -833,23 +794,10 @@
     <!-- TAB: SOUND SAMPLING & QUANTIZATION         -->
     <!-- ========================================== -->
     <div id="tab-sound" class="tab-view">
-      <!-- Overview Banner -->
+      <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
-        <div class="banner-left">
-          <div class="banner-icon" style="background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2v20M17 5v14M7 9v6M22 8v8M2 11v2"></path>
-            </svg>
-          </div>
-          <div class="banner-text">
-            <h2>Sound Sampling &amp; Quantization</h2>
-            <p>How continuous analogue sound waves are measured, digitized, and reconstructed into audio files.</p>
-          </div>
-        </div>
-
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="badge badge-topic">AQA 8525 §3.3.4 (Sound)</span>
-        </div>
+        <h2>Sound Sampling &amp; Quantization</h2>
+        <p>How continuous analogue sound waves are measured, digitized, and reconstructed into audio files.</p>
       </div>
 
       <!-- Sound Explainer Card -->
@@ -1138,25 +1086,10 @@
     <!-- TAB 3: REVISION CARDS & TRAPS              -->
     <!-- ========================================== -->
     <div id="tab-revision" class="tab-view">
-      <!-- Overview Banner -->
+      <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
-        <div class="banner-left">
-          <div class="banner-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-              <line x1="12" y1="9" x2="12" y2="13"></line>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-          </div>
-          <div class="banner-text">
-            <h2>Exam Tips &amp; Practice Questions</h2>
-            <p>Key points to remember for your exam, common mistakes, and practice questions with mark schemes.</p>
-          </div>
-        </div>
-
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <span class="badge badge-topic">Specification Focus §3.3</span>
-        </div>
+        <h2>Exam Tips &amp; Practice Questions</h2>
+        <p>Key points to remember for your exam, common mistakes, and practice questions with mark schemes.</p>
       </div>
 
       <!-- Key Exam Revision Cards Section -->
