@@ -2193,6 +2193,7 @@
     switchBits: [0, 0, 0, 0, 0, 0, 0, 0],
     keypadBuffer: ""
   };
+  window.bitmasterState = bitmasterState;
 
   function loadBitmasterSave() {
     try {
@@ -3540,7 +3541,7 @@
       canvas.style.width = '100vw';
       canvas.style.height = '100vh';
       canvas.style.pointerEvents = 'none';
-      canvas.style.zIndex = '9999';
+      canvas.style.zIndex = '99999';
       document.body.appendChild(canvas);
 
       const ctx = canvas.getContext('2d');
@@ -3548,18 +3549,26 @@
       const width = canvas.width = window.innerWidth;
       const height = canvas.height = window.innerHeight;
 
-      const colors = ['#f59e0b', '#ec4899', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444'];
-      const particles = Array.from({ length: 65 }, () => ({
-        x: width / 2,
-        y: height / 2,
-        vx: (Math.random() - 0.5) * 16,
-        vy: (Math.random() - 0.7) * 18,
-        size: Math.random() * 8 + 4,
-        color: colors[Math.floor(Math.random() * colors.length)],
-        alpha: 1,
-        rotation: Math.random() * 360,
-        vRot: (Math.random() - 0.5) * 10
-      }));
+      const colors = ['#f59e0b', '#ec4899', '#3b82f6', '#10b981', '#8b5cf6', '#38bdf8', '#fbbf24', '#f43f5e'];
+      const particles = [];
+      const numParticles = 100;
+
+      for (let i = 0; i < numParticles; i++) {
+        const originX = (i % 2 === 0) ? width * 0.3 : width * 0.7;
+        const originY = height * 0.6;
+        particles.push({
+          x: originX,
+          y: originY,
+          vx: (i % 2 === 0 ? 1 : -1) * (Math.random() * 8 + 3) + (Math.random() - 0.5) * 6,
+          vy: -(Math.random() * 14 + 10),
+          size: Math.random() * 9 + 5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          alpha: 1,
+          rotation: Math.random() * 360,
+          vRot: (Math.random() - 0.5) * 12,
+          isCircle: Math.random() > 0.6
+        });
+      }
 
       const startTime = performance.now();
       function animate(time) {
@@ -3569,20 +3578,26 @@
         particles.forEach(p => {
           p.x += p.vx;
           p.y += p.vy;
-          p.vy += 0.4;
+          p.vy += 0.38;
           p.rotation += p.vRot;
-          p.alpha = Math.max(0, 1 - elapsed / 2200);
+          p.alpha = Math.max(0, 1 - elapsed / 2600);
 
           ctx.save();
           ctx.globalAlpha = p.alpha;
           ctx.translate(p.x, p.y);
           ctx.rotate((p.rotation * Math.PI) / 180);
           ctx.fillStyle = p.color;
-          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.5);
+          if (p.isCircle) {
+            ctx.beginPath();
+            ctx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.6);
+          }
           ctx.restore();
         });
 
-        if (elapsed < 2200) {
+        if (elapsed < 2600) {
           requestAnimationFrame(animate);
         } else {
           canvas.remove();
@@ -3593,6 +3608,7 @@
       console.warn("Confetti animation error:", e);
     }
   }
+  window.fireConfetti = fireConfetti;
 
   function finishBitmasterRound() {
     if (bitmasterState.timerInterval) {
@@ -3662,6 +3678,7 @@
         if (titleEl) titleEl.textContent = 'Sprint Champion!';
         if (starsEl) starsEl.textContent = '⭐⭐⭐';
         fireConfetti();
+        setTimeout(fireConfetti, 280);
         playSynthSound('perfect10');
         if (tipEl) tipEl.innerHTML = `🏆 <strong>Legendary Pace!</strong> You solved ${bitmasterState.correctThisRound} problems in 60s! Maximum 3-Star Sprint rating achieved!`;
       } else if (starsEarned === 2) {
@@ -3688,25 +3705,41 @@
       if (accEl) accEl.textContent = `${accuracy}%`;
     } else {
       const accuracy = Math.round((bitmasterState.correctThisRound / bitmasterState.totalQuestions) * 100);
+      const isAllQuestionsCorrect = (bitmasterState.correctThisRound === bitmasterState.totalQuestions);
+
+      // Trigger celebratory confetti and fanfare whenever the player answers ALL questions correctly
+      if (isAllQuestionsCorrect || starsEarned === 3) {
+        fireConfetti();
+        setTimeout(fireConfetti, 280);
+        playSynthSound('perfect10');
+      }
+
       if (starsEarned === 3) {
         if (badgeEl) badgeEl.textContent = '👑';
         if (titleEl) titleEl.textContent = 'Grandmaster Precision!';
         if (starsEl) starsEl.textContent = '⭐⭐⭐';
-        fireConfetti();
-        playSynthSound('perfect10');
         if (tipEl) {
           tipEl.innerHTML = `🏆 <strong>Flawless 10/10 Mastery!</strong> Cleared in ${bitmasterState.elapsedSeconds}s with 0 mistakes. Maximum 3-Star Grandmaster achieved!`;
         }
       } else if (starsEarned === 2) {
-        if (badgeEl) badgeEl.textContent = '⚡';
-        if (titleEl) titleEl.textContent = 'Stage Mastered!';
-        if (starsEl) starsEl.textContent = '⭐⭐☆';
-        playSynthSound('victory');
-        if (tipEl) {
-          const timeDiff = bitmasterState.elapsedSeconds > 50 ? `${bitmasterState.elapsedSeconds - 50}s faster` : '';
-          const mistakeMsg = bitmasterState.mistakesThisRound > 0 ? `eliminate ${bitmasterState.mistakesThisRound} mistake(s)` : '';
-          const reqs = [mistakeMsg, timeDiff].filter(Boolean).join(' and ');
-          tipEl.innerHTML = `💡 <strong>To earn 3 Stars:</strong> Score 10/10 in &lt; 50s with 0 mistakes. Try again to ${reqs || 'beat the 50s clock'}!`;
+        if (isAllQuestionsCorrect) {
+          if (badgeEl) badgeEl.textContent = '🌟';
+          if (titleEl) titleEl.textContent = 'Flawless 10/10!';
+          if (starsEl) starsEl.textContent = '⭐⭐☆';
+          if (tipEl) {
+            tipEl.innerHTML = `🎉 <strong>All 10 Questions Correct!</strong> Perfect accuracy! To earn the 3rd Star, complete all 10 in &lt; 50s (you took ${bitmasterState.elapsedSeconds}s).`;
+          }
+        } else {
+          if (badgeEl) badgeEl.textContent = '⚡';
+          if (titleEl) titleEl.textContent = 'Stage Mastered!';
+          if (starsEl) starsEl.textContent = '⭐⭐☆';
+          playSynthSound('victory');
+          if (tipEl) {
+            const timeDiff = bitmasterState.elapsedSeconds > 50 ? `${bitmasterState.elapsedSeconds - 50}s faster` : '';
+            const mistakeMsg = bitmasterState.mistakesThisRound > 0 ? `eliminate ${bitmasterState.mistakesThisRound} mistake(s)` : '';
+            const reqs = [mistakeMsg, timeDiff].filter(Boolean).join(' and ');
+            tipEl.innerHTML = `💡 <strong>To earn 3 Stars:</strong> Score 10/10 in &lt; 50s with 0 mistakes. Try again to ${reqs || 'beat the 50s clock'}!`;
+          }
         }
       } else if (starsEarned === 1) {
         if (badgeEl) badgeEl.textContent = '💡';
@@ -3746,6 +3779,7 @@
       showBitmasterScreen('levels');
     };
   }
+  window.finishBitmasterRound = finishBitmasterRound;
 
   // =========================================================================
   function setupBitMaster() {
