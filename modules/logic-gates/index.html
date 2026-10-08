@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description" content="Interactive GCSE Computer Science Boolean Logic & Circuits Sandbox - Logic gate breadboard, truth tables, circuit puzzles, and AQA 8525 §3.4.3 revision.">
+  <meta name="theme-color" content="#1e3a5f">
+  <title>Boolean Logic &amp; Circuits — GCSE Computer Science</title>
+
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+
+  <!-- Preconnect for modern typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <script>
+    // Immediate theme initialization to prevent flash
+    (function() {
+      try {
+        var theme = new URLSearchParams(window.location.search).get('theme') || localStorage.getItem('theme') || localStorage.getItem('gcse_theme');
+        if (theme === 'dark' || (!theme && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.classList.remove('light');
+        } else {
+          document.documentElement.classList.remove('dark');
+          document.documentElement.classList.add('light');
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body class="module-body">
+
+  <!-- Universal Module Header -->
+  <header class="module-header">
+    <div class="module-header-inner">
+      <!-- Left: Brand Group -->
+      <div class="header-brand-group">
+        <a href="../../index.html" class="back-link" title="Return to Revision Hub">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          Back to Hub
+        </a>
+
+        <div class="nav-title-group">
+          <div class="nav-icon-badge" style="background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);">
+            <!-- Logic Gate SVG Icon matching hub -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 6h4c3.31 0 6 2.69 6 6s-2.69 6-6 6H4z"></path>
+              <line x1="2" y1="9" x2="4" y2="9"></line>
+              <line x1="2" y1="15" x2="4" y2="15"></line>
+              <line x1="14" y1="12" x2="22" y2="12"></line>
+            </svg>
+          </div>
+          <h1 class="nav-module-title">Boolean Logic &amp; Circuits</h1>
+          <span class="badge badge-topic">AQA 8525 &sect;3.4.3</span>
+        </div>
+      </div>
+
+      <!-- Center: View Tabs Navigation -->
+      <nav class="view-tabs" aria-label="Module Views">
+        <button class="view-tab-btn active" data-tab="breadboard">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="2"></rect>
+            <path d="M7 2v20M17 2v20M2 12h20M2 7h5M2 17h5M17 7h5M17 17h5"></path>
+          </svg>
+          <span>Logic Breadboard</span>
+        </button>
+
+        <button class="view-tab-btn" data-tab="revision">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+          </svg>
+          <span>Revision</span>
+        </button>
+      </nav>
+
+      <!-- Right: Theme Toggle -->
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <button id="themeToggleBtn" class="theme-toggle" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
+          <svg id="sunIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="moonIcon" style="display: none;" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container (Constrained Width) -->
+  <main class="module-container">
+
+    <!-- ================================================================= -->
+    <!-- TAB 1: INTERACTIVE LOGIC BREADBOARD & INTEGRATED LAB              -->
+    <!-- ================================================================= -->
+    <div id="tab-breadboard" class="tab-view active">
+      <!-- View Banner -->
+      <div class="view-banner">
+        <h2>Interactive Logic Gate Breadboard</h2>
+        <p>Logic gates are fundamental physical building blocks in digital circuits that process binary signals (0 and 1) according to Boolean algebra rules. Combining simple gates like AND, OR, and NOT allows computers to perform arithmetic and execute program decisions.</p>
+      </div>
+
+      <!-- Integrated Challenge Selector Bar -->
+      <div class="challenge-banner-bar">
+        <div class="challenge-selector-row">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <span class="tool-label">Challenge:</span>
+            <div class="challenge-pills" id="challengePills">
+              <button type="button" class="challenge-pill-btn active" data-challenge="free">Free Breadboard</button>
+              <button type="button" class="challenge-pill-btn" data-challenge="greenhouse">Smart Greenhouse</button>
+              <button type="button" class="challenge-pill-btn" data-challenge="vault">Bank Vault Alarm</button>
+              <button type="button" class="challenge-pill-btn" data-challenge="staircase">Staircase Switch</button>
+              <button type="button" class="challenge-pill-btn" data-challenge="adder">1-Bit Half Adder</button>
+            </div>
+          </div>
+          <div id="challengeResultBadge" class="challenge-result-chip pass" style="display: none;">
+            4 / 4 Cases Passed ✓
+          </div>
+        </div>
+
+        <!-- Dynamic Challenge Description Box (Shown when a challenge is active) -->
+        <div id="challengeInfoBox" class="challenge-info-box" style="display: none;">
+          <div class="challenge-info-box-header">
+            <div class="challenge-header-title">
+              <span class="challenge-prefix-badge" id="challengePrefixBadge">Challenge:</span>
+              <h3 id="challengeTitleText" class="challenge-title-text"></h3>
+            </div>
+            <button type="button" class="gate-palette-btn" id="btnLoadChallengeStarter" style="background: var(--paper-card); border-color: var(--gate-accent); color: var(--gate-accent); font-weight: 800; white-space: nowrap;">
+              Reset Starter Circuit
+            </button>
+          </div>
+          <p id="challengePromptText" class="challenge-criteria-text"></p>
+          <div id="challengeDetailsBox" class="challenge-details-box"></div>
+
+          <!-- Progressive Hint Buttons & Dropdown Reveal Boxes -->
+          <div class="challenge-hints-area">
+            <div class="challenge-hint-buttons">
+              <button type="button" class="challenge-hint-btn" id="btnHintFormula" title="Toggle Hint 1">
+                <span>Hint 1: Boolean Formula</span>
+              </button>
+              <button type="button" class="challenge-hint-btn" id="btnHintGoal" title="Toggle Hint 2">
+                <span>Hint 2: Circuit Goal</span>
+              </button>
+            </div>
+            <div id="challengeHintFormulaBox" class="challenge-hint-box" style="display: none;">
+              <div class="hint-box-heading">Hint 1 &bull; Boolean Formula:</div>
+              <div id="challengeLogicFormula" class="challenge-formula-text"></div>
+            </div>
+            <div id="challengeHintGoalBox" class="challenge-hint-box" style="display: none;">
+              <div class="hint-box-heading">Hint 2 &bull; Circuit Goal:</div>
+              <div id="challengeCircuitGoalText" class="challenge-goal-text"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Breadboard Chassis -->
+      <div class="breadboard-chassis">
+        <!-- Integrated Toolbar: Unified Palette (Inputs, Outputs & Gates grouped together) -->
+        <div class="breadboard-toolbar">
+          <!-- Component Palette -->
+          <div class="tool-group">
+            <span class="tool-label">Add:</span>
+            <button type="button" class="gate-palette-btn" id="btnAddSwitch" title="Add Input Switch" style="border-color: #0284c7; color: #0284c7;">
+              <strong>+ Input</strong>
+            </button>
+            <button type="button" class="gate-palette-btn" id="btnAddLED" title="Add Output LED" style="border-color: #10b981; color: #10b981;">
+              <strong>+ Output</strong>
+            </button>
+            <span style="display: inline-block; width: 1px; height: 18px; background: var(--paper-border); margin: 0 2px;"></span>
+            <button type="button" class="gate-palette-btn" data-add-gate="AND" title="Add AND Gate">AND</button>
+            <button type="button" class="gate-palette-btn" data-add-gate="OR" title="Add OR Gate">OR</button>
+            <button type="button" class="gate-palette-btn" data-add-gate="NOT" title="Add NOT Gate">NOT</button>
+            <button type="button" class="gate-palette-btn" data-add-gate="XOR" title="Add XOR Gate">XOR</button>
+            <button type="button" class="gate-palette-btn" data-add-gate="NAND" title="Add NAND Gate">NAND</button>
+            <button type="button" class="gate-palette-btn" data-add-gate="NOR" title="Add NOR Gate">NOR</button>
+          </div>
+
+          <!-- Presets & Controls -->
+          <div class="tool-group" id="presetToolGroup">
+            <div id="presetSelectWrapper" style="display: inline-flex; align-items: center; gap: 6px;">
+              <span class="tool-label">Preset:</span>
+              <select id="presetSelect" class="preset-select" aria-label="Circuit Presets">
+                <option value="exam1">Example: (A AND B) OR NOT C</option>
+                <option value="half_adder">1-Bit Half Adder (Sum &amp; Carry)</option>
+                <option value="majority">Majority 2-of-3 Voter</option>
+                <option value="alarm">Vault Security Alarm</option>
+                <option value="xor_nand">XOR from 4 NAND Gates</option>
+                <option value="basic_and">Simple AND Gate</option>
+                <option value="basic_xor">Simple XOR Gate</option>
+                <option value="blank">Blank Breadboard</option>
+              </select>
+            </div>
+            <button type="button" class="gate-palette-btn" id="btnClearBoard" style="color: #ef4444;" title="Clear Breadboard">
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Stage Area -->
+        <div id="breadboardStage" class="breadboard-stage">
+          <svg id="wireOverlay" class="breadboard-svg-overlay"></svg>
+          <!-- Dynamic Nodes will be rendered here -->
+        </div>
+
+        <!-- HUD Footer with Wire Editing Tips -->
+        <div class="breadboard-hud">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <strong style="color: var(--gate-accent);">Tactile Wiring:</strong>
+            <span style="color: var(--ink-secondary);">Click output pin &rarr; click input pin to wire. <strong>Click any wire to cut/delete it</strong>. Drag connected input pins to move connections.</span>
+          </div>
+          <div>
+            <span style="color: var(--ink-secondary);">Wires:</span>
+            <span id="wireCountVal" style="font-family: var(--font-mono); font-weight: 700; color: #10b981; margin-left: 4px;">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Truth Table of Current Circuit (Directly below simulation) -->
+      <div class="truth-table-chassis">
+        <div class="truth-table-header-bar">
+          <div>
+            <h3 style="font-size: 14px; font-weight: 800; margin: 0 0 2px 0; color: var(--ink-primary);">
+              Live Circuit Truth Table
+            </h3>
+            <span style="font-size: 12px; color: var(--ink-secondary);">
+              Dynamically evaluates all 2<sup>n</sup> binary states for your active circuit above. Active row highlights green.
+            </span>
+          </div>
+          <div style="font-size: 11.5px; font-weight: 700; color: var(--ink-secondary);">
+            Click any row to test inputs
+          </div>
+        </div>
+        <table id="truthTableDisplay" class="truth-table-view">
+          <!-- Rendered dynamically by JS -->
+        </table>
+      </div>
+
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- TAB 2: REVISION & EXAM TRAPS                                      -->
+    <!-- ================================================================= -->
+    <div id="tab-revision" class="tab-view">
+      <!-- View Banner -->
+      <div class="view-banner">
+        <h2>Boolean Logic Revision &amp; Exam Traps</h2>
+        <p>Essential definitions, gate symbols, truth tables, and past-paper mark scheme rules for Paper 2 (§3.4.3). Master the 4 core AQA gates, order of precedence, and logic notation.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <!-- Card 1: 4 Core Gates -->
+        <div class="trap-card" style="padding: 18px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-paper1" style="font-weight: 800; font-size: 11px;">RULE 1: THE 4 CORE AQA GATES</span>
+            <span style="font-size: 11px; font-weight: 700; color: #b45309;">Paper 2 &sect;3.4.3</span>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 800; margin: 0 0 8px 0; color: var(--ink-primary);">Standard AQA Logic Gate Symbols</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+            • <strong>AND Gate:</strong> D-shaped symbol. Outputs 1 only when BOTH inputs are 1 (A &middot; B).<br>
+            • <strong>OR Gate:</strong> Curved pointed shield. Outputs 1 when AT LEAST ONE input is 1 (A + B).<br>
+            • <strong>NOT Gate:</strong> Triangle with an inversion circle/bubble. Inverts the input (&not;A or A&#773;).<br>
+            • <strong>XOR Gate (Exclusive OR):</strong> Curved shield with an extra distinct curved input line. Outputs 1 when inputs are DIFFERENT (A &oplus; B).
+          </p>
+          <div style="background: rgba(245, 183, 0, 0.1); border-left: 3px solid #f5b700; padding: 6px 10px; font-size: 11.5px; color: var(--ink-primary); border-radius: 2px;">
+            <strong>Symbol Check:</strong> Memorize the distinct physical shapes. An AND gate has flat vertical inputs and a semicircle front. An OR gate has a curved indented back and pointed nose.
+          </div>
+        </div>
+
+        <!-- Card 2: Truth Table Construction Rules -->
+        <div class="trap-card" style="padding: 18px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-paper1" style="font-weight: 800; font-size: 11px;">RULE 2: TRUTH TABLE LAYOUT</span>
+            <span style="font-size: 11px; font-weight: 700; color: #b45309;">Paper 2 &sect;3.4.3</span>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 800; margin: 0 0 8px 0; color: var(--ink-primary);">The 2<sup>n</sup> Rule &amp; Binary Sequence</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+            • <strong>Row Count:</strong> A circuit with <em>n</em> inputs always requires exactly <strong>2<sup>n</sup> rows</strong>.<br>
+            &nbsp;&nbsp;&bull; 2 inputs (A, B) &rarr; 2<sup>2</sup> = 4 rows (00, 01, 10, 11).<br>
+            &nbsp;&nbsp;&bull; 3 inputs (A, B, C) &rarr; 2<sup>3</sup> = 8 rows (000, 001, 010 ... 111).<br>
+            • <strong>Strict Binary Order:</strong> Always list input combinations in ascending binary order (0, 1, 2, 3...) to avoid skipping combinations and losing marks.
+          </p>
+          <div style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981; padding: 6px 10px; font-size: 11.5px; color: var(--ink-primary); border-radius: 2px;">
+            <strong>Exam Technique:</strong> When writing a 3-input table (A, B, C), make A alternate in blocks of 4 (0000 1111), B in blocks of 2 (00 11 00 11), and C alternate every row (0 1 0 1 0 1 0 1).
+          </div>
+        </div>
+
+        <!-- Card 3: Common Exam Traps -->
+        <div class="trap-card" style="padding: 18px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-paper1" style="font-weight: 800; font-size: 11px;">RULE 3: EXAM TRAPS</span>
+            <span style="font-size: 11px; font-weight: 700; color: #b45309;">Paper 2 &sect;3.4.3</span>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 800; margin: 0 0 8px 0; color: var(--ink-primary);">OR vs XOR &amp; Bracket Precedence</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+            • <strong>The OR vs XOR Trap:</strong> When A=1 and B=1, an <strong>OR</strong> gate outputs 1, but an <strong>XOR</strong> gate outputs <strong>0</strong>! XOR means "one or the other, BUT NOT BOTH".<br>
+            • <strong>Order of Precedence:</strong> Just like BIDMAS in maths, evaluate <strong>Brackets</strong> first, then <strong>NOT</strong>, then <strong>AND</strong>, and finally <strong>OR / XOR</strong>.<br>
+            • <strong>Intermediate Columns:</strong> Always create working columns for bracketed sub-expressions to prevent compounding errors.
+          </p>
+          <div style="background: rgba(200, 0, 107, 0.08); border-left: 3px solid #c8006b; padding: 6px 10px; font-size: 11.5px; color: var(--ink-primary); border-radius: 2px;">
+            <strong>Warning:</strong> The little inversion circle on a NOT, NAND, or NOR gate inverts the signal. Missing or overlooking that tiny circle flips every single bit in your final mark scheme row!
+          </div>
+        </div>
+
+        <!-- Card 4: Combining Gates into Adders -->
+        <div class="trap-card" style="padding: 18px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-paper1" style="font-weight: 800; font-size: 11px;">RULE 4: REAL-WORLD CIRCUITS</span>
+            <span style="font-size: 11px; font-weight: 700; color: #b45309;">Paper 2 &sect;3.4.3</span>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 800; margin: 0 0 8px 0; color: var(--ink-primary);">1-Bit Adders in the CPU ALU</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+            • <strong>Half Adder:</strong> Takes two 1-bit inputs (A and B).<br>
+            &nbsp;&nbsp;&bull; <strong>Sum = A XOR B</strong> (0+0=0, 1+0=1, 0+1=1, 1+1=0)<br>
+            &nbsp;&nbsp;&bull; <strong>Carry = A AND B</strong> (0+0=0, 1+0=0, 0+1=0, 1+1=1)<br>
+            • <strong>Full Adder:</strong> Adds two bits A, B PLUS a carry-in from a previous column (Cin). Constructed from two Half Adders and an OR gate.
+          </p>
+          <div style="background: rgba(37, 99, 235, 0.08); border-left: 3px solid #2563eb; padding: 6px 10px; font-size: 11.5px; color: var(--ink-primary); border-radius: 2px;">
+            <strong>Key takeaway:</strong> Computers don't have magical addition calculators—they are made from billions of microscopic silicon transistors wired into logic gates just like this.
+          </div>
+        </div>
+
+        <!-- Card 5: Exam Question Walkthrough -->
+        <div class="trap-card" style="padding: 18px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-paper1" style="font-weight: 800; font-size: 11px;">RULE 5: PAST-PAPER MODEL ANSWER</span>
+            <span style="font-size: 11px; font-weight: 700; color: #b45309;">Paper 2 &sect;3.4.3</span>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 800; margin: 0 0 8px 0; color: var(--ink-primary);">Past Exam Question &bull; 4 Marks</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+            <em>A security system triggers an alarm (Q) when sensor A is active (1) AND sensor B is inactive (0), OR when sensor C is active (1). Write the Boolean expression and state the output when A=1, B=1, C=0.</em>
+          </p>
+          <details style="font-size: 12px; color: var(--text-secondary); cursor: pointer;">
+            <summary style="font-weight: 700; color: var(--gate-accent);">View Model Answer &amp; Mark Scheme</summary>
+            <div style="margin-top: 8px; padding: 10px 12px; background: var(--paper-recessed); border-radius: 4px; border-left: 3px solid #10b981; line-height: 1.5;">
+              • <strong>Mark 1:</strong> Correct expression: <code>Q = (A AND NOT B) OR C</code><br>
+              • <strong>Mark 2:</strong> Substitute inputs: <code>Q = (1 AND NOT 1) OR 0</code><br>
+              • <strong>Mark 3:</strong> Simplify sub-terms: <code>(1 AND 0) OR 0 &rarr; 0 OR 0</code><br>
+              • <strong>Mark 4:</strong> Final evaluation: <strong>Q = 0</strong> (Alarm does NOT trigger).
+            </div>
+          </details>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Module Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content" style="max-width: 1040px;">
+      <div>
+        <p style="margin: 0 0 4px 0; font-weight: 700; color: var(--ink-primary);">
+          Boolean Logic &amp; Circuits
+        </p>
+        <p style="margin: 0; font-size: 12px; color: var(--text-muted);">
+          Module 9 of GCSE Computer Science Revision Portal
+        </p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <a href="../../index.html" style="color: var(--gate-accent); text-decoration: none; font-size: 12.5px; font-weight: 600;">
+          &larr; Back to Hub Dashboard
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Script -->
+  <script src="./app.js"></script>
+</body>
+</html>

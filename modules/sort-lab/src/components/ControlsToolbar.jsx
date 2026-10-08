@@ -29,7 +29,7 @@ export default function ControlsToolbar({
   onArraySizeChange = () => {},
   activePreset = 'random',
   onOpenCustomModal = () => {},
-  audioMode = 'chimes',
+  audioMode = 'clicks',
   onCycleAudio = () => {},
   quizMode = false,
   onToggleQuizMode = () => {},
@@ -99,13 +99,13 @@ export default function ControlsToolbar({
           <button
             onClick={onCycleAudio}
             className={`px-2.5 py-1.5 rounded-[2px] border text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
-              audioMode === 'off'
+              audioMode === 'muted' || audioMode === 'off'
                 ? 'border-[#c2b8a3] bg-[#fdfcf9] text-[#8e95a2] hover:text-[#1e2229]'
                 : 'border-[#1e3a5f] bg-[#edf3f9] text-[#1e3a5f] font-bold'
             }`}
-            title="Toggle Synthesizer Sound (Chimes / Clicks / Mute)"
+            title="Toggle Synthesizer Sound (Clicks / Chimes / Mute)"
           >
-            {audioMode === 'off' ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#1e3a5f]" />}
+            {audioMode === 'muted' || audioMode === 'off' ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#1e3a5f]" />}
             <span className="capitalize">{audioMode}</span>
           </button>
 

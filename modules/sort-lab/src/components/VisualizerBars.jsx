@@ -208,7 +208,7 @@ export default function VisualizerBars({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full overflow-hidden rounded-[2px] flex items-center justify-center transition-colors bg-[#fdfcf9] border border-[#ded7c6] shadow-[0_2px_6px_rgba(0,0,0,0.03)] ${
+      className={`relative w-full overflow-hidden flex items-center justify-center ${
         className ? className : 'h-[340px] sm:h-[400px]'
       }`}
     >

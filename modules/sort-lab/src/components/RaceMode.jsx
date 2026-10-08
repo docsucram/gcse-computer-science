@@ -3,11 +3,11 @@ import { ALGORITHMS } from '../constants/algorithms';
 import { generateSteps } from '../services/sortingEngine';
 import VisualizerBars from './VisualizerBars';
 import { soundManager } from '../utils/audio';
-import { Play, Pause, RotateCcw, Swords, CheckCircle2, Trophy, Volume2, VolumeX } from 'lucide-react';
+import { Play, Pause, RotateCcw, Flag, CheckCircle2, Trophy, Volume2, VolumeX } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export default function RaceMode({
-  audioMode = 'chimes',
+  audioMode = 'clicks',
   onCycleAudio = () => {},
 }) {
   const [algo1Id, setAlgo1Id] = useState('bubble');
@@ -22,6 +22,9 @@ export default function RaceMode({
 
   const [stepIdx1, setStepIdx1] = useState(0);
   const [stepIdx2, setStepIdx2] = useState(0);
+
+  const stepIdx1Ref = useRef(0);
+  const stepIdx2Ref = useRef(0);
 
   const [winner, setWinner] = useState(null);
   const timerRef = useRef(null);
@@ -47,6 +50,8 @@ export default function RaceMode({
     setSteps2(s2);
     setStepIdx1(0);
     setStepIdx2(0);
+    stepIdx1Ref.current = 0;
+    stepIdx2Ref.current = 0;
   };
 
   useEffect(() => {
@@ -60,23 +65,36 @@ export default function RaceMode({
       return;
     }
 
+    soundManager.init();
     const intervalMs = Math.max(12, Math.floor(1000 / speed));
 
     timerRef.current = setInterval(() => {
-      let done1 = false;
-      let done2 = false;
+      let done1 = stepIdx1Ref.current >= steps1.length - 1;
+      let done2 = stepIdx2Ref.current >= steps2.length - 1;
 
-      setStepIdx1((prev) => {
-        if (prev < steps1.length - 1) return prev + 1;
-        done1 = true;
-        return prev;
-      });
+      if (!done1) {
+        stepIdx1Ref.current += 1;
+        const next1 = stepIdx1Ref.current;
+        setStepIdx1(next1);
+        const s1 = steps1[next1];
+        if (s1?.indices?.[0] !== undefined) {
+          const val1 = s1.array[s1.indices[0]] || 50;
+          soundManager.playTone(val1 / 100, s1.type);
+        }
+        if (next1 >= steps1.length - 1) done1 = true;
+      }
 
-      setStepIdx2((prev) => {
-        if (prev < steps2.length - 1) return prev + 1;
-        done2 = true;
-        return prev;
-      });
+      if (!done2) {
+        stepIdx2Ref.current += 1;
+        const next2 = stepIdx2Ref.current;
+        setStepIdx2(next2);
+        const s2 = steps2[next2];
+        if (s2?.indices?.[0] !== undefined) {
+          const val2 = s2.array[s2.indices[0]] || 50;
+          soundManager.playTone(val2 / 100, s2.type);
+        }
+        if (next2 >= steps2.length - 1) done2 = true;
+      }
 
       setWinner((currentWinner) => {
         if (currentWinner) return currentWinner;
@@ -107,23 +125,22 @@ export default function RaceMode({
   const algo2Meta = ALGORITHMS[algo2Id];
 
   return (
-    <div className="editorial-container py-6">
-      {/* 1. CLEAN EDITORIAL HEADER */}
-      <header className="revision-header">
-        <div className="revision-title-block">
-          <span className="spec-pill">AQA 8525 §3.1.1</span>
-          <h1 style={{ marginTop: '6px' }}>Sorting Race: Head-to-Head Algorithm Duel</h1>
-          <p>
-            Direct head-to-head performance race. Compare O(n log n) divide-and-conquer against O(n²) quadratic algorithms in real time on identical lists.
-          </p>
-        </div>
-      </header>
+    <div className="editorial-container py-4">
+      {/* 1. CLEAN UNBOXED HEADER */}
+      <div className="view-banner mb-4">
+        <h1 className="text-xl sm:text-2xl font-bold font-serif text-[#1e2229] dark:text-[#f3f4f6]">
+          Sorting Race: <span className="text-[#c8006b]">Head-to-Head Duel</span>
+        </h1>
+        <p className="text-xs sm:text-sm text-[#475569] dark:text-[#9ca3af] mt-1">
+          Watch two sorting algorithms compete simultaneously on identical scrambled lists. See how divide-and-conquer algorithms like Merge Sort drastically outperform repetitive swap algorithms like Bubble Sort as list size scales.
+        </p>
+      </div>
 
       {/* 2. RACE CONTROLS TOOLBAR */}
-      <div className="bg-[#fdfcf9] border border-[#ded7c6] rounded-[2px] p-4 shadow-[0_1px_3px_rgba(0,0,0,0.03)] flex flex-col gap-3.5">
+      <div className="bg-white border border-[#e2e8f0] rounded-[4px] p-4 shadow-xs flex flex-col gap-3.5">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Swords className="w-5 h-5 text-[#1e3a5f]" />
+            <Flag className="w-5 h-5 text-[#c8006b]" />
             <span className="font-bold text-sm text-[#1e2229]">Race Settings &amp; Execution</span>
           </div>
 
@@ -131,7 +148,7 @@ export default function RaceMode({
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="px-4 py-2 rounded-[2px] bg-[#1e3a5f] hover:bg-[#152b47] text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer shadow-2xs"
+              className="px-4 py-2 rounded-[3px] bg-[#c8006b] hover:bg-[#a00055] text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2 cursor-pointer shadow-xs"
             >
               {isPlaying ? <Pause className="w-4 h-4 fill-white" /> : <Play className="w-4 h-4 fill-white" />}
               <span>{isPlaying ? 'Pause Race' : 'Start Race'}</span>
@@ -139,7 +156,7 @@ export default function RaceMode({
 
             <button
               onClick={() => generateNewRace(arraySize)}
-              className="p-2 rounded-[2px] border border-[#c2b8a3] bg-[#fdfcf9] text-[#1e2229] hover:border-[#1e3a5f] text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="p-2 rounded-[3px] border border-[#cbd5e1] bg-white text-[#1e293b] hover:border-[#c8006b] text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer"
               title="Reset with new random array"
             >
               <RotateCcw className="w-4 h-4" />
@@ -150,13 +167,13 @@ export default function RaceMode({
             <button
               onClick={onCycleAudio}
               className={`px-2.5 py-1.5 rounded-[2px] border text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer ${
-                audioMode === 'off'
+                audioMode === 'muted' || audioMode === 'off'
                   ? 'border-[#c2b8a3] bg-[#fdfcf9] text-[#8e95a2] hover:text-[#1e2229]'
                   : 'border-[#1e3a5f] bg-[#edf3f9] text-[#1e3a5f] font-bold'
               }`}
               title={`Sound: ${audioMode.toUpperCase()} (Click to toggle)`}
             >
-              {audioMode === 'off' ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#1e3a5f]" />}
+              {audioMode === 'muted' || audioMode === 'off' ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-[#1e3a5f]" />}
               <span className="capitalize">{audioMode}</span>
             </button>
           </div>

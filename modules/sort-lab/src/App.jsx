@@ -29,7 +29,17 @@ export default function App() {
   });
   const [visualizerMode, setVisualizerMode] = useState('bars'); // 'bars' | 'image'
   const [selectedAlgorithm, setSelectedAlgorithm] = useState('bubble');
-  const [isDarkMode, setIsDarkMode] = useState(false); // default warm paper revision theme
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    try {
+      const p = new URLSearchParams(window.location.search).get('theme');
+      const s = p || localStorage.getItem('gcse_theme') || localStorage.getItem('theme');
+      if (s === 'dark') return true;
+      if (s === 'light') return false;
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    } catch {
+      return false;
+    }
+  });
 
   // Handle View Change with hash support
   const handleViewChange = (view) => {
@@ -45,9 +55,11 @@ export default function App() {
       if (isDarkMode) {
         document.documentElement.classList.add('dark');
         localStorage.setItem('theme', 'dark');
+        localStorage.setItem('gcse_theme', 'dark');
       } else {
         document.documentElement.classList.remove('dark');
         localStorage.setItem('theme', 'light');
+        localStorage.setItem('gcse_theme', 'light');
       }
     } catch (e) {
       console.error(e);
@@ -55,7 +67,7 @@ export default function App() {
   }, [isDarkMode]);
 
   // Audio State
-  const [audioMode, setAudioMode] = useState('chimes');
+  const [audioMode, setAudioMode] = useState('clicks');
 
   // Playback & Array State
   const [arraySize, setArraySize] = useState(20);
@@ -344,15 +356,16 @@ export default function App() {
         {activeView === 'visualizer' && (() => {
           const currentAlgo = ALGORITHMS[selectedAlgorithm] || ALGORITHMS.bubble;
           return (
-            <div className="editorial-container py-6">
-              {/* 1. CLEAN EDITORIAL HEADER */}
-              <header className="revision-header">
-                <div className="revision-title-block">
-                  <span className="spec-pill">AQA 8525 §3.1.1</span>
-                  <h1 style={{ marginTop: '6px' }}>Sorting Algorithms: {currentAlgo.name}</h1>
-                  <p>{currentAlgo.description}</p>
-                </div>
-              </header>
+            <div className="editorial-container py-4">
+              {/* 1. CLEAN UNBOXED HEADER */}
+              <div className="view-banner mb-2">
+                <h1 className="text-xl sm:text-2xl font-bold font-serif text-[#1e2229] dark:text-[#f3f4f6]">
+                  Sorting Algorithms: <span className="text-[#c8006b]">{currentAlgo.name}</span>
+                </h1>
+                <p className="text-xs sm:text-sm text-[#475569] dark:text-[#9ca3af] mt-1">
+                  Sorting algorithms arrange unordered lists into ascending or descending sequence. Compare simple pairwise comparison passes like Bubble Sort against divide-and-conquer strategies like Merge Sort.
+                </p>
+              </div>
 
               {/* 2. SELF-CONTAINED APPLICATION WORKBENCH */}
               <div className="workbench-chassis">
@@ -363,19 +376,20 @@ export default function App() {
                       <button
                         key={a.id}
                         onClick={() => setSelectedAlgorithm(a.id)}
-                        className={`algo-tab-btn ${selectedAlgorithm === a.id ? 'active' : ''}`}
+                        className={`algo-tab-btn flex items-center gap-1.5 ${selectedAlgorithm === a.id ? 'active' : ''}`}
                       >
-                        {a.name}
+                        <span>{a.name}</span>
+                        {a.aqaCore && <span className="aqa-core-badge">AQA Core</span>}
                       </button>
                     ))}
                   </div>
 
                   <div className="workbench-tools-group">
-                    <div className="flex items-center p-0.5 rounded-[2px] border border-[#c2b8a3] bg-[#fdfcf9] text-xs">
+                    <div className="flex items-center p-0.5 rounded-[2px] border border-[#c2b8a3] dark:border-[#2e3646] bg-[#fdfcf9] dark:bg-[#202632] text-xs">
                       <button
                         onClick={() => setVisualizerMode('bars')}
                         className={`px-2.5 py-1 rounded-[2px] font-semibold transition-all cursor-pointer ${
-                          visualizerMode === 'bars' ? 'bg-[#1e3a5f] text-white font-bold' : 'text-[#585e6b] hover:text-[#1e2229]'
+                          visualizerMode === 'bars' ? 'bg-[#1e3a5f] text-white font-bold' : 'text-[#585e6b] dark:text-[#9ca3af] hover:text-[#1e2229] dark:hover:text-[#f3f4f6]'
                         }`}
                       >
                         Bars
@@ -383,7 +397,7 @@ export default function App() {
                       <button
                         onClick={() => setVisualizerMode('image')}
                         className={`px-2.5 py-1 rounded-[2px] font-semibold transition-all cursor-pointer ${
-                          visualizerMode === 'image' ? 'bg-[#1e3a5f] text-white font-bold' : 'text-[#585e6b] hover:text-[#1e2229]'
+                          visualizerMode === 'image' ? 'bg-[#1e3a5f] text-white font-bold' : 'text-[#585e6b] dark:text-[#9ca3af] hover:text-[#1e2229] dark:hover:text-[#f3f4f6]'
                         }`}
                       >
                         Image
@@ -421,7 +435,14 @@ export default function App() {
                   {/* Narrative Strip */}
                   <div className={`narrative-strip ${isCompleted ? 'matched' : ''}`}>
                     <div className="narrative-text">
-                      {currentStep.explanation || 'Ready. Click Play or Next Step to begin.'}
+                      {currentStepIndex === 0 ? (
+                        <span>
+                          <strong className="text-[#c8006b] font-bold mr-1.5">{currentAlgo.name}:</strong>
+                          {currentAlgo.compactDesc || currentAlgo.description}
+                        </span>
+                      ) : (
+                        currentStep.explanation || 'Ready. Click Play or Next Step to begin.'
+                      )}
                     </div>
                     <div className="formula-tag">
                       {currentAlgo.name} • {currentAlgo.complexity.worstTime}
@@ -499,11 +520,11 @@ export default function App() {
       </main>
 
       {/* Footer */}
-      <footer className="w-full py-6 border-t border-[#ded7c6] text-center text-xs bg-[#fdfcf9] text-[#585e6b]">
+      <footer className="w-full py-6 border-t border-[#ded7c6] dark:border-[#2e3646] text-center text-xs bg-[#fdfcf9] dark:bg-[#181c24] text-[#585e6b] dark:text-[#9ca3af]">
         <p className="font-medium">
           GCSE Computer Science Searching &amp; Sorting Algorithms • Aligned with AQA 8525 §3.1
         </p>
-        <p className="mt-1 text-[11.5px] text-[#8e95a2]">
+        <p className="mt-1 text-[11.5px] text-[#8e95a2] dark:text-[#6b7280]">
           Client-side Web Audio synthesis • Zero server dependencies • Fast on school Chromebooks &amp; tablets
         </p>
       </footer>

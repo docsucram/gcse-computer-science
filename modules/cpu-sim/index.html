@@ -13,6 +13,18 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
+  <script>
+    (function() {
+      var t = new URLSearchParams(window.location.search).get('theme') || localStorage.getItem('theme') || localStorage.getItem('gcse_theme');
+      if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      }
+    })();
+  </script>
 </head>
 <body>
 
@@ -21,7 +33,7 @@
     <div class="header-container" style="max-width: 1360px;">
       
       <!-- Left: Back link & Title -->
-      <div style="display: flex; align-items: center; gap: 14px;">
+      <div class="header-brand-group">
         <a href="../../index.html" class="back-link" title="Return to Revision Hub">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -30,13 +42,24 @@
           Back to Hub
         </a>
 
-        <div style="height: 18px; width: 1px; background: var(--border-color);"></div>
-
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <h1 style="font-size: 15px; font-weight: 800; color: var(--text-primary); margin: 0;">
-            CPU Architecture
-          </h1>
-          <span class="badge badge-topic" style="font-size: 10px;">AQA 8525 §3.4</span>
+        <div class="nav-title-group">
+          <div class="nav-icon-badge" style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);">
+            <!-- CPU Microchip icon matching front page -->
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+              <rect x="9" y="9" width="6" height="6"></rect>
+              <line x1="9" y1="1" x2="9" y2="4"></line>
+              <line x1="15" y1="1" x2="15" y2="4"></line>
+              <line x1="9" y1="20" x2="9" y2="23"></line>
+              <line x1="15" y1="20" x2="15" y2="23"></line>
+              <line x1="20" y1="9" x2="23" y2="9"></line>
+              <line x1="20" y1="14" x2="23" y2="14"></line>
+              <line x1="1" y1="9" x2="4" y2="9"></line>
+              <line x1="1" y1="14" x2="4" y2="14"></line>
+            </svg>
+          </div>
+          <h1 class="nav-module-title">CPU Architecture</h1>
+          <span class="badge badge-topic">AQA 8525 §3.4</span>
         </div>
       </div>
 
@@ -111,7 +134,7 @@
       <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
         <h2>Fetch-Decode-Execute Simulator</h2>
-        <p>Learn how instructions travel between RAM, buses, and registers in the Von Neumann architecture.</p>
+        <p>The Central Processing Unit (CPU) is the brain of the computer that continuously runs programs by repeating the Fetch-Decode-Execute cycle. Internal registers and system buses coordinate to retrieve instructions from RAM, decode opcodes, and execute operations.</p>
       </div>
 
       <!-- F-D-E Control Console: Two-Tier Setup & Transport -->
@@ -398,7 +421,7 @@
       <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
         <h2>CPU Performance Factors</h2>
-        <p>Explore how clock speed, cache size, and the number of cores affect real-world execution speed.</p>
+        <p>A CPU's processing speed is determined by clock speed (F-D-E cycles per second), cache size (ultra-fast onboard memory), and number of processor cores (independent execution units). Doubling cores does not always double performance due to software limits and inter-core communication.</p>
       </div>
 
       <!-- Workload Selector Strip -->
@@ -757,7 +780,7 @@
       <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
         <h2>Storage &amp; Memory — Primary vs Secondary</h2>
-        <p>Explore why computers require volatile RAM, permanent ROM, and secondary storage media like magnetic hard drives and solid-state drives.</p>
+        <p>Computers need primary memory (RAM) for fast, volatile working memory while programs run, and non-volatile secondary storage (SSD, HDD, optical) to retain data permanently when powered down. Virtual memory uses secondary storage as temporary overflow when RAM fills up.</p>
       </div>
 
       <!-- Quick Concept Navigation Pills -->
@@ -1325,8 +1348,8 @@
 
       <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
-        <h2>CPU Architecture Revision</h2>
-        <p>Core points to remember for Systems Architecture, common misconceptions, and mark schemes.</p>
+        <h2>CPU Architecture Revision &amp; Exam Traps</h2>
+        <p>Core definitions, architecture rules, and exam traps for Paper 2 (§3.4). Master the Von Neumann model, register roles, CPU performance factors, primary memory, and secondary storage technologies.</p>
       </div>
 
       <!-- Revision Cards Section -->

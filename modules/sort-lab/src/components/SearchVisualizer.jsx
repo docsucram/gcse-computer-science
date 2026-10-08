@@ -5,7 +5,7 @@ import { soundManager } from '../utils/audio';
 const INITIAL_ARRAY = [4, 9, 14, 18, 23, 29, 35, 42, 48, 55, 61, 68, 74, 82, 91, 99];
 
 export default function SearchVisualizer({
-  audioMode = 'chimes',
+  audioMode = 'clicks',
 }) {
   const [currentArray, setCurrentArray] = useState(INITIAL_ARRAY);
   const [target, setTarget] = useState(74);
@@ -137,7 +137,7 @@ export default function SearchVisualizer({
 
   // Sound triggering on step change
   useEffect(() => {
-    if (audioMode === 'off' || stepIndex === 0) return;
+    if (audioMode === 'muted' || audioMode === 'off' || stepIndex === 0) return;
 
     if (mode === 'binary' && binarySteps[stepIndex - 1]) {
       const step = binarySteps[stepIndex - 1];
@@ -357,18 +357,16 @@ export default function SearchVisualizer({
   const duelLinearChecks = duelLinearCurrent ? duelLinearCurrent.comparisons : 0;
 
   return (
-    <div className="editorial-container py-6">
-      
-      {/* 1. CLEAN EDITORIAL HEADER */}
-      <header className="revision-header">
-        <div className="revision-title-block">
-          <span className="spec-pill">AQA 8525 §3.1.1</span>
-          <h1 style={{ marginTop: '6px' }}>Searching Algorithms: Linear vs Binary Search</h1>
-          <p>
-            How computers locate data in memory. Compare trudging through every item one-by-one against repeatedly halving the search space.
-          </p>
-        </div>
-      </header>
+    <div className="editorial-container py-4">
+      {/* 1. CLEAN UNBOXED HEADER */}
+      <div className="view-banner mb-3">
+        <h1 className="text-xl sm:text-2xl font-bold font-serif text-[#1e2229] dark:text-[#f3f4f6]">
+          Searching Algorithms: <span className="text-[#c8006b]">Linear vs Binary Search</span>
+        </h1>
+        <p className="text-xs sm:text-sm text-[#475569] dark:text-[#9ca3af] mt-1">
+          Searching algorithms locate specific target items in lists. Linear search checks every element sequentially on any list, whereas binary search requires a sorted list and repeatedly halves the search space for dramatically faster results.
+        </p>
+      </div>
 
       {/* 2. SELF-CONTAINED APPLICATION WORKBENCH */}
       <div className="workbench-chassis">

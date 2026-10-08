@@ -14,7 +14,7 @@ export default function KeyboardShortcutsModal({
     { key: '←', action: 'Single Step backward' },
     { key: 'P', action: 'Next Pass (advance 1 full outer loop)' },
     { key: 'R', action: 'Reset to initial unsorted state' },
-    { key: 'M', action: 'Cycle Audio (Chimes ➔ Clicks ➔ Mute)' },
+    { key: 'M', action: 'Cycle Audio (Clicks ➔ Chimes ➔ Mute)' },
     { key: 'Q', action: 'Toggle Active Recall Quiz Mode' },
     { key: '?', action: 'Open / Close this shortcuts guide' },
   ];

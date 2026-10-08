@@ -4,7 +4,7 @@
 class SoundManager {
   constructor() {
     this.ctx = null;
-    this.mode = 'chimes'; // 'chimes' | 'clicks' | 'muted'
+    this.mode = 'clicks'; // 'clicks' | 'chimes' | 'muted'
     this.minFreq = 180;
     this.maxFreq = 1100;
     this.masterGain = null;
@@ -26,7 +26,7 @@ class SoundManager {
   }
 
   setMode(mode) {
-    this.mode = mode; // 'chimes' | 'clicks' | 'muted'
+    this.mode = mode; // 'clicks' | 'chimes' | 'muted'
   }
 
   getMode() {
@@ -34,9 +34,9 @@ class SoundManager {
   }
 
   cycleMode() {
-    if (this.mode === 'chimes') this.mode = 'clicks';
-    else if (this.mode === 'clicks') this.mode = 'muted';
-    else this.mode = 'chimes';
+    if (this.mode === 'clicks') this.mode = 'chimes';
+    else if (this.mode === 'chimes') this.mode = 'muted';
+    else this.mode = 'clicks';
     this.init();
     return this.mode;
   }

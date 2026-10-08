@@ -483,7 +483,8 @@
   // =========================================================================
 
   function initTheme() {
-    const saved = localStorage.getItem('theme');
+    const urlParam = new URLSearchParams(window.location.search).get('theme');
+    const saved = urlParam || localStorage.getItem('theme') || localStorage.getItem('gcse_theme');
     const isDark = saved === 'dark';
     if (isDark) {
       document.documentElement.classList.add('dark');
@@ -509,11 +510,13 @@
           document.documentElement.classList.remove('dark');
           document.documentElement.classList.add('light');
           localStorage.setItem('theme', 'light');
+          localStorage.setItem('gcse_theme', 'light');
           updateIcons(false);
         } else {
           document.documentElement.classList.add('dark');
           document.documentElement.classList.remove('light');
           localStorage.setItem('theme', 'dark');
+          localStorage.setItem('gcse_theme', 'dark');
           updateIcons(true);
         }
       });

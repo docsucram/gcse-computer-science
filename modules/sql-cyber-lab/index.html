@@ -13,6 +13,19 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
+  <script>
+    (function() {
+      const p = new URLSearchParams(window.location.search).get('theme');
+      const s = p || localStorage.getItem('gcse_theme') || localStorage.getItem('theme');
+      if (s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      }
+    })();
+  </script>
 </head>
 <body>
 
@@ -21,7 +34,7 @@
     <div class="header-container" style="max-width: 1360px;">
       
       <!-- Left: Back link & Title -->
-      <div style="display: flex; align-items: center; gap: 14px;">
+      <div class="header-brand-group">
         <a href="../../index.html" class="back-link" title="Return to Revision Hub">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -30,32 +43,38 @@
           Back to Hub
         </a>
 
-        <div style="height: 18px; width: 1px; background: var(--border-color);"></div>
-
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <h1 style="font-size: 15px; font-weight: 800; color: var(--text-primary); margin: 0;">
-            Relational Databases &amp; SQL
-          </h1>
-          <span class="badge badge-topic" style="font-size: 10px;">AQA 8525 §3.7</span>
+        <div class="nav-title-group">
+          <div class="nav-icon-badge" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+            <!-- Database cylinder icon matching front page -->
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+              <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+              <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+            </svg>
+          </div>
+          <h1 class="nav-module-title">Databases &amp; SQL</h1>
+          <span class="badge badge-topic">AQA 8525 §3.7</span>
         </div>
       </div>
 
       <!-- Center: Tab Switchers -->
       <nav class="view-tabs">
-        <button class="view-tab-btn active" data-tab="sql">
+        <button class="view-tab-btn active" data-tab="flatfile">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="12" y1="3" x2="12" y2="21"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+          </svg>
+          Flat-File vs Relational Sim
+        </button>
+
+        <button class="view-tab-btn" data-tab="sql">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
             <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
             <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
           </svg>
-          Schema &amp; Query Studio
-        </button>
-
-        <button class="view-tab-btn" data-tab="challenges">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-          </svg>
-          Warm-Up &amp; Exam Challenges
+          Schema &amp; SQL Query Studio
         </button>
 
         <button class="view-tab-btn" data-tab="revision">
@@ -94,14 +113,597 @@
   <main class="module-container">
 
     <!-- =================================================================== -->
-    <!-- TAB 1: SQL QUERY STUDIO (Databases §3.7)                            -->
+    <!-- TAB 1: DATABASES IN THE REAL WORLD - SCHOOL MIS SIMULATOR (§3.7.1) -->
     <!-- =================================================================== -->
-    <div id="tab-sql" class="tab-view active">
+    <div id="tab-flatfile" class="tab-view active">
+
+      <!-- View Banner -->
+      <div class="view-banner">
+        <h2>Databases in the Real World: School Information Management System (MIS)</h2>
+        <p>Flat-file databases store all information in a single table, causing duplicate data and dangerous update anomalies. Relational databases solve this by splitting data into linked tables connected by primary and foreign keys.</p>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- SCHOOL MIS DESKTOP/APPLICATION SUITE INTERFACE                      -->
+      <!-- =================================================================== -->
+      <div class="mis-app-window">
+
+        <!-- MIS Title Bar -->
+        <div class="mis-app-titlebar">
+          <div class="mis-brand">
+            <span class="mis-school-crest">🏛️</span>
+            <div class="mis-brand-text">
+              <span class="mis-app-name">St Jude's Academy MIS • Microsoft Access Database Engine</span>
+              <span class="mis-app-ver">Connected: StJudes_Records.accdb • Academic Year 2026/27</span>
+            </div>
+          </div>
+          <div class="mis-sys-status">
+            <span class="mis-status-dot"></span>
+            <span class="mis-status-text">SQL Connection: <strong>ACTIVE</strong></span>
+            <span class="mis-user-pill">Staff: S. Miller (School Office)</span>
+            <button type="button" id="btnMisMainMenu" class="mis-top-menu-btn" title="Return to Main Menu Switchboard">
+              🏠 Main Menu
+            </button>
+          </div>
+        </div>
+
+        <!-- SCREEN 1: WELCOME / SPLASH SCREEN (St Jude's Academy MIS) -->
+        <div id="misScreenWelcome" class="mis-portal-screen active">
+          <div class="mis-welcome-card">
+            <div class="mis-crest-large">
+              <div class="crest-shield">🏛️</div>
+              <div class="crest-ribbon">ST JUDE'S ACADEMY • EST. 1892</div>
+            </div>
+            <h3 class="mis-welcome-title">School Information Management System</h3>
+            <p class="mis-welcome-desc">
+              Welcome to the central administrative database for St Jude's Academy. Manage student profiles, record GCSE course enrollments, track tutor groups, and inspect behind-the-scenes database storage architectures.
+            </p>
+
+            <div class="mis-welcome-actions">
+              <button type="button" id="btnEnterMis" class="mis-btn-hero">
+                <span>▶</span> Enter St Jude's Academy MIS Portal
+              </button>
+              <button type="button" id="btnDirectStudentRecords" class="mis-btn-link">
+                Jump directly to Student Records Database Form ➔
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 2: MAIN MENU SWITCHBOARD -->
+        <div id="misScreenMenu" class="mis-portal-screen" style="display: none;">
+          <div class="mis-switchboard-container">
+            <div class="mis-switchboard-header">
+              <div class="switchboard-title-group">
+                <span class="switchboard-badge">System Switchboard</span>
+                <h3>St Jude's Academy MIS — Main Navigation Menu</h3>
+                <p>Select a task below to access student records, search the pupil directory, or inspect database storage.</p>
+              </div>
+              <div class="switchboard-db-pill">
+                ● <strong>6 Pupil Records</strong> Active in Database
+              </div>
+            </div>
+
+            <div class="mis-menu-grid">
+              <!-- Choice 1: Access Student Records Database -->
+              <div class="mis-menu-tile" id="tileAccessRecords">
+                <div class="menu-tile-icon">📋</div>
+                <div class="menu-tile-content">
+                  <h4>Access Student Records Database</h4>
+                  <p>Browse, edit, and navigate through pupil profile cards, contact details, tutor groups, and GCSE subject enrollments.</p>
+                </div>
+                <button type="button" id="btnMenuAccessRecords" class="mis-tile-btn">
+                  Open Student Records Form ➔
+                </button>
+              </div>
+
+              <!-- Choice 2: Find / Search Student -->
+              <div class="mis-menu-tile" id="tileFindStudent">
+                <div class="menu-tile-icon">🔍</div>
+                <div class="menu-tile-content">
+                  <h4>Find &amp; Lookup Student</h4>
+                  <p>Instant pupil lookup by Full Name, StudentID (101–106), Tutor Group, or Subject.</p>
+                  <div class="mis-menu-search-bar">
+                    <input type="text" id="misMenuSearchInput" placeholder="Search by name, ID (101-106), or form..." />
+                  </div>
+                  <div class="mis-search-results" id="misSearchResults">
+                    <!-- Quick student jump chips dynamically rendered -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Choice 3: Enrol New Pupil -->
+              <div class="mis-menu-tile" id="tileNewStudent">
+                <div class="menu-tile-icon">➕</div>
+                <div class="menu-tile-content">
+                  <h4>Admit &amp; Enrol New Pupil</h4>
+                  <p>Create a brand-new student record with auto-assigned primary key (StudentID) and register their initial GCSE courses.</p>
+                </div>
+                <button type="button" id="btnMenuNewStudent" class="mis-tile-btn">
+                  Register New Student ➔
+                </button>
+              </div>
+
+              <!-- Choice 4: Database Engine & Anomaly Lab -->
+              <div class="mis-menu-tile" id="tileEngineLab">
+                <div class="menu-tile-icon">⚡</div>
+                <div class="menu-tile-content">
+                  <h4>Database Storage Engine &amp; Anomalies</h4>
+                  <p>Inspect behind-the-scenes data storage. Compare flat-file spreadsheets vs relational tables and simulate update/deletion anomalies.</p>
+                </div>
+                <button type="button" id="btnMenuInspectEngine" class="mis-tile-btn">
+                  Inspect Database Engine ➔
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- SCREEN 3: STUDENT RECORDS FORM & WORKBENCH -->
+        <div id="misScreenDatabase" class="mis-portal-screen" style="display: none;">
+
+          <!-- MIS Navigation Toolbar (Classic DB Form Stepper) -->
+          <div class="mis-toolbar">
+            <div class="mis-nav-stepper">
+              <button type="button" id="btnMisNavHome" class="mis-tool-btn mis-btn-switchboard" title="Return to Main Menu Switchboard">
+                🏠 Menu
+              </button>
+              <div class="mis-toolbar-separator"></div>
+              <span class="mis-toolbar-label">Record:</span>
+              <button type="button" id="btnRecFirst" class="mis-tool-btn" title="First Record">|◀</button>
+              <button type="button" id="btnRecPrev" class="mis-tool-btn" title="Previous Record">◀</button>
+              <div class="mis-rec-counter">
+                <span id="misCurrentRecNum">1</span> of <span id="misTotalRecCount">6</span>
+              </div>
+              <button type="button" id="btnRecNext" class="mis-tool-btn" title="Next Record">▶</button>
+              <button type="button" id="btnRecLast" class="mis-tool-btn" title="Last Record">▶|</button>
+              <select id="misStudentJumpSelect" class="mis-jump-select" title="Jump to specific student record">
+                <!-- Populated dynamically via JS -->
+              </select>
+            </div>
+
+            <div class="mis-actions">
+              <button type="button" id="btnMisNewStudent" class="mis-btn mis-btn-primary" title="Create a new pupil record">
+                <span>➕</span> New Student
+              </button>
+              <button type="button" id="btnMisSaveStudent" class="mis-btn mis-btn-success" title="Save changes to database">
+                <span>💾</span> Save Record
+              </button>
+              <button type="button" id="btnMisCancelNew" class="mis-btn mis-btn-subtle" title="Cancel new student entry" style="display: none;">
+                <span>✕</span> Cancel
+              </button>
+              <button type="button" id="btnMisDeleteStudent" class="mis-btn mis-btn-danger" title="Delete this pupil record">
+                <span>🗑️</span> Delete Student
+              </button>
+              <button type="button" id="btnMisInduceMismatch" class="mis-btn mis-btn-warn" title="Simulate updating address on only 1 row to create an update anomaly">
+                <span>⚡</span> Induce Address Conflict
+              </button>
+              <button type="button" id="btnMisReset" class="mis-btn mis-btn-subtle" title="Reset dataset to starting state">
+                <span>↺</span> Reset DB
+              </button>
+            </div>
+          </div>
+
+          <!-- MIS Student Record Form Body Card -->
+          <div class="mis-form-body">
+            <div class="mis-profile-card">
+
+              <!-- Profile Header Row -->
+              <div class="mis-profile-header">
+                <div class="mis-avatar" id="misAvatar">AS</div>
+                <div class="mis-profile-headline">
+                  <div class="mis-title-row">
+                    <h3 id="misHeaderName">Alice Smith</h3>
+                    <span class="mis-id-badge">StudentID: <code id="misHeaderId">101</code> <span class="badge-pk">PK</span></span>
+                    <span class="mis-status-badge">Enrolled Pupil • Year 11</span>
+                  </div>
+                  <p class="mis-sub-text">Key Stage 4 GCSE Cohort • Tutor Group: <strong id="misHeaderForm">11A</strong> • Oakham Campus</p>
+                </div>
+              </div>
+
+              <!-- Two-Column Structured Fieldsets -->
+              <div class="mis-grid-split">
+
+                <!-- Left Column: Personal Information -->
+                <div class="mis-fieldset">
+                  <div class="mis-fieldset-legend">
+                    <span>📋 Pupil Details &amp; Contact Records</span>
+                    <span class="mis-field-tag">Personal Entity</span>
+                  </div>
+
+                  <div class="mis-field-row">
+                    <div class="mis-field-group" style="flex: 0 0 110px;">
+                      <label class="mis-label" for="formStudentId">StudentID <span class="badge-pk">PK</span></label>
+                      <input type="text" id="formStudentId" class="mis-input mis-input-readonly" value="101" readonly />
+                    </div>
+                    <div class="mis-field-group">
+                      <label class="mis-label" for="formFullName">Full Legal Name</label>
+                      <input type="text" id="formFullName" class="mis-input" value="Alice Smith" />
+                    </div>
+                  </div>
+
+                  <div class="mis-field-row">
+                    <div class="mis-field-group">
+                      <label class="mis-label" for="formDOB">Date of Birth</label>
+                      <input type="date" id="formDOB" class="mis-input" value="2009-03-14" />
+                    </div>
+                    <div class="mis-field-group">
+                      <label class="mis-label" for="formGroup">Tutor / Form Group</label>
+                      <select id="formGroup" class="mis-select">
+                        <option value="11A">11A (Mr Clarke - Room 10)</option>
+                        <option value="11B">11B (Mrs Higgins - Room 12)</option>
+                        <option value="11C">11C (Dr Patel - Room 15)</option>
+                        <option value="10A">10A (Ms Wright - Room 08)</option>
+                        <option value="10B">10B (Mr Evans - Room 09)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="mis-field-group">
+                    <label class="mis-label" for="formAddress">
+                      Residential Home Address
+                      <span id="formAddressConflictTag" class="mis-conflict-inline-tag" style="display: none;">⚠️ Conflicting in Flat-File</span>
+                    </label>
+                    <input type="text" id="formAddress" class="mis-input" value="14 High Street, Oakham" />
+                  </div>
+
+                  <div class="mis-field-row">
+                    <div class="mis-field-group">
+                      <label class="mis-label" for="formEmergencyPhone">Emergency Contact Phone</label>
+                      <input type="text" id="formEmergencyPhone" class="mis-input" value="07700 900142" />
+                    </div>
+                    <div class="mis-field-group">
+                      <label class="mis-label" for="formMedicalNotes">Medical / Dietary Notes</label>
+                      <input type="text" id="formMedicalNotes" class="mis-input" value="No known allergies" />
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Right Column: Academic Enrollments -->
+                <div class="mis-fieldset">
+                  <div class="mis-fieldset-legend">
+                    <span>📚 Academic Course Enrollments</span>
+                    <span class="mis-enrollment-badge" id="misEnrollCountBadge">3 Subjects</span>
+                  </div>
+
+                  <!-- Existing enrollments list for this active student -->
+                  <div class="mis-courses-list" id="misCoursesList">
+                    <!-- Populated dynamically via JS -->
+                  </div>
+
+                  <!-- Quick Course Enrollment Box -->
+                  <div class="mis-add-course-box">
+                    <div class="mis-add-course-title">Enroll in Another GCSE Subject:</div>
+                    <div class="mis-add-course-row">
+                      <select id="misNewCourseSubject" class="mis-select">
+                        <option value="Computer Science">Computer Science (Mr Turing - Lab C1)</option>
+                        <option value="Mathematics">Mathematics (Mrs Lovelace - Room M3)</option>
+                        <option value="Physics">Physics (Dr Faraday - Lab S2)</option>
+                        <option value="Art &amp; Design">Art &amp; Design (Ms Hepworth - Studio A4)</option>
+                        <option value="History">History (Mr Churchill - Room H1)</option>
+                        <option value="French">French (Mme Curie - Lang 04)</option>
+                        <option value="Business Studies">Business Studies (Mr Musk - Room B2)</option>
+                      </select>
+                      <button type="button" id="btnMisEnrollCourse" class="mis-btn mis-btn-primary" style="white-space: nowrap;">
+                        ➕ Enroll
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- STORAGE ARCHITECTURE TOGGLE DECK (KEPT DIRECTLY BELOW THE FORM)     -->
+      <!-- =================================================================== -->
+      <div class="storage-switch-deck" id="storageSwitchDeck">
+        <div class="storage-switch-header">
+          <div class="storage-switch-label">
+            <span class="switch-kicker">DATABASE ENGINE INSPECTION</span>
+            <h3>How Does the School Store this Record Behind the Scenes?</h3>
+          </div>
+
+          <!-- Prominent Toggle Switch Buttons -->
+          <div class="storage-toggle-tabs" role="tablist">
+            <button type="button" class="storage-toggle-btn active" id="btnToggleFlatFile" data-mode="flatfile">
+              <span class="toggle-icon">📊</span>
+              <div class="toggle-text">
+                <strong>Flat-File Database View</strong>
+                <small>Single Master Spreadsheet (CSV / Excel)</small>
+              </div>
+            </button>
+            <button type="button" class="storage-toggle-btn" id="btnToggleRelational" data-mode="relational">
+              <span class="toggle-icon">🗄️</span>
+              <div class="toggle-text">
+                <strong>Relational Database View</strong>
+                <small>2 Linked Normalized Tables (Students &amp; Enrollments)</small>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Architecture Status Pill Bar -->
+        <div class="storage-meta-bar" id="storageMetaBanner">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- DATABASE RECORDS TABLES (DIRECTLY VISIBLE BENEATH TOGGLE)           -->
+      <!-- =================================================================== -->
+
+      <!-- VIEW 1: FLAT-FILE STORAGE CONTAINER -->
+      <div id="viewFlatFile" class="storage-view-section active">
+
+        <!-- Critical Mismatch / Anomaly Banner (Shown when anomalies occur) -->
+        <div id="simMismatchBanner" class="mismatch-banner alert-mismatch" style="display: none;">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Full-Width Master Spreadsheet Table -->
+        <div class="table-container-card">
+          <div class="table-card-topbar">
+            <div class="table-title-group">
+              <span class="badge-flatfile">Single Unnormalized Entity</span>
+              <h4 class="table-card-title">School_Master_Records : Table (Access Datasheet View)</h4>
+            </div>
+            <div class="table-legend-pills">
+              <span class="legend-pill pill-redundant">🟨 Repeated Data (Redundancy)</span>
+              <span class="legend-pill pill-conflict">🟥 Inconsistent Data (Conflict)</span>
+              <span class="legend-pill pill-count" id="ffRowCountBadge">14 Rows Stored</span>
+            </div>
+          </div>
+
+          <p class="table-card-subtitle">
+            Every time a pupil enrolls in another subject, their name, home address, and tutor group are duplicated onto a brand new row. Editing one row without editing every other row produces fatal data conflicts!
+          </p>
+
+          <div class="table-scroll-wrapper" id="flatFileScrollWrapper" style="max-height: 440px;">
+            <table class="db-table sim-table" id="tableFlatFile">
+              <thead>
+                <tr>
+                  <th style="width: 55px;">#Row</th>
+                  <th style="width: 85px;">StudentID</th>
+                  <th style="width: 140px;">StudentName</th>
+                  <th>Residential Address</th>
+                  <th style="width: 70px;">Form</th>
+                  <th style="width: 150px;">Subject</th>
+                  <th style="width: 140px;">Teacher</th>
+                  <th style="width: 85px;">Room</th>
+                  <th style="width: 130px; text-align: center;">Row Actions</th>
+                </tr>
+              </thead>
+              <tbody id="flatFileTableBody">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- VIEW 2: RELATIONAL DATABASE CONTAINER -->
+      <div id="viewRelational" class="storage-view-section">
+
+        <!-- Relational Architecture Connector Banner -->
+        <div class="relational-diagram-banner">
+          <div class="relational-banner-content">
+            <div class="banner-badge-row">
+              <span class="badge-relational">Normalized GCSE Architecture</span>
+              <span class="badge-integrity">Referential Integrity: GUARANTEED</span>
+            </div>
+            <h4>Relational Model: Two Normalized Linked Tables (1-to-Many Relationship)</h4>
+            <p>
+              Student personal details are stored <strong>strictly once</strong> in the <code>Students</code> parent table. The <code>Enrollments</code> child table records each pupil's course and target grade via <code>StudentID (FK)</code>—fully normalized without duplicate staff or room data!
+            </p>
+          </div>
+
+          <!-- Visual Schema Diagram Connector -->
+          <div class="schema-relationship-pill">
+            <div class="schema-entity-box">
+              <span class="entity-name">Students Table</span>
+              <span class="badge-pk">StudentID (PK)</span>
+            </div>
+            <div class="schema-link-arrow">
+              <span class="link-symbol">1 ──── ∞</span>
+              <span class="link-label">One-to-Many</span>
+            </div>
+            <div class="schema-entity-box">
+              <span class="entity-name">Enrollments Table</span>
+              <span class="badge-fk">StudentID (FK)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table 1: Students (Parent Table) -->
+        <div class="table-container-card" style="margin-bottom: 20px;">
+          <div class="table-card-topbar">
+            <div class="table-title-group">
+              <span class="badge-parent">Parent Table</span>
+              <h4 class="table-card-title">Students : Table (Access Datasheet View)</h4>
+            </div>
+            <span class="legend-pill pill-count" id="relStudentsCount">6 Pupils Registered</span>
+          </div>
+          <p class="table-card-subtitle">
+            Primary Key: <code>StudentID</code>. Each student occupies exactly <strong>one single row</strong>. Updating an address here is atomic and permanent—conflicting addresses are mathematically impossible!
+          </p>
+          <div class="table-scroll-wrapper" id="relStudentsScrollWrapper" style="max-height: 280px;">
+            <table class="db-table sim-table" id="tableRelStudents">
+              <thead>
+                <tr>
+                  <th style="width: 110px;">StudentID <span class="badge-pk">PK</span></th>
+                  <th>StudentName</th>
+                  <th style="width: 100px;">DOB</th>
+                  <th>Residential Address</th>
+                  <th style="width: 75px;">Form</th>
+                  <th>Emergency Phone</th>
+                  <th style="width: 90px; text-align: center;">Enrollments</th>
+                </tr>
+              </thead>
+              <tbody id="relStudentsTableBody">
+                <!-- Dynamically populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Relational Foreign Key Link Strip -->
+        <div class="relational-link-strip">
+          <div class="link-strip-icon">🔗</div>
+          <div class="link-strip-text">
+            <strong>Foreign Key Relationship:</strong> <code>Enrollments.StudentID</code> references <code>Students.StudentID</code>. Notice that <code>Enrollments</code> does <strong>NOT</strong> duplicate pupil name, address, form, telephone, or staff room data!
+          </div>
+        </div>
+
+        <!-- Table 2: Enrollments (Child Table) -->
+        <div class="table-container-card">
+          <div class="table-card-topbar">
+            <div class="table-title-group">
+              <span class="badge-child">Child Table</span>
+              <h4 class="table-card-title">Enrollments : Table (Access Datasheet View)</h4>
+            </div>
+            <span class="legend-pill pill-count" id="relEnrollmentsCount">14 Course Enrollments</span>
+          </div>
+          <p class="table-card-subtitle">
+            Primary Key: <code>EnrollmentID</code> | Foreign Key: <code>StudentID</code>. Each record represents a pupil's subject enrollment and target grade. Removing Teacher &amp; Room keeps this 2-table model fully normalized for GCSE without duplicating staff data.
+          </p>
+          <div class="table-scroll-wrapper" id="relEnrollmentsScrollWrapper" style="max-height: 300px;">
+            <table class="db-table sim-table" id="tableRelEnrollments">
+              <thead>
+                <tr>
+                  <th style="width: 130px;">EnrollmentID <span class="badge-pk">PK</span></th>
+                  <th style="width: 120px;">StudentID <span class="badge-fk">FK</span></th>
+                  <th>Subject</th>
+                  <th style="width: 130px;">Target Grade</th>
+                  <th style="width: 100px; text-align: center;">Status</th>
+                </tr>
+              </thead>
+              <tbody id="relEnrollmentsTableBody">
+                <!-- Dynamically populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- COMBINED DATABASE ENGINE INSPECTION & ANOMALY DEMONSTRATION LAB     -->
+      <!-- (MOVED BELOW THE RECORDS TABLES AS REQUESTED)                       -->
+      <!-- =================================================================== -->
+      <div class="database-engine-lab-card" id="engineAnomalyLabCard">
+        <div class="engine-lab-header">
+          <div class="engine-lab-title">
+            <span class="engine-lab-badge">DATABASE ENGINE INSPECTOR &amp; EXAM ANOMALY LAB</span>
+            <h4>Live Storage Diagnostics &amp; Real-World Anomaly Testing</h4>
+            <p>Observe how backend storage models behave when records are updated, added, or deleted. Test how flat-file spreadsheets fail compared to normalized relational databases.</p>
+          </div>
+          <div class="engine-lab-status" id="engineStatusIndicator">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </div>
+
+        <!-- Live Storage Metrics Deck -->
+        <div class="flatfile-metric-deck" style="margin-bottom: 18px;">
+          <div class="metric-card">
+            <span class="metric-num text-warn" id="metricRedundantCells">18</span>
+            <span class="metric-label">Redundant Data Cells</span>
+            <small id="metricRedundantDesc">Addresses &amp; details duplicated across multiple rows.</small>
+          </div>
+          <div class="metric-card">
+            <span class="metric-num text-success" id="metricIntegrityScore">100%</span>
+            <span class="metric-label">Data Consistency Rating</span>
+            <small id="metricIntegrityDesc">All duplicate rows currently match.</small>
+          </div>
+          <div class="metric-card">
+            <span class="metric-num text-danger" id="metricStorageWaste">+65%</span>
+            <span class="metric-label">Storage Overhead</span>
+            <small>Wasted disk space due to repeated text.</small>
+          </div>
+        </div>
+
+        <!-- Anomaly Demonstration Actions Bar -->
+        <div class="flatfile-demo-bar">
+          <div class="demo-bar-label">
+            <strong>Demonstrate Exam Anomalies:</strong>
+            <span>Test how single spreadsheets fail when data changes:</span>
+          </div>
+          <div class="demo-btn-group">
+            <button type="button" id="btnDemoUpdateMismatch" class="demo-chip-btn chip-warn">
+              ⚡ Trigger Update Anomaly (Alice's Row 1)
+            </button>
+            <button type="button" id="btnDemoDeletionAnomaly" class="demo-chip-btn chip-danger">
+              ⚡ Trigger Deletion Anomaly (Drop Charlie's Art)
+            </button>
+            <button type="button" id="btnDemoRedundancy" class="demo-chip-btn chip-gold">
+              ⚡ Trigger Data Redundancy (Daisy's 5 Subjects)
+            </button>
+            <button type="button" id="btnFixMismatch" class="demo-chip-btn chip-success" style="display: none;">
+              ✓ Synchronize &amp; Fix Mismatches
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- =================================================================== -->
+      <!-- GCSE EXAM CORE CONCEPTS CARDS DECK                                  -->
+      <!-- =================================================================== -->
+      <div class="concept-cards-deck">
+        <!-- Card 1: Data Redundancy -->
+        <div class="concept-card panel-pastel-rose">
+          <div class="concept-header">
+            <span class="concept-tag concept-tag-rose">AQA §3.7.1</span>
+            <h4 class="concept-name">Data Redundancy</h4>
+          </div>
+          <p class="concept-text">
+            <strong>Unnecessary duplication of data.</strong> In a flat-file database, storing pupil addresses 3–5 times consumes extra storage space and slows backups. Relational databases eliminate redundancy by storing personal details strictly once in a parent entity.
+          </p>
+        </div>
+
+        <!-- Card 2: Database Anomalies -->
+        <div class="concept-card panel-pastel-gold">
+          <div class="concept-header">
+            <span class="concept-tag concept-tag-gold">Core Exam Trap</span>
+            <h4 class="concept-name">The 3 Database Anomalies</h4>
+          </div>
+          <p class="concept-text">
+            • <strong>Update Anomaly:</strong> Changing data in 1 row leaves older data in other rows (inconsistent records).<br>
+            • <strong>Deletion Anomaly:</strong> Deleting a subject accidentally erases the student's entire profile.<br>
+            • <strong>Insertion Anomaly:</strong> Cannot record a new subject until a student enrolls onto it.
+          </p>
+        </div>
+
+        <!-- Card 3: Primary vs Foreign Keys -->
+        <div class="concept-card panel-pastel-cool">
+          <div class="concept-header">
+            <span class="concept-tag concept-tag-cool">Key Concept</span>
+            <h4 class="concept-name">Primary &amp; Foreign Keys</h4>
+          </div>
+          <p class="concept-text">
+            • <strong>Primary Key (PK):</strong> A field that <strong>uniquely identifies</strong> each record in its table (e.g. <code>StudentID</code>).<br>
+            • <strong>Foreign Key (FK):</strong> A primary key from another table used to establish a relationship without repeating full personal details.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: SCHEMA & SQL QUERY STUDIO (Databases §3.7)                   -->
+    <!-- =================================================================== -->
+    <div id="tab-sql" class="tab-view">
 
       <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
         <h2>Relational Database &amp; SQL Query Workbench</h2>
-        <p>Explore linked relational tables, test standard SQL queries, and see the step-by-step query execution trace.</p>
+        <p>Structured Query Language (SQL) is the standard declarative language used to search, filter, and extract data from relational tables. Using commands like SELECT, FROM, and WHERE, queries retrieve exact matching records without altering the underlying data.</p>
       </div>
 
       <!-- CGP-Style Plain-English Intro: Why Relational Databases? -->
@@ -214,6 +816,82 @@
         </div>
       </div>
 
+      <!-- Mission Mode Selector: Free Exploration vs Guided Exam Challenges -->
+      <div class="mission-mode-bar">
+        <span class="mode-select-label">Studio Mode:</span>
+        <div class="btn-group" id="studioModeGroup">
+          <button type="button" class="studio-mode-btn active" data-mission="free">
+            ⚡ Free Query Studio
+          </button>
+          <button type="button" class="studio-mode-btn" data-mission="1">
+            🎯 Mission 1: SELECT &amp; WHERE
+          </button>
+          <button type="button" class="studio-mode-btn" data-mission="2">
+            🎯 Mission 2: Compound AND Filter
+          </button>
+          <button type="button" class="studio-mode-btn" data-mission="3">
+            🎯 Mission 3: ORDER BY Sorting
+          </button>
+          <button type="button" class="studio-mode-btn" data-mission="4">
+            🎯 Mission 4: Foreign Key Lookup
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Challenge Mission Card (Appears when Mission 1-4 is chosen) -->
+      <div id="activeMissionPanel" class="active-mission-panel panel-pastel-rose" style="display: none; margin-bottom: 20px;">
+        <div class="panel-title-bar" style="margin-bottom: 8px;">
+          <div class="panel-title-group">
+            <span id="challengeLevelBadge" class="badge badge-live">WARM-UP [2 MARKS]</span>
+            <h3 id="challengeTitle" class="panel-title">Challenge 1: Find All Year 11 Students</h3>
+          </div>
+          <span id="challengeTableHint" style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">Table: Students</span>
+        </div>
+
+        <p id="challengePrompt" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+          Write an SQL query to retrieve the <code>FirstName</code> and <code>LastName</code> of all students in <code>YearGroup = 11</code> from the <code>Students</code> table.
+        </p>
+
+        <!-- Target Output Expectation Preview (Crisp & High Contrast) -->
+        <div class="mission-target-box" style="margin-bottom: 12px;">
+          <span class="mission-target-title">Target Output Should Contain:</span>
+          <span id="challengeTargetRows" class="mission-target-text">
+            4 rows (Alice Smith, Bob Jones, Daisy Evans, Fiona White)
+          </span>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button type="button" id="btnCheckChallenge" class="btn btn-primary" style="padding: 7px 18px; font-size: 12.5px;">
+              ✓ Check Mission Query
+            </button>
+            <button type="button" id="btnFillTemplate" class="control-btn" style="font-size: 11.5px; padding: 6px 12px;">
+              Load Starter Template
+            </button>
+          </div>
+          <button type="button" id="btnToggleModelAnswer" class="btn btn-secondary" style="font-size: 11.5px; padding: 6px 12px;">
+            Show Worked Model Answer ▾
+          </button>
+        </div>
+
+        <!-- Feedback Box -->
+        <div id="challengeFeedbackBox" style="display: none; margin-top: 10px; padding: 12px 16px; border-radius: var(--radius-md); font-size: 12.5px; line-height: 1.5;">
+        </div>
+
+        <!-- CGP-Style Worked Model Answer & Mark Breakdown -->
+        <div id="challengeModelAnswerBox" style="display: none; margin-top: 12px; background: #ffffff; border: 1px solid #bbf7d0; border-left: 4px solid #16a34a; border-radius: var(--radius-sm); padding: 14px 16px;">
+          <div style="font-size: 12.5px; font-weight: 800; color: #166534; margin-bottom: 6px;">
+            ✓ Official AQA Model Answer:
+          </div>
+          <div id="modelAnswerSql" style="background: #0f172a; padding: 8px 12px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 12.5px; color: #38bdf8; margin-bottom: 10px;">
+            SELECT FirstName, LastName FROM Students WHERE YearGroup = 11
+          </div>
+          <div id="modelAnswerMarks" style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+            <!-- Marks breakdown -->
+          </div>
+        </div>
+      </div>
+
       <!-- SQL Query Workbench (Middle Panel) -->
       <div class="sql-workbench">
         <div class="panel-title-bar">
@@ -226,7 +904,7 @@
         </div>
 
         <!-- Starter Queries -->
-        <div style="margin-bottom: 10px;">
+        <div id="starterQueriesContainer" style="margin-bottom: 10px;">
           <div style="font-size: 11.5px; color: var(--text-muted); font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
             <span>Starter Queries:</span>
             <span style="font-size: 10.5px; font-weight: 500; color: var(--text-muted);">(Click any query to run instantly)</span>
@@ -319,123 +997,14 @@
 
 
     <!-- =================================================================== -->
-    <!-- TAB 2: WARM-UP & EXAM CHALLENGES (CGP Style)                        -->
-    <!-- =================================================================== -->
-    <div id="tab-challenges" class="tab-view">
-
-      <!-- View Banner (Clean Unboxed Page Header) -->
-      <div class="view-banner">
-        <h2>SQL Practice &amp; Exam Challenges</h2>
-        <p>Test your query writing skills! Solve real exam challenges, check your results automatically, and view worked mark schemes.</p>
-      </div>
-
-      <!-- Challenge Selector Toolbar -->
-      <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;">
-        <span style="font-size: 12.5px; font-weight: 700; color: var(--text-primary);">
-          Select Challenge:
-        </span>
-        <div class="btn-group" id="challengeSelectGroup">
-          <button type="button" class="control-btn challenge-tab-btn active" data-challenge="1">Q1: SELECT &amp; WHERE (Warm-Up)</button>
-          <button type="button" class="control-btn challenge-tab-btn" data-challenge="2">Q2: Compound AND Filter</button>
-          <button type="button" class="control-btn challenge-tab-btn" data-challenge="3">Q3: ORDER BY Sorting</button>
-          <button type="button" class="control-btn challenge-tab-btn" data-challenge="4">Q4: Relational Foreign Key</button>
-        </div>
-      </div>
-
-      <!-- Active Challenge Card -->
-      <div class="panel" style="margin-bottom: 20px;">
-        <div class="panel-title-bar">
-          <div class="panel-title-group">
-            <span id="challengeLevelBadge" class="badge badge-live">WARM-UP [2 MARKS]</span>
-            <h3 id="challengeTitle" class="panel-title">Challenge 1: Find All Year 11 Students</h3>
-          </div>
-          <span id="challengeTableHint" style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">Table: Students</span>
-        </div>
-
-        <p id="challengePrompt" style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0 0 14px 0;">
-          Write an SQL query to retrieve the <code>FirstName</code> and <code>LastName</code> of all students in <code>YearGroup = 11</code> from the <code>Students</code> table.
-        </p>
-
-        <!-- Target Output Expectation Preview -->
-        <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px 14px; margin-bottom: 14px;">
-          <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px;">
-            Target Output Should Contain:
-          </div>
-          <span id="challengeTargetRows" style="font-size: 12px; font-family: var(--font-mono); color: #38bdf8;">
-            4 rows (Alice Smith, Bob Jones, Daisy Evans, Fiona White)
-          </span>
-        </div>
-
-        <!-- SQL Editor for Challenge -->
-        <div class="query-editor-card" style="margin-bottom: 12px;">
-          <div class="editor-header">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Write Your SQL Query:</span>
-            </div>
-            <div style="display: flex; gap: 6px;">
-              <button type="button" id="btnFillTemplate" class="control-btn" style="font-size: 11px; padding: 3px 8px;">
-                Load Starter Template
-              </button>
-            </div>
-          </div>
-          <textarea id="challengeSqlInput" class="sql-textarea" rows="3" spellcheck="false" placeholder="SELECT ... FROM ... WHERE ..."></textarea>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-          <div style="display: flex; gap: 8px;">
-            <button type="button" id="btnCheckChallenge" class="btn btn-primary" style="padding: 7px 18px; font-size: 12.5px;">
-              Check My Query
-            </button>
-            <button type="button" id="btnLoadIntoStudio" class="control-btn" style="font-size: 12px;">
-              Open in Studio Trace
-            </button>
-          </div>
-          <button type="button" id="btnToggleModelAnswer" class="btn btn-secondary" style="font-size: 11.5px; padding: 6px 12px;">
-            Show Worked Model Answer ▾
-          </button>
-        </div>
-
-        <!-- Feedback Box -->
-        <div id="challengeFeedbackBox" style="display: none; margin-top: 14px; padding: 12px 16px; border-radius: var(--radius-md); font-size: 12.5px; line-height: 1.5;">
-        </div>
-
-        <!-- Challenge Result Output Table -->
-        <div id="challengeResultsWrapper" style="display: none; margin-top: 14px; background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px;">
-          <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 6px;">Your Query Returned:</div>
-          <div style="overflow-x: auto;">
-            <table class="data-table">
-              <thead id="challengeTableHead"></thead>
-              <tbody id="challengeTableBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- CGP-Style Worked Model Answer & Mark Breakdown -->
-        <div id="challengeModelAnswerBox" style="display: none; margin-top: 16px; background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-left: 4px solid #10b981; border-radius: var(--radius-md); padding: 14px 18px;">
-          <div style="font-size: 12.5px; font-weight: 800; color: #10b981; margin-bottom: 6px;">
-            ✓ Official AQA Model Answer:
-          </div>
-          <div id="modelAnswerSql" style="background: var(--bg-root); padding: 8px 12px; border-radius: var(--radius-sm); font-family: var(--font-mono); font-size: 12.5px; color: #38bdf8; margin-bottom: 10px;">
-            SELECT FirstName, LastName FROM Students WHERE YearGroup = 11
-          </div>
-          <div id="modelAnswerMarks" style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
-            <!-- Marks breakdown -->
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-
-    <!-- =================================================================== -->
     <!-- TAB 3: REVISION CARDS & EXAM TRAPS (AQA 8525 §3.7 Databases)        -->
     <!-- =================================================================== -->
     <div id="tab-revision" class="tab-view">
 
       <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
-        <h2>Relational Database Revision</h2>
-        <p>Key exam traps, relational database definitions, and past-paper questions with mark schemes.</p>
+        <h2>Relational Database Revision &amp; Exam Traps</h2>
+        <p>Key definitions, table relationships, and SQL exam traps for Paper 2 (§3.7). Review primary vs foreign keys, entity-relationship models, data redundancy, and standard SQL syntax.</p>
       </div>
 
       <!-- Revision Cards Section -->

@@ -162,6 +162,12 @@ html.dark .rl-banner-content > strong:first-child {
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
+html.dark .rl-mode-btn.active {
+  background: #2563eb;
+  border-color: #3b82f6;
+  color: #ffffff;
+}
+
 .rl-toolbar-right {
   display: flex;
   align-items: center;
@@ -453,8 +459,8 @@ html.dark .under-hood-card {
 }
 
 .rl-formula-box {
-  background: #f8fafc;
-  border: 1px solid var(--border-color);
+  background: #fefce8; /* Soft Light Amber/Gold Pastel */
+  border: 1.5px solid #fef08a;
   border-radius: var(--radius-md);
   padding: 16px 20px;
   margin: 16px 0;
@@ -467,7 +473,7 @@ html.dark .rl-formula-box {
 .rl-formula-title {
   font-size: 12px;
   font-weight: 700;
-  color: var(--text-muted);
+  color: #92400e;
   text-transform: uppercase;
   margin-bottom: 8px;
 }
@@ -475,7 +481,7 @@ html.dark .rl-formula-box {
 .rl-math-equation {
   font-size: 20px;
   font-weight: 800;
-  color: #6366f1;
+  color: #001736;
   padding: 8px 0;
   letter-spacing: 0.02em;
 }
@@ -489,13 +495,13 @@ html.dark .rl-math-equation {
   flex-wrap: wrap;
   gap: 12px;
   font-size: 11.5px;
-  color: var(--text-secondary);
+  color: #78350f;
   margin-top: 8px;
 }
 
 .rl-prng-stepper {
-  background: #f8fafc;
-  border: 1px solid var(--border-color);
+  background: #f0f4f9; /* Soft Light Cool Slate Pastel */
+  border: 1.5px solid #cbd5e1;
   border-radius: var(--radius-md);
   padding: 16px 18px;
   margin: 16px 0;

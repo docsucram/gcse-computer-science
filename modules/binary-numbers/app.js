@@ -78,7 +78,12 @@
     btnInvertBits: document.getElementById('btnInvertBits'),
     btnRandomBits: document.getElementById('btnRandomBits'),
 
-    // Tab 1: 3-Way Live Converter
+    // Tab 1: 3-Way Live Converter (Independent BigInt up to 40-Bit)
+    convBitSizeBadge: document.getElementById('convBitSizeBadge'),
+    converterPresetButtons: document.querySelectorAll('.converter-preset-btn'),
+    denarySubtextLabel: document.getElementById('denarySubtextLabel'),
+    hexSubtextLabel: document.getElementById('hexSubtextLabel'),
+    binarySubtextLabel: document.getElementById('binarySubtextLabel'),
     liveDenaryInput: document.getElementById('liveDenaryInput'),
     liveHexInput: document.getElementById('liveHexInput'),
     liveBinaryInput: document.getElementById('liveBinaryInput'),
@@ -195,12 +200,15 @@
     btnCopyBinary: document.getElementById('btnCopyBinary'),
     presetTextButtons: document.querySelectorAll('.preset-text-btn'),
 
-    // Tab 1: Target Practice Challenge
+    // Tab 1: Target Practice Challenge (Arcade Lab)
     btnToggleAudio: document.getElementById('btnToggleAudio'),
     btnPracticeRelaxed: document.getElementById('btnPracticeRelaxed'),
     btnPracticeSprint: document.getElementById('btnPracticeSprint'),
-    btnTargetBaseDenary: document.getElementById('btnTargetBaseDenary'),
-    btnTargetBaseHex: document.getElementById('btnTargetBaseHex'),
+    btnModeFlipper: document.getElementById('btnModeFlipper'),
+    btnModeBinToDec: document.getElementById('btnModeBinToDec'),
+    btnModeBinToHex: document.getElementById('btnModeBinToHex'),
+    btnModeMixed: document.getElementById('btnModeMixed'),
+    targetModeBadge: document.getElementById('targetModeBadge'),
     streakBadge: document.getElementById('streakBadge'),
     currentStreakVal: document.getElementById('currentStreakVal'),
     sprintTimerBox: document.getElementById('sprintTimerBox'),
@@ -216,6 +224,7 @@
     sprintLauncherBestVal: document.getElementById('sprintLauncherBestVal'),
     sprintGameOverCard: document.getElementById('sprintGameOverCard'),
     sprintFinalScoreVal: document.getElementById('sprintFinalScoreVal'),
+    sprintRankBadge: document.getElementById('sprintRankBadge'),
     sprintNewRecordBadge: document.getElementById('sprintNewRecordBadge'),
     btnPlayAgainSprint: document.getElementById('btnPlayAgainSprint'),
     btnBackToRelaxed: document.getElementById('btnBackToRelaxed'),
@@ -226,6 +235,19 @@
     targetDiffBadge: document.getElementById('targetDiffBadge'),
     btnSkipTarget: document.getElementById('btnSkipTarget'),
     btnStartSprint: document.getElementById('btnStartSprint'),
+    gameFlipperControls: document.getElementById('gameFlipperControls'),
+    gameBinToDecControls: document.getElementById('gameBinToDecControls'),
+    gameBinToHexControls: document.getElementById('gameBinToHexControls'),
+    gameBitButtons: document.querySelectorAll('.game-bit-btn'),
+    btnGameClearBits: document.getElementById('btnGameClearBits'),
+    formBinToDec: document.getElementById('formBinToDec'),
+    gameDecInput: document.getElementById('gameDecInput'),
+    btnSkipBinToDec: document.getElementById('btnSkipBinToDec'),
+    gameDecFeedback: document.getElementById('gameDecFeedback'),
+    formBinToHex: document.getElementById('formBinToHex'),
+    gameHexInput: document.getElementById('gameHexInput'),
+    btnSkipBinToHex: document.getElementById('btnSkipBinToHex'),
+    gameHexFeedback: document.getElementById('gameHexFeedback'),
 
     // Tab 1: Hex RGB Colour Playground
     sliderHexR: document.getElementById('sliderHexR'),
@@ -244,7 +266,8 @@
   // =========================================================================
 
   function initTheme() {
-    const savedTheme = localStorage.getItem('theme') || 'light';
+    const urlParam = new URLSearchParams(window.location.search).get('theme');
+    const savedTheme = urlParam || localStorage.getItem('theme') || localStorage.getItem('gcse_theme') || 'light';
     applyTheme(savedTheme);
 
     if (DOM.themeToggleBtn) {
@@ -253,6 +276,7 @@
         const nextTheme = isDark ? 'light' : 'dark';
         applyTheme(nextTheme);
         localStorage.setItem('theme', nextTheme);
+        localStorage.setItem('gcse_theme', nextTheme);
       });
     }
   }
@@ -410,13 +434,6 @@
       if (DOM.twosComplementExplainer) DOM.twosComplementExplainer.style.display = 'none';
     }
 
-    // 4. Synchronize 3-Way Converter Inputs (if not user-typed)
-    if (!isSyncing) {
-      if (DOM.liveDenaryInput) DOM.liveDenaryInput.value = denary;
-      if (DOM.liveHexInput) DOM.liveHexInput.value = `${highHexChar}${lowHexChar}`;
-      if (DOM.liveBinaryInput) DOM.liveBinaryInput.value = rawBinary;
-    }
-
     // Synchronize Direct Hex Input Bar at top (if not currently focused)
     if (DOM.topLiveHexInput && document.activeElement !== DOM.topLiveHexInput) {
       DOM.topLiveHexInput.value = `${highHexChar}${lowHexChar}`;
@@ -427,9 +444,6 @@
     if (DOM.topHexLowNibbleText) {
       DOM.topHexLowNibbleText.textContent = `${lowHexChar} (${binStrLow})`;
     }
-
-    // 5. Update Target Challenge Feedback
-    updateTargetFeedback();
   }
 
   function invertString(binStr) {
@@ -466,19 +480,9 @@
       if (mode === 'twos') {
         DOM.msbPlaceValueLabel.textContent = '-128';
         DOM.msbPlaceValueLabel.classList.add('msb-negative');
-        if (DOM.liveDenaryInput) {
-          DOM.liveDenaryInput.min = "-128";
-          DOM.liveDenaryInput.max = "127";
-          DOM.liveDenaryInput.placeholder = "-128 to 127";
-        }
       } else {
         DOM.msbPlaceValueLabel.textContent = '128';
         DOM.msbPlaceValueLabel.classList.remove('msb-negative');
-        if (DOM.liveDenaryInput) {
-          DOM.liveDenaryInput.min = "0";
-          DOM.liveDenaryInput.max = "255";
-          DOM.liveDenaryInput.placeholder = "0 - 255";
-        }
       }
     }
     renderRegister();
@@ -546,16 +550,6 @@
       DOM.btnDecrementBit.addEventListener('click', () => stepRegister(-1));
     }
 
-    // Stepper buttons on 3-Way Converter cards (Denary, Hex, Binary)
-    ['stepUpDenary', 'stepUpHex', 'stepUpBinary'].forEach(id => {
-      const btn = document.getElementById(id);
-      if (btn) btn.addEventListener('click', () => stepRegister(1));
-    });
-    ['stepDownDenary', 'stepDownHex', 'stepDownBinary'].forEach(id => {
-      const btn = document.getElementById(id);
-      if (btn) btn.addEventListener('click', () => stepRegister(-1));
-    });
-
     // Reset button
     if (DOM.btnResetBits) {
       DOM.btnResetBits.addEventListener('click', () => {
@@ -579,109 +573,178 @@
         renderRegister();
       });
     }
-
-    // 3-Way Synchronized Live Converter Event Listeners
-    // 1. Denary Input
-    if (DOM.liveDenaryInput) {
-      DOM.liveDenaryInput.addEventListener('input', (e) => {
-        const rawVal = e.target.value.trim();
-        if (rawVal === '' || rawVal === '-') return;
-
-        let num = parseInt(rawVal, 10);
-        if (isNaN(num)) return;
-
-        isSyncing = true;
-        if (state.numberMode === 'twos') {
-          if (num > 127) num = 127;
-          if (num < -128) num = -128;
-          const unsignedByte = (num + 256) & 0xFF;
-          for (let i = 0; i < 8; i++) {
-            state.bits[i] = (unsignedByte >> i) & 1;
-          }
-        } else {
-          if (num > 255) num = 255;
-          if (num < 0) num = 0;
-          for (let i = 0; i < 8; i++) {
-            state.bits[i] = (num >> i) & 1;
-          }
-        }
-
-        renderRegister();
-        // Update sister inputs
-        const highVal = (state.bits[7] << 3) | (state.bits[6] << 2) | (state.bits[5] << 1) | state.bits[4];
-        const lowVal = (state.bits[3] << 3) | (state.bits[2] << 2) | (state.bits[1] << 1) | state.bits[0];
-        const hex = `${highVal.toString(16).toUpperCase()}${lowVal.toString(16).toUpperCase()}`;
-        const bin = `${state.bits[7]}${state.bits[6]}${state.bits[5]}${state.bits[4]}${state.bits[3]}${state.bits[2]}${state.bits[1]}${state.bits[0]}`;
-        if (DOM.liveHexInput) DOM.liveHexInput.value = hex;
-        if (DOM.liveBinaryInput) DOM.liveBinaryInput.value = bin;
-        isSyncing = false;
-      });
-    }
-
-    // 2. Hex Input
-    if (DOM.liveHexInput) {
-      DOM.liveHexInput.addEventListener('input', (e) => {
-        let cleanHex = e.target.value.replace(/[^0-9A-Fa-f]/g, '').slice(0, 2).toUpperCase();
-        e.target.value = cleanHex;
-        if (cleanHex === '') return;
-
-        isSyncing = true;
-        const num = parseInt(cleanHex, 16);
-        for (let i = 0; i < 8; i++) {
-          state.bits[i] = (num >> i) & 1;
-        }
-
-        renderRegister();
-        // Update denary and binary inputs
-        let denary = 0;
-        for (let i = 0; i < 8; i++) {
-          if (state.bits[i] === 1) {
-            if (i === 7 && state.numberMode === 'twos') denary -= 128;
-            else denary += Math.pow(2, i);
-          }
-        }
-        const bin = `${state.bits[7]}${state.bits[6]}${state.bits[5]}${state.bits[4]}${state.bits[3]}${state.bits[2]}${state.bits[1]}${state.bits[0]}`;
-        if (DOM.liveDenaryInput) DOM.liveDenaryInput.value = denary;
-        if (DOM.liveBinaryInput) DOM.liveBinaryInput.value = bin;
-        isSyncing = false;
-      });
-    }
-
-    // 3. Binary Input
-    if (DOM.liveBinaryInput) {
-      DOM.liveBinaryInput.addEventListener('input', (e) => {
-        let cleanBin = e.target.value.replace(/[^01]/g, '').slice(0, 8);
-        e.target.value = cleanBin;
-        if (cleanBin.length === 0) return;
-
-        isSyncing = true;
-        // Pad with leading 0s to 8 bits
-        const padded = cleanBin.padStart(8, '0');
-        for (let i = 0; i < 8; i++) {
-          state.bits[i] = padded[7 - i] === '1' ? 1 : 0;
-        }
-
-        renderRegister();
-        // Update denary and hex
-        let denary = 0;
-        for (let i = 0; i < 8; i++) {
-          if (state.bits[i] === 1) {
-            if (i === 7 && state.numberMode === 'twos') denary -= 128;
-            else denary += Math.pow(2, i);
-          }
-        }
-        const highVal = (state.bits[7] << 3) | (state.bits[6] << 2) | (state.bits[5] << 1) | state.bits[4];
-        const lowVal = (state.bits[3] << 3) | (state.bits[2] << 2) | (state.bits[1] << 1) | state.bits[0];
-        const hex = `${highVal.toString(16).toUpperCase()}${lowVal.toString(16).toUpperCase()}`;
-        if (DOM.liveDenaryInput) DOM.liveDenaryInput.value = denary;
-        if (DOM.liveHexInput) DOM.liveHexInput.value = hex;
-        isSyncing = false;
-      });
-    }
   }
 
   // =========================================================================
-  // 4B. TAB 1: AUDIO SYNTH, TARGET CHALLENGE & HEX RGB PLAYGROUND
+  // 4A. STANDALONE 3-WAY NUMBER CONVERTER (UP TO 40-BIT)
+  // =========================================================================
+
+  let converterVal = 0n;
+  const MAX_CONVERTER_VAL = 1099511627775n; // (1n << 40n) - 1n
+
+  function formatBinaryNibbles(binStr) {
+    if (!binStr || binStr === '0') return '0';
+    const rem = binStr.length % 4;
+    const parts = [];
+    if (rem > 0) {
+      parts.push(binStr.slice(0, rem));
+    }
+    for (let i = rem; i < binStr.length; i += 4) {
+      parts.push(binStr.slice(i, i + 4));
+    }
+    return parts.join(' ');
+  }
+
+  function updateConverterUI(source) {
+    const bitLen = converterVal === 0n ? 0 : converterVal.toString(2).length;
+
+    // 1. Bit width badge
+    if (DOM.convBitSizeBadge) {
+      if (converterVal === 0n) {
+        DOM.convBitSizeBadge.textContent = '0 bits (Value: 0)';
+      } else if (bitLen <= 8) {
+        DOM.convBitSizeBadge.textContent = `8 bits (1 Byte • ${bitLen} active)`;
+      } else if (bitLen <= 16) {
+        DOM.convBitSizeBadge.textContent = `16 bits (2 Bytes • ${bitLen} active)`;
+      } else if (bitLen <= 24) {
+        DOM.convBitSizeBadge.textContent = `24 bits (3 Bytes / RGB • ${bitLen} active)`;
+      } else if (bitLen <= 32) {
+        DOM.convBitSizeBadge.textContent = `32 bits (4 Bytes / IPv4 • ${bitLen} active)`;
+      } else {
+        DOM.convBitSizeBadge.textContent = `40 bits (5 Bytes / 1 TiB • ${bitLen} active)`;
+      }
+    }
+
+    // 2. Denary
+    if (source !== 'denary' && DOM.liveDenaryInput) {
+      DOM.liveDenaryInput.value = converterVal.toString(10);
+    }
+    if (DOM.denarySubtextLabel) {
+      DOM.denarySubtextLabel.textContent = `Formatted: ${converterVal.toLocaleString()} (0 to 2⁴⁰)`;
+    }
+
+    // 3. Hex
+    const hexStr = converterVal.toString(16).toUpperCase();
+    if (source !== 'hex' && DOM.liveHexInput) {
+      DOM.liveHexInput.value = hexStr;
+    }
+    if (DOM.hexSubtextLabel) {
+      const bytes = Math.max(1, Math.ceil(hexStr.length / 2));
+      DOM.hexSubtextLabel.textContent = `Code literal: 0x${hexStr} (${bytes} byte${bytes === 1 ? '' : 's'})`;
+    }
+
+    // 4. Binary
+    const binStr = converterVal.toString(2);
+    if (source !== 'binary' && DOM.liveBinaryInput) {
+      DOM.liveBinaryInput.value = formatBinaryNibbles(binStr);
+    }
+    if (DOM.binarySubtextLabel) {
+      DOM.binarySubtextLabel.textContent = `Bit length: ${bitLen === 0 ? 1 : bitLen} bits (grouped in nibbles)`;
+    }
+  }
+
+  function setConverterValue(newVal, source) {
+    if (newVal < 0n) newVal = 0n;
+    if (newVal > MAX_CONVERTER_VAL) newVal = MAX_CONVERTER_VAL;
+    converterVal = newVal;
+    updateConverterUI(source);
+  }
+
+  function setupStandaloneConverter() {
+    // Preset buttons
+    if (DOM.converterPresetButtons) {
+      DOM.converterPresetButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const raw = btn.getAttribute('data-val') || '0';
+          try {
+            const val = BigInt(raw);
+            setConverterValue(val, null);
+            playSynthSound('click');
+          } catch (e) {}
+        });
+      });
+    }
+
+    // Steppers (+1 / -1)
+    const step = (delta) => {
+      let next = converterVal + BigInt(delta);
+      if (next < 0n) next = 0n;
+      if (next > MAX_CONVERTER_VAL) next = MAX_CONVERTER_VAL;
+      setConverterValue(next, null);
+      playSynthSound('click');
+    };
+
+    if (DOM.stepUpDenary) DOM.stepUpDenary.addEventListener('click', () => step(1));
+    if (DOM.stepDownDenary) DOM.stepDownDenary.addEventListener('click', () => step(-1));
+    if (DOM.stepUpHex) DOM.stepUpHex.addEventListener('click', () => step(1));
+    if (DOM.stepDownHex) DOM.stepDownHex.addEventListener('click', () => step(-1));
+    if (DOM.stepUpBinary) DOM.stepUpBinary.addEventListener('click', () => step(1));
+    if (DOM.stepDownBinary) DOM.stepDownBinary.addEventListener('click', () => step(-1));
+
+    // Inputs
+    if (DOM.liveDenaryInput) {
+      DOM.liveDenaryInput.addEventListener('input', (e) => {
+        const raw = e.target.value.replace(/[^0-9]/g, '');
+        e.target.value = raw;
+        if (raw === '') {
+          setConverterValue(0n, 'denary');
+          return;
+        }
+        try {
+          let val = BigInt(raw);
+          if (val > MAX_CONVERTER_VAL) {
+            val = MAX_CONVERTER_VAL;
+            e.target.value = val.toString(10);
+          }
+          setConverterValue(val, 'denary');
+        } catch (err) {}
+      });
+    }
+
+    if (DOM.liveHexInput) {
+      DOM.liveHexInput.addEventListener('input', (e) => {
+        let raw = e.target.value.replace(/[^0-9A-Fa-f]/g, '').slice(0, 10).toUpperCase();
+        e.target.value = raw;
+        if (raw === '') {
+          setConverterValue(0n, 'hex');
+          return;
+        }
+        try {
+          let val = BigInt('0x' + raw);
+          if (val > MAX_CONVERTER_VAL) {
+            val = MAX_CONVERTER_VAL;
+            e.target.value = val.toString(16).toUpperCase();
+          }
+          setConverterValue(val, 'hex');
+        } catch (err) {}
+      });
+    }
+
+    if (DOM.liveBinaryInput) {
+      DOM.liveBinaryInput.addEventListener('input', (e) => {
+        let raw = e.target.value.replace(/[^01]/g, '').slice(0, 40);
+        if (raw === '') {
+          setConverterValue(0n, 'binary');
+          return;
+        }
+        try {
+          let val = BigInt('0b' + raw);
+          if (val > MAX_CONVERTER_VAL) val = MAX_CONVERTER_VAL;
+          setConverterValue(val, 'binary');
+        } catch (err) {}
+      });
+
+      DOM.liveBinaryInput.addEventListener('blur', () => {
+        DOM.liveBinaryInput.value = formatBinaryNibbles(converterVal.toString(2));
+      });
+    }
+
+    // Initial render
+    setConverterValue(0n, null);
+  }
+
+  // =========================================================================
+  // 4B. TAB 1: AUDIO SYNTH & ARCADE TARGET PRACTICE CHALLENGE
   // =========================================================================
 
   let audioCtx = null;
@@ -718,8 +781,7 @@
         osc.start(now);
         osc.stop(now + 0.04);
       } else if (type === 'success') {
-        // Two-tone cheerful major third chime (C5 -> E5)
-        [523.25, 659.25].forEach((freq, idx) => {
+        [523.25, 659.25, 783.99].forEach((freq, idx) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = 'sine';
@@ -732,17 +794,18 @@
           osc.stop(now + idx * 0.08 + 0.25);
         });
       }
-    } catch (e) {
-      // Autoplay policy fallback
-    }
+    } catch (e) {}
   }
 
-  // --- TARGET PRACTICE CHALLENGE ---
+  // --- TARGET PRACTICE ARCADE LAB ---
   const targetState = {
-    target: 42,
-    targetBase: 'denary', // 'denary' | 'hex'
+    gameMode: 'flipper', // 'flipper' | 'bin2dec' | 'bin2hex' | 'mixed'
+    currentType: 'flipper', // active question type: 'flipper' | 'bin2dec' | 'bin2hex'
+    targetNum: 42,
+    targetPattern: '00101010',
+    gameBits: [0, 0, 0, 0, 0, 0, 0, 0], // User 8-bit switches in Bit Flipper
     streak: 0,
-    isSprint: false,
+    isSprint: true, // User request: Start in sprint mode by default!
     sprintRunning: false,
     sprintTimeLeft: 60,
     sprintScore: 0,
@@ -750,92 +813,158 @@
     sprintBest: parseInt(localStorage.getItem('binary_sprint_best_60s') || '0', 10),
   };
 
-  function rollNewTarget() {
-    let next;
-    do {
-      next = Math.floor(Math.random() * 254) + 1;
-    } while (next === targetState.target);
-
-    targetState.target = next;
-    renderTargetDisplay();
-    updateTargetFeedback();
+  function getSprintRank(score) {
+    if (score >= 20) return 'Rank: ⚡ Hex Grandmaster (Top 1%)';
+    if (score >= 15) return 'Rank: 🏆 Byte Master';
+    if (score >= 10) return 'Rank: 🚀 Nibble Navigator';
+    if (score >= 5) return 'Rank: 💡 Logic Practitioner';
+    return 'Rank: 🌱 Bit Novice';
   }
 
-  function renderTargetDisplay() {
-    if (!DOM.targetNumberDisplay) return;
-    if (targetState.targetBase === 'hex') {
-      DOM.targetNumberDisplay.textContent = targetState.target.toString(16).toUpperCase().padStart(2, '0');
-      if (DOM.targetBaseLabel) DOM.targetBaseLabel.textContent = 'Hex Target:';
-    } else {
-      DOM.targetNumberDisplay.textContent = targetState.target;
-      if (DOM.targetBaseLabel) DOM.targetBaseLabel.textContent = 'Denary Target:';
-    }
+  function renderGameBits() {
+    if (!DOM.gameBitButtons) return;
+    DOM.gameBitButtons.forEach(btn => {
+      const bitIdx = parseInt(btn.getAttribute('data-bit'), 10);
+      const val = targetState.gameBits[bitIdx];
+      btn.classList.toggle('active', val === 1);
+      const valSpan = document.getElementById(`gbit-${bitIdx}`);
+      if (valSpan) valSpan.textContent = val;
+    });
   }
 
-  function updateTargetFeedback() {
-    if (!DOM.targetCurrentVal) return;
-    const currentDenary = bitsToUnsigned(state.bits);
+  function updateFlipperFeedback() {
+    const currentVal = targetState.gameBits.reduce((acc, bit, idx) => acc + (bit ? Math.pow(2, idx) : 0), 0);
+    if (DOM.targetCurrentVal) DOM.targetCurrentVal.textContent = currentVal;
 
-    if (targetState.targetBase === 'hex') {
-      const curHex = currentDenary.toString(16).toUpperCase().padStart(2, '0');
-      DOM.targetCurrentVal.textContent = `${curHex} (${currentDenary})`;
-    } else {
-      DOM.targetCurrentVal.textContent = currentDenary;
-    }
-
-    const diff = targetState.target - currentDenary;
+    if (!DOM.targetDiffBadge) return;
+    const diff = targetState.targetNum - currentVal;
     if (diff === 0) {
-      // MATCH!
       DOM.targetDiffBadge.textContent = '🎉 MATCH!';
       DOM.targetDiffBadge.style.background = 'rgba(16, 185, 129, 0.2)';
       DOM.targetDiffBadge.style.color = '#10b981';
-
-      if (DOM.targetCardContainer) {
-        DOM.targetCardContainer.classList.add('target-card-matched');
-        setTimeout(() => {
-          DOM.targetCardContainer.classList.remove('target-card-matched');
-        }, 500);
-      }
-
-      playSynthSound('success');
-
-      if (targetState.isSprint && targetState.sprintRunning) {
-        targetState.sprintScore++;
-        if (DOM.sprintScoreVal) DOM.sprintScoreVal.textContent = targetState.sprintScore;
-        if (targetState.sprintScore > targetState.sprintBest) {
-          targetState.sprintBest = targetState.sprintScore;
-          localStorage.setItem('binary_sprint_best_60s', targetState.sprintBest.toString());
-          if (DOM.sprintBestVal) DOM.sprintBestVal.textContent = targetState.sprintBest;
-          if (DOM.sprintLauncherBestVal) DOM.sprintLauncherBestVal.textContent = targetState.sprintBest;
-        }
-      } else if (!targetState.isSprint) {
-        targetState.streak++;
-        if (DOM.currentStreakVal) DOM.currentStreakVal.textContent = targetState.streak;
-      }
-
-      setTimeout(() => {
-        rollNewTarget();
-      }, 450);
+      DOM.targetDiffBadge.style.borderColor = '#10b981';
+      onChallengeSuccess();
     } else if (diff > 0) {
-      if (targetState.targetBase === 'hex') {
-        DOM.targetDiffBadge.textContent = `Needs +${diff} (0x${diff.toString(16).toUpperCase()})`;
-      } else {
-        DOM.targetDiffBadge.textContent = `Needs +${diff}`;
-      }
+      DOM.targetDiffBadge.textContent = `Needs +${diff}`;
       DOM.targetDiffBadge.style.background = 'var(--isaac-magenta-tint)';
       DOM.targetDiffBadge.style.color = 'var(--isaac-magenta)';
       DOM.targetDiffBadge.style.borderColor = 'var(--isaac-magenta)';
     } else {
       const over = Math.abs(diff);
-      if (targetState.targetBase === 'hex') {
-        DOM.targetDiffBadge.textContent = `Over by ${over} (0x${over.toString(16).toUpperCase()})`;
-      } else {
-        DOM.targetDiffBadge.textContent = `Over by ${over}`;
-      }
+      DOM.targetDiffBadge.textContent = `Over by ${over}`;
       DOM.targetDiffBadge.style.background = 'var(--isaac-yellow-tint)';
       DOM.targetDiffBadge.style.color = '#b45309';
       DOM.targetDiffBadge.style.borderColor = 'var(--isaac-yellow-border)';
     }
+  }
+
+  function rollNewQuestion() {
+    // 1. Determine active question type
+    if (targetState.gameMode === 'mixed') {
+      const types = ['flipper', 'bin2dec', 'bin2hex'];
+      targetState.currentType = types[Math.floor(Math.random() * types.length)];
+    } else {
+      targetState.currentType = targetState.gameMode;
+    }
+
+    // 2. Pick new target number (1..255, different from current)
+    let nextNum;
+    do {
+      nextNum = Math.floor(Math.random() * 254) + 1;
+    } while (nextNum === targetState.targetNum);
+    targetState.targetNum = nextNum;
+    targetState.targetPattern = nextNum.toString(2).padStart(8, '0');
+    targetState.gameBits = [0, 0, 0, 0, 0, 0, 0, 0];
+
+    // 3. Render appropriate controls & prompts
+    const formattedBin = `${targetState.targetPattern.slice(0, 4)} ${targetState.targetPattern.slice(4)}`;
+
+    if (targetState.currentType === 'flipper') {
+      if (DOM.targetModeBadge) {
+        DOM.targetModeBadge.textContent = 'BIT FLIPPER';
+        DOM.targetModeBadge.style.background = 'rgba(99, 102, 241, 0.15)';
+        DOM.targetModeBadge.style.color = '#4338ca';
+      }
+      if (DOM.targetBaseLabel) DOM.targetBaseLabel.textContent = 'Target Number (Denary):';
+      if (DOM.targetNumberDisplay) DOM.targetNumberDisplay.textContent = targetState.targetNum;
+
+      if (DOM.gameFlipperControls) DOM.gameFlipperControls.style.display = 'block';
+      if (DOM.gameBinToDecControls) DOM.gameBinToDecControls.style.display = 'none';
+      if (DOM.gameBinToHexControls) DOM.gameBinToHexControls.style.display = 'none';
+
+      renderGameBits();
+      updateFlipperFeedback();
+    } else if (targetState.currentType === 'bin2dec') {
+      if (DOM.targetModeBadge) {
+        DOM.targetModeBadge.textContent = 'BIN ➔ DENARY';
+        DOM.targetModeBadge.style.background = 'rgba(16, 185, 129, 0.15)';
+        DOM.targetModeBadge.style.color = '#047857';
+      }
+      if (DOM.targetBaseLabel) DOM.targetBaseLabel.textContent = 'Convert Binary Pattern:';
+      if (DOM.targetNumberDisplay) DOM.targetNumberDisplay.textContent = formattedBin;
+
+      if (DOM.gameFlipperControls) DOM.gameFlipperControls.style.display = 'none';
+      if (DOM.gameBinToDecControls) DOM.gameBinToDecControls.style.display = 'block';
+      if (DOM.gameBinToHexControls) DOM.gameBinToHexControls.style.display = 'none';
+
+      if (DOM.gameDecInput) {
+        DOM.gameDecInput.value = '';
+        DOM.gameDecInput.focus();
+      }
+      if (DOM.gameDecFeedback) DOM.gameDecFeedback.textContent = '';
+    } else if (targetState.currentType === 'bin2hex') {
+      if (DOM.targetModeBadge) {
+        DOM.targetModeBadge.textContent = 'BIN ➔ HEX';
+        DOM.targetModeBadge.style.background = 'rgba(200, 0, 107, 0.15)';
+        DOM.targetModeBadge.style.color = 'var(--isaac-magenta)';
+      }
+      if (DOM.targetBaseLabel) DOM.targetBaseLabel.textContent = 'Convert Binary Pattern:';
+      if (DOM.targetNumberDisplay) DOM.targetNumberDisplay.textContent = formattedBin;
+
+      if (DOM.gameFlipperControls) DOM.gameFlipperControls.style.display = 'none';
+      if (DOM.gameBinToDecControls) DOM.gameBinToDecControls.style.display = 'none';
+      if (DOM.gameBinToHexControls) DOM.gameBinToHexControls.style.display = 'block';
+
+      if (DOM.gameHexInput) {
+        DOM.gameHexInput.value = '';
+        DOM.gameHexInput.focus();
+      }
+      if (DOM.gameHexFeedback) DOM.gameHexFeedback.textContent = '';
+    }
+  }
+
+  let successCooldown = false;
+  function onChallengeSuccess() {
+    if (successCooldown) return;
+    successCooldown = true;
+
+    playSynthSound('success');
+
+    if (DOM.targetCardContainer) {
+      DOM.targetCardContainer.classList.add('target-card-matched');
+      setTimeout(() => {
+        if (DOM.targetCardContainer) DOM.targetCardContainer.classList.remove('target-card-matched');
+      }, 500);
+    }
+
+    if (targetState.isSprint && targetState.sprintRunning) {
+      targetState.sprintScore++;
+      if (DOM.sprintScoreVal) DOM.sprintScoreVal.textContent = targetState.sprintScore;
+      if (targetState.sprintScore > targetState.sprintBest) {
+        targetState.sprintBest = targetState.sprintScore;
+        localStorage.setItem('binary_sprint_best_60s', targetState.sprintBest.toString());
+        if (DOM.sprintBestVal) DOM.sprintBestVal.textContent = targetState.sprintBest;
+        if (DOM.sprintLauncherBestVal) DOM.sprintLauncherBestVal.textContent = targetState.sprintBest;
+      }
+    } else if (!targetState.isSprint) {
+      targetState.streak++;
+      if (DOM.currentStreakVal) DOM.currentStreakVal.textContent = targetState.streak;
+    }
+
+    setTimeout(() => {
+      successCooldown = false;
+      rollNewQuestion();
+    }, 450);
   }
 
   function startSprint() {
@@ -843,28 +972,32 @@
     targetState.sprintTimeLeft = 60;
     targetState.sprintScore = 0;
 
-    // Show active sprint views, hide launcher and game over
     if (DOM.sprintStartLauncherCard) DOM.sprintStartLauncherCard.style.display = 'none';
     if (DOM.sprintGameOverCard) DOM.sprintGameOverCard.style.display = 'none';
     if (DOM.targetCardContainer) DOM.targetCardContainer.style.display = 'block';
     if (DOM.sprintActiveTimerBanner) DOM.sprintActiveTimerBanner.style.display = 'block';
 
     if (DOM.sprintScoreVal) DOM.sprintScoreVal.textContent = '0';
-    if (DOM.sprintTimerVal) DOM.sprintTimerVal.textContent = '60s';
-    if (DOM.sprintBigCountdown) DOM.sprintBigCountdown.textContent = '60s';
-    if (DOM.sprintTimerProgress) DOM.sprintTimerProgress.style.width = '100%';
+    if (DOM.sprintTimerVal) DOM.sprintTimerVal.textContent = '60';
+    if (DOM.sprintBigCountdown) {
+      DOM.sprintBigCountdown.textContent = '60s';
+      DOM.sprintBigCountdown.style.color = 'var(--isaac-magenta)';
+    }
+    if (DOM.sprintTimerProgress) {
+      DOM.sprintTimerProgress.style.width = '100%';
+      DOM.sprintTimerProgress.style.background = 'var(--isaac-magenta)';
+    }
 
-    rollNewTarget();
+    rollNewQuestion();
 
     if (targetState.sprintTimerId) clearInterval(targetState.sprintTimerId);
     targetState.sprintTimerId = setInterval(() => {
       targetState.sprintTimeLeft--;
       const pct = Math.max(0, (targetState.sprintTimeLeft / 60) * 100);
-      if (DOM.sprintTimerVal) DOM.sprintTimerVal.textContent = `${targetState.sprintTimeLeft}s`;
+      if (DOM.sprintTimerVal) DOM.sprintTimerVal.textContent = targetState.sprintTimeLeft;
       if (DOM.sprintBigCountdown) DOM.sprintBigCountdown.textContent = `${targetState.sprintTimeLeft}s`;
       if (DOM.sprintTimerProgress) DOM.sprintTimerProgress.style.width = `${pct}%`;
 
-      // Change timer colour as urgency increases
       if (DOM.sprintBigCountdown) {
         if (targetState.sprintTimeLeft <= 10) {
           DOM.sprintBigCountdown.style.color = '#ef4444';
@@ -873,8 +1006,8 @@
           DOM.sprintBigCountdown.style.color = '#f59e0b';
           if (DOM.sprintTimerProgress) DOM.sprintTimerProgress.style.background = '#f59e0b';
         } else {
-          DOM.sprintBigCountdown.style.color = '#ef4444';
-          if (DOM.sprintTimerProgress) DOM.sprintTimerProgress.style.background = '#ef4444';
+          DOM.sprintBigCountdown.style.color = 'var(--isaac-magenta)';
+          if (DOM.sprintTimerProgress) DOM.sprintTimerProgress.style.background = 'var(--isaac-magenta)';
         }
       }
 
@@ -882,12 +1015,13 @@
         clearInterval(targetState.sprintTimerId);
         targetState.sprintRunning = false;
 
-        // Hide target card and active banner, show Game Over card
         if (DOM.targetCardContainer) DOM.targetCardContainer.style.display = 'none';
         if (DOM.sprintActiveTimerBanner) DOM.sprintActiveTimerBanner.style.display = 'none';
         if (DOM.sprintGameOverCard) DOM.sprintGameOverCard.style.display = 'block';
 
         if (DOM.sprintFinalScoreVal) DOM.sprintFinalScoreVal.textContent = targetState.sprintScore;
+        if (DOM.sprintRankBadge) DOM.sprintRankBadge.textContent = getSprintRank(targetState.sprintScore);
+
         const isNewRecord = targetState.sprintScore > 0 && targetState.sprintScore >= targetState.sprintBest;
         if (DOM.sprintNewRecordBadge) {
           DOM.sprintNewRecordBadge.style.display = isNewRecord ? 'inline-block' : 'none';
@@ -913,7 +1047,6 @@
       if (DOM.sprintBestVal) DOM.sprintBestVal.textContent = targetState.sprintBest;
       if (DOM.sprintLauncherBestVal) DOM.sprintLauncherBestVal.textContent = targetState.sprintBest;
 
-      // Hide target card until started
       if (DOM.targetCardContainer) DOM.targetCardContainer.style.display = 'none';
       if (DOM.sprintActiveTimerBanner) DOM.sprintActiveTimerBanner.style.display = 'none';
       if (DOM.sprintGameOverCard) DOM.sprintGameOverCard.style.display = 'none';
@@ -927,7 +1060,6 @@
       if (DOM.sprintScoreBox) DOM.sprintScoreBox.style.display = 'none';
       if (DOM.sprintBestBox) DOM.sprintBestBox.style.display = 'none';
 
-      // Show relaxed target card, hide sprint banners
       if (DOM.targetCardContainer) DOM.targetCardContainer.style.display = 'block';
       if (DOM.sprintActiveTimerBanner) DOM.sprintActiveTimerBanner.style.display = 'none';
       if (DOM.sprintStartLauncherCard) DOM.sprintStartLauncherCard.style.display = 'none';
@@ -935,11 +1067,12 @@
 
       targetState.streak = 0;
       if (DOM.currentStreakVal) DOM.currentStreakVal.textContent = '0';
-      rollNewTarget();
+      rollNewQuestion();
     }
   }
 
   function setupTargetPracticeEvents() {
+    // Sound toggle
     if (DOM.btnToggleAudio) {
       DOM.btnToggleAudio.addEventListener('click', () => {
         isAudioMuted = !isAudioMuted;
@@ -948,57 +1081,147 @@
       });
     }
 
-    if (DOM.btnTargetBaseDenary) {
-      DOM.btnTargetBaseDenary.addEventListener('click', () => {
-        DOM.btnTargetBaseDenary.classList.add('active');
-        if (DOM.btnTargetBaseHex) DOM.btnTargetBaseHex.classList.remove('active');
-        targetState.targetBase = 'denary';
-        renderTargetDisplay();
-        updateTargetFeedback();
-        playSynthSound('click');
+    // Game Mode selection pills
+    const setGameMode = (mode) => {
+      targetState.gameMode = mode;
+      [DOM.btnModeFlipper, DOM.btnModeBinToDec, DOM.btnModeBinToHex, DOM.btnModeMixed].forEach(btn => {
+        if (btn) btn.classList.remove('active');
+      });
+      if (mode === 'flipper' && DOM.btnModeFlipper) DOM.btnModeFlipper.classList.add('active');
+      if (mode === 'bin2dec' && DOM.btnModeBinToDec) DOM.btnModeBinToDec.classList.add('active');
+      if (mode === 'bin2hex' && DOM.btnModeBinToHex) DOM.btnModeBinToHex.classList.add('active');
+      if (mode === 'mixed' && DOM.btnModeMixed) DOM.btnModeMixed.classList.add('active');
+      playSynthSound('click');
+      if (DOM.targetCardContainer && DOM.targetCardContainer.style.display !== 'none') {
+        rollNewQuestion();
+      }
+    };
+
+    if (DOM.btnModeFlipper) DOM.btnModeFlipper.addEventListener('click', () => setGameMode('flipper'));
+    if (DOM.btnModeBinToDec) DOM.btnModeBinToDec.addEventListener('click', () => setGameMode('bin2dec'));
+    if (DOM.btnModeBinToHex) DOM.btnModeBinToHex.addEventListener('click', () => setGameMode('bin2hex'));
+    if (DOM.btnModeMixed) DOM.btnModeMixed.addEventListener('click', () => setGameMode('mixed'));
+
+    // Sprint vs Relaxed selectors
+    if (DOM.btnPracticeSprint) DOM.btnPracticeSprint.addEventListener('click', () => setSprintMode(true));
+    if (DOM.btnPracticeRelaxed) DOM.btnPracticeRelaxed.addEventListener('click', () => setSprintMode(false));
+    if (DOM.btnBackToRelaxed) DOM.btnBackToRelaxed.addEventListener('click', () => setSprintMode(false));
+    if (DOM.btnStartSprint) DOM.btnStartSprint.addEventListener('click', startSprint);
+    if (DOM.btnPlayAgainSprint) DOM.btnPlayAgainSprint.addEventListener('click', startSprint);
+
+    // 1. Bit Flipper Switches
+    if (DOM.gameBitButtons) {
+      DOM.gameBitButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const bitIdx = parseInt(btn.getAttribute('data-bit'), 10);
+          targetState.gameBits[bitIdx] = targetState.gameBits[bitIdx] === 1 ? 0 : 1;
+          playSynthSound('click');
+          renderGameBits();
+          updateFlipperFeedback();
+        });
       });
     }
 
-    if (DOM.btnTargetBaseHex) {
-      DOM.btnTargetBaseHex.addEventListener('click', () => {
-        DOM.btnTargetBaseHex.classList.add('active');
-        if (DOM.btnTargetBaseDenary) DOM.btnTargetBaseDenary.classList.remove('active');
-        targetState.targetBase = 'hex';
-        renderTargetDisplay();
-        updateTargetFeedback();
+    if (DOM.btnGameClearBits) {
+      DOM.btnGameClearBits.addEventListener('click', () => {
+        targetState.gameBits = [0, 0, 0, 0, 0, 0, 0, 0];
         playSynthSound('click');
+        renderGameBits();
+        updateFlipperFeedback();
       });
     }
 
-    if (DOM.btnPracticeRelaxed) {
-      DOM.btnPracticeRelaxed.addEventListener('click', () => setSprintMode(false));
-    }
-
-    if (DOM.btnBackToRelaxed) {
-      DOM.btnBackToRelaxed.addEventListener('click', () => setSprintMode(false));
-    }
-
-    if (DOM.btnPracticeSprint) {
-      DOM.btnPracticeSprint.addEventListener('click', () => setSprintMode(true));
-    }
-
-    if (DOM.btnStartSprint) {
-      DOM.btnStartSprint.addEventListener('click', startSprint);
-    }
-
-    if (DOM.btnPlayAgainSprint) {
-      DOM.btnPlayAgainSprint.addEventListener('click', startSprint);
-    }
-
+    // Skip in Flipper mode
     if (DOM.btnSkipTarget) {
       DOM.btnSkipTarget.addEventListener('click', () => {
         if (!targetState.isSprint) {
           targetState.streak = 0;
           if (DOM.currentStreakVal) DOM.currentStreakVal.textContent = '0';
         }
-        rollNewTarget();
+        playSynthSound('click');
+        rollNewQuestion();
       });
     }
+
+    // 2. Bin -> Denary Form Submission
+    if (DOM.formBinToDec) {
+      DOM.formBinToDec.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const raw = DOM.gameDecInput ? DOM.gameDecInput.value.trim() : '';
+        if (raw === '') return;
+        const val = parseInt(raw, 10);
+        if (val === targetState.targetNum) {
+          if (DOM.gameDecFeedback) {
+            DOM.gameDecFeedback.textContent = `🎉 Correct! ${targetState.targetNum}`;
+            DOM.gameDecFeedback.style.color = '#10b981';
+          }
+          onChallengeSuccess();
+        } else {
+          if (DOM.gameDecFeedback) {
+            DOM.gameDecFeedback.textContent = `❌ Not quite! Place values of 1 bits add up differently. Try again!`;
+            DOM.gameDecFeedback.style.color = '#ef4444';
+          }
+          if (DOM.gameDecInput) {
+            DOM.gameDecInput.select();
+            DOM.gameDecInput.focus();
+          }
+        }
+      });
+    }
+
+    if (DOM.btnSkipBinToDec) {
+      DOM.btnSkipBinToDec.addEventListener('click', () => {
+        if (!targetState.isSprint) {
+          targetState.streak = 0;
+          if (DOM.currentStreakVal) DOM.currentStreakVal.textContent = '0';
+        }
+        playSynthSound('click');
+        rollNewQuestion();
+      });
+    }
+
+    // 3. Bin -> Hex Form Submission
+    if (DOM.formBinToHex) {
+      DOM.formBinToHex.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const raw = DOM.gameHexInput ? DOM.gameHexInput.value.trim().toUpperCase() : '';
+        if (raw === '') return;
+        const val = parseInt(raw, 16);
+        const expectedHex = targetState.targetNum.toString(16).toUpperCase().padStart(2, '0');
+        if (val === targetState.targetNum) {
+          if (DOM.gameHexFeedback) {
+            DOM.gameHexFeedback.textContent = `🎉 Correct! 0x${expectedHex}`;
+            DOM.gameHexFeedback.style.color = '#10b981';
+          }
+          onChallengeSuccess();
+        } else {
+          const highHex = targetState.targetPattern.slice(0, 4);
+          const lowHex = targetState.targetPattern.slice(4);
+          if (DOM.gameHexFeedback) {
+            DOM.gameHexFeedback.textContent = `❌ Hint: High nibble (${highHex}) = ${parseInt(highHex, 2).toString(16).toUpperCase()}, Low nibble (${lowHex}) = ${parseInt(lowHex, 2).toString(16).toUpperCase()}`;
+            DOM.gameHexFeedback.style.color = '#ef4444';
+          }
+          if (DOM.gameHexInput) {
+            DOM.gameHexInput.select();
+            DOM.gameHexInput.focus();
+          }
+        }
+      });
+    }
+
+    if (DOM.btnSkipBinToHex) {
+      DOM.btnSkipBinToHex.addEventListener('click', () => {
+        if (!targetState.isSprint) {
+          targetState.streak = 0;
+          if (DOM.currentStreakVal) DOM.currentStreakVal.textContent = '0';
+        }
+        playSynthSound('click');
+        rollNewQuestion();
+      });
+    }
+
+    // Set initial mode (Sprint by default)
+    setSprintMode(true);
   }
 
   // --- HEX RGB COLOUR MIXER PLAYGROUND ---
@@ -1770,790 +1993,1070 @@
   }
 
   // =========================================================================
-  // 7. TAB 4: CHARACTER ENCODER (ASCII & UNICODE)
+  // =========================================================================
+  // =========================================================================
+  // 7. TAB 0: "BITMASTER" BINARY & HEX MENTAL ARCADE ENGINE
   // =========================================================================
 
-  function renderCharacterTokens() {
-    const text = DOM.textEncoderInput ? DOM.textEncoderInput.value || '' : '';
-    if (!DOM.charTokenStream) return;
-    DOM.charTokenStream.innerHTML = '';
+  const BITMASTER_STAGES = [
+    {
+      id: 1,
+      title: "Stage 1: The 4-Bit Nibble",
+      subtitle: "4-Bit Binary & Denary Mastery (0–15)",
+      icon: "💡",
+      color: "#3b82f6",
+      levels: [
+        { id: 1, name: "Apprentice", mode: "mc_nibble", desc: "Multiple Choice: 4-bit Binary ↔ Denary" },
+        { id: 2, name: "Operator", mode: "switches_nibble", desc: "Toggle 4-bit Switches with Place Values" },
+        { id: 3, name: "Architect", mode: "blind_nibble", desc: "Rapid Blind Switches (Hidden Values)" }
+      ]
+    },
+    {
+      id: 2,
+      title: "Stage 2: The 8-Bit Byte",
+      subtitle: "8-Bit Binary & Denary (0–255)",
+      icon: "💾",
+      color: "#10b981",
+      levels: [
+        { id: 1, name: "Apprentice", mode: "mc_byte", desc: "Multiple Choice: 8-bit Conversions" },
+        { id: 2, name: "Operator", mode: "switches_byte", desc: "Toggle 8-bit Switches with Place Values" },
+        { id: 3, name: "Architect", mode: "blind_byte", desc: "Blind 8-bit Switches (Speed Run)" }
+      ]
+    },
+    {
+      id: 3,
+      title: "Stage 3: Hexadecimal Scribe",
+      subtitle: "Hexadecimal ↔ Binary ↔ Denary",
+      icon: "🔮",
+      color: "#8b5cf6",
+      levels: [
+        { id: 1, name: "Apprentice", mode: "mc_hex_nibble", desc: "Single Hex Digits (0x0 to 0xF)" },
+        { id: 2, name: "Operator", mode: "mc_hex_byte", desc: "2-Digit Hex Bytes (0x00 to 0xFF)" },
+        { id: 3, name: "Architect", mode: "keypad_hex", desc: "Direct Hex & Denary Conversion Keypad" }
+      ]
+    },
+    {
+      id: 4,
+      title: "Stage 4: Binary Addition",
+      subtitle: "Carries, Arithmetic & Overflow Errors",
+      icon: "⚔️",
+      color: "#f59e0b",
+      levels: [
+        { id: 1, name: "Apprentice", mode: "mc_add_simple", desc: "4-bit Addition without Carries" },
+        { id: 2, name: "Operator", mode: "mc_add_carries", desc: "8-bit Addition with Multiple Carries" },
+        { id: 3, name: "Architect", mode: "mc_add_overflow", desc: "Detect Overflow & Add Under Pressure" }
+      ]
+    },
+    {
+      id: 5,
+      title: "Stage 5: Two's Complement",
+      subtitle: "Signed Binary & Negative Values (-128 MSB)",
+      icon: "❄️",
+      color: "#06b6d4",
+      levels: [
+        { id: 1, name: "Apprentice", mode: "mc_twos_comp_easy", desc: "Identify Sign Bits & Negate Binary" },
+        { id: 2, name: "Operator", mode: "switches_twos_comp", desc: "Construct Negative Values (-128 MSB)" },
+        { id: 3, name: "Architect", mode: "mc_twos_comp_hard", desc: "Signed Binary ↔ Denary (-128 to +127)" }
+      ]
+    },
+    {
+      id: 6,
+      title: "Stage 6: Logical Shifts",
+      subtitle: "Multiplication & Division (×2, ÷2)",
+      icon: "⚙️",
+      color: "#ec4899",
+      levels: [
+        { id: 1, name: "Apprentice", mode: "mc_shift_left", desc: "Left Shifts (Multiplication by 2, 4, 8)" },
+        { id: 2, name: "Operator", mode: "mc_shift_right", desc: "Right Shifts (Division & Truncation)" },
+        { id: 3, name: "Architect", mode: "mc_shift_mixed", desc: "Multi-Step Shifts & Bit Loss Traps" }
+      ]
+    },
+    {
+      id: 7,
+      title: "Stage 7: The Master Gauntlet",
+      subtitle: "Championship Blitz (All Topics Mixed)",
+      icon: "⚡",
+      color: "#eab308",
+      levels: [
+        { id: 1, name: "Bronze Circuit", mode: "blitz_easy", desc: "Foundation Blitz (10 Mixed Questions)" },
+        { id: 2, name: "Silver Circuit", mode: "blitz_med", desc: "Intermediate Blitz (10 Mixed Questions)" },
+        { id: 3, name: "Gold Circuit", mode: "blitz_hard", desc: "Grandmaster Blitz (Strict Timer)" }
+      ]
+    }
+  ];
 
-    if (!text) {
-      if (DOM.fullBinaryOutputBox) DOM.fullBinaryOutputBox.textContent = '(Empty - type a message above)';
-      if (DOM.fullHexOutputLabel) DOM.fullHexOutputLabel.textContent = 'Hex: (Empty)';
-      if (DOM.encoderByteStats) DOM.encoderByteStats.textContent = '0 Characters • 0 Bytes (0 bits)';
-      DOM.charTokenStream.innerHTML = '<span style="color:var(--text-muted); font-size:12px;">Start typing above to see binary character blocks...</span>';
+  const BITMASTER_RANKS = [
+    { minXp: 0, title: "Logic Novice", icon: "💡" },
+    { minXp: 150, title: "Nibble Operator", icon: "💾" },
+    { minXp: 400, title: "Byte Engineer", icon: "⚙️" },
+    { minXp: 800, title: "Hex Architect", icon: "🔮" },
+    { minXp: 1400, title: "Silicon Master", icon: "⚡" },
+    { minXp: 2200, title: "Grand BitMaster", icon: "👑" }
+  ];
+
+  const bitmasterState = {
+    xp: 0,
+    stars: {}, // key: "s{stageId}_l{levelId}" -> number (1-3)
+    activeStage: 1,
+    activeLevel: 1,
+    currentQuestionIndex: 0,
+    totalQuestions: 10,
+    currentQuestion: null,
+    mistakesThisRound: 0,
+    correctThisRound: 0,
+    startTime: null,
+    timerInterval: null,
+    elapsedSeconds: 0,
+    switchBits: [0, 0, 0, 0, 0, 0, 0, 0],
+    keypadBuffer: ""
+  };
+
+  function loadBitmasterSave() {
+    try {
+      const saved = localStorage.getItem('bitmaster_save_v1');
+      if (saved) {
+        const data = JSON.parse(saved);
+        bitmasterState.xp = Number(data.xp) || 0;
+        bitmasterState.stars = data.stars || {};
+      }
+    } catch (e) {
+      console.warn("Could not load BitMaster save:", e);
+    }
+  }
+
+  function saveBitmasterProgress() {
+    try {
+      localStorage.setItem('bitmaster_save_v1', JSON.stringify({
+        xp: bitmasterState.xp,
+        stars: bitmasterState.stars
+      }));
+    } catch (e) {
+      console.warn("Could not write BitMaster save:", e);
+    }
+  }
+
+  function calculateBitmasterStars() {
+    return Object.values(bitmasterState.stars).reduce((sum, val) => sum + (Number(val) || 0), 0);
+  }
+
+  function getCurrentBitmasterRank() {
+    let rank = BITMASTER_RANKS[0];
+    for (const r of BITMASTER_RANKS) {
+      if (bitmasterState.xp >= r.minXp) {
+        rank = r;
+      }
+    }
+    return rank;
+  }
+
+  function getNextBitmasterRank() {
+    for (let i = 0; i < BITMASTER_RANKS.length; i++) {
+      if (bitmasterState.xp < BITMASTER_RANKS[i].minXp) {
+        return BITMASTER_RANKS[i];
+      }
+    }
+    return null;
+  }
+
+  function updateBitmasterHUD() {
+    const totalStars = calculateBitmasterStars();
+    const rank = getCurrentBitmasterRank();
+    const nextRank = getNextBitmasterRank();
+
+    const starEl = document.getElementById('bitmasterTotalStars');
+    const xpEl = document.getElementById('bitmasterTotalXP');
+    const avatarEl = document.getElementById('bitmasterAvatarIcon');
+    const rankTitleEl = document.getElementById('bitmasterRankTitle');
+    const xpLabelEl = document.getElementById('bitmasterXpLabel');
+    const xpBarFillEl = document.getElementById('bitmasterXpBarFill');
+
+    if (starEl) starEl.textContent = totalStars;
+    if (xpEl) xpEl.textContent = bitmasterState.xp;
+    if (avatarEl) avatarEl.textContent = rank.icon;
+    if (rankTitleEl) rankTitleEl.textContent = rank.title;
+
+    if (nextRank) {
+      const prevXp = rank.minXp;
+      const targetXp = nextRank.minXp;
+      const progress = Math.min(100, Math.max(0, Math.round(((bitmasterState.xp - prevXp) / (targetXp - prevXp)) * 100)));
+      if (xpLabelEl) xpLabelEl.textContent = `${bitmasterState.xp} / ${targetXp} XP (${nextRank.title})`;
+      if (xpBarFillEl) xpBarFillEl.style.width = `${progress}%`;
+    } else {
+      if (xpLabelEl) xpLabelEl.textContent = `${bitmasterState.xp} XP • Maximum Tier`;
+      if (xpBarFillEl) xpBarFillEl.style.width = '100%';
+    }
+  }
+
+  function showBitmasterScreen(screenName) {
+    const screens = {
+      stages: document.getElementById('bitmasterScreenStages'),
+      levels: document.getElementById('bitmasterScreenLevels'),
+      game: document.getElementById('bitmasterScreenGame'),
+      summary: document.getElementById('bitmasterScreenSummary')
+    };
+
+    Object.values(screens).forEach(s => {
+      if (s) {
+        s.classList.remove('active');
+        s.style.display = 'none';
+      }
+    });
+
+    const backBtn = document.getElementById('bitmasterHudBackBtn');
+    const hudTitle = document.getElementById('bitmasterHudTitle');
+
+    if (screenName === 'stages') {
+      if (screens.stages) {
+        screens.stages.classList.add('active');
+        screens.stages.style.display = 'block';
+      }
+      if (backBtn) backBtn.style.display = 'none';
+      if (hudTitle) hudTitle.textContent = '⚡ BitMaster Arena';
+      renderBitmasterStagesGrid();
+    } else if (screenName === 'levels') {
+      if (screens.levels) {
+        screens.levels.classList.add('active');
+        screens.levels.style.display = 'block';
+      }
+      if (backBtn) backBtn.style.display = 'inline-flex';
+      const stage = BITMASTER_STAGES.find(s => s.id === bitmasterState.activeStage);
+      if (hudTitle && stage) hudTitle.textContent = stage.title;
+      renderBitmasterLevelsScreen();
+    } else if (screenName === 'game') {
+      if (screens.game) {
+        screens.game.classList.add('active');
+        screens.game.style.display = 'block';
+      }
+      if (backBtn) backBtn.style.display = 'inline-flex';
+      const stage = BITMASTER_STAGES.find(s => s.id === bitmasterState.activeStage);
+      if (hudTitle && stage) hudTitle.textContent = `${stage.title} • L${bitmasterState.activeLevel}`;
+    } else if (screenName === 'summary') {
+      if (screens.summary) {
+        screens.summary.classList.add('active');
+        screens.summary.style.display = 'block';
+      }
+      if (backBtn) backBtn.style.display = 'inline-flex';
+      if (hudTitle) hudTitle.textContent = 'Stage Results';
+    }
+  }
+
+  function renderBitmasterStagesGrid() {
+    const grid = document.getElementById('bitmasterStagesGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    BITMASTER_STAGES.forEach(stage => {
+      let stageStars = 0;
+      stage.levels.forEach(lvl => {
+        stageStars += (bitmasterState.stars[`s${stage.id}_l${lvl.id}`] || 0);
+      });
+      const maxStars = stage.levels.length * 3;
+
+      let badgeClass = 'stage-badge-normal';
+      if (stageStars === maxStars) badgeClass = 'stage-badge-gold';
+      else if (stageStars >= 5) badgeClass = 'stage-badge-silver';
+      else if (stageStars > 0) badgeClass = 'stage-badge-bronze';
+
+      const card = document.createElement('div');
+      card.className = 'bitmaster-stage-card';
+      card.innerHTML = `
+        <div class="stage-card-badge ${badgeClass}">
+          <span class="stage-card-num">#${stage.id}</span>
+          <span class="stage-card-icon">${stage.icon}</span>
+        </div>
+        <div class="stage-card-info">
+          <div class="stage-card-title">${stage.title.replace(/^Stage \d+: /, '')}</div>
+          <div class="stage-card-stars">${'⭐'.repeat(Math.min(3, Math.ceil(stageStars / 3)))} ${stageStars}/${maxStars}</div>
+        </div>
+      `;
+
+      card.addEventListener('click', () => {
+        bitmasterState.activeStage = stage.id;
+        playSynthSound('click');
+        showBitmasterScreen('levels');
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  function renderBitmasterLevelsScreen() {
+    const stage = BITMASTER_STAGES.find(s => s.id === bitmasterState.activeStage);
+    if (!stage) return;
+
+    const iconEl = document.getElementById('bitmasterStageHeaderIcon');
+    const titleEl = document.getElementById('bitmasterStageHeaderTitle');
+    const descEl = document.getElementById('bitmasterStageHeaderDesc');
+    const listEl = document.getElementById('bitmasterLevelsList');
+
+    if (iconEl) iconEl.textContent = stage.icon;
+    if (titleEl) titleEl.textContent = stage.title;
+    if (descEl) descEl.textContent = stage.subtitle;
+    if (!listEl) return;
+
+    listEl.innerHTML = '';
+
+    stage.levels.forEach(lvl => {
+      const starsEarned = bitmasterState.stars[`s${stage.id}_l${lvl.id}`] || 0;
+      const starStr = '⭐'.repeat(starsEarned) + '☆'.repeat(3 - starsEarned);
+
+      const lvlCard = document.createElement('div');
+      lvlCard.className = 'bitmaster-level-card';
+      lvlCard.innerHTML = `
+        <div class="level-card-info">
+          <div class="level-card-title-row">
+            <span class="level-card-name">Level ${lvl.id}: ${lvl.name}</span>
+            <span class="level-card-stars">${starStr}</span>
+          </div>
+          <div class="level-card-desc">${lvl.desc}</div>
+        </div>
+        <button class="control-btn control-btn-primary level-play-btn">
+          Start &rarr;
+        </button>
+      `;
+
+      lvlCard.addEventListener('click', () => {
+        bitmasterState.activeLevel = lvl.id;
+        playSynthSound('click');
+        startBitmasterRound();
+      });
+
+      listEl.appendChild(lvlCard);
+    });
+  }
+
+  // =========================================================================
+  // QUESTION GENERATOR WITH SMART GCSE DISTRACTORS
+  // =========================================================================
+
+  function generateDistractors(correctVal, min, max, type = 'denary') {
+    const distractors = new Set();
+    const correctStr = String(correctVal);
+
+    if (type === 'denary') {
+      const powers = [1, 2, 4, 8, 16, 32, 64];
+      const randomPow = powers[Math.floor(Math.random() * powers.length)];
+      if (correctVal + randomPow <= max) distractors.add(correctVal + randomPow);
+      else if (correctVal - randomPow >= min) distractors.add(correctVal - randomPow);
+
+      if (correctVal + 1 <= max) distractors.add(correctVal + 1);
+      if (correctVal - 1 >= min) distractors.add(correctVal - 1);
+
+      distractors.add(Math.min(max, Math.max(min, correctVal ^ 3)));
+      distractors.add(Math.min(max, Math.max(min, correctVal ^ 12)));
+
+      while (distractors.size < 3) {
+        const offset = (Math.floor(Math.random() * 9) - 4) || 2;
+        const candidate = Math.min(max, Math.max(min, correctVal + offset));
+        if (candidate !== correctVal) distractors.add(candidate);
+      }
+    } else if (type === 'hex') {
+      const den = parseInt(correctVal, 16);
+      if (!isNaN(den)) {
+        distractors.add((den).toString(10));
+        distractors.add((Math.max(1, den - 16)).toString(16).toUpperCase());
+        distractors.add((Math.min(255, den + 16)).toString(16).toUpperCase());
+      }
+      while (distractors.size < 3) {
+        const rnd = Math.floor(Math.random() * 255).toString(16).toUpperCase();
+        if (rnd !== correctVal) distractors.add(rnd);
+      }
+    } else if (type === 'binary') {
+      const bitLen = correctVal.length;
+      const arr = correctVal.split('');
+      const flipIdx = Math.floor(Math.random() * bitLen);
+      arr[flipIdx] = arr[flipIdx] === '1' ? '0' : '1';
+      distractors.add(arr.join(''));
+
+      const arr2 = correctVal.split('');
+      const flipIdx2 = (flipIdx + 2) % bitLen;
+      arr2[flipIdx2] = arr2[flipIdx2] === '1' ? '0' : '1';
+      distractors.add(arr2.join(''));
+
+      const arr3 = correctVal.split('');
+      arr3[0] = arr3[0] === '1' ? '0' : '1';
+      distractors.add(arr3.join(''));
+    }
+
+    return Array.from(distractors).filter(d => String(d) !== correctStr).slice(0, 3);
+  }
+
+  function createBitmasterQuestion() {
+    const stage = BITMASTER_STAGES.find(s => s.id === bitmasterState.activeStage);
+    const level = stage.levels.find(l => l.id === bitmasterState.activeLevel);
+    const mode = level.mode;
+
+    const fmtBin = (val, len) => val.toString(2).padStart(len, '0').split('').join(' ');
+
+    if (mode === 'mc_nibble') {
+      const isBinToDen = Math.random() > 0.4;
+      const val = Math.floor(Math.random() * 16);
+      if (isBinToDen) {
+        const binStr = fmtBin(val, 4);
+        const dists = generateDistractors(val, 0, 15, 'denary');
+        const options = shuffleArray([val, ...dists]);
+        return {
+          type: 'mc',
+          prompt: "Convert 4-Bit Binary to Denary:",
+          display: binStr,
+          hint: "Nibble place values: 8 • 4 • 2 • 1",
+          correctAnswer: String(val),
+          options: options.map(String)
+        };
+      } else {
+        const binStr = val.toString(2).padStart(4, '0');
+        const dists = generateDistractors(binStr, 0, 15, 'binary');
+        const options = shuffleArray([binStr, ...dists]);
+        return {
+          type: 'mc',
+          prompt: `Convert Denary ${val} to 4-Bit Binary:`,
+          display: String(val),
+          hint: "Which bits add up to this number?",
+          correctAnswer: binStr,
+          options: options.map(String)
+        };
+      }
+    }
+
+    if (mode === 'switches_nibble' || mode === 'blind_nibble') {
+      const val = Math.floor(Math.random() * 15) + 1;
+      return {
+        type: 'switches',
+        bitsCount: 4,
+        blind: mode === 'blind_nibble',
+        prompt: `Assemble Denary ${val} using 4-Bit Switches:`,
+        display: String(val),
+        hint: mode === 'blind_nibble' ? "Blind Mode: Place values HIDDEN (8, 4, 2, 1)!" : "Toggle switches (8, 4, 2, 1) to match total",
+        correctAnswer: val
+      };
+    }
+
+    if (mode === 'mc_byte') {
+      const isBinToDen = Math.random() > 0.4;
+      const val = Math.floor(Math.random() * 256);
+      if (isBinToDen) {
+        const binStr = fmtBin(val, 8);
+        const dists = generateDistractors(val, 0, 255, 'denary');
+        const options = shuffleArray([val, ...dists]);
+        return {
+          type: 'mc',
+          prompt: "Convert 8-Bit Byte to Denary:",
+          display: binStr,
+          hint: "Place values: 128 • 64 • 32 • 16 • 8 • 4 • 2 • 1",
+          correctAnswer: String(val),
+          options: options.map(String)
+        };
+      } else {
+        const binStr = val.toString(2).padStart(8, '0');
+        const dists = generateDistractors(binStr, 0, 255, 'binary');
+        const options = shuffleArray([binStr, ...dists]);
+        return {
+          type: 'mc',
+          prompt: `Convert Denary ${val} to 8-Bit Binary:`,
+          display: String(val),
+          hint: "Match the correct 8-bit byte",
+          correctAnswer: binStr,
+          options: options.map(String)
+        };
+      }
+    }
+
+    if (mode === 'switches_byte' || mode === 'blind_byte') {
+      const val = Math.floor(Math.random() * 254) + 1;
+      return {
+        type: 'switches',
+        bitsCount: 8,
+        blind: mode === 'blind_byte',
+        prompt: `Construct Denary ${val} with 8-Bit Switches:`,
+        display: String(val),
+        hint: mode === 'blind_byte' ? "Blind Mode: Place values hidden!" : "Toggle bits to match the target value",
+        correctAnswer: val
+      };
+    }
+
+    if (mode === 'mc_hex_nibble') {
+      const val = Math.floor(Math.random() * 16);
+      const hex = val.toString(16).toUpperCase();
+      const bin = fmtBin(val, 4);
+      if (Math.random() > 0.5) {
+        const dists = generateDistractors(val, 0, 15, 'denary');
+        const options = shuffleArray([val, ...dists]);
+        return {
+          type: 'mc',
+          prompt: `What is Hexadecimal 0x${hex} in Denary?`,
+          display: `0x${hex}`,
+          hint: "Remember: A=10, B=11, C=12, D=13, E=14, F=15",
+          correctAnswer: String(val),
+          options: options.map(String)
+        };
+      } else {
+        const dists = generateDistractors(hex, 0, 15, 'hex');
+        const options = shuffleArray([hex, ...dists]);
+        return {
+          type: 'mc',
+          prompt: `Convert 4-Bit Binary (${bin}) to Hex:`,
+          display: bin,
+          hint: "One hex digit represents 4 bits",
+          correctAnswer: hex,
+          options: options.map(String)
+        };
+      }
+    }
+
+    if (mode === 'mc_hex_byte') {
+      const val = Math.floor(Math.random() * 256);
+      const hex = val.toString(16).toUpperCase().padStart(2, '0');
+      const bin = fmtBin(val, 8);
+      if (Math.random() > 0.5) {
+        const dists = generateDistractors(val, 0, 255, 'denary');
+        const options = shuffleArray([val, ...dists]);
+        return {
+          type: 'mc',
+          prompt: `Convert Hex 0x${hex} to Denary:`,
+          display: `0x${hex}`,
+          hint: `Left nibble &times; 16 + Right nibble`,
+          correctAnswer: String(val),
+          options: options.map(String)
+        };
+      } else {
+        const dists = generateDistractors(hex, 0, 255, 'hex');
+        const options = shuffleArray([hex, ...dists]);
+        return {
+          type: 'mc',
+          prompt: `What is Binary ${bin} in Hexadecimal?`,
+          display: bin,
+          hint: "Split into two 4-bit nibbles and convert each",
+          correctAnswer: hex,
+          options: options.map(String)
+        };
+      }
+    }
+
+    if (mode === 'keypad_hex') {
+      const val = Math.floor(Math.random() * 256);
+      const hex = val.toString(16).toUpperCase().padStart(2, '0');
+      return {
+        type: 'keypad',
+        prompt: `Convert Denary ${val} to 2-Digit Hex:`,
+        display: String(val),
+        hint: "Enter 2 Hex digits using the keypad",
+        correctAnswer: hex
+      };
+    }
+
+    if (mode === 'mc_add_simple' || mode === 'mc_add_carries' || mode === 'mc_add_overflow') {
+      let a = Math.floor(Math.random() * 12);
+      let b = Math.floor(Math.random() * 12);
+      if (mode === 'mc_add_carries') {
+        a = Math.floor(Math.random() * 120) + 10;
+        b = Math.floor(Math.random() * 120) + 10;
+      } else if (mode === 'mc_add_overflow') {
+        a = Math.floor(Math.random() * 100) + 150;
+        b = Math.floor(Math.random() * 80) + 50;
+      }
+
+      const sum = a + b;
+      const isOverflow = sum > 255;
+      const binA = a.toString(2).padStart(8, '0');
+      const binB = b.toString(2).padStart(8, '0');
+      const sum8Bit = sum & 255;
+      const binSum = sum8Bit.toString(2).padStart(8, '0');
+
+      if (mode === 'mc_add_overflow') {
+        const correctOpt = isOverflow ? "OVERFLOW (Sum > 255)" : binSum;
+        const dists = isOverflow 
+          ? [binSum, "NO ERROR (Valid 8-bit)", "Syntax Error"]
+          : ["OVERFLOW (Dropped Carry)", "00000000", (sum + 2).toString(2).padStart(8, '0')];
+        const options = shuffleArray([correctOpt, ...dists]);
+        return {
+          type: 'mc',
+          prompt: "Add these 8-bit binary numbers. Is there an Overflow Error?",
+          display: `${binA}\n+ ${binB}`,
+          hint: `${a} + ${b} = ${sum}`,
+          correctAnswer: correctOpt,
+          options: options.map(String)
+        };
+      } else {
+        const dists = generateDistractors(binSum, 0, 255, 'binary');
+        const options = shuffleArray([binSum, ...dists]);
+        return {
+          type: 'mc',
+          prompt: "Calculate the Binary Sum:",
+          display: `${binA}\n+ ${binB}`,
+          hint: `Denary check: ${a} + ${b} = ${sum}`,
+          correctAnswer: binSum,
+          options: options.map(String)
+        };
+      }
+    }
+
+    if (mode === 'mc_twos_comp_easy' || mode === 'mc_twos_comp_hard') {
+      const negVal = -(Math.floor(Math.random() * 120) + 1);
+      const twosComp = (256 + negVal).toString(2).padStart(8, '0');
+      if (Math.random() > 0.5) {
+        const dists = generateDistractors(negVal, -128, -1, 'denary');
+        const options = shuffleArray([negVal, ...dists]);
+        return {
+          type: 'mc',
+          prompt: "Interpret Two's Complement (MSB is -128):",
+          display: twosComp,
+          hint: "MSB is 1 &rarr; Negative number! -128 + sum of other bits",
+          correctAnswer: String(negVal),
+          options: options.map(String)
+        };
+      } else {
+        const dists = generateDistractors(twosComp, 0, 255, 'binary');
+        const options = shuffleArray([twosComp, ...dists]);
+        return {
+          type: 'mc',
+          prompt: `What is Denary ${negVal} in Two's Complement?`,
+          display: String(negVal),
+          hint: "Step 1: Write positive. Step 2: Invert all bits. Step 3: Add 1.",
+          correctAnswer: twosComp,
+          options: options.map(String)
+        };
+      }
+    }
+
+    if (mode === 'switches_twos_comp') {
+      const negVal = -(Math.floor(Math.random() * 120) + 1);
+      return {
+        type: 'switches',
+        bitsCount: 8,
+        isTwosComp: true,
+        prompt: `Construct ${negVal} in Two's Complement:`,
+        display: String(negVal),
+        hint: "MSB bit is worth -128! Add positive bits to reach target",
+        correctAnswer: negVal
+      };
+    }
+
+    if (mode === 'mc_shift_left' || mode === 'mc_shift_right' || mode === 'mc_shift_mixed') {
+      const isLeft = mode === 'mc_shift_left' ? true : (mode === 'mc_shift_right' ? false : Math.random() > 0.5);
+      const shiftAmount = Math.floor(Math.random() * 2) + 1;
+      const initialVal = isLeft ? Math.floor(Math.random() * 30) + 2 : (Math.floor(Math.random() * 100) + 10);
+      const initialBin = initialVal.toString(2).padStart(8, '0');
+      const resultVal = isLeft ? (initialVal << shiftAmount) & 255 : (initialVal >> shiftAmount);
+      const resultBin = resultVal.toString(2).padStart(8, '0');
+
+      const dists = generateDistractors(resultBin, 0, 255, 'binary');
+      const options = shuffleArray([resultBin, ...dists]);
+
+      return {
+        type: 'mc',
+        prompt: `Perform a Logical ${isLeft ? 'LEFT' : 'RIGHT'} Shift by ${shiftAmount} bit${shiftAmount > 1 ? 's' : ''}:`,
+        display: initialBin,
+        hint: isLeft ? `Multiply by ${Math.pow(2, shiftAmount)} (insert 0s at right)` : `Integer divide by ${Math.pow(2, shiftAmount)} (truncate dropped bits)`,
+        correctAnswer: resultBin,
+        options: options.map(String)
+      };
+    }
+
+    // Default Blitz
+    return {
+      type: 'mc',
+      prompt: "Gauntlet Blitz: Convert Binary to Denary:",
+      display: "0 1 0 1 1 0 1 0",
+      hint: "Place values 64 + 16 + 8 + 2",
+      correctAnswer: "90",
+      options: shuffleArray(["90", "88", "92", "74"])
+    };
+  }
+
+  function shuffleArray(arr) {
+    const copy = [...arr];
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy;
+  }
+
+  // =========================================================================
+  // ROUND MANAGEMENT & GAMEPLAY
+  // =========================================================================
+
+  function startBitmasterRound() {
+    bitmasterState.currentQuestionIndex = 0;
+    bitmasterState.mistakesThisRound = 0;
+    bitmasterState.correctThisRound = 0;
+    bitmasterState.startTime = Date.now();
+    bitmasterState.elapsedSeconds = 0;
+    bitmasterState.keypadBuffer = "";
+
+    if (bitmasterState.timerInterval) clearInterval(bitmasterState.timerInterval);
+    bitmasterState.timerInterval = setInterval(() => {
+      bitmasterState.elapsedSeconds = Math.floor((Date.now() - bitmasterState.startTime) / 1000);
+      const mins = Math.floor(bitmasterState.elapsedSeconds / 60);
+      const secs = (bitmasterState.elapsedSeconds % 60).toString().padStart(2, '0');
+      const timerEl = document.getElementById('bitmasterTimerDisplay');
+      if (timerEl) timerEl.textContent = `⏱️ ${mins}:${secs}`;
+    }, 1000);
+
+    const badgeEl = document.getElementById('bitmasterActiveStageBadge');
+    if (badgeEl) badgeEl.textContent = `Stage ${bitmasterState.activeStage} • Lvl ${bitmasterState.activeLevel}`;
+
+    showBitmasterScreen('game');
+    loadNextBitmasterQuestion();
+  }
+
+  function loadNextBitmasterQuestion() {
+    if (bitmasterState.currentQuestionIndex >= bitmasterState.totalQuestions) {
+      finishBitmasterRound();
       return;
     }
 
-    const chars = Array.from(text);
-    const binChunks = [];
-    const hexChunks = [];
-    let totalBytes = 0;
+    bitmasterState.currentQuestionIndex++;
+    bitmasterState.currentQuestion = createBitmasterQuestion();
+    bitmasterState.switchBits = [0, 0, 0, 0, 0, 0, 0, 0];
+    bitmasterState.keypadBuffer = "";
 
-    chars.forEach(ch => {
-      const code = ch.codePointAt(0);
-      const isAscii = code <= 127;
-      const utf8Bytes = new TextEncoder().encode(ch);
-      totalBytes += utf8Bytes.length;
+    const counterEl = document.getElementById('bitmasterQuestionCounter');
+    const barEl = document.getElementById('bitmasterProgressBar');
+    if (counterEl) counterEl.textContent = `Q ${bitmasterState.currentQuestionIndex}/${bitmasterState.totalQuestions}`;
+    if (barEl) barEl.style.width = `${(bitmasterState.currentQuestionIndex / bitmasterState.totalQuestions) * 100}%`;
 
-      let charBinStr = '';
-      if (isAscii) {
-        charBinStr = code.toString(2).padStart(8, '0');
-        binChunks.push(charBinStr);
-        hexChunks.push(code.toString(16).toUpperCase().padStart(2, '0'));
-      } else {
-        const subBins = [];
-        utf8Bytes.forEach(b => {
-          const bBin = b.toString(2).padStart(8, '0');
-          subBins.push(bBin);
-          binChunks.push(bBin);
-          hexChunks.push(b.toString(16).toUpperCase().padStart(2, '0'));
-        });
-        charBinStr = subBins.join(' ');
+    const promptEl = document.getElementById('bitmasterPromptLabel');
+    const mainDispEl = document.getElementById('bitmasterMainDisplay');
+    const hintEl = document.getElementById('bitmasterHintSubtext');
+
+    if (promptEl) promptEl.textContent = bitmasterState.currentQuestion.prompt;
+    if (mainDispEl) {
+      mainDispEl.style.whiteSpace = 'pre-wrap';
+      mainDispEl.textContent = bitmasterState.currentQuestion.display;
+    }
+    if (hintEl) hintEl.textContent = bitmasterState.currentQuestion.hint || '';
+
+    const tilesZone = document.getElementById('bitmasterTilesZone');
+    const switchZone = document.getElementById('bitmasterSwitchboardZone');
+    const keypadZone = document.getElementById('bitmasterKeypadZone');
+
+    if (bitmasterState.currentQuestion.type === 'mc') {
+      if (tilesZone) tilesZone.style.display = 'grid';
+      if (switchZone) switchZone.style.display = 'none';
+      if (keypadZone) keypadZone.style.display = 'none';
+      renderBitmasterMCTiles(bitmasterState.currentQuestion.options);
+    } else if (bitmasterState.currentQuestion.type === 'switches') {
+      if (tilesZone) tilesZone.style.display = 'none';
+      if (switchZone) {
+        switchZone.style.display = 'flex';
+        renderBitmasterSwitchboard(bitmasterState.currentQuestion.bitsCount, bitmasterState.currentQuestion.blind, bitmasterState.currentQuestion.isTwosComp);
       }
+      if (keypadZone) keypadZone.style.display = 'none';
+    } else if (bitmasterState.currentQuestion.type === 'keypad') {
+      if (tilesZone) tilesZone.style.display = 'none';
+      if (switchZone) switchZone.style.display = 'none';
+      if (keypadZone) {
+        keypadZone.style.display = 'flex';
+        renderBitmasterKeypad();
+      }
+    }
+  }
 
-      const hex = code.toString(16).toUpperCase().padStart(2, '0');
+  function renderBitmasterMCTiles(options) {
+    const tilesZone = document.getElementById('bitmasterTilesZone');
+    if (!tilesZone) return;
+    tilesZone.innerHTML = '';
 
-      const token = document.createElement('div');
-      token.className = 'char-token';
-      token.innerHTML = `
-        <span class="char-symbol">${escapeHtml(ch)}</span>
-        <span class="char-denary">${code}</span>
-        <span class="char-hex">${hex}₁₆</span>
-        <span class="char-bin" style="font-size: 11px;">${charBinStr}</span>
-        <span style="font-size: 9px; margin-top: 4px; padding: 2px 6px; border-radius: 4px; background: ${isAscii ? 'rgba(59, 130, 246, 0.15)' : 'rgba(139, 92, 246, 0.2)'}; color: ${isAscii ? '#3b82f6' : '#8b5cf6'}; font-weight: 700;">
-          ${isAscii ? 'ASCII (1B)' : `Unicode (${utf8Bytes.length}B)`}
-        </span>
-      `;
-      DOM.charTokenStream.appendChild(token);
+    options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'bitmaster-tile-btn';
+      btn.textContent = opt;
+
+      btn.addEventListener('click', () => {
+        handleBitmasterMCAnswer(opt, btn);
+      });
+
+      tilesZone.appendChild(btn);
     });
-
-    // Populate Full Stream Output Box
-    if (DOM.fullBinaryOutputBox) {
-      DOM.fullBinaryOutputBox.textContent = binChunks.join(' ');
-    }
-    if (DOM.fullHexOutputLabel) {
-      DOM.fullHexOutputLabel.textContent = `Hex: ${hexChunks.join(' ')}`;
-    }
-    if (DOM.encoderByteStats) {
-      const totalBits = totalBytes * 8;
-      DOM.encoderByteStats.textContent = `${chars.length} Character${chars.length === 1 ? '' : 's'} • ${totalBytes} Byte${totalBytes === 1 ? '' : 's'} (${totalBits} bits)`;
-    }
-
-    updateStorageImpact();
   }
 
-  function escapeHtml(str) {
-    if (str === ' ') return '&blank; (space)';
-    if (str === '\n') return '&para; (newline)';
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  function handleBitmasterMCAnswer(chosenVal, clickedBtn) {
+    const isCorrect = String(chosenVal).trim() === String(bitmasterState.currentQuestion.correctAnswer).trim();
+    const allButtons = document.querySelectorAll('.bitmaster-tile-btn');
+    allButtons.forEach(b => b.style.pointerEvents = 'none');
+
+    if (isCorrect) {
+      clickedBtn.classList.add('correct');
+      playSynthSound('correct');
+      bitmasterState.correctThisRound++;
+      bitmasterState.xp += 15;
+      updateBitmasterHUD();
+      setTimeout(() => {
+        loadNextBitmasterQuestion();
+      }, 500);
+    } else {
+      clickedBtn.classList.add('wrong');
+      playSynthSound('wrong');
+      bitmasterState.mistakesThisRound++;
+
+      allButtons.forEach(b => {
+        if (b.textContent.trim() === String(bitmasterState.currentQuestion.correctAnswer).trim()) {
+          b.classList.add('correct');
+        }
+      });
+
+      setTimeout(() => {
+        loadNextBitmasterQuestion();
+      }, 1200);
+    }
   }
 
-  function updateStorageImpact() {
-    const text = (DOM.textEncoderInput && DOM.textEncoderInput.value) ? DOM.textEncoderInput.value : 'Hello 👾';
-    const container = document.getElementById('storageImpactBars');
+  function renderBitmasterSwitchboard(bitsCount = 8, isBlind = false, isTwosComp = false) {
+    const container = document.getElementById('bitmasterSwitchBitsContainer');
     if (!container) return;
-
-    const charCount = Array.from(text).length;
-    const utf8Bytes = new TextEncoder().encode(text).length;
-    const ascii8Bytes = Math.max(1, charCount);
-    const utf16Bytes = Math.max(2, charCount * 2);
-    const utf32Bytes = Math.max(4, charCount * 4);
-
-    const maxBytes = Math.max(1, utf32Bytes);
-
-    const standards = [
-      { name: 'Standard 7/8-bit ASCII', bytes: ascii8Bytes, color: '#38bdf8', note: '1 byte per char (English only)' },
-      { name: 'UTF-8 (Web Standard)', bytes: utf8Bytes, color: '#10b981', note: 'Variable (1B for English, 4B for Emojis)' },
-      { name: 'UTF-16 (Windows / Java)', bytes: utf16Bytes, color: '#fbbf24', note: '2 bytes minimum per char' },
-      { name: 'UTF-32 (Fixed Length)', bytes: utf32Bytes, color: '#ef4444', note: '4 bytes for EVERY character (4× size!)' }
-    ];
-
     container.innerHTML = '';
-    standards.forEach(std => {
-      const pct = Math.max(8, Math.round((std.bytes / maxBytes) * 100));
-      const row = document.createElement('div');
-      row.style.display = 'flex';
-      row.style.flexDirection = 'column';
-      row.style.gap = '4px';
 
-      row.innerHTML = `
-        <div style="display: flex; justify-content: space-between; font-size: 12px; font-weight: 700;">
-          <span style="color: var(--text-primary);">${std.name}:</span>
-          <span style="font-family: var(--font-mono); color: ${std.color};">${std.bytes} Bytes <span style="color: var(--text-muted); font-weight: 400;">(${std.bytes * 8} bits)</span></span>
-        </div>
-        <div style="height: 10px; background: var(--bg-root); border-radius: 5px; overflow: hidden; border: 1px solid var(--border-color);">
-          <div style="width: ${pct}%; height: 100%; background: ${std.color}; border-radius: 5px; transition: width 0.3s ease;"></div>
-        </div>
-        <div style="font-size: 10.5px; color: var(--text-muted);">${std.note}</div>
+    const weights = bitsCount === 4 ? [8, 4, 2, 1] : [128, 64, 32, 16, 8, 4, 2, 1];
+    if (isTwosComp && bitsCount === 8) {
+      weights[0] = -128;
+    }
+
+    weights.forEach((w, idx) => {
+      const bitBtn = document.createElement('div');
+      bitBtn.className = 'bitmaster-switch-cell';
+      bitBtn.innerHTML = `
+        <span class="switch-cell-pv">${isBlind ? '?' : (w > 0 ? w : '-128')}</span>
+        <span class="switch-cell-val">0</span>
       `;
-      container.appendChild(row);
+
+      bitBtn.addEventListener('click', () => {
+        const currentBit = bitmasterState.switchBits[idx];
+        const newBit = currentBit === 1 ? 0 : 1;
+        bitmasterState.switchBits[idx] = newBit;
+
+        if (newBit === 1) {
+          bitBtn.classList.add('active');
+          bitBtn.querySelector('.switch-cell-val').textContent = '1';
+        } else {
+          bitBtn.classList.remove('active');
+          bitBtn.querySelector('.switch-cell-val').textContent = '0';
+        }
+
+        playSynthSound('click');
+        updateBitmasterSwitchSum(weights, isBlind);
+      });
+
+      container.appendChild(bitBtn);
     });
-  }
 
-  function setupCharacterSetsLab() {
-    // 1. Case-Flipper
-    const caseSelect = document.getElementById('caseFlipperSelect');
-    const btnToggleBit5 = document.getElementById('btnToggleBit5');
-    const upperCharBadge = document.getElementById('upperCharBadge');
-    const upperDenaryVal = document.getElementById('upperDenaryVal');
-    const upperBitsRow = document.getElementById('upperBitsRow');
-    const lowerCharBadge = document.getElementById('lowerCharBadge');
-    const lowerDenaryVal = document.getElementById('lowerDenaryVal');
-    const lowerBitsRow = document.getElementById('lowerBitsRow');
+    updateBitmasterSwitchSum(weights, isBlind);
 
-    if (caseSelect) {
-      caseSelect.innerHTML = '';
-      for (let i = 65; i <= 90; i++) {
-        const letter = String.fromCharCode(i);
-        const opt = document.createElement('option');
-        opt.value = letter;
-        opt.textContent = `${letter} (65 + ${i - 65})`;
-        caseSelect.appendChild(opt);
-      }
-
-      function updateCaseFlipper() {
-        const letter = caseSelect.value || 'A';
-        const upperCode = letter.charCodeAt(0);
-        const lowerCode = upperCode + 32;
-        const lowerLetter = String.fromCharCode(lowerCode);
-
-        if (upperCharBadge) upperCharBadge.textContent = `'${letter}'`;
-        if (upperDenaryVal) upperDenaryVal.textContent = upperCode;
-        if (lowerCharBadge) lowerCharBadge.textContent = `'${lowerLetter}'`;
-        if (lowerDenaryVal) lowerDenaryVal.textContent = lowerCode;
-
-        const upperBits = upperCode.toString(2).padStart(8, '0');
-        const lowerBits = lowerCode.toString(2).padStart(8, '0');
-
-        if (upperBitsRow) {
-          upperBitsRow.innerHTML = '';
-          Array.from(upperBits).forEach((b, idx) => {
-            const span = document.createElement('span');
-            const isBit5 = idx === 2; // 128, 64, 32 -> idx 2
-            span.style.padding = '4px 7px';
-            span.style.borderRadius = '4px';
-            span.style.fontWeight = '700';
-            span.style.border = isBit5 ? '1px solid #ef4444' : '1px solid var(--border-color)';
-            span.style.background = isBit5 ? 'rgba(239, 68, 68, 0.2)' : 'var(--bg-surface)';
-            span.style.color = isBit5 ? '#f87171' : 'var(--text-primary)';
-            span.textContent = b;
-            upperBitsRow.appendChild(span);
-          });
-        }
-
-        if (lowerBitsRow) {
-          lowerBitsRow.innerHTML = '';
-          Array.from(lowerBits).forEach((b, idx) => {
-            const span = document.createElement('span');
-            const isBit5 = idx === 2;
-            span.style.padding = '4px 7px';
-            span.style.borderRadius = '4px';
-            span.style.fontWeight = '700';
-            span.style.border = isBit5 ? '1px solid #10b981' : '1px solid var(--border-color)';
-            span.style.background = isBit5 ? 'rgba(16, 185, 129, 0.25)' : 'var(--bg-surface)';
-            span.style.color = isBit5 ? '#34d399' : 'var(--text-primary)';
-            span.textContent = b;
-            lowerBitsRow.appendChild(span);
-          });
-        }
-      }
-
-      caseSelect.addEventListener('change', updateCaseFlipper);
-      if (btnToggleBit5) {
-        btnToggleBit5.addEventListener('click', () => {
-          playSynthSound('click');
-          if (lowerBitsRow && lowerBitsRow.children[2]) {
-            const bitEl = lowerBitsRow.children[2];
-            bitEl.style.transform = 'scale(1.35)';
-            bitEl.style.transition = 'transform 0.2s ease';
-            setTimeout(() => { bitEl.style.transform = 'scale(1)'; }, 250);
-          }
+    const submitBtn = document.getElementById('bitmasterSubmitSwitchBtn');
+    if (submitBtn) {
+      submitBtn.onclick = () => {
+        let currentTotal = 0;
+        weights.forEach((w, idx) => {
+          if (bitmasterState.switchBits[idx] === 1) currentTotal += w;
         });
-      }
-      updateCaseFlipper();
-    }
 
-    // 2. Letter Offset Solver
-    const targetSelect = document.getElementById('offsetTargetLetter');
-    const workingsBox = document.getElementById('offsetWorkingsBox');
-
-    if (targetSelect) {
-      targetSelect.innerHTML = '';
-      for (let i = 66; i <= 90; i++) {
-        const letter = String.fromCharCode(i);
-        const opt = document.createElement('option');
-        opt.value = letter;
-        opt.textContent = `'${letter}'`;
-        if (letter === 'F') opt.selected = true;
-        targetSelect.appendChild(opt);
-      }
-
-      function updateOffsetSolver() {
-        const target = targetSelect.value || 'F';
-        const targetCode = target.charCodeAt(0);
-        const diff = targetCode - 65;
-        const targetPos = diff + 1;
-        const bin = targetCode.toString(2).padStart(8, '0');
-
-        if (workingsBox) {
-          workingsBox.innerHTML = `
-            <div style="font-weight: 800; color: #10b981; font-size: 14px; margin-bottom: 8px;">
-              ✓ Step-by-Step Working:
-            </div>
-            <div style="display: grid; gap: 6px;">
-              <div><strong>Step 1 (Find distance):</strong> <code>'${target}'</code> is letter #${targetPos} in the alphabet. Distance from 'A' = ${targetPos} - 1 = <strong>+${diff}</strong>.</div>
-              <div><strong>Step 2 (Apply ASCII base):</strong> Given 'A' = 65 &rarr; 65 + ${diff} = <strong style="color: #38bdf8; font-size: 15px; font-family: var(--font-mono);">${targetCode}</strong>.</div>
-              <div><strong>Step 3 (Binary Conversion):</strong> Denary ${targetCode} = <code style="color: #c084fc; font-weight: 700;">${bin}</code> (64 + ${targetCode - 64}).</div>
-              <div style="margin-top: 6px; padding-top: 6px; border-top: 1px dashed var(--border-color); font-size: 12px; color: var(--text-muted);">
-                📝 <em>AQA Mark Scheme Note:</em> Full method marks require showing the arithmetic addition <code>65 + ${diff} = ${targetCode}</code>.
-              </div>
-            </div>
-          `;
+        const isCorrect = currentTotal === bitmasterState.currentQuestion.correctAnswer;
+        if (isCorrect) {
+          playSynthSound('correct');
+          bitmasterState.correctThisRound++;
+          bitmasterState.xp += 20;
+          updateBitmasterHUD();
+          loadNextBitmasterQuestion();
+        } else {
+          playSynthSound('wrong');
+          bitmasterState.mistakesThisRound++;
+          alert(`Not quite! Target was ${bitmasterState.currentQuestion.correctAnswer}, but your switches made ${currentTotal}.`);
+          loadNextBitmasterQuestion();
         }
-      }
-
-      targetSelect.addEventListener('change', updateOffsetSolver);
-      updateOffsetSolver();
+      };
     }
-
-    updateStorageImpact();
   }
 
-  function setupCharacterEncoderEvents() {
-    if (DOM.textEncoderInput) {
-      DOM.textEncoderInput.addEventListener('input', renderCharacterTokens);
-    }
-
-    DOM.presetTextButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const text = btn.getAttribute('data-text');
-        if (DOM.textEncoderInput) {
-          DOM.textEncoderInput.value = text;
-          renderCharacterTokens();
-        }
-      });
+  function updateBitmasterSwitchSum(weights, isBlind) {
+    let sum = 0;
+    weights.forEach((w, idx) => {
+      if (bitmasterState.switchBits[idx] === 1) sum += w;
     });
+    const sumEl = document.getElementById('bitmasterCurrentSwitchSum');
+    if (sumEl) {
+      sumEl.textContent = isBlind ? '???' : sum;
+    }
+  }
 
-    // Copy full binary stream to clipboard
-    if (DOM.btnCopyBinary) {
-      DOM.btnCopyBinary.addEventListener('click', () => {
-        if (DOM.fullBinaryOutputBox) {
-          const text = DOM.fullBinaryOutputBox.textContent;
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(text).then(() => {
-              const orig = DOM.btnCopyBinary.textContent;
-              DOM.btnCopyBinary.textContent = '✓ Copied!';
-              setTimeout(() => {
-                DOM.btnCopyBinary.textContent = orig;
-              }, 1500);
-            });
+  function renderBitmasterKeypad() {
+    const dispEl = document.getElementById('bitmasterKeypadDisplay');
+    const gridEl = document.getElementById('bitmasterKeypadGrid');
+    if (dispEl) dispEl.textContent = bitmasterState.keypadBuffer || '_';
+    if (!gridEl) return;
+
+    gridEl.innerHTML = '';
+    const keys = ['1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '0', 'D', 'E', 'F', 'DEL', 'OK'];
+
+    keys.forEach(k => {
+      const btn = document.createElement('button');
+      btn.className = 'control-btn keypad-btn';
+      if (k === 'OK') btn.className += ' control-btn-primary';
+      btn.textContent = k;
+
+      btn.addEventListener('click', () => {
+        playSynthSound('click');
+        if (k === 'DEL') {
+          bitmasterState.keypadBuffer = bitmasterState.keypadBuffer.slice(0, -1);
+        } else if (k === 'OK') {
+          handleBitmasterKeypadSubmit();
+          return;
+        } else {
+          if (bitmasterState.keypadBuffer.length < 4) {
+            bitmasterState.keypadBuffer += k;
           }
         }
+        if (dispEl) dispEl.textContent = bitmasterState.keypadBuffer || '_';
       });
+
+      gridEl.appendChild(btn);
+    });
+  }
+
+  function handleBitmasterKeypadSubmit() {
+    const isCorrect = bitmasterState.keypadBuffer.toUpperCase() === String(bitmasterState.currentQuestion.correctAnswer).toUpperCase();
+    if (isCorrect) {
+      playSynthSound('correct');
+      bitmasterState.correctThisRound++;
+      bitmasterState.xp += 20;
+      updateBitmasterHUD();
+      loadNextBitmasterQuestion();
+    } else {
+      playSynthSound('wrong');
+      bitmasterState.mistakesThisRound++;
+      alert(`Not quite! Correct answer was ${bitmasterState.currentQuestion.correctAnswer}`);
+      loadNextBitmasterQuestion();
     }
   }
 
   // =========================================================================
-  // 8. HUFFMAN CODING (AQA §3.3.5)
+  // VICTORY & SCORING SCREEN
   // =========================================================================
 
-  function initHuffmanLab() {
-    const textInput = document.getElementById('huffmanTextInput');
-    const charCountBadge = document.getElementById('huffmanCharCountBadge');
-    const presetButtons = document.querySelectorAll('.huffman-preset-btn');
-    const btnReset = document.getElementById('btnResetHuffmanText');
-    const freqListContainer = document.getElementById('huffmanFreqList');
-    const treeSvgContainer = document.getElementById('huffmanTreeSvgContainer');
-    const tableBody = document.getElementById('huffmanCodebookTableBody');
-    const savedBadge = document.getElementById('huffmanSavedBadge');
-    const bitRatio = document.getElementById('huffmanBitRatio');
-    const meterBar = document.getElementById('huffmanMeterBar');
-    const asciiFormula = document.getElementById('huffmanAsciiFormula');
-    const calcFormula = document.getElementById('huffmanCalcFormula');
-    const bitstreamDisplay = document.getElementById('huffmanBitstreamDisplay');
-    const btnDecodeStream = document.getElementById('btnDecodeHuffmanStream');
-    const decodeTraceLog = document.getElementById('huffmanDecodeTraceLog');
-
-    if (!textInput || !treeSvgContainer) return;
-
-    let decodeTimer = null;
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+  function finishBitmasterRound() {
+    if (bitmasterState.timerInterval) {
+      clearInterval(bitmasterState.timerInterval);
+      bitmasterState.timerInterval = null;
     }
 
-    function renderHuffman() {
-      if (decodeTimer) {
-        clearInterval(decodeTimer);
-        decodeTimer = null;
-      }
-      if (decodeTraceLog) {
-        decodeTraceLog.style.display = 'none';
-        decodeTraceLog.innerHTML = '';
-      }
-      if (btnDecodeStream) {
-        btnDecodeStream.textContent = '▶ Step-by-Step Tree Decode';
-        btnDecodeStream.disabled = false;
-      }
+    const accuracy = Math.round((bitmasterState.correctThisRound / bitmasterState.totalQuestions) * 100);
+    let starsEarned = 1;
 
-      const text = textInput.value;
-      if (charCountBadge) {
-        charCountBadge.textContent = `${text.length} Character${text.length === 1 ? '' : 's'}`;
-      }
-
-      if (!text || text.length === 0) {
-        if (freqListContainer) freqListContainer.innerHTML = '<span style="font-size: 12px; color: var(--text-muted);">Type letters above to see frequencies.</span>';
-        if (treeSvgContainer) treeSvgContainer.innerHTML = '<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 40px 0;">Tree will appear once you type some text above!</div>';
-        if (tableBody) tableBody.innerHTML = '<tr><td colspan="5" style="color: var(--text-muted); padding: 18px;">No data</td></tr>';
-        if (savedBadge) savedBadge.textContent = '0% Saved';
-        if (bitRatio) bitRatio.textContent = '0 bits vs 0 bits';
-        if (meterBar) meterBar.style.width = '0%';
-        if (asciiFormula) asciiFormula.textContent = '0 chars × 8 = 0 bits';
-        if (calcFormula) calcFormula.textContent = 'Total = 0 bits';
-        if (bitstreamDisplay) bitstreamDisplay.textContent = '—';
-        return;
-      }
-
-      // 1. Calculate character frequencies
-      const freqs = {};
-      for (const ch of text) {
-        freqs[ch] = (freqs[ch] || 0) + 1;
-      }
-
-      // Sorted frequency list (ascending by frequency, then alphabetical)
-      const sortedChars = Object.keys(freqs).sort((a, b) => {
-        if (freqs[a] !== freqs[b]) return freqs[a] - freqs[b];
-        return a.localeCompare(b);
-      });
-
-      // Render Frequency badges
-      if (freqListContainer) {
-        freqListContainer.innerHTML = sortedChars.map(ch => {
-          const displayChar = ch === ' ' ? '␣ [space]' : ch;
-          return `<div class="huffman-freq-badge" data-char="${encodeURIComponent(ch)}" title="Count: ${freqs[ch]}">
-            <span class="char-pill">${escapeHtml(displayChar)}</span>
-            <span class="count-pill">×${freqs[ch]}</span>
-          </div>`;
-        }).join('');
-      }
-
-      // 2. Build Huffman Tree
-      let nodeId = 1;
-      let queue = sortedChars.map(ch => ({
-        id: `h_leaf_${nodeId++}`,
-        char: ch,
-        freq: freqs[ch],
-        left: null,
-        right: null,
-        isLeaf: true
-      }));
-
-      let root;
-      if (queue.length === 1) {
-        // Single character edge case
-        const onlyLeaf = queue[0];
-        root = {
-          id: `h_node_${nodeId++}`,
-          char: null,
-          freq: onlyLeaf.freq,
-          left: onlyLeaf,
-          right: null,
-          isLeaf: false
-        };
-      } else {
-        while (queue.length > 1) {
-          queue.sort((a, b) => {
-            if (a.freq !== b.freq) return a.freq - b.freq;
-            return a.id.localeCompare(b.id);
-          });
-          const left = queue.shift();
-          const right = queue.shift();
-          const parent = {
-            id: `h_node_${nodeId++}`,
-            char: null,
-            freq: left.freq + right.freq,
-            left: left,
-            right: right,
-            isLeaf: false
-          };
-          queue.push(parent);
-        }
-        root = queue[0];
-      }
-
-      // 3. Extract codes and node paths
-      const codebook = {};
-      const pathToLeaf = {};
-
-      function traverse(node, currentCode, currentPath) {
-        if (!node) return;
-        const newPath = [...currentPath, node.id];
-        if (node.isLeaf) {
-          codebook[node.char] = currentCode || '0';
-          pathToLeaf[node.char] = newPath;
-          return;
-        }
-        if (node.left) {
-          traverse(node.left, currentCode + '0', newPath);
-        }
-        if (node.right) {
-          traverse(node.right, currentCode + '1', newPath);
-        }
-      }
-      traverse(root, '', []);
-
-      // 4. Render SVG Binary Tree
-      renderSvgTree(root);
-
-      // 5. Render Codebook Table
-      const descChars = [...sortedChars].reverse();
-      let totalHuffmanBits = 0;
-      const rowsHtml = descChars.map(ch => {
-        const count = freqs[ch];
-        const asciiBits = count * 8;
-        const code = codebook[ch] || '0';
-        const huffBits = count * code.length;
-        totalHuffmanBits += huffBits;
-        const displayChar = ch === ' ' ? '␣ [space]' : ch;
-
-        return `
-          <tr class="huffman-row" data-char="${encodeURIComponent(ch)}">
-            <td style="font-family: var(--font-mono); font-weight: 800; font-size: 13px; color: var(--accent-soft-text);">
-              ${escapeHtml(displayChar)}
-            </td>
-            <td style="font-weight: 700;">${count}</td>
-            <td style="color: var(--text-muted);">${count} &times; 8 = ${asciiBits}</td>
-            <td><code style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; font-weight: 800; padding: 2px 8px; border-radius: 4px;">${code}</code></td>
-            <td style="font-weight: 800; color: #34d399;">${count} &times; ${code.length} = <strong>${huffBits}</strong></td>
-          </tr>
-        `;
-      }).join('');
-      if (tableBody) tableBody.innerHTML = rowsHtml;
-
-      // 6. Metrics & Storage Comparison
-      const totalAsciiBits = text.length * 8;
-      const bitsSaved = Math.max(0, totalAsciiBits - totalHuffmanBits);
-      const pctSaved = totalAsciiBits > 0 ? ((bitsSaved / totalAsciiBits) * 100).toFixed(1) : 0;
-
-      if (savedBadge) {
-        savedBadge.textContent = `${pctSaved}% Saved`;
-      }
-      if (bitRatio) {
-        bitRatio.textContent = `${totalHuffmanBits} bits vs ${totalAsciiBits} bits`;
-      }
-      if (meterBar) {
-        const pctWidth = totalAsciiBits > 0 ? Math.min(100, Math.max(5, (totalHuffmanBits / totalAsciiBits) * 100)) : 0;
-        meterBar.style.width = `${pctWidth}%`;
-        meterBar.style.background = pctSaved > 0 ? '#34d399' : '#f87171';
-      }
-      if (asciiFormula) {
-        asciiFormula.innerHTML = `${text.length} chars &times; 8 bits = <strong>${totalAsciiBits} bits</strong>`;
-      }
-      if (calcFormula) {
-        calcFormula.innerHTML = `&sum; (Freq &times; Code Len) = <strong style="color: #34d399;">${totalHuffmanBits} bits</strong>`;
-      }
-
-      // 7. Render Encoded Bitstream
-      if (bitstreamDisplay) {
-        const bitTokens = [];
-        for (let i = 0; i < text.length; i++) {
-          const ch = text[i];
-          const code = codebook[ch] || '0';
-          const disp = ch === ' ' ? '␣' : ch;
-          bitTokens.push(`<span class="huffman-bit-token" data-char="${encodeURIComponent(ch)}" title="'${escapeHtml(disp)}' &rarr; ${code}">${code}</span>`);
-        }
-        bitstreamDisplay.innerHTML = bitTokens.join('');
-      }
-
-      // 8. Attach Hover Traces
-      attachHoverTraces(pathToLeaf);
-
-      // 9. Attach Step-by-Step Decoder Handler
-      if (btnDecodeStream) {
-        btnDecodeStream.onclick = () => {
-          runStepDecoder(text, codebook, root);
-        };
-      }
+    if (bitmasterState.correctThisRound === 10 && bitmasterState.mistakesThisRound === 0 && bitmasterState.elapsedSeconds <= 50) {
+      starsEarned = 3;
+    } else if (bitmasterState.correctThisRound >= 8 && bitmasterState.mistakesThisRound <= 2) {
+      starsEarned = 2;
+    } else if (bitmasterState.correctThisRound >= 5) {
+      starsEarned = 1;
+    } else {
+      starsEarned = 0;
     }
 
-    // Tree Layout & SVG Rendering function
-    function renderSvgTree(root) {
-      if (!treeSvgContainer || !root) return;
+    const saveKey = `s${bitmasterState.activeStage}_l${bitmasterState.activeLevel}`;
+    const prevStars = bitmasterState.stars[saveKey] || 0;
+    if (starsEarned > prevStars) {
+      bitmasterState.stars[saveKey] = starsEarned;
+    }
 
-      let leafIndex = 0;
-      let maxDepth = 0;
+    const xpBonus = starsEarned === 3 ? 100 : (starsEarned === 2 ? 50 : 25);
+    bitmasterState.xp += xpBonus;
+    saveBitmasterProgress();
+    updateBitmasterHUD();
 
-      function assignDepths(node, depth) {
-        if (!node) return;
-        node.depth = depth;
-        if (depth > maxDepth) maxDepth = depth;
-        assignDepths(node.left, depth + 1);
-        assignDepths(node.right, depth + 1);
-      }
-      assignDepths(root, 0);
+    const titleEl = document.getElementById('bitmasterVictoryTitle');
+    const badgeEl = document.getElementById('bitmasterVictoryBadge');
+    const starsEl = document.getElementById('bitmasterVictoryStars');
+    const subtextEl = document.getElementById('bitmasterVictorySubtext');
+    const xpEl = document.getElementById('bitmasterVictoryXp');
+    const accEl = document.getElementById('bitmasterVictoryAccuracy');
 
-      function computeCoords(node) {
-        if (!node) return;
-        if (node.isLeaf) {
-          node.x = leafIndex * 64 + 40;
-          leafIndex++;
+    if (starsEarned === 3) {
+      if (badgeEl) badgeEl.textContent = '⚡';
+      if (titleEl) titleEl.textContent = 'Grandmaster Precision!';
+      if (starsEl) starsEl.textContent = '⭐⭐⭐';
+      fireConfetti();
+      playSynthSound('victory');
+    } else if (starsEarned === 2) {
+      if (badgeEl) badgeEl.textContent = '⚙️';
+      if (titleEl) titleEl.textContent = 'Stage Mastered!';
+      if (starsEl) starsEl.textContent = '⭐⭐☆';
+      playSynthSound('victory');
+    } else if (starsEarned === 1) {
+      if (badgeEl) badgeEl.textContent = '💡';
+      if (titleEl) titleEl.textContent = 'Trial Passed';
+      if (starsEl) starsEl.textContent = '⭐☆☆';
+    } else {
+      if (badgeEl) badgeEl.textContent = '❌';
+      if (titleEl) titleEl.textContent = 'Stage Incomplete';
+      if (starsEl) starsEl.textContent = '☆☆☆';
+    }
+
+    if (subtextEl) {
+      subtextEl.textContent = `${bitmasterState.correctThisRound}/${bitmasterState.totalQuestions} Correct • ${bitmasterState.mistakesThisRound} mistakes • ${bitmasterState.elapsedSeconds}s`;
+    }
+    if (xpEl) xpEl.textContent = `+${xpBonus} XP`;
+    if (accEl) accEl.textContent = `${accuracy}%`;
+
+    showBitmasterScreen('summary');
+
+    const retryBtn = document.getElementById('bitmasterSummaryRetryBtn');
+    const contBtn = document.getElementById('bitmasterSummaryContinueBtn');
+
+    if (retryBtn) retryBtn.onclick = () => startBitmasterRound();
+    if (contBtn) contBtn.onclick = () => showBitmasterScreen('stages');
+  }
+
+  // =========================================================================
+  function setupBitMaster() {
+    loadBitmasterSave();
+    updateBitmasterHUD();
+
+    // Setup native Fullscreen button
+    const fsBtn = document.getElementById('bitmasterFullscreenBtn');
+    const arena = document.getElementById('bitmasterArena');
+    const fsText = document.getElementById('bitmasterFullscreenText');
+
+    if (fsBtn && arena) {
+      fsBtn.addEventListener('click', () => {
+        if (!document.fullscreenElement) {
+          if (arena.requestFullscreen) {
+            arena.requestFullscreen();
+          } else if (arena.webkitRequestFullscreen) {
+            arena.webkitRequestFullscreen();
+          }
         } else {
-          computeCoords(node.left);
-          computeCoords(node.right);
-          if (node.left && node.right) {
-            node.x = (node.left.x + node.right.x) / 2;
-          } else if (node.left) {
-            node.x = node.left.x + 35;
-          } else if (node.right) {
-            node.x = node.right.x - 35;
-          } else {
-            node.x = 40;
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
           }
         }
-        node.y = node.depth * 62 + 36;
-      }
-      computeCoords(root);
-
-      const svgWidth = Math.max(340, leafIndex * 64 + 60);
-      const svgHeight = (maxDepth + 1) * 62 + 45;
-
-      const lines = [];
-      const nodes = [];
-
-      function drawBranches(node) {
-        if (!node) return;
-        if (node.left) {
-          const edgeId = `edge_${node.id}_${node.left.id}`;
-          const midX = (node.x + node.left.x) / 2 - 10;
-          const midY = (node.y + node.left.y) / 2;
-          lines.push(`
-            <line id="${edgeId}" class="huffman-edge" data-source="${node.id}" data-target="${node.left.id}"
-                  x1="${node.x}" y1="${node.y}" x2="${node.left.x}" y2="${node.left.y}"
-                  stroke="var(--border-color, #4b5563)" stroke-width="2" />
-            <text id="label_${edgeId}" class="huffman-edge-label" x="${midX}" y="${midY}" fill="#38bdf8" font-size="12" font-weight="800" text-anchor="middle" dominant-baseline="middle">0</text>
-          `);
-          drawBranches(node.left);
-        }
-        if (node.right) {
-          const edgeId = `edge_${node.id}_${node.right.id}`;
-          const midX = (node.x + node.right.x) / 2 + 10;
-          const midY = (node.y + node.right.y) / 2;
-          lines.push(`
-            <line id="${edgeId}" class="huffman-edge" data-source="${node.id}" data-target="${node.right.id}"
-                  x1="${node.x}" y1="${node.y}" x2="${node.right.x}" y2="${node.right.y}"
-                  stroke="var(--border-color, #4b5563)" stroke-width="2" />
-            <text id="label_${edgeId}" class="huffman-edge-label" x="${midX}" y="${midY}" fill="#34d399" font-size="12" font-weight="800" text-anchor="middle" dominant-baseline="middle">1</text>
-          `);
-          drawBranches(node.right);
-        }
-
-        if (node.isLeaf) {
-          const disp = node.char === ' ' ? '␣' : node.char;
-          nodes.push(`
-            <g id="${node.id}" class="huffman-svg-node huffman-leaf-node" data-char="${encodeURIComponent(node.char)}">
-              <circle cx="${node.x}" cy="${node.y}" r="17" fill="var(--bg-surface-elevated, #1e293b)" stroke="#38bdf8" stroke-width="2.5" />
-              <text x="${node.x}" y="${node.y + 1}" fill="var(--text-primary, #ffffff)" font-size="13" font-weight="900" font-family="var(--font-mono, monospace)" text-anchor="middle" dominant-baseline="middle">${escapeHtml(disp)}</text>
-              <text x="${node.x}" y="${node.y + 26}" fill="var(--text-muted, #94a3b8)" font-size="10" font-weight="700" text-anchor="middle">w:${node.freq}</text>
-            </g>
-          `);
-        } else {
-          nodes.push(`
-            <g id="${node.id}" class="huffman-svg-node huffman-internal-node">
-              <circle cx="${node.x}" cy="${node.y}" r="14" fill="var(--bg-surface, #0f172a)" stroke="var(--border-color, #64748b)" stroke-width="2" />
-              <text x="${node.x}" y="${node.y + 1}" fill="var(--text-secondary, #cbd5e1)" font-size="11" font-weight="700" font-family="var(--font-mono, monospace)" text-anchor="middle" dominant-baseline="middle">${node.freq}</text>
-            </g>
-          `);
-        }
-      }
-      drawBranches(root);
-
-      treeSvgContainer.innerHTML = `
-        <svg viewBox="0 0 ${svgWidth} ${svgHeight}" width="${svgWidth}" height="${svgHeight}" style="max-width: 100%; height: auto; display: block; margin: 0 auto; overflow: visible;">
-          <g class="huffman-edges">${lines.join('')}</g>
-          <g class="huffman-nodes">${nodes.join('')}</g>
-        </svg>
-      `;
-    }
-
-    // Path Highlighting on Hover
-    function attachHoverTraces(pathToLeaf) {
-      function highlightChar(ch) {
-        if (!ch) return;
-        const nodeIds = pathToLeaf[ch];
-        if (!nodeIds) return;
-
-        // Highlight nodes
-        nodeIds.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.classList.add('highlighted');
-        });
-
-        // Highlight connecting edges
-        for (let i = 0; i < nodeIds.length - 1; i++) {
-          const edge = document.getElementById(`edge_${nodeIds[i]}_${nodeIds[i + 1]}`);
-          if (edge) edge.classList.add('highlighted');
-          const lbl = document.getElementById(`label_edge_${nodeIds[i]}_${nodeIds[i + 1]}`);
-          if (lbl) lbl.classList.add('highlighted');
-        }
-
-        // Highlight table row
-        const row = document.querySelector(`.huffman-row[data-char="${encodeURIComponent(ch)}"]`);
-        if (row) row.classList.add('active-huffman-row');
-
-        // Highlight badge
-        const badge = document.querySelector(`.huffman-freq-badge[data-char="${encodeURIComponent(ch)}"]`);
-        if (badge) badge.classList.add('active');
-
-        // Highlight bit tokens
-        document.querySelectorAll(`.huffman-bit-token[data-char="${encodeURIComponent(ch)}"]`).forEach(tok => {
-          tok.classList.add('active-token');
-        });
-      }
-
-      function clearHighlights() {
-        document.querySelectorAll('.huffman-svg-node.highlighted').forEach(el => el.classList.remove('highlighted'));
-        document.querySelectorAll('.huffman-edge.highlighted').forEach(el => el.classList.remove('highlighted'));
-        document.querySelectorAll('.huffman-edge-label.highlighted').forEach(el => el.classList.remove('highlighted'));
-        document.querySelectorAll('.huffman-row.active-huffman-row').forEach(el => el.classList.remove('active-huffman-row'));
-        document.querySelectorAll('.huffman-freq-badge.active').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.huffman-bit-token.active-token').forEach(el => el.classList.remove('active-token'));
-      }
-
-      document.querySelectorAll('.huffman-leaf-node').forEach(leaf => {
-        const rawCh = decodeURIComponent(leaf.getAttribute('data-char') || '');
-        leaf.addEventListener('mouseenter', () => highlightChar(rawCh));
-        leaf.addEventListener('mouseleave', clearHighlights);
       });
 
-      document.querySelectorAll('.huffman-row').forEach(row => {
-        const rawCh = decodeURIComponent(row.getAttribute('data-char') || '');
-        row.addEventListener('mouseenter', () => highlightChar(rawCh));
-        row.addEventListener('mouseleave', clearHighlights);
-      });
-
-      document.querySelectorAll('.huffman-freq-badge').forEach(badge => {
-        const rawCh = decodeURIComponent(badge.getAttribute('data-char') || '');
-        badge.addEventListener('mouseenter', () => highlightChar(rawCh));
-        badge.addEventListener('mouseleave', clearHighlights);
-      });
-
-      document.querySelectorAll('.huffman-bit-token').forEach(token => {
-        const rawCh = decodeURIComponent(token.getAttribute('data-char') || '');
-        token.addEventListener('mouseenter', () => highlightChar(rawCh));
-        token.addEventListener('mouseleave', clearHighlights);
+      document.addEventListener('fullscreenchange', () => {
+        const isFs = !!document.fullscreenElement;
+        if (fsText) fsText.textContent = isFs ? 'Exit Fullscreen' : 'Fullscreen Mode';
+        arena.classList.toggle('is-fullscreen', isFs);
       });
     }
 
-    // Step-by-Step Decoder Simulation
-    function runStepDecoder(text, codebook, root) {
-      if (!decodeTraceLog) return;
-      decodeTraceLog.style.display = 'block';
-      decodeTraceLog.innerHTML = `<div style="font-weight: 800; color: #38bdf8; margin-bottom: 6px;">Tree Decoding in progress...</div>`;
-
-      let fullBitString = '';
-      for (const ch of text) {
-        fullBitString += (codebook[ch] || '0');
-      }
-
-      let bitIdx = 0;
-      let currentNode = root;
-      let decodedResult = '';
-      let stepCount = 1;
-
-      if (btnDecodeStream) {
-        btnDecodeStream.disabled = true;
-        btnDecodeStream.textContent = '⏳ Decoding...';
-      }
-
-      if (decodeTimer) clearInterval(decodeTimer);
-
-      decodeTimer = setInterval(() => {
-        if (bitIdx >= fullBitString.length) {
-          clearInterval(decodeTimer);
-          decodeTimer = null;
-          if (btnDecodeStream) {
-            btnDecodeStream.disabled = false;
-            btnDecodeStream.textContent = '✓ Decoded! Replay ▶';
+    // HUD Back Button
+    const hudBackBtn = document.getElementById('bitmasterHudBackBtn');
+    if (hudBackBtn) {
+      hudBackBtn.addEventListener('click', () => {
+        playSynthSound('click');
+        const activeScreen = document.querySelector('.bitmaster-screen.active');
+        if (activeScreen && activeScreen.id === 'bitmasterScreenGame') {
+          if (confirm("Abandon current trial and return to levels?")) {
+            if (bitmasterState.timerInterval) clearInterval(bitmasterState.timerInterval);
+            showBitmasterScreen('levels');
           }
-          decodeTraceLog.innerHTML += `
-            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-color); font-weight: 800; color: #34d399;">
-              ✓ Decoding Complete! Result = "${escapeHtml(decodedResult)}" (${bitIdx} bits processed with 0 ambiguity)
-            </div>
-          `;
-          return;
-        }
-
-        const bit = fullBitString[bitIdx];
-        const nextNode = (bit === '0') ? (currentNode.left || currentNode) : (currentNode.right || currentNode);
-
-        document.querySelectorAll('.huffman-edge.highlighted').forEach(e => e.classList.remove('highlighted'));
-        document.querySelectorAll('.huffman-svg-node.highlighted').forEach(n => n.classList.remove('highlighted'));
-
-        const edgeEl = document.getElementById(`edge_${currentNode.id}_${nextNode.id}`);
-        if (edgeEl) edgeEl.classList.add('highlighted');
-        const nodeEl = document.getElementById(nextNode.id);
-        if (nodeEl) nodeEl.classList.add('highlighted');
-
-        bitIdx++;
-
-        if (nextNode.isLeaf) {
-          decodedResult += nextNode.char;
-          const disp = nextNode.char === ' ' ? '␣ (Space)' : `'${nextNode.char}'`;
-          decodeTraceLog.innerHTML += `
-            <div>Step ${stepCount++}: Read bit <code>${bit}</code> &rarr; Reached leaf <strong>${escapeHtml(disp)}</strong>! Output: "<code>${escapeHtml(decodedResult)}</code>"</div>
-          `;
-          currentNode = root;
+        } else if (activeScreen && activeScreen.id === 'bitmasterScreenLevels') {
+          showBitmasterScreen('stages');
         } else {
-          const dir = bit === '0' ? 'Left (0)' : 'Right (1)';
-          decodeTraceLog.innerHTML += `
-            <div>Step ${stepCount++}: Read bit <code>${bit}</code> &rarr; Branch <strong>${dir}</strong> to node (weight ${nextNode.freq})</div>
-          `;
-          currentNode = nextNode;
+          showBitmasterScreen('stages');
         }
-
-        decodeTraceLog.scrollTop = decodeTraceLog.scrollHeight;
-      }, 350);
-    }
-
-    presetButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        presetButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const preset = btn.getAttribute('data-preset') || '';
-        textInput.value = preset;
-        renderHuffman();
-      });
-    });
-
-    if (btnReset) {
-      btnReset.addEventListener('click', () => {
-        textInput.value = '';
-        presetButtons.forEach(b => b.classList.remove('active'));
-        renderHuffman();
-        textInput.focus();
       });
     }
 
-    textInput.addEventListener('input', () => {
-      presetButtons.forEach(b => {
-        if (b.getAttribute('data-preset') === textInput.value) {
-          b.classList.add('active');
-        } else {
-          b.classList.remove('active');
-        }
-      });
-      renderHuffman();
-    });
-
-    renderHuffman();
+    showBitmasterScreen('stages');
   }
 
   // =========================================================================
@@ -2575,6 +3078,7 @@
       }
     }
     renderRegister();
+    setupStandaloneConverter();
     setupTargetPracticeEvents();
     setupHexPlaygroundEvents();
     setupAdderEvents();
@@ -2586,10 +3090,7 @@
     setupShiftEvents();
     renderShifts();
     setupUnitsCalculator();
-    setupCharacterEncoderEvents();
-    renderCharacterTokens();
-    setupCharacterSetsLab();
-    initHuffmanLab();
+    setupBitMaster();
   }
 
   if (document.readyState === 'loading') {

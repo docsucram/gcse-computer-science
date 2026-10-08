@@ -756,26 +756,48 @@
       // 1. RENDER MONOLITHIC BEFORE VIEW
       displayArea.innerHTML = `
         <div class="monolith-diagram-card">
+          <div class="monolith-header-bar">
+            <span class="badge" style="background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); font-weight: 800;">
+              SPAGHETTI ARCHITECTURE
+            </span>
+            <span style="font-size: 11px; color: var(--ink-faint); font-family: var(--font-mono);">monolith_${sc.id}.py</span>
+          </div>
+
           <div class="monolith-big-box">
             <div class="monolith-box-title">Monolithic Script ("God Module")</div>
             <div class="monolith-box-desc">
-              All code is crammed inside a single massive file (<code>${sc.id}.py</code>). 
-              Every variable is in one global namespace, and there are zero subroutines.
+              All 60+ lines of code are crammed into a single execution stream with <strong>zero subroutines</strong>. 
+              Variables are in one dangerous global namespace, and validation loops are repeatedly copy-pasted!
+            </div>
+            
+            <div class="monolith-metrics-strip">
+              <div class="metric-pill danger">
+                <strong>1</strong> Global Namespace
+              </div>
+              <div class="metric-pill danger">
+                <strong>0</strong> Unit Testable Functions
+              </div>
+              <div class="metric-pill warn">
+                <strong>High</strong> Coupling &amp; Side-Effects
+              </div>
+              <div class="metric-pill warn">
+                <strong>Zero</strong> Code Reusability
+              </div>
             </div>
           </div>
 
           <div class="monolith-traps-list">
             <div class="monolith-trap-item">
-              <strong>🔁 Code Duplication:</strong> Identical validation loops copy-pasted multiple times. If a bug is fixed, it must be edited everywhere!
+              <strong style="color: #ef4444;">🔁 Code Duplication:</strong> Identical validation loops copy-pasted multiple times. If business rules change, you must edit lines in multiple places.
             </div>
             <div class="monolith-trap-item">
-              <strong>🐛 Hard to Debug:</strong> A bug in line 35 can secretly corrupt variables used in line 80 without clear module boundaries.
+              <strong style="color: #ef4444;">🐛 Hard to Debug:</strong> A bug in line 15 can silently mutate global variables relied on by line 50.
             </div>
             <div class="monolith-trap-item">
-              <strong>🧪 Impossible to Unit Test:</strong> You cannot test the pricing discount calculation in isolation without running the entire interactive menu!
+              <strong style="color: #f59e0b;">🧪 Untestable in Isolation:</strong> You cannot unit-test the price or grade formula without running the entire console prompt input loop!
             </div>
             <div class="monolith-trap-item">
-              <strong>👥 Zero Teamwork:</strong> Multiple developers cannot work simultaneously without creating massive code conflicts in the same file.
+              <strong style="color: #f59e0b;">👥 Blocks Collaboration:</strong> Two programmers cannot work simultaneously on pricing and validation without git merge conflicts.
             </div>
           </div>
         </div>
@@ -790,7 +812,6 @@
         // Find matching block
         const matchingBlock = sc.blocks.find(b => b.moduleName.startsWith(sub.name.replace('()', '')));
         const isUnlocked = matchingBlock && state.userAnswers[`${sc.id}_${matchingBlock.id}`] === true;
-
         const isFunc = sub.type === 'Function';
 
         return `
@@ -798,31 +819,36 @@
             <!-- Data Flow Couples along connecting line -->
             <div class="aqa-data-flow-box">
               <div class="data-param-line" title="Input Parameter passed down">
-                <span>○ ↓</span>
+                <span class="couple-circle-down">○ ↓</span>
                 <span>(${sub.params})</span>
               </div>
               ${isFunc ? `
                 <div class="data-return-line" title="Output Return Value passed up to caller">
-                  <span>↑ ○</span>
+                  <span class="couple-circle-up">↑ ○</span>
                   <span>${sub.returns}</span>
                 </div>
               ` : `
-                <div style="font-size: 9.5px; color: var(--text-muted); font-style: italic;">
-                  (No Return)
+                <div style="font-size: 9.5px; color: var(--ink-faint); font-style: italic; padding: 1px 0;">
+                  (No Return Value)
                 </div>
               `}
             </div>
 
             <!-- Subroutine Box -->
             <div class="aqa-module-box ${isUnlocked ? 'unlocked' : 'locked'}">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
                 <span class="badge-mini ${isFunc ? 'badge-func' : 'badge-proc'}">${sub.type}</span>
-                ${sub.repeated ? '<span class="aqa-repeat-badge">Called 2×</span>' : ''}
+                ${isUnlocked 
+                  ? '<span class="status-unlocked-chip">✓ Extracted</span>' 
+                  : '<span class="status-locked-chip">🔒 In Main</span>'}
               </div>
-              <div class="aqa-module-name">${sub.name}</div>
+
+              <div class="aqa-module-name"><code>${sub.name}</code></div>
               <div class="aqa-module-desc">${sub.desc}</div>
-              <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;">
-                ${sub.scope}
+
+              <div class="aqa-scope-footer">
+                <span style="font-weight: 700; color: var(--ink-secondary);">Scope:</span> 
+                <span>${sub.scope}</span>
               </div>
             </div>
           </div>
@@ -833,7 +859,8 @@
         <div class="aqa-chart-wrap">
           <!-- Root Main Module Box -->
           <div class="aqa-root-box">
-            <div class="aqa-root-title">${chartData.root.name}</div>
+            <span class="aqa-root-badge">MAIN ORCHESTRATOR</span>
+            <div class="aqa-root-title"><code>${chartData.root.name}</code></div>
             <div class="aqa-root-role">${chartData.root.role}</div>
           </div>
 
@@ -843,6 +870,13 @@
           <!-- Horizontal Branching Row -->
           <div class="aqa-branches-row">
             ${branchesHtml}
+          </div>
+
+          <!-- Architecture Summary Ribbon -->
+          <div class="aqa-benefits-ribbon">
+            <span>✓ <strong>Unit-Testable:</strong> Each subroutine can be tested independently.</span>
+            <span>✓ <strong>Encapsulated:</strong> Local variables prevent accidental side-effects.</span>
+            <span>✓ <strong>Reusable:</strong> Functions can be called multiple times without duplicate code.</span>
           </div>
         </div>
       `;
@@ -932,49 +966,64 @@
 
   function initSubmoduleNavigation() {
     const tabTrace = document.getElementById('tabBtnTrace');
+    const tabDebugger = document.getElementById('tabBtnDebugger');
+    const tabTesting = document.getElementById('tabBtnTesting');
     const tabModules = document.getElementById('tabBtnModules');
+    const tabRevision = document.getElementById('tabBtnRevision');
+
     const viewTrace = document.getElementById('submoduleTrace');
+    const viewDebugger = document.getElementById('submoduleDebugger');
+    const viewTesting = document.getElementById('submoduleTesting');
     const viewModular = document.getElementById('submoduleModular');
+    const viewRevision = document.getElementById('submoduleRevision');
 
     function switchView(viewName) {
-      if (viewName === 'modules') {
-        if (tabTrace) {
-          tabTrace.classList.remove('active');
-          tabTrace.setAttribute('aria-selected', 'false');
+      const tabs = [
+        { name: 'trace', tab: tabTrace, view: viewTrace },
+        { name: 'debugger', tab: tabDebugger, view: viewDebugger },
+        { name: 'testing', tab: tabTesting, view: viewTesting },
+        { name: 'modules', tab: tabModules, view: viewModular },
+        { name: 'revision', tab: tabRevision, view: viewRevision }
+      ];
+
+      tabs.forEach(item => {
+        const isActive = item.name === viewName;
+        if (item.tab) {
+          if (isActive) {
+            item.tab.classList.add('active');
+            item.tab.setAttribute('aria-selected', 'true');
+          } else {
+            item.tab.classList.remove('active');
+            item.tab.setAttribute('aria-selected', 'false');
+          }
         }
-        if (tabModules) {
-          tabModules.classList.add('active');
-          tabModules.setAttribute('aria-selected', 'true');
+        if (item.view) {
+          item.view.style.display = isActive ? 'block' : 'none';
         }
-        if (viewTrace) viewTrace.style.display = 'none';
-        if (viewModular) viewModular.style.display = 'block';
-        localStorage.setItem('designTestingActiveTab', 'modules');
-        try { window.location.hash = 'modules'; } catch (e) {}
-      } else {
-        if (tabModules) {
-          tabModules.classList.remove('active');
-          tabModules.setAttribute('aria-selected', 'false');
-        }
-        if (tabTrace) {
-          tabTrace.classList.add('active');
-          tabTrace.setAttribute('aria-selected', 'true');
-        }
-        if (viewTrace) viewTrace.style.display = 'block';
-        if (viewModular) viewModular.style.display = 'none';
-        localStorage.setItem('designTestingActiveTab', 'trace');
-        try { window.location.hash = 'trace'; } catch (e) {}
-      }
+      });
+
+      localStorage.setItem('designTestingActiveTab', viewName);
+      try { window.location.hash = viewName; } catch (e) {}
     }
 
     if (tabTrace) tabTrace.addEventListener('click', () => switchView('trace'));
+    if (tabDebugger) tabDebugger.addEventListener('click', () => switchView('debugger'));
+    if (tabTesting) tabTesting.addEventListener('click', () => switchView('testing'));
     if (tabModules) tabModules.addEventListener('click', () => switchView('modules'));
+    if (tabRevision) tabRevision.addEventListener('click', () => switchView('revision'));
 
     const hash = window.location.hash.replace('#', '');
     const savedTab = localStorage.getItem('designTestingActiveTab');
-    if (hash === 'modules' || (!hash && savedTab === 'modules')) {
-      switchView('modules');
-    } else {
+    if (hash === 'revision' || (!hash && savedTab === 'revision')) {
+      switchView('revision');
+    } else if (hash === 'trace' || (!hash && savedTab === 'trace')) {
       switchView('trace');
+    } else if (hash === 'testing' || (!hash && savedTab === 'testing')) {
+      switchView('testing');
+    } else if (hash === 'debugger' || (!hash && savedTab === 'debugger')) {
+      switchView('debugger');
+    } else {
+      switchView('modules');
     }
   }
 

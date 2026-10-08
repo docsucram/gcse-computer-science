@@ -31,10 +31,10 @@ export default function RevisionCards({ activeAlgorithmId = 'bubble' }) {
       {/* 1. CLEAN EDITORIAL HEADER */}
       <header className="revision-header">
         <div className="revision-title-block">
-          <span className="spec-pill">AQA 8525 §3.1.1</span>
-          <h1 style={{ marginTop: '6px' }}>Sorting Algorithms Revision Guide</h1>
+          <span className="spec-pill">AQA 8525 §3.1</span>
+          <h1 style={{ marginTop: '6px' }}>Searching &amp; Sorting Revision</h1>
           <p>
-            AQA specification complexities, best and worst case trade-offs, and past-paper practice questions.
+            Algorithm mechanics, best and worst-case comparisons, step-by-step trace tables, and past-paper exam questions for Paper 1 Section 3.1.
           </p>
         </div>
       </header>

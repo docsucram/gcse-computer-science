@@ -14,7 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const moonIcon = document.getElementById('moonIcon');
 
   function initTheme() {
-    const saved = localStorage.getItem('gcse_theme') || localStorage.getItem('theme');
+    const themeParam = new URLSearchParams(window.location.search).get('theme');
+    const saved = themeParam || localStorage.getItem('gcse_theme') || localStorage.getItem('theme');
     const isDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.classList.toggle('dark', isDark);
     if (sunIcon && moonIcon) {
@@ -61,11 +62,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Support URL hash navigation (e.g. #layers or #tab-layers)
-  const initialHash = window.location.hash.replace('#', '');
+  // Support URL hash & query navigation (e.g. #topologies, #topologies-bus, ?topo=bus)
+  const hashRaw = window.location.hash.replace('#', '');
+  const urlSearch = new URLSearchParams(window.location.search);
+  const initialHash = hashRaw.split('?')[0].split('&')[0];
+
   if (initialHash) {
-    const matchingBtn = Array.from(tabButtons).find(b => b.dataset.tab === initialHash || `tab-${b.dataset.tab}` === initialHash);
+    const matchingBtn = Array.from(tabButtons).find(b => b.dataset.tab === initialHash || `tab-${b.dataset.tab}` === initialHash || (initialHash.startsWith('topologies') && b.dataset.tab === 'topologies'));
     if (matchingBtn) matchingBtn.click();
+  } else if (urlSearch.has('topo')) {
+    const topoBtn = Array.from(tabButtons).find(b => b.dataset.tab === 'topologies');
+    if (topoBtn) topoBtn.click();
   }
 
   // =========================================================================
@@ -91,23 +98,128 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // State
   let state = {
-    scenario: 'chat', // 'chat' or 'web'
+    scenario: 'web', // Default: Web & DNS (Request ➔ Response)
     currentStep: 0,
     maxSteps: 6,
     isPlaying: false,
     timer: null,
-    stepDuration: 1200,
+    stepDuration: 1300,
     isCongested: false,
     isCorrupt: false,
     selectedPacketIdx: 0,
     packets: [],
     dnsPacket: null,
+    httpReqPacket: null,
     domainName: 'bbc.co.uk',
     resolvedIp: '151.101.0.81',
     serverLabel: 'BBC Server',
     serverLoc: 'London, UK',
     serverNodeId: 'nodeServerBbc',
     serverLinkId: 'linkGammaBbc'
+  };
+
+  // =========================================================================
+  // INTERACTIVE GCSE TOOLTIP GLOSSARY DATA
+  // =========================================================================
+  const TOOLTIP_DATA = {
+    // Packet Header Fields
+    proto: {
+      title: 'Protocol Header (TCP vs UDP vs HTTP/HTTPS)',
+      spec: 'AQA §3.5.2 & §3.5.3',
+      body: 'Sets the rules of transmission:<br>• <strong>TCP (Transmission Control Protocol):</strong> Connection-oriented, reliable. Slices data, tracks sequence numbers, and requests resends if packets are lost.<br>• <strong>UDP (User Datagram Protocol):</strong> Connectionless, lightweight, fast. No handshakes or resends (ideal for DNS queries &amp; live video).<br>• <strong>HTTP/HTTPS:</strong> Application Layer protocol requesting web pages (HTTPS uses TLS encryption).'
+    },
+    srcIp: {
+      title: 'Source IP Address (32-bit IPv4)',
+      spec: 'AQA §3.5.2',
+      body: 'The numeric address of the sending device (<code>192.168.1.104</code>). Tells the receiving web server where to send the response packets back across the internet.'
+    },
+    destIp: {
+      title: 'Destination IP Address',
+      spec: 'AQA §3.5.2',
+      body: 'The numeric address of the target destination. Routers along the route only read this field to look up their routing tables and decide the optimal next hop.'
+    },
+    seq: {
+      title: 'Sequence Number (#1 of 3)',
+      spec: 'AQA §3.5.2',
+      body: 'Packets travel along independent routes and often arrive out of order. The receiving TCP layer uses sequence numbers to rebuild the exact original file without corruption.'
+    },
+    ttl: {
+      title: 'TTL (Time to Live)',
+      spec: 'AQA §3.5.2',
+      body: 'A hop counter (starts at 64). Every router decrements this value by 1. If it reaches 0, the packet is discarded to prevent infinite routing loops from clogging the internet.'
+    },
+    payload: {
+      title: 'Payload (Data Chunk)',
+      spec: 'AQA §3.5.2',
+      body: 'The actual chunk of user information being transported—such as a piece of HTML code, part of an image, or a section of a text message.'
+    },
+    crc: {
+      title: 'Checksum (CRC32 Error Check)',
+      spec: 'AQA §3.5.2',
+      body: 'A mathematical fingerprint calculated from the payload bits before sending. The receiver recalculates this hash; if electrical noise flipped any bits in transit, the checksum fails and TCP discards the packet.'
+    },
+
+    // Network Hardware Nodes
+    nodeDns: {
+      title: 'DNS Resolver Server (8.8.8.8)',
+      spec: 'AQA §3.5.3',
+      body: '<strong>The "phonebook of the Internet":</strong> Humans remember domain names (<code>bbc.co.uk</code>), but routers only navigate by numeric IP addresses (<code>151.101.0.81</code>). DNS resolves human URLs into IP addresses.'
+    },
+    nodeServerBbc: {
+      title: 'BBC Web Server & London Edge CDN',
+      spec: 'AQA §3.5.3',
+      body: '<strong>Where Websites Live:</strong><br>• <strong>Origin Servers:</strong> High-powered computers in data centers running 24/7 storing website code.<br>• <strong>CDNs (Content Delivery Networks):</strong> Popular websites (BBC, YouTube, Netflix) cache copies in local server facilities close to UK ISPs (e.g. London). This allows pages to load in milliseconds without crossing underwater transatlantic cables!'
+    },
+    nodeServerWiki: {
+      title: 'Wikipedia Web Server (Virginia, USA)',
+      spec: 'AQA §3.5.3',
+      body: 'Hosted on Wikimedia data center servers in the United States. Accessing this origin server requires transatlantic submarine fibre-optic cables.'
+    },
+    nodeServerPython: {
+      title: 'Python Software Server (Oregon, USA)',
+      spec: 'AQA §3.5.3',
+      body: 'Origin server located in Oregon, USA. Delivers documentation and package archives across international WAN backbones.'
+    },
+    nodeMast: {
+      title: '4G/5G Cellular Base Station (Mast)',
+      spec: 'AQA §3.5.1',
+      body: 'Physical layer transceiver: converts high-frequency electromagnetic radio waves from your phone\'s antenna into pulses of laser light inside underground fibre-optic cables.'
+    },
+    nodeDestMast: {
+      title: 'Recipient\'s Local Cell Mast',
+      spec: 'AQA §3.5.1',
+      body: 'The final cellular base station near the recipient. Receives laser light from the optical backbone and broadcasts radio waves to the recipient\'s mobile handset.'
+    },
+    nodeIsp: {
+      title: 'ISP Gateway Router (81.2.14.1)',
+      spec: 'AQA §3.5.2',
+      body: 'Connects your local provider network to the global internet backbone. Inspects the destination IP and chooses the initial routing path.'
+    },
+    nodeAlpha: {
+      title: 'Backbone Router Alpha (Path A)',
+      spec: 'AQA §3.5.2',
+      body: 'Core internet router. Inspects packet headers, consults routing tables, and forwards packets across high-speed optical links (12ms ping).'
+    },
+    nodeBeta: {
+      title: 'Backbone Router Beta (Path B)',
+      spec: 'AQA §3.5.2',
+      body: 'Alternate routing path. In packet switching, if Router Beta becomes congested or severed, routers automatically reroute traffic through Router Alpha.'
+    },
+    nodeGamma: {
+      title: 'Egress / Cloud Gateway Router',
+      spec: 'AQA §3.5.2',
+      body: 'Aggregates packets arriving from multiple paths. In WhatsApp mode, acts as the Cloud Relay Gateway queuing and dispatching messages.'
+    },
+    nodeSender: {
+      title: 'Your Mobile Phone (Client)',
+      spec: 'AQA §3.5.1',
+      body: 'Client device running the web browser or messaging app. The OS network stack and TCP slice application data into packets and attach IP headers.'
+    },
+    nodeRecipient: {
+      title: 'Friend\'s Mobile Handset',
+      spec: 'AQA §3.5.1',
+      body: 'The receiving endpoint. The TCP layer buffers incoming packets, reorders them using Sequence Numbers, checks checksums, and renders the message.'
+    }
   };
 
   // DOM Elements - Storyline & Scrubber
@@ -206,6 +318,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const destTickMarks = document.getElementById('destTickMarks');
   const destDeviceTitle = document.getElementById('destDeviceTitle');
   const destDeviceIp = document.getElementById('destDeviceIp');
+  const destWebView = document.getElementById('destWebView');
+  const siteUrlDisplay = document.getElementById('siteUrlDisplay');
+  const siteHeroHeadline = document.getElementById('siteHeroHeadline');
 
   // Checksum calculation (CRC32 simulation)
   function simpleCrc(str) {
@@ -223,6 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
     slicerChips.innerHTML = '';
 
     if (state.scenario === 'chat') {
+      // Realistic WhatsApp Messaging: Destination is WhatsApp Cloud Relay Server!
       const msg = interactiveMessageInput.value.trim() || 'Meet at the library at 4pm!';
       const chunkSize = Math.max(6, Math.ceil(msg.length / 3));
       const chunks = [];
@@ -230,18 +346,8 @@ document.addEventListener('DOMContentLoaded', () => {
         chunks.push(msg.substring(i, i + chunkSize));
       }
 
-      // DNS packet for chat.whatsapp.com
-      state.dnsPacket = {
-        id: 0,
-        type: 'DNS',
-        srcIp: '192.168.1.104',
-        destIp: '8.8.8.8',
-        seq: 'DNS',
-        proto: 'UDP (DNS 53)',
-        ttl: 64,
-        payload: 'DNS: chat.whatsapp.com?',
-        crc: simpleCrc('chat.whatsapp.com')
-      };
+      state.dnsPacket = null;
+      state.httpReqPacket = null;
 
       chunks.forEach((chunk, idx) => {
         const correctCrc = simpleCrc(chunk);
@@ -250,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
           total: chunks.length,
           type: 'DATA',
           srcIp: '192.168.1.104',
-          destIp: '172.56.21.90',
+          destIp: '157.240.22.60', // WhatsApp Cloud Relay in London
           seq: idx + 1,
           proto: 'TCP / IP',
           ttl: 64,
@@ -260,7 +366,6 @@ document.addEventListener('DOMContentLoaded', () => {
           route: idx === 1 ? 'beta' : 'alpha'
         });
 
-        // Add chip to sender phone slicer tray
         const chip = document.createElement('span');
         chip.className = 'slicer-chip';
         chip.textContent = `#${idx + 1}: "${chunk}"`;
@@ -270,8 +375,11 @@ document.addEventListener('DOMContentLoaded', () => {
       state.maxSteps = 6;
       destDeviceTitle.textContent = "Friend's Phone";
       destDeviceIp.textContent = "172.56.21.90";
+
+      if (destWebView) destWebView.style.display = 'none';
+      if (destChatBubble) destChatBubble.style.display = 'block';
     } else {
-      // Web Mode
+      // Web & DNS Mode: Full Request ➔ Server ➔ Response Journey
       const sel = browserDomainSelect.options[browserDomainSelect.selectedIndex] || browserDomainSelect.options[0];
       state.domainName = sel.value;
       state.resolvedIp = sel.dataset.ip || '151.101.0.81';
@@ -280,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
       state.serverNodeId = sel.dataset.node || 'nodeServerBbc';
       state.serverLinkId = (state.domainName === 'bbc.co.uk') ? 'linkGammaBbc' : (state.domainName === 'wikipedia.org' ? 'linkGammaWiki' : 'linkGammaPython');
 
-      // DNS packet for domain query
+      // 1. DNS Packet (UDP Port 53)
       state.dnsPacket = {
         id: 0,
         type: 'DNS',
@@ -289,49 +397,59 @@ document.addEventListener('DOMContentLoaded', () => {
         seq: 'DNS',
         proto: 'UDP (DNS 53)',
         ttl: 64,
-        payload: `DNS: ${state.domainName}?`,
+        payload: `DNS Query: ${state.domainName}?`,
         crc: simpleCrc(`DNS:${state.domainName}`)
       };
 
-      // Packets 1 & 2: Web Server HTTP Response
-      state.packets.push({
-        id: 1,
-        total: 2,
-        type: 'HTTP',
-        srcIp: state.resolvedIp,
-        destIp: '192.168.1.104',
-        seq: 1,
+      // 2. HTTP GET Request Packet (TCP Port 443)
+      state.httpReqPacket = {
+        id: 0,
+        type: 'HTTP-REQ',
+        srcIp: '192.168.1.104',
+        destIp: state.resolvedIp,
+        seq: 'GET',
         proto: 'TCP (HTTPS 443)',
         ttl: 64,
-        payload: `HTTP/2 200 OK`,
-        crc: simpleCrc('HTTP/2 200 OK'),
-        route: 'alpha'
-      });
+        payload: `GET / HTTP/2 (${state.domainName})`,
+        crc: simpleCrc(`GET:${state.domainName}`)
+      };
 
-      state.packets.push({
-        id: 2,
-        total: 2,
-        type: 'HTTP',
-        srcIp: state.resolvedIp,
-        destIp: '192.168.1.104',
-        seq: 2,
-        proto: 'TCP (HTTPS 443)',
-        ttl: 64,
-        payload: `HTML: ${state.domainName}`,
-        crc: simpleCrc(`HTML:${state.domainName}`),
-        route: 'beta'
-      });
+      // 3. Web Server Response Packets (TCP slices HTML page into 3 chunks returned to phone)
+      if (state.domainName === 'bbc.co.uk') {
+        state.packets = [
+          { id: 1, total: 3, type: 'HTTP-RES', srcIp: state.resolvedIp, destIp: '192.168.1.104', seq: 1, proto: 'TCP (HTTPS 443)', ttl: 64, payload: '<!DOCTYPE html><title>BBC News</title>', crc: simpleCrc('BBC_P1'), route: 'alpha' },
+          { id: 2, total: 3, type: 'HTTP-RES', srcIp: state.resolvedIp, destIp: '192.168.1.104', seq: 2, proto: 'TCP (HTTPS 443)', ttl: 64, payload: '<article>Live Tech Updates: Networks</article>', crc: simpleCrc('BBC_P2'), corruptCrc: '0xDEADBEEF', route: 'beta' },
+          { id: 3, total: 3, type: 'HTTP-RES', srcIp: state.resolvedIp, destIp: '192.168.1.104', seq: 3, proto: 'TCP (HTTPS 443)', ttl: 64, payload: '<footer>© BBC News 2026 • London CDN</footer>', crc: simpleCrc('BBC_P3'), route: 'alpha' }
+        ];
+      } else if (state.domainName === 'wikipedia.org') {
+        state.packets = [
+          { id: 1, total: 3, type: 'HTTP-RES', srcIp: state.resolvedIp, destIp: '192.168.1.104', seq: 1, proto: 'TCP (HTTPS 443)', ttl: 64, payload: '<!DOCTYPE html><title>Wikipedia</title>', crc: simpleCrc('WIKI_P1'), route: 'alpha' },
+          { id: 2, total: 3, type: 'HTTP-RES', srcIp: state.resolvedIp, destIp: '192.168.1.104', seq: 2, proto: 'TCP (HTTPS 443)', ttl: 64, payload: '<main>The Free Encyclopedia: WANs & Packets</main>', crc: simpleCrc('WIKI_P2'), corruptCrc: '0xDEADBEEF', route: 'beta' },
+          { id: 3, total: 3, type: 'HTTP-RES', srcIp: state.resolvedIp, destIp: '192.168.1.104', seq: 3, proto: 'TCP (HTTPS 443)', ttl: 64, payload: '<footer>Wikimedia Foundation • Virginia USA</footer>', crc: simpleCrc('WIKI_P3'), route: 'alpha' }
+        ];
+      } else {
+        state.packets = [
+          { id: 1, total: 3, type: 'HTTP-RES', srcIp: state.resolvedIp, destIp: '192.168.1.104', seq: 1, proto: 'TCP (HTTPS 443)', ttl: 64, payload: '<!DOCTYPE html><title>Python.org</title>', crc: simpleCrc('PY_P1'), route: 'alpha' },
+          { id: 2, total: 3, type: 'HTTP-RES', srcIp: state.resolvedIp, destIp: '192.168.1.104', seq: 2, proto: 'TCP (HTTPS 443)', ttl: 64, payload: '<code>import socket; sock.connect()</code>', crc: simpleCrc('PY_P2'), corruptCrc: '0xDEADBEEF', route: 'beta' },
+          { id: 3, total: 3, type: 'HTTP-RES', srcIp: state.resolvedIp, destIp: '192.168.1.104', seq: 3, proto: 'TCP (HTTPS 443)', ttl: 64, payload: '<footer>Python Software Foundation • Oregon</footer>', crc: simpleCrc('PY_P3'), route: 'alpha' }
+        ];
+      }
 
       state.packets.forEach(p => {
         const chip = document.createElement('span');
         chip.className = 'slicer-chip';
-        chip.textContent = `HTTP #${p.seq}`;
+        chip.textContent = `HTML #${p.seq}`;
         slicerChips.appendChild(chip);
       });
 
       state.maxSteps = 6;
       destDeviceTitle.textContent = state.serverLabel;
       destDeviceIp.textContent = state.resolvedIp;
+
+      if (destWebView) destWebView.style.display = 'block';
+      if (destChatBubble) destChatBubble.style.display = 'none';
+      if (siteUrlDisplay) siteUrlDisplay.textContent = `https://${state.domainName}`;
+      if (siteHeroHeadline) siteHeroHeadline.textContent = `${state.serverLabel} • Response Reassembled`;
     }
 
     renderRecipientShelf();
@@ -350,23 +468,45 @@ document.addEventListener('DOMContentLoaded', () => {
       shelfSlots.appendChild(slot);
     });
 
-    shelfStatusPill.textContent = "Empty";
-    destChatBubble.className = "dest-chat-bubble waiting";
-    destBubbleContent.innerHTML = "<em>Waiting for incoming transmission...</em>";
-    destTickMarks.style.display = "none";
+    shelfStatusPill.textContent = "Waiting";
+    shelfStatusPill.className = "shelf-status-pill";
+
+    if (destChatBubble) {
+      destChatBubble.className = "dest-chat-bubble waiting";
+      destBubbleContent.innerHTML = "<em>Waiting for incoming transmission...</em>";
+      destTickMarks.style.display = "none";
+    }
   }
 
   // Update Envelope Inspector (Center Dock)
   function updateEnvelopeInspector(idx) {
-    if (!state.packets || state.packets.length === 0) return;
-    const p = (idx === -1 && state.dnsPacket) ? state.dnsPacket : (state.packets[idx] || state.packets[0]);
+    let p;
+    if (idx === -1 && state.dnsPacket) {
+      p = state.dnsPacket;
+    } else if (idx === -2 && state.httpReqPacket) {
+      p = state.httpReqPacket;
+    } else if (state.packets && state.packets.length > 0) {
+      p = state.packets[idx] || state.packets[0];
+    } else {
+      return;
+    }
+
     state.selectedPacketIdx = idx;
 
-    const protoShort = p.type === 'DNS' ? 'UDP' : (p.proto.includes('TCP') ? 'TCP' : 'UDP');
-    inspectEnvelopeBadge.textContent = p.type === 'DNS' ? `Packet [DNS Query] (UDP)` : `Packet #${p.seq} of ${p.total} (${protoShort})`;
+    const isDns = (p.type === 'DNS');
+    const isHttpReq = (p.type === 'HTTP-REQ');
+
+    if (isDns) {
+      inspectEnvelopeBadge.textContent = 'Packet [DNS Query] (UDP Port 53)';
+    } else if (isHttpReq) {
+      inspectEnvelopeBadge.textContent = 'Packet [HTTP GET Request] (TCP 443)';
+    } else {
+      inspectEnvelopeBadge.textContent = `Packet #${p.seq} of ${p.total} (TCP Data)`;
+    }
+
     envSrcIp.textContent = p.srcIp;
     envDestIp.textContent = p.destIp;
-    envSeq.textContent = p.type === 'DNS' ? 'DNS Query' : `#${p.seq} of ${p.total}`;
+    envSeq.textContent = isDns ? 'DNS Lookup' : (isHttpReq ? 'HTTP GET' : `#${p.seq} of ${p.total}`);
     envProto.textContent = p.proto;
     envTtl.textContent = `${p.ttl} hops remaining`;
     envPayload.textContent = `"${p.payload}"`;
@@ -390,30 +530,27 @@ document.addEventListener('DOMContentLoaded', () => {
     return coords.serverPython;
   }
 
-  // Draw animated packets onto the Living SVG World (Clean spacing, zero stacking bugs)
+  // Draw animated packets onto the Living SVG World
   function renderPacketsOnSvg(step) {
     packetsLayer.innerHTML = '';
     radioWavesLayer.innerHTML = '';
     let activePackets = [];
 
     if (state.scenario === 'chat') {
+      // Realistic WhatsApp Messaging: Phone ➔ Mast ➔ ISP ➔ WhatsApp Cloud Relay (Gamma) ➔ Friend Mast ➔ Friend Phone
       if (step === 1) {
-        // Step 1: Packets sliced and visibly leaving phone on wireless wave towards mast!
+        // Step 1: Wireless hop from phone to cell mast
         drawRadioWave(coords.sender.x, coords.sender.y, coords.mast.x, coords.mast.y);
         state.packets.forEach((p, i) => {
-          // Packet 3 leaving phone (185, 238), Packet 2 at (215, 218), Packet 1 at (248, 198)
           activePackets.push({ ...p, x: 248 - (i * 32), y: 198 + (i * 20), stage: 'wireless' });
         });
       } else if (step === 2) {
-        // Step 2: Travelling in underground fibre optic cable from Cell Mast to ISP Gateway
+        // Step 2: Optical fibre from cell mast to ISP gateway
         state.packets.forEach((p, i) => {
           activePackets.push({ ...p, x: 350 + (i * 35), y: 220, stage: 'fibre' });
         });
       } else if (step === 3) {
-        // Step 3: ISP Gateway queries DNS Resolver (640, 80) to resolve chat.whatsapp.com!
-        activePackets.push({ ...state.dnsPacket, x: coords.dns.x, y: coords.dns.y, stage: 'dns-resolve' });
-      } else if (step === 4) {
-        // Step 4: Router Mesh (Independent routes!)
+        // Step 3: Independent routing across router mesh (Path A & Path B)
         state.packets.forEach((p, i) => {
           let pos;
           if (p.route === 'beta' && !state.isCongested) {
@@ -423,52 +560,68 @@ document.addEventListener('DOMContentLoaded', () => {
           }
           activePackets.push({ ...p, x: pos.x, y: pos.y, ttl: 63, stage: 'mesh' });
         });
-      } else if (step === 5) {
-        // Step 5: Converging onto destination (Out of order arrival!)
+      } else if (step === 4) {
+        // Step 4: Arrives at WhatsApp Cloud Relay Server (Gamma / 870, 250)
         state.packets.forEach((p, i) => {
-          // Packet 1 arrived, packet 3 arrived, packet 2 trailing behind
-          let xOffset = (i === 1) ? -60 : (i * 26);
-          activePackets.push({ ...p, x: 970 + xOffset, y: 210, ttl: 62, stage: 'egress' });
+          activePackets.push({ ...p, x: coords.gamma.x - 20 + (i * 20), y: coords.gamma.y, ttl: 62, stage: 'cloud-relay' });
+        });
+      } else if (step === 5) {
+        // Step 5: WhatsApp Cloud Relay pushes packets across carrier backbone to Friend's mast
+        state.packets.forEach((p, i) => {
+          let xOffset = (i === 1) ? -40 : (i * 24);
+          activePackets.push({ ...p, x: 970 + xOffset, y: 210, ttl: 61, stage: 'egress' });
         });
       } else if (step >= 6) {
-        // Step 6: Arrived at recipient phone (Spaced neatly inside recipient zone)
+        // Step 6: Arrived at recipient phone via 5G wireless waves
+        drawRadioWave(coords.destmast.x, coords.destmast.y, coords.recipient.x, coords.recipient.y);
         state.packets.forEach((p, i) => {
-          activePackets.push({ ...p, x: coords.recipient.x - 24 + (i * 24), y: coords.recipient.y, ttl: 61, stage: 'arrived' });
+          activePackets.push({ ...p, x: coords.recipient.x - 24 + (i * 24), y: coords.recipient.y, ttl: 60, stage: 'arrived' });
         });
       }
     } else {
-      // Web Mode: DNS lookup followed by HTTP routing to specific server
+      // Web & DNS Mode: DNS Query ➔ DNS Resolver ➔ HTTP GET ➔ Web Server ➔ Response Slices
       const sCoord = getTargetServerCoord();
+
       if (step === 1) {
-        // Step 1: DNS Query leaves Phone towards Cell Mast via radio waves!
+        // Step 1: DNS Query leaves Phone towards Cell Mast via radio waves
         drawRadioWave(coords.sender.x, coords.sender.y, coords.mast.x, coords.mast.y);
         activePackets.push({ ...state.dnsPacket, x: 215, y: 220, stage: 'wireless' });
       } else if (step === 2) {
         // Step 2: DNS Query travelling underground in fibre cable from Mast to ISP Gateway
         activePackets.push({ ...state.dnsPacket, x: 385, y: 225, stage: 'fibre' });
       } else if (step === 3) {
-        // Step 3: ISP Gateway queries DNS Server (8.8.8.8) - Resolves domain to numeric IP!
+        // Step 3: ISP queries DNS Resolver (8.8.8.8) to resolve domain to numeric IP
         activePackets.push({ ...state.dnsPacket, x: coords.dns.x, y: coords.dns.y, stage: 'dns-resolve' });
       } else if (step === 4) {
-        // Step 4: Stamped with Server IP, HTTP GET request travels across router mesh
-        activePackets.push({ ...state.packets[0], x: 660, y: 200, stage: 'http-req', payload: `GET / (${state.resolvedIp})` });
+        // Step 4: Stamped with Server IP, HTTP GET request travels across router mesh to Server
+        activePackets.push({ ...state.httpReqPacket, x: coords.alpha.x, y: coords.alpha.y, stage: 'http-req' });
       } else if (step === 5) {
-        // Step 5: Router Gamma inspects destination IP and steers directly to the target server!
-        const midX = Math.round((coords.gamma.x + sCoord.x) / 2);
-        const midY = Math.round((coords.gamma.y + sCoord.y) / 2);
-        activePackets.push({ ...state.packets[0], x: midX, y: midY, stage: 'server-link', payload: `IP: ${state.resolvedIp}` });
+        // Step 5: Web Server slices HTML response into 3 packets and routes back across mesh!
+        state.packets.forEach((p, i) => {
+          let pos;
+          if (p.route === 'beta' && !state.isCongested) {
+            pos = { x: coords.beta.x, y: coords.beta.y };
+          } else {
+            pos = { x: coords.alpha.x + (i * 26 - 13), y: coords.alpha.y };
+          }
+          activePackets.push({ ...p, x: pos.x, y: pos.y, stage: 'http-res-mesh' });
+        });
       } else if (step >= 6) {
-        // Step 6: At destination server / served back (200 OK)
-        activePackets.push({ ...state.packets[0], x: sCoord.x - 14, y: sCoord.y, stage: 'arrived' });
-        activePackets.push({ ...state.packets[1], x: sCoord.x + 16, y: sCoord.y, stage: 'arrived' });
+        // Step 6: Arrived back at Phone / Browser (Reassembled!)
+        state.packets.forEach((p, i) => {
+          activePackets.push({ ...p, x: coords.sender.x - 20 + (i * 20), y: coords.sender.y, stage: 'arrived' });
+        });
       }
     }
 
-    // Render active packet sprites (No CSS transform scale bug!)
+    // Render active packet sprites
     activePackets.forEach((p) => {
       const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       const isCorrupt = (state.isCorrupt && p.id === 2);
-      g.setAttribute('class', `world-packet-sprite ${p.type === 'DNS' ? 'packet-dns' : ''} ${isCorrupt ? 'packet-glitched' : ''}`);
+      const isDns = (p.type === 'DNS');
+      const isGet = (p.type === 'HTTP-REQ');
+
+      g.setAttribute('class', `world-packet-sprite ${isDns ? 'packet-dns' : ''} ${isCorrupt ? 'packet-glitched' : ''}`);
       g.setAttribute('transform', `translate(${p.x}, ${p.y})`);
 
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -482,14 +635,14 @@ document.addEventListener('DOMContentLoaded', () => {
       text.setAttribute('x', '0');
       text.setAttribute('y', '0');
       text.setAttribute('class', 'packet-pod-text');
-      text.textContent = p.type === 'DNS' ? 'DNS' : `#${p.seq}`;
+      text.textContent = isDns ? 'DNS' : (isGet ? 'GET' : `#${p.seq}`);
 
       g.appendChild(rect);
       g.appendChild(text);
 
       g.addEventListener('click', (e) => {
         e.stopPropagation();
-        const pIdx = (p.type === 'DNS') ? -1 : (p.id - 1);
+        const pIdx = isDns ? -1 : (isGet ? -2 : (p.id - 1));
         updateEnvelopeInspector(pIdx);
       });
 
@@ -540,7 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (groupWebLinks) groupWebLinks.style.display = 'block';
       if (groupWebServers) groupWebServers.style.display = 'block';
 
-      // Default: mark all 3 servers with standby-server styling
+      // Mark all 3 servers with standby-server styling
       [nodeServerBbc, nodeServerWiki, nodeServerPython].forEach(srv => {
         if (srv) {
           srv.classList.add('standby-server');
@@ -583,16 +736,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     switch (step) {
       case 0:
-        storyPhasePill.textContent = 'Phase 0 • Message Ready';
+        storyPhasePill.textContent = 'Phase 0 • Message Composed';
         storyHeadline.textContent = 'Ready to Send WhatsApp Message';
-        storyCaption.innerHTML = `You typed: <strong>"${msg}"</strong>. Tap the green <strong>Send ➔</strong> button to watch your message get sliced into packets, beamed to the cell mast, and routed across the world.`;
+        storyCaption.innerHTML = `You typed: <strong>"${msg}"</strong>. Tap <strong>Send ➔</strong> to watch your message get sliced into TCP packets and routed to the <strong>WhatsApp Cloud Relay</strong> before being pushed to your friend's handset.`;
         updateEnvelopeInspector(0);
         break;
 
       case 1:
         storyPhasePill.textContent = 'Hop 1 • Wireless Radio Hop';
-        storyHeadline.textContent = 'Step 1: Message Sliced into Packets & Beamed to Cell Mast';
-        storyCaption.innerHTML = `<strong>Radio Transmission:</strong> TCP slices your message into <strong>${state.packets.length} numbered packets</strong>. Your phone transmits them through the air as high-frequency radio waves toward the local cell mast.`;
+        storyHeadline.textContent = 'Step 1: Message Sliced by TCP & Beamed to Mast';
+        storyCaption.innerHTML = `<strong>TCP Slicing:</strong> The operating system\'s network stack slices your message into <strong>${state.packets.length} numbered TCP packets</strong>. Your phone transmits them through the air as high-frequency radio waves to the local cell mast.`;
         document.getElementById('nodeSender').classList.add('active-node');
         document.getElementById('linkPhoneMast').classList.add('active-wire');
         document.getElementById('nodeMast').classList.add('active-node');
@@ -601,7 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       case 2:
         storyPhasePill.textContent = 'Hop 2 • Underground Fibre Backhaul';
-        storyHeadline.textContent = 'Step 2: Mast Converts Radio to Laser Pulses in Fibre';
+        storyHeadline.textContent = 'Step 2: Mast Converts Radio Waves to Laser Light';
         storyCaption.innerHTML = `The cell mast transceiver converts the radio waves into pulses of laser light traveling down underground <strong>fibre-optic cables</strong> to your ISP\'s Gateway Router (<code>81.2.14.1</code>).`;
         document.getElementById('nodeMast').classList.add('active-node');
         document.getElementById('linkMastIsp').classList.add('active-wire');
@@ -610,31 +763,20 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
 
       case 3:
-        storyPhasePill.textContent = 'Hop 3 • DNS Directory Lookup';
-        showCallout(calloutDnsCard, calloutDnsText, calloutDnsRect, 'DNS Match: chat.whatsapp.com ➔ 172.56.21.90');
-        storyHeadline.textContent = 'Step 3: ISP Queries DNS Resolver (8.8.8.8)';
-        storyCaption.innerHTML = `<strong>Why DNS?</strong> The internet only understands numeric IP addresses. The ISP Gateway asks <strong>DNS Resolver (8.8.8.8)</strong>: <em>"What is the IP for chat.whatsapp.com?"</em> DNS returns <code>172.56.21.90</code> so all packet headers are stamped with the correct Destination IP.`;
-        document.getElementById('nodeIsp').classList.add('active-node');
-        document.getElementById('linkIspDns').classList.add('active-wire');
-        document.getElementById('nodeDns').classList.add('active-node');
-        updateEnvelopeInspector(-1);
-        break;
-
-      case 4:
-        storyPhasePill.textContent = 'Hop 4 • Dynamic Packet Switching';
+        storyPhasePill.textContent = 'Hop 3 • Dynamic Packet Switching';
         if (state.isCongested) {
           showCallout(calloutMeshCard, calloutMeshText, calloutMeshRect, 'Traffic Jam on Beta! All packets rerouted via Alpha');
-          storyHeadline.textContent = 'Step 4: Congestion Detected! Dynamic Rerouting';
-          storyCaption.innerHTML = `Router Beta is congested! The ISP\'s routing table spots the bottleneck and steers packets through <strong>Router Alpha</strong>. In packet switching, networks self-heal around delays!`;
+          storyHeadline.textContent = 'Step 3: Congestion Detected! Dynamic Rerouting';
+          storyCaption.innerHTML = `Router Beta is congested! The ISP routing table spots the delay and steers packets through <strong>Router Alpha</strong>. In packet switching, networks dynamically self-heal around bottlenecks!`;
           document.getElementById('nodeIsp').classList.add('active-node');
           document.getElementById('linkIspAlpha').classList.add('active-wire');
           document.getElementById('nodeAlpha').classList.add('active-node');
           document.getElementById('linkAlphaGamma').classList.add('active-wire');
           document.getElementById('nodeGamma').classList.add('active-node');
         } else {
-          showCallout(calloutMeshCard, calloutMeshText, calloutMeshRect, 'Packets split across Paths A & B to dodge traffic');
-          storyHeadline.textContent = 'Step 4: Independent Routing Across the Router Mesh';
-          storyCaption.innerHTML = `<strong>Core GCSE Concept:</strong> Packets do <em>not</em> take a fixed single line! Packet #1 takes <strong>Path A (Router Alpha)</strong>, while Packet #2 takes <strong>Path B (Router Beta)</strong>. Routers inspect the destination IP and find the fastest available path.`;
+          showCallout(calloutMeshCard, calloutMeshText, calloutMeshRect, 'Packets split across Paths A & B to balance traffic');
+          storyHeadline.textContent = 'Step 3: Independent Routing Across Router Mesh';
+          storyCaption.innerHTML = `<strong>Core GCSE Concept:</strong> Packets do <em>not</em> take a fixed single line! Packet #1 takes <strong>Path A (Router Alpha)</strong>, while Packet #2 takes <strong>Path B (Router Beta)</strong>. Routers inspect the destination IP and forward along the fastest available path.`;
           document.getElementById('nodeIsp').classList.add('active-node');
           document.getElementById('linkIspAlpha').classList.add('active-wire');
           document.getElementById('linkIspBeta').classList.add('active-wire');
@@ -644,43 +786,50 @@ document.addEventListener('DOMContentLoaded', () => {
           document.getElementById('linkBetaGamma').classList.add('active-wire');
           document.getElementById('nodeGamma').classList.add('active-node');
         }
+        updateEnvelopeInspector(1);
+        break;
+
+      case 4:
+        storyPhasePill.textContent = 'Hop 4 • WhatsApp Cloud Relay';
+        showCallout(calloutMeshCard, calloutMeshText, calloutMeshRect, 'WhatsApp Cloud Relay (157.240.22.60) Queues Delivery');
+        storyHeadline.textContent = 'Step 4: Packets Arrive at WhatsApp Cloud Server';
+        storyCaption.innerHTML = `<strong>Realistic Messaging Architecture:</strong> Phones do <em>not</em> connect peer-to-peer! Your packets arrive at the <strong>WhatsApp Cloud Relay (<code>157.240.22.60</code>)</strong> in London. The server acknowledges receipt, checks the database for your friend\'s active carrier session, and dispatches the delivery!`;
+        document.getElementById('nodeGamma').classList.add('active-node');
+        updateEnvelopeInspector(0);
         break;
 
       case 5:
-        storyPhasePill.textContent = 'Hop 5 • Out-of-Order Arrival';
-        storyHeadline.textContent = 'Step 5: Packets Converge at Destination Mast Out of Order';
-        storyCaption.innerHTML = `Because they took different paths, packets arrive out of order! <strong>Packet #1</strong> and <strong>Packet #3</strong> arrived first; <strong>Packet #2</strong> was delayed. The recipient mast prepares the wireless broadcast to the friend\'s phone.`;
+        storyPhasePill.textContent = 'Hop 5 • Carrier Egress to Recipient Mast';
+        storyHeadline.textContent = 'Step 5: Packets Pushed to Friend\'s Local Cell Mast';
+        storyCaption.innerHTML = `The WhatsApp server transmits the message packets across the internet backbone to your friend\'s cellular carrier. The packets arrive at the local mast serving your friend\'s area, ready for wireless broadcast.`;
         document.getElementById('nodeGamma').classList.add('active-node');
         document.getElementById('linkGammaDestMast').classList.add('active-wire');
         document.getElementById('nodeDestMast').classList.add('active-node');
-        
+
         const slot0 = document.getElementById('shelfSlot-0');
         if (slot0) {
           slot0.className = 'shelf-slot filled';
           slot0.textContent = '#1 ✓';
         }
-        shelfStatusPill.textContent = 'Reordering...';
+        shelfStatusPill.textContent = 'Receiving...';
+        updateEnvelopeInspector(1);
         break;
 
       case 6:
-        storyPhasePill.textContent = 'Hop 6 • Checksum Check & Reassembly';
+        storyPhasePill.textContent = 'Hop 6 • Checksum Verification & Delivery';
         if (state.isCorrupt) {
           storyHeadline.textContent = 'Step 6: CRC Error! Packet #2 Discarded by Recipient';
-          storyCaption.innerHTML = `<span style="color:#ef4444; font-weight:800;">TCP Reliability in Action:</span> A bit flipped during transmission in Packet #2. The recipient recalculated the CRC checksum, found it did NOT match the trailer, and <strong>rejected the packet</strong>! Because Packet #2 is missing, the message cannot be assembled. TCP now sends a <strong>Retransmission Request</strong> back to sender!`;
+          storyCaption.innerHTML = `<span style="color:#ef4444; font-weight:800;">TCP Reliability in Action:</span> Electrical interference flipped a bit during transit in Packet #2. The recipient recalculated the CRC checksum, found it did NOT match the trailer, and <strong>rejected the packet</strong>! Because Packet #2 is missing, the message cannot assemble. TCP sends an automatic <strong>Retransmission Request</strong> back to sender!`;
           shelfStatusPill.textContent = 'CRC Error ✗';
           shelfStatusPill.className = 'shelf-status-pill corrupt';
 
           const slot0 = document.getElementById('shelfSlot-0');
           const slot1 = document.getElementById('shelfSlot-1');
           const slot2 = document.getElementById('shelfSlot-2');
-          if (slot0) { slot0.className = 'shelf-slot filled'; slot0.textContent = '#1 ✓'; slot0.style.borderColor = ''; slot0.style.color = ''; }
-          if (slot1) {
-            slot1.className = 'shelf-slot corrupt';
-            slot1.textContent = '#2 ✗';
-          }
-          if (slot2) { slot2.className = 'shelf-slot filled'; slot2.textContent = '#3 ✓'; slot2.style.borderColor = ''; slot2.style.color = ''; }
+          if (slot0) { slot0.className = 'shelf-slot filled'; slot0.textContent = '#1 ✓'; }
+          if (slot1) { slot1.className = 'shelf-slot corrupt'; slot1.textContent = '#2 ✗'; }
+          if (slot2) { slot2.className = 'shelf-slot filled'; slot2.textContent = '#3 ✓'; }
 
-          // Message blocked from rendering! Show explicit error card
           destChatBubble.className = 'dest-chat-bubble corrupt-blocked';
           destBubbleContent.innerHTML = `
             <div class="corrupt-alert-badge">TCP CRC Checksum Failed</div>
@@ -698,16 +847,14 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         } else {
           showCallout(calloutReassemblyCard, calloutReassemblyText, calloutReassemblyRect, 'Reordered by Sequence Number ✓');
-          storyHeadline.textContent = 'Step 6: Sequence Reordered & Checksums Verified!';
-          storyCaption.innerHTML = `The recipient device read the <strong>Sequence Numbers</strong> in the packet headers, snapped them into order (1 ➔ 2 ➔ 3), verified all <strong>CRC Checksums</strong>, and popped the message onto the screen!`;
+          storyHeadline.textContent = 'Step 6: Sequence Reordered & Message Displayed!';
+          storyCaption.innerHTML = `The friend\'s phone read the <strong>Sequence Numbers</strong> in the packet headers, snapped them into order (1 ➔ 2 ➔ 3), verified all <strong>CRC Checksums</strong>, and popped the WhatsApp chat bubble onto the screen with double ticks (<code>✓✓</code>)!`;
 
           state.packets.forEach((p, idx) => {
             const slot = document.getElementById(`shelfSlot-${idx}`);
             if (slot) {
               slot.className = 'shelf-slot filled';
               slot.textContent = `#${p.seq} ✓`;
-              slot.style.borderColor = '';
-              slot.style.color = '';
             }
           });
 
@@ -720,6 +867,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         document.getElementById('linkDestMastPhone').classList.add('active-wire');
         document.getElementById('nodeRecipient').classList.add('active-node');
+        updateEnvelopeInspector(0);
         break;
     }
   }
@@ -730,16 +878,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     switch (step) {
       case 0:
-        storyPhasePill.textContent = 'Phase 0 • Domain Selected';
-        storyHeadline.textContent = `Ready to Lookup & Route to ${state.domainName}`;
-        storyCaption.innerHTML = `You selected <code>${state.domainName}</code>. Your browser only knows the human name. Tap <strong>Go ➔</strong> or <strong>Step ❯</strong> to watch DNS resolve the IP and routers steer to the specific server!`;
+        storyPhasePill.textContent = 'Phase 0 • URL Entered';
+        storyHeadline.textContent = `Ready to Request Web Page: ${state.domainName}`;
+        storyCaption.innerHTML = `You typed <code>${state.domainName}</code> into your browser. Computers cannot navigate by words! Watch the 2-phase process: <strong>Phase 1: DNS Resolution</strong> to find the numeric IP, followed by <strong>Phase 2: HTTP GET Request &amp; Response Packet Slicing</strong>.`;
         updateEnvelopeInspector(-1);
         break;
 
       case 1:
-        storyPhasePill.textContent = 'Hop 1 • Wireless Radio Hop';
-        storyHeadline.textContent = 'Step 1: DNS Query Beamed from Phone to Cell Mast';
-        storyCaption.innerHTML = `Your device creates a <strong>DNS Query packet</strong> addressed to DNS Resolver <code>8.8.8.8</code> asking: <em>"What is the IP address for ${state.domainName}?"</em> It beams this through the air via radio waves to the local cell mast.`;
+        storyPhasePill.textContent = 'Hop 1 • DNS Query Beamed';
+        storyHeadline.textContent = `Step 1: DNS Query Beamed from Phone to Cell Mast (UDP)`;
+        storyCaption.innerHTML = `Your browser creates a lightweight <strong>UDP</strong> packet addressed to <strong>DNS Resolver (8.8.8.8)</strong> asking: <em>"What is the IP address for ${state.domainName}?"</em> Why UDP? Because DNS queries are tiny and require low latency without connection handshake overhead.`;
         document.getElementById('nodeSender').classList.add('active-node');
         document.getElementById('linkPhoneMast').classList.add('active-wire');
         document.getElementById('nodeMast').classList.add('active-node');
@@ -747,9 +895,9 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
 
       case 2:
-        storyPhasePill.textContent = 'Hop 2 • Underground Fibre Backhaul';
-        storyHeadline.textContent = 'Step 2: DNS Query Travels Underground to ISP Gateway';
-        storyCaption.innerHTML = `The cell mast converts the radio wave into pulses of light inside underground <strong>fibre-optic cables</strong> and forwards the query packet to the ISP Gateway Router (<code>81.2.14.1</code>).`;
+        storyPhasePill.textContent = 'Hop 2 • Underground Optical Fibre';
+        storyHeadline.textContent = 'Step 2: DNS Query Travels Down Fibre to ISP Gateway';
+        storyCaption.innerHTML = `The cell mast converts the wireless radio waves into pulses of laser light inside underground <strong>fibre-optic cables</strong> and forwards the query packet to the ISP Gateway Router (<code>81.2.14.1</code>).`;
         document.getElementById('nodeMast').classList.add('active-node');
         document.getElementById('linkMastIsp').classList.add('active-wire');
         document.getElementById('nodeIsp').classList.add('active-node');
@@ -760,7 +908,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showCallout(calloutDnsCard, calloutDnsText, calloutDnsRect, `DNS Match: ${state.domainName} ➔ ${state.resolvedIp} (${state.serverLoc})`);
         storyPhasePill.textContent = 'Hop 3 • DNS Directory Match';
         storyHeadline.textContent = `Step 3: DNS Server (8.8.8.8) Resolves Domain to ${state.resolvedIp}`;
-        storyCaption.innerHTML = `The <strong>DNS Resolver (8.8.8.8)</strong> queries its worldwide database. It finds that <code>${state.domainName}</code> maps to IP <code>${state.resolvedIp}</code> located at the <strong>${state.serverLabel} (${state.serverLoc})</strong>. Now packets can be stamped with this destination IP!`;
+        storyCaption.innerHTML = `The <strong>DNS Resolver (8.8.8.8)</strong> looks up its worldwide directory. It finds that <code>${state.domainName}</code> maps to IP <code>${state.resolvedIp}</code> (${state.serverLabel} in ${state.serverLoc}). The DNS server sends this IP reply back so your browser can address the web server directly!`;
         document.getElementById('nodeIsp').classList.add('active-node');
         document.getElementById('linkIspDns').classList.add('active-wire');
         document.getElementById('nodeDns').classList.add('active-node');
@@ -768,46 +916,52 @@ document.addEventListener('DOMContentLoaded', () => {
         break;
 
       case 4:
-        storyPhasePill.textContent = 'Hop 4 • Router Mesh Traversal';
-        storyHeadline.textContent = `Step 4: Request Packet Enters Backbone Router Mesh`;
-        storyCaption.innerHTML = `Armed with destination IP <code>${state.resolvedIp}</code>, the HTTP GET request travels through the backbone routers (Alpha & Beta). Routers inspect the destination IP in the packet header to pick the optimal path!`;
+        storyPhasePill.textContent = 'Hop 4 • HTTP GET Request';
+        showCallout(calloutMeshCard, calloutMeshText, calloutMeshRect, `HTTP GET / (${state.domainName}) routed to ${state.resolvedIp}`);
+        storyHeadline.textContent = `Step 4: HTTP GET Request Routed to ${state.serverLabel}`;
+        storyCaption.innerHTML = `Armed with destination IP <code>${state.resolvedIp}</code>, your browser sends an <strong>HTTP GET /</strong> packet via <strong>TCP (HTTPS Port 443)</strong>. Routers Alpha and Beta read the destination IP header and forward the request to the <strong>${state.serverLabel}</strong>!`;
         document.getElementById('nodeIsp').classList.add('active-node');
         document.getElementById('linkIspAlpha').classList.add('active-wire');
         document.getElementById('nodeAlpha').classList.add('active-node');
         document.getElementById('linkAlphaGamma').classList.add('active-wire');
-        document.getElementById('nodeGamma').classList.add('active-node');
-        updateEnvelopeInspector(0);
-        break;
-
-      case 5:
-        showCallout(calloutMeshCard, calloutMeshText, calloutMeshRect, `Router Gamma steers to ${state.serverLabel} (${state.resolvedIp})`);
-        storyPhasePill.textContent = 'Hop 5 • Targeted Server Routing';
-        storyHeadline.textContent = `Step 5: Router Gamma Steers Directly to ${state.serverLabel}`;
-        storyCaption.innerHTML = `<strong>GCSE Key Concept:</strong> Different websites live on <strong>different physical servers</strong>! Router Gamma reads destination IP <code>${state.resolvedIp}</code> and steers the request down the dedicated cable to the <strong>${state.serverLabel} in ${state.serverLoc}</strong>. Notice how the other servers remain on standby!`;
         document.getElementById('nodeGamma').classList.add('active-node');
         if (targetLink) targetLink.classList.add('active-wire');
         if (targetNode) {
           targetNode.classList.remove('standby-server');
           targetNode.classList.add('active-node');
         }
-        updateEnvelopeInspector(0);
+        updateEnvelopeInspector(-2);
         break;
 
-      case 6:
-        showCallout(calloutReassemblyCard, calloutReassemblyText, calloutReassemblyRect, `${state.domainName} Responded (200 OK) ✓`);
-        storyPhasePill.textContent = 'Hop 6 • Webpage Delivered & Rendered';
-        storyHeadline.textContent = `Step 6: ${state.serverLabel} Responds & Webpage Loads!`;
-        storyCaption.innerHTML = `The <strong>${state.serverLabel}</strong> processes the request and sends the HTML webpage packets back. Your browser validates the checksums, reassembles the HTML, and displays the page!`;
+      case 5:
+        showCallout(calloutMeshCard, calloutMeshText, calloutMeshRect, `${state.serverLabel} slices HTML into 3 response packets`);
+        storyPhasePill.textContent = 'Hop 5 • Server Slices HTML Response';
+        storyHeadline.textContent = `Step 5: ${state.serverLabel} Slices Webpage into 3 Packets`;
+        storyCaption.innerHTML = `<strong>The Server Sends the Site Back in Chunks:</strong> The web page is too large for one packet! The ${state.serverLabel}\'s TCP layer slices the HTML into <strong>3 numbered response packets</strong> (#1 Header, #2 Article Body, #3 CSS/Footer). They travel back independently across Paths A and B!`;
+        document.getElementById('nodeGamma').classList.add('active-node');
+        document.getElementById('linkIspAlpha').classList.add('active-wire');
+        document.getElementById('linkIspBeta').classList.add('active-wire');
+        document.getElementById('nodeAlpha').classList.add('active-node');
+        document.getElementById('nodeBeta').classList.add('active-node');
         if (targetNode) {
           targetNode.classList.remove('standby-server');
           targetNode.classList.add('active-node');
         }
+        updateEnvelopeInspector(1);
+        break;
+
+      case 6:
+        showCallout(calloutReassemblyCard, calloutReassemblyText, calloutReassemblyRect, `${state.domainName} Loaded (200 OK) ✓`);
+        storyPhasePill.textContent = 'Hop 6 • TCP Reassembly & Render';
+        storyHeadline.textContent = `Step 6: Packets Reassembled & Webpage Rendered!`;
+        storyCaption.innerHTML = `The 3 response packets arrived back at your phone. Even though Packet #2 took the longer Path B, your browser\'s TCP layer used the <strong>Sequence Numbers (#1, #2, #3)</strong> to reassemble the HTML perfectly, verified CRC checksums, and displayed the live webpage!`;
         document.getElementById('nodeSender').classList.add('active-node');
 
-        destChatBubble.className = 'dest-chat-bubble';
-        destBubbleContent.innerHTML = `<strong>${state.domainName}</strong> (${state.serverLabel})<br><span style="font-size:11px; color:#a7f3d0;">IP: ${state.resolvedIp} • Location: ${state.serverLoc}</span><br><span style="font-size:11px; color:#38bdf8;">Status: 200 OK (HTTPS Secured)</span>`;
-        destTickMarks.style.display = 'inline';
+        if (destWebView) destWebView.style.display = 'block';
+        if (destChatBubble) destChatBubble.style.display = 'none';
+
         shelfStatusPill.textContent = 'Loaded 200 OK ✓';
+        shelfStatusPill.className = 'shelf-status-pill';
 
         state.packets.forEach((p, idx) => {
           const slot = document.getElementById(`shelfSlot-${idx}`);
@@ -816,6 +970,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slot.textContent = `#${p.seq} ✓`;
           }
         });
+        updateEnvelopeInspector(0);
         break;
     }
   }
@@ -830,7 +985,6 @@ document.addEventListener('DOMContentLoaded', () => {
     storyHeadline.textContent = 'TCP Retransmission in Progress: Sender Resends Packet #2';
     storyCaption.innerHTML = `Recipient issued a <strong>TCP Repeat Request (NACK)</strong> for corrupted Packet #2. Sender immediately transmits a fresh, uncorrupted segment across the network!`;
 
-    // Visually re-animate clean packet #2 flying from sender across network
     const stages = [
       { x: coords.sender.x, y: coords.sender.y },
       { x: coords.mast.x, y: coords.mast.y },
@@ -866,7 +1020,6 @@ document.addEventListener('DOMContentLoaded', () => {
         packetsLayer.appendChild(g);
       } else {
         clearInterval(animTimer);
-        // Clean packet arrived
         state.isCorrupt = false;
         corruptToggleBtn.classList.remove('active');
         if (state.packets[1]) {
@@ -878,8 +1031,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (slot1) {
           slot1.className = 'shelf-slot filled';
           slot1.textContent = '#2 ✓';
-          slot1.style.borderColor = '';
-          slot1.style.color = '';
         }
 
         shelfStatusPill.textContent = 'Verified ✓';
@@ -948,7 +1099,7 @@ document.addEventListener('DOMContentLoaded', () => {
     preparePackets();
   });
 
-  // Scrubber Track interaction (Click or Drag)
+  // Scrubber Track interaction
   scrubberTrack.addEventListener('click', (e) => {
     const rect = scrubberTrack.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
@@ -971,7 +1122,7 @@ document.addEventListener('DOMContentLoaded', () => {
       calloutDnsCard.style.display = 'none';
     } else {
       const matchText = (state.scenario === 'chat')
-        ? `DNS (8.8.8.8): chat.whatsapp.com ➔ 172.56.21.90`
+        ? `WhatsApp Relay IP: 157.240.22.60`
         : `DNS (8.8.8.8): ${state.domainName} ➔ ${state.resolvedIp}`;
       showCallout(calloutDnsCard, calloutDnsText, calloutDnsRect, matchText);
     }
@@ -999,26 +1150,26 @@ document.addEventListener('DOMContentLoaded', () => {
     sendActionBtn.click();
   });
 
-  // Prominent Mode Tabs (WhatsApp vs Website URL)
-  tabModeChat.addEventListener('click', () => {
-    tabModeChat.classList.add('active');
-    tabModeWeb.classList.remove('active');
-    state.scenario = 'chat';
-    senderAppLabel.textContent = 'Chat';
-    senderChatView.style.display = 'flex';
-    senderWebView.style.display = 'none';
+  // Prominent Mode Tabs (Web & DNS vs WhatsApp Cloud Relay)
+  tabModeWeb.addEventListener('click', () => {
+    tabModeWeb.classList.add('active');
+    tabModeChat.classList.remove('active');
+    state.scenario = 'web';
+    senderAppLabel.textContent = 'Browser';
+    senderChatView.style.display = 'none';
+    senderWebView.style.display = 'block';
     stopPlay();
     state.currentStep = 0;
     preparePackets();
   });
 
-  tabModeWeb.addEventListener('click', () => {
-    tabModeWeb.classList.add('active');
-    tabModeChat.classList.remove('active');
-    state.scenario = 'web';
-    senderAppLabel.textContent = 'Web Browser';
-    senderChatView.style.display = 'none';
-    senderWebView.style.display = 'flex';
+  tabModeChat.addEventListener('click', () => {
+    tabModeChat.classList.add('active');
+    tabModeWeb.classList.remove('active');
+    state.scenario = 'chat';
+    senderAppLabel.textContent = 'Chat';
+    senderChatView.style.display = 'block';
+    senderWebView.style.display = 'none';
     stopPlay();
     state.currentStep = 0;
     preparePackets();
@@ -1044,24 +1195,118 @@ document.addEventListener('DOMContentLoaded', () => {
     preparePackets();
   });
 
+  // =========================================================================
+  // INTERACTIVE GCSE TOOLTIPS SYSTEM
+  // =========================================================================
+  function initTooltips() {
+    const tooltipEl = document.getElementById('networkTooltip');
+    if (!tooltipEl) return;
+
+    function showTooltip(key, evt) {
+      const data = TOOLTIP_DATA[key];
+      if (!data) return;
+
+      tooltipEl.innerHTML = `
+        <div class="tooltip-header">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          ${data.title}
+        </div>
+        <div class="tooltip-body">${data.body}</div>
+        ${data.spec ? `<div class="tooltip-spec-tag">${data.spec}</div>` : ''}
+      `;
+      tooltipEl.style.display = 'block';
+      positionTooltip(evt);
+      tooltipEl.classList.add('visible');
+    }
+
+    function hideTooltip() {
+      tooltipEl.classList.remove('visible');
+      tooltipEl.style.display = 'none';
+    }
+
+    function positionTooltip(evt) {
+      const pad = 16;
+      const tWidth = tooltipEl.offsetWidth || 300;
+      const tHeight = tooltipEl.offsetHeight || 120;
+
+      let clientX = evt.clientX;
+      let clientY = evt.clientY;
+
+      if (!clientX && evt.target) {
+        const b = evt.target.getBoundingClientRect();
+        clientX = b.left + b.width / 2;
+        clientY = b.top;
+      }
+
+      let x = (clientX || 100) + 15;
+      let y = (clientY || 100) + 15;
+
+      if (x + tWidth > window.innerWidth - pad) {
+        x = window.innerWidth - tWidth - pad;
+      }
+      if (y + tHeight > window.innerHeight - pad) {
+        y = (clientY || 100) - tHeight - 15;
+      }
+
+      tooltipEl.style.left = `${Math.max(pad, x)}px`;
+      tooltipEl.style.top = `${Math.max(pad, y)}px`;
+    }
+
+    document.querySelectorAll('[data-tooltip-key]').forEach(el => {
+      const key = el.getAttribute('data-tooltip-key');
+      el.addEventListener('mouseenter', (e) => showTooltip(key, e));
+      el.addEventListener('mousemove', (e) => positionTooltip(e));
+      el.addEventListener('mouseleave', hideTooltip);
+      el.addEventListener('click', (e) => {
+        if (tooltipEl.classList.contains('visible') && tooltipEl.getAttribute('data-current-key') === key) {
+          hideTooltip();
+        } else {
+          showTooltip(key, e);
+          tooltipEl.setAttribute('data-current-key', key);
+        }
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('[data-tooltip-key]')) {
+        hideTooltip();
+      }
+    });
+  }
+
   // Initial Journey Setup
+  initTooltips();
   preparePackets();
+
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('mode') === 'chat') {
+    tabModeChat.click();
+  }
 
 
   // =========================================================================
-  // 4. TAB 2: TOPOLOGIES PLAYGROUND (STAR vs BUS vs MESH)
+  // 4. TAB 2: TOPOLOGIES PLAYGROUND & NETWORK BUILDER (STAR, BUS, MESH, CUSTOM)
   // =========================================================================
   const topoPills = document.querySelectorAll('#topoPills .topo-pill');
   const topoSvg = document.getElementById('topoSvg');
+  const topoCanvasContainer = document.getElementById('topoCanvasContainer');
   const topoCurrentTitle = document.getElementById('topoCurrentTitle');
   const topoHealthBadge = document.getElementById('topoHealthBadge');
+  const topoHudHint = document.getElementById('topoHudHint');
   const topoFeedback = document.getElementById('topoFeedback');
   const topoFeedbackIcon = document.getElementById('topoFeedbackIcon');
   const topoFeedbackText = document.getElementById('topoFeedbackText');
   const topoPingBtn = document.getElementById('topoPingBtn');
   const topoRepairBtn = document.getElementById('topoRepairBtn');
   const topoPresetButtons = document.getElementById('topoPresetButtons');
+  const topoToolButtons = document.querySelectorAll('#topoToolButtons .topo-tool-btn');
+  const topoSrcNode = document.getElementById('topoSrcNode');
+  const topoDstNode = document.getElementById('topoDstNode');
 
+  // Diagnostics and exam facts
+  const topoClassifiedTag = document.getElementById('topoClassifiedTag');
+  const metricNodes = document.getElementById('metricNodes');
+  const metricCables = document.getElementById('metricCables');
   const metricCost = document.getElementById('metricCost');
   const metricSpof = document.getElementById('metricSpof');
   const metricCollisions = document.getElementById('metricCollisions');
@@ -1069,641 +1314,1180 @@ document.addEventListener('DOMContentLoaded', () => {
   const factCardTitle = document.getElementById('factCardTitle');
   const factCardBody = document.getElementById('factCardBody');
   const factExamTip = document.getElementById('factExamTip');
+  const factTabBtns = document.querySelectorAll('#factQuickTabs .fact-tab-btn');
 
+  // Graph state
   let currentTopo = 'star';
-  let cutCables = new Set();
-  let isSwitchBroken = false;
-  let isTerminatorBroken = false;
+  let activeTool = null;
+  let cableStartNode = null;
   let isTopoAnimating = false;
+  let nextNodeId = 10;
+
+  // Graph data structures
+  let topoNodes = [];
+  let topoLinks = [];
+
+  // Special hardware fault states
+  let isTerminatorBroken = false;
 
   const topoDefinitions = {
     star: {
-      title: "Star Topology (Central Switch)",
-      cost: "Moderate • O(N) cables",
+      title: "Star Topology (Central Switch Architecture)",
+      cost: "Moderate • O(N) dedicated cables",
       spof: "Central Switch (Single Point of Failure)",
       collisions: "Zero (Dedicated switch ports)",
-      paths: "1 per workstation (Direct)",
+      paths: "1 per workstation (Direct to switch)",
+      tag: "Star Topology",
       factTitle: "Star Topology in GCSE Computer Science",
-      factBody: `In a star network, every workstation connects directly to a central network switch via its own cable.<br>
-      <strong>• Advantage:</strong> If a cable breaks, only that single workstation loses connectivity; the rest of the network continues uninterrupted.<br>
-      <strong>• Disadvantage:</strong> The central switch is a <strong>Single Point of Failure (SPOF)</strong>. If it breaks, the entire network crashes.<br>
-      <strong>• Modern LANs:</strong> Almost all modern schools, offices, and home Wi-Fi/Ethernet setups use star topology.`,
-      examTip: `<strong>AQA Exam Tip:</strong> Questions frequently ask why a star network is better than a bus network. Mention: higher bandwidth (no shared cable), ease of adding new devices without disrupting others, and zero packet collisions thanks to the switch.`
+      factBody: `<p>In a star network, every endpoint (workstation, server, printer) connects directly to a central network switch via its own dedicated cable.</p>
+      <ul>
+        <li><strong>Key Advantage:</strong> Highly reliable. If any individual workstation cable snaps, only that single computer loses connection. The rest of the network operates normally.</li>
+        <li><strong>Easy Scalability:</strong> New computers can be plugged into the central switch at any time without taking down or disrupting the rest of the network.</li>
+        <li><strong>Zero Packet Collisions:</strong> The switch reads MAC addresses and routes frames directly to destination ports, giving full wire bandwidth to each device.</li>
+        <li><strong>Major Disadvantage (SPOF):</strong> The central switch is a <strong>Single Point of Failure (SPOF)</strong>. If the switch hardware or power fails, the entire network immediately collapses!</li>
+        <li><strong>Cable Cost:</strong> Requires high amount of cabling (one long cable per machine running back to the central rack).</li>
+      </ul>`,
+      examTip: `<strong>AQA Exam Tip:</strong> Exam questions frequently ask why a school or business would choose a Star topology over a Bus topology. State at least two reasons: <em>no packet collisions</em> (dedicated bandwidth via switch), <em>easier fault finding</em>, and <em>cable failure only affects one computer</em>!`
     },
     bus: {
-      title: "Bus Topology (Backbone Cable)",
-      cost: "Very Low • 1 shared trunk",
-      spof: "Backbone Cable & Terminators",
-      collisions: "High (Shared carrier collision domain)",
-      paths: "1 shared path for all devices",
+      title: "Bus Topology (Shared Backbone Cable & Terminators)",
+      cost: "Very Low • 1 shared trunk cable",
+      spof: "Backbone Cable & Terminators (SPOF)",
+      collisions: "High (Single shared collision domain)",
+      paths: "1 shared broadcast path",
+      tag: "Bus Topology",
       factTitle: "Bus Topology in GCSE Computer Science",
-      factBody: `All devices connect to a single shared backbone cable. <strong>Terminators</strong> at both ends absorb electrical signals to stop them reflecting back.<br>
-      <strong>• Advantage:</strong> Very cheap to install; uses the least amount of cable.<br>
-      <strong>• Disadvantage 1:</strong> If the backbone cable breaks, signals bounce off the break and collide, causing <strong>total network collapse</strong>.<br>
-      <strong>• Disadvantage 2:</strong> Data is broadcast to everyone; more devices create severe packet collisions and slow performance.`,
-      examTip: `<strong>AQA Exam Tip:</strong> Always remember the role of <em>Terminators</em>: they absorb electrical energy at each end of the backbone cable to prevent <strong>signal reflection</strong> and collisions!`
+      factBody: `<p>All devices connect directly to a single shared central cable called the <strong>Backbone</strong>. A <strong>Terminator</strong> is installed at each physical end of the backbone.</p>
+      <ul>
+        <li><strong>Role of Terminators:</strong> When electrical data signals reach the end of the wire, terminators absorb the electrical energy. Without terminators, signals <strong>reflect (bounce)</strong> back along the wire, causing data corruption and collisions!</li>
+        <li><strong>Key Advantage:</strong> Extremely cheap and simple to install. Uses the minimum possible amount of cabling and requires no costly switches.</li>
+        <li><strong>Catastrophic Disadvantage:</strong> If the central backbone breaks anywhere, or a terminator is detached, signals reflect off the break and <strong>the entire network crashes</strong>!</li>
+        <li><strong>Severe Collisions &amp; Slowdown:</strong> Because all machines share one cable, only one device can transmit at a time. As more machines join, packet collisions multiply exponentially.</li>
+        <li><strong>Low Security:</strong> All data packets pass every workstation's drop cable, allowing any device to eavesdrop.</li>
+      </ul>`,
+      examTip: `<strong>AQA Exam Tip:</strong> Memorise the purpose of <strong>Terminators</strong>: they absorb electrical signals at the ends of the backbone to prevent <strong>signal reflection (bounce)</strong> and packet collisions!`
     },
     mesh: {
-      title: "Mesh Topology (Redundant Links)",
+      title: "Mesh Topology (Fault-Tolerant Redundant Paths)",
       cost: "Very High • O(N²) complex cabling",
-      spof: "None (Self-healing redundancy)",
-      collisions: "Zero (Dynamic routing across mesh)",
-      paths: "Multiple redundant paths",
+      spof: "None (Self-healing dynamic redundancy)",
+      collisions: "Zero (Dynamic point-to-point links)",
+      paths: "Multiple redundant paths per node",
+      tag: "Mesh Topology",
       factTitle: "Mesh Topology in GCSE Computer Science",
-      factBody: `In a mesh network, nodes are interconnected with multiple redundant connections. There is no central switch or shared single trunk.<br>
-      <strong>• Advantage:</strong> Extremely fault-tolerant! If any cable breaks, routing algorithms automatically and instantly steer packets around the failure.<br>
-      <strong>• Disadvantage:</strong> High cost and complex installation; requires massive cabling and sophisticated routing hardware.<br>
-      <strong>• Real-world Uses:</strong> The global Internet backbone, military networks, and wireless mesh Wi-Fi nodes.`,
-      examTip: `<strong>AQA Exam Tip:</strong> Differentiate between <em>Full Mesh</em> (every node connects to every other node) and <em>Partial Mesh</em> (nodes have multiple connections, but not to every single device). Partial mesh is far more practical and cost-effective.`
+      factBody: `<p>In a mesh network, nodes are interconnected with multiple redundant physical or wireless links. There is no central switch or shared single trunk.</p>
+      <ul>
+        <li><strong>Full Mesh vs Partial Mesh:</strong> In a <em>Full Mesh</em>, every single node connects to every other node (requires \(N(N-1)/2\) cables). In a <em>Partial Mesh</em>, nodes have multiple connections to neighbouring nodes, but not necessarily to all nodes.</li>
+        <li><strong>Supreme Fault Tolerance:</strong> <strong>No Single Point of Failure!</strong> If any wire breaks or a node crashes, routing algorithms dynamically reroute data packets along alternate paths with zero downtime.</li>
+        <li><strong>High Privacy &amp; Performance:</strong> Dedicated point-to-point connections guarantee high bandwidth and prevent eavesdropping.</li>
+        <li><strong>Major Disadvantage:</strong> Enormous cabling cost, complex installation, and expensive network hardware with multiple ports.</li>
+        <li><strong>Real-World Use:</strong> The global Internet backbone, military mission-critical networks, and modern wireless mesh home Wi-Fi pods.</li>
+      </ul>`,
+      examTip: `<strong>AQA Exam Tip:</strong> Be ready to explain the difference between <em>Full Mesh</em> (impractical for large wired LANs due to cost) and <em>Partial Mesh</em> (far more realistic, providing redundancy at manageable cost).`
+    },
+    custom: {
+      title: "Custom Network Workbench",
+      cost: "Custom Architecture",
+      spof: "Depends on design",
+      collisions: "Switched / Point-to-point",
+      paths: "Configured by user",
+      tag: "Custom Builder",
+      factTitle: "Designing Resilient Networks",
+      factBody: `<p>You are designing your own network topology! Network engineers balance three critical GCSE trade-offs when designing architectures:</p>
+      <ul>
+        <li><strong>Resilience vs Cost:</strong> Adding backup cables prevents outages (like Mesh), but increases installation expense and complexity.</li>
+        <li><strong>Scalability:</strong> Using switches (Star) makes adding new workstations easy, but leaves the switch as a central Single Point of Failure.</li>
+        <li><strong>Bandwidth &amp; Security:</strong> Point-to-point and switched links prevent collisions and stop unauthorized packet eavesdropping.</li>
+      </ul>`,
+      examTip: `<strong>AQA Exam Tip:</strong> In design scenario questions (e.g., designing a network for a hospital vs a small shop), identify whether reliability (Mesh), budget (Bus), or standard ease-of-use (Star) is the top priority.`
     }
   };
 
-  function updateTopoPresets() {
+  // -------------------------------------------------------------------------
+  // Preset Builders
+  // -------------------------------------------------------------------------
+  function loadStarPreset() {
+    currentTopo = 'star';
+    isTerminatorBroken = false;
+    topoNodes = [
+      { id: 'sw1', label: 'Central Switch', type: 'switch', x: 490, y: 230, isBroken: false },
+      { id: 'pc1', label: 'PC 1', type: 'pc', x: 230, y: 130, ip: '192.168.1.11', isBroken: false },
+      { id: 'pc2', label: 'PC 2', type: 'pc', x: 750, y: 130, ip: '192.168.1.12', isBroken: false },
+      { id: 'pc3', label: 'PC 3', type: 'pc', x: 750, y: 350, ip: '192.168.1.13', isBroken: false },
+      { id: 'pc4', label: 'PC 4', type: 'pc', x: 230, y: 350, ip: '192.168.1.14', isBroken: false },
+      { id: 'srv1', label: 'School Server', type: 'server', x: 490, y: 80, ip: '192.168.1.200', isBroken: false }
+    ];
+
+    topoLinks = [
+      { id: 'link-sw-pc1', from: 'sw1', to: 'pc1', isCut: false },
+      { id: 'link-sw-pc2', from: 'sw1', to: 'pc2', isCut: false },
+      { id: 'link-sw-pc3', from: 'sw1', to: 'pc3', isCut: false },
+      { id: 'link-sw-pc4', from: 'sw1', to: 'pc4', isCut: false },
+      { id: 'link-sw-srv1', from: 'sw1', to: 'srv1', isCut: false }
+    ];
+    renderWorkbench();
+    selectNodeDropdowns('pc1', 'pc4');
+  }
+
+  function loadBusPreset() {
+    currentTopo = 'bus';
+    isTerminatorBroken = false;
+    topoNodes = [
+      { id: 'termA', label: 'Terminator A', type: 'terminator', x: 140, y: 235, isBroken: false },
+      { id: 'termB', label: 'Terminator B', type: 'terminator', x: 840, y: 235, isBroken: false },
+      { id: 'tap1', label: 'Tap 1', type: 'tap', x: 250, y: 235 },
+      { id: 'tap2', label: 'Tap 2', type: 'tap', x: 410, y: 235 },
+      { id: 'tap3', label: 'Tap 3', type: 'tap', x: 570, y: 235 },
+      { id: 'tap4', label: 'Tap 4', type: 'tap', x: 730, y: 235 },
+      { id: 'pc1', label: 'PC 1', type: 'pc', x: 250, y: 120, ip: '192.168.1.11', isBroken: false },
+      { id: 'pc2', label: 'PC 2', type: 'pc', x: 410, y: 350, ip: '192.168.1.12', isBroken: false },
+      { id: 'pc3', label: 'PC 3', type: 'pc', x: 570, y: 120, ip: '192.168.1.13', isBroken: false },
+      { id: 'pc4', label: 'PC 4', type: 'pc', x: 730, y: 350, ip: '192.168.1.14', isBroken: false }
+    ];
+
+    topoLinks = [
+      { id: 'link-bb-left', from: 'termA', to: 'tap1', isCut: false, isBackbone: true },
+      { id: 'link-bb-mid1', from: 'tap1', to: 'tap2', isCut: false, isBackbone: true },
+      { id: 'link-bb-mid2', from: 'tap2', to: 'tap3', isCut: false, isBackbone: true },
+      { id: 'link-bb-mid3', from: 'tap3', to: 'tap4', isCut: false, isBackbone: true },
+      { id: 'link-bb-right', from: 'tap4', to: 'termB', isCut: false, isBackbone: true },
+      { id: 'link-drop-pc1', from: 'tap1', to: 'pc1', isCut: false, isDrop: true },
+      { id: 'link-drop-pc2', from: 'tap2', to: 'pc2', isCut: false, isDrop: true },
+      { id: 'link-drop-pc3', from: 'tap3', to: 'pc3', isCut: false, isDrop: true },
+      { id: 'link-drop-pc4', from: 'tap4', to: 'pc4', isCut: false, isDrop: true }
+    ];
+    renderWorkbench();
+    selectNodeDropdowns('pc1', 'pc4');
+  }
+
+  function loadMeshPreset() {
+    currentTopo = 'mesh';
+    isTerminatorBroken = false;
+    topoNodes = [
+      { id: 'pc1', label: 'PC 1', type: 'pc', x: 240, y: 130, ip: '10.0.0.1', isBroken: false },
+      { id: 'pc2', label: 'PC 2', type: 'pc', x: 740, y: 130, ip: '10.0.0.2', isBroken: false },
+      { id: 'pc3', label: 'PC 3', type: 'pc', x: 740, y: 340, ip: '10.0.0.3', isBroken: false },
+      { id: 'pc4', label: 'PC 4', type: 'pc', x: 240, y: 340, ip: '10.0.0.4', isBroken: false },
+      { id: 'pc5', label: 'Relay Router 5', type: 'router', x: 490, y: 235, ip: '10.0.0.5', isBroken: false }
+    ];
+
+    topoLinks = [
+      { id: 'link-pc1-pc2', from: 'pc1', to: 'pc2', isCut: false },
+      { id: 'link-pc2-pc3', from: 'pc2', to: 'pc3', isCut: false },
+      { id: 'link-pc3-pc4', from: 'pc3', to: 'pc4', isCut: false },
+      { id: 'link-pc4-pc1', from: 'pc4', to: 'pc1', isCut: false },
+      { id: 'link-pc1-pc5', from: 'pc1', to: 'pc5', isCut: false },
+      { id: 'link-pc2-pc5', from: 'pc2', to: 'pc5', isCut: false },
+      { id: 'link-pc3-pc5', from: 'pc3', to: 'pc5', isCut: false },
+      { id: 'link-pc4-pc5', from: 'pc4', to: 'pc5', isCut: false }
+    ];
+    renderWorkbench();
+    selectNodeDropdowns('pc1', 'pc4');
+  }
+
+  function loadCustomPreset() {
+    currentTopo = 'custom';
+    isTerminatorBroken = false;
+    topoNodes = [
+      { id: 'pc1', label: 'Workstation 1', type: 'pc', x: 240, y: 235, ip: '192.168.1.10', isBroken: false },
+      { id: 'sw1', label: 'Central Switch', type: 'switch', x: 490, y: 235, isBroken: false },
+      { id: 'pc2', label: 'Workstation 2', type: 'pc', x: 740, y: 235, ip: '192.168.1.11', isBroken: false }
+    ];
+    topoLinks = [
+      { id: 'link-pc1-sw1', from: 'pc1', to: 'sw1', isCut: false },
+      { id: 'link-pc2-sw1', from: 'pc2', to: 'sw1', isCut: false }
+    ];
+    renderWorkbench();
+    selectNodeDropdowns('pc1', 'pc2');
+  }
+
+  function selectNodeDropdowns(srcId, dstId) {
+    updateNodeDropdowns();
+    if (srcId && topoSrcNode) topoSrcNode.value = srcId;
+    if (dstId && topoDstNode) topoDstNode.value = dstId;
+  }
+
+  function updateNodeDropdowns() {
+    if (!topoSrcNode || !topoDstNode) return;
+    const curSrc = topoSrcNode.value;
+    const curDst = topoDstNode.value;
+
+    const endpoints = topoNodes.filter(n => n.type === 'pc' || n.type === 'server' || n.type === 'router');
+
+    topoSrcNode.innerHTML = '';
+    topoDstNode.innerHTML = '';
+
+    endpoints.forEach(n => {
+      const opt1 = document.createElement('option');
+      opt1.value = n.id;
+      opt1.textContent = n.label;
+      topoSrcNode.appendChild(opt1);
+
+      const opt2 = document.createElement('option');
+      opt2.value = n.id;
+      opt2.textContent = n.label;
+      topoDstNode.appendChild(opt2);
+    });
+
+    if (endpoints.some(n => n.id === curSrc)) {
+      topoSrcNode.value = curSrc;
+    } else if (endpoints[0]) {
+      topoSrcNode.value = endpoints[0].id;
+    }
+
+    if (endpoints.some(n => n.id === curDst)) {
+      topoDstNode.value = curDst;
+    } else if (endpoints[1]) {
+      topoDstNode.value = endpoints[1].id;
+    } else if (endpoints[0]) {
+      topoDstNode.value = endpoints[0].id;
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Scenarios Bar
+  // -------------------------------------------------------------------------
+  function updateTopoScenarios() {
     if (!topoPresetButtons) return;
     topoPresetButtons.innerHTML = '';
 
-    let presets = [];
+    let scenarios = [];
     if (currentTopo === 'star') {
-      presets = [
-        { label: 'Normal Operation', fn: () => { cutCables.clear(); isSwitchBroken = false; renderTopology(); } },
-        { label: 'Cut Node 1 Cable', fn: () => { cutCables.clear(); isSwitchBroken = false; cutCables.add('cable-switch-n1'); renderTopology(); } },
-        { label: 'Cut Node 4 Cable', fn: () => { cutCables.clear(); isSwitchBroken = false; cutCables.add('cable-switch-n4'); renderTopology(); } },
-        { label: 'Crash Central Switch (SPOF)', fn: () => { cutCables.clear(); isSwitchBroken = true; renderTopology(); } }
+      scenarios = [
+        { label: 'Normal Operation', fn: () => { topoLinks.forEach(l => l.isCut = false); const sw = topoNodes.find(n => n.id === 'sw1'); if (sw) sw.isBroken = false; renderWorkbench(); } },
+        { label: 'Cut PC 1 Cable', fn: () => { topoLinks.forEach(l => l.isCut = false); const l = topoLinks.find(x => x.from === 'sw1' && x.to === 'pc1'); if (l) l.isCut = true; renderWorkbench(); } },
+        { label: 'Cut PC 4 Cable', fn: () => { topoLinks.forEach(l => l.isCut = false); const l = topoLinks.find(x => x.from === 'sw1' && x.to === 'pc4'); if (l) l.isCut = true; renderWorkbench(); } },
+        { label: 'Crash Central Switch (SPOF)', fn: () => { const sw = topoNodes.find(n => n.id === 'sw1'); if (sw) sw.isBroken = true; renderWorkbench(); } }
       ];
     } else if (currentTopo === 'bus') {
-      presets = [
-        { label: 'Normal Operation', fn: () => { cutCables.clear(); isTerminatorBroken = false; renderTopology(); } },
-        { label: 'Cut Drop Cable (Node 1)', fn: () => { cutCables.clear(); isTerminatorBroken = false; cutCables.add('cable-drop-n1'); renderTopology(); } },
-        { label: 'Sever Backbone Cable', fn: () => { cutCables.clear(); isTerminatorBroken = false; cutCables.add('cable-backbone'); renderTopology(); } },
-        { label: 'Remove Terminator', fn: () => { cutCables.clear(); isTerminatorBroken = true; renderTopology(); } }
+      scenarios = [
+        { label: 'Normal Operation', fn: () => { topoLinks.forEach(l => l.isCut = false); isTerminatorBroken = false; renderWorkbench(); } },
+        { label: 'Cut Drop Cable (PC 1)', fn: () => { topoLinks.forEach(l => l.isCut = false); isTerminatorBroken = false; const l = topoLinks.find(x => x.id === 'link-drop-pc1'); if (l) l.isCut = true; renderWorkbench(); } },
+        { label: 'Sever Backbone Cable', fn: () => { topoLinks.forEach(l => l.isCut = false); isTerminatorBroken = false; const l = topoLinks.find(x => x.id === 'link-bb-mid2'); if (l) l.isCut = true; renderWorkbench(); } },
+        { label: 'Remove Terminator B (Bounce)', fn: () => { topoLinks.forEach(l => l.isCut = false); isTerminatorBroken = true; renderWorkbench(); } }
+      ];
+    } else if (currentTopo === 'mesh') {
+      scenarios = [
+        { label: 'Normal Operation', fn: () => { topoLinks.forEach(l => l.isCut = false); renderWorkbench(); } },
+        { label: 'Cut Direct Wire (PC 1 ➔ PC 4)', fn: () => { topoLinks.forEach(l => l.isCut = false); const l = topoLinks.find(x => x.id === 'link-pc4-pc1'); if (l) l.isCut = true; renderWorkbench(); } },
+        { label: 'Cut Alternate Wire (PC 1 ➔ Relay)', fn: () => { topoLinks.forEach(l => l.isCut = false); const l = topoLinks.find(x => x.id === 'link-pc1-pc5'); if (l) l.isCut = true; renderWorkbench(); } },
+        { label: 'Isolate PC 4 Completely', fn: () => { topoLinks.forEach(x => { if (x.from === 'pc4' || x.to === 'pc4') x.isCut = true; }); renderWorkbench(); } }
       ];
     } else {
-      presets = [
-        { label: 'Normal Operation', fn: () => { cutCables.clear(); renderTopology(); } },
-        { label: 'Cut Direct Wire (1 ➔ 4)', fn: () => { cutCables.clear(); cutCables.add('cable-n1-n4'); renderTopology(); } },
-        { label: 'Cut Alternate Wire (1 ➔ 5)', fn: () => { cutCables.clear(); cutCables.add('cable-n1-n5'); renderTopology(); } },
-        { label: 'Isolate Node 4 Completely', fn: () => { cutCables.clear(); cutCables.add('cable-n1-n4'); cutCables.add('cable-n3-n4'); cutCables.add('cable-n4-n5'); renderTopology(); } }
+      scenarios = [
+        { label: 'Repair All Wires', fn: () => { topoLinks.forEach(l => l.isCut = false); topoNodes.forEach(n => n.isBroken = false); renderWorkbench(); } },
+        { label: 'Cut First Cable', fn: () => { if (topoLinks[0]) topoLinks[0].isCut = true; renderWorkbench(); } }
       ];
     }
 
-    presets.forEach(p => {
+    scenarios.forEach(s => {
       const btn = document.createElement('button');
       btn.className = 'topo-preset-btn';
-      btn.textContent = p.label;
-      btn.addEventListener('click', p.fn);
+      btn.textContent = s.label;
+      btn.addEventListener('click', s.fn);
       topoPresetButtons.appendChild(btn);
     });
   }
 
+  // -------------------------------------------------------------------------
+  // Main Render Workbench
+  // -------------------------------------------------------------------------
   function renderTopology() {
+    renderWorkbench();
+  }
+
+  function renderWorkbench() {
     topoSvg.innerHTML = '';
-    const def = topoDefinitions[currentTopo];
-    topoCurrentTitle.textContent = def.title;
-    metricCost.textContent = def.cost;
-    metricSpof.textContent = def.spof;
-    metricCollisions.textContent = def.collisions;
-    metricPaths.textContent = def.paths;
-    factCardTitle.innerHTML = def.factTitle;
-    factCardBody.innerHTML = def.factBody;
-    factExamTip.innerHTML = def.examTip;
 
-    updateTopoPresets();
+    // Defs & Background Pattern
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    defs.innerHTML = `
+      <pattern id="topoGridPattern" width="28" height="28" patternUnits="userSpaceOnUse">
+        <circle cx="14" cy="14" r="1.2" fill="rgba(255, 255, 255, 0.1)"></circle>
+      </pattern>
+      <filter id="topoGlow" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="3.5" result="blur"></feGaussianBlur>
+        <feMerge>
+          <feMergeNode in="blur"></feMergeNode>
+          <feMergeNode in="SourceGraphic"></feMergeNode>
+        </feMerge>
+      </filter>
+    `;
+    topoSvg.appendChild(defs);
 
-    // Layers
+    const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bgRect.setAttribute('width', '100%');
+    bgRect.setAttribute('height', '100%');
+    bgRect.setAttribute('fill', 'url(#topoGridPattern)');
+    bgRect.setAttribute('pointer-events', 'none');
+    topoSvg.appendChild(bgRect);
+
+    // Groups for layers
     const linksGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     linksGroup.id = 'topoLinksLayer';
     const packetsGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     packetsGroup.id = 'topoPacketsLayer';
     const nodesGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     nodesGroup.id = 'topoNodesLayer';
+    const overlaysGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    overlaysGroup.id = 'topoOverlaysLayer';
 
     topoSvg.appendChild(linksGroup);
     topoSvg.appendChild(packetsGroup);
     topoSvg.appendChild(nodesGroup);
+    topoSvg.appendChild(overlaysGroup);
 
-    if (currentTopo === 'star') {
-      renderStarTopology(linksGroup, nodesGroup);
-    } else if (currentTopo === 'bus') {
-      renderBusTopology(linksGroup, nodesGroup);
-    } else if (currentTopo === 'mesh') {
-      renderMeshTopology(linksGroup, nodesGroup);
-    }
+    // Draw Links
+    topoLinks.forEach(link => {
+      const fromNode = topoNodes.find(n => n.id === link.from);
+      const toNode = topoNodes.find(n => n.id === link.to);
+      if (!fromNode || !toNode) return;
+      drawCableLink(linksGroup, link, fromNode, toNode);
+    });
 
+    // Draw Nodes
+    topoNodes.forEach(node => {
+      drawWorkbenchNode(nodesGroup, node);
+    });
+
+    updateMetricsAndFacts();
+    updateTopoScenarios();
+    updateNodeDropdowns();
     checkNetworkHealth();
   }
 
-  function renderStarTopology(linksG, nodesG) {
-    const center = { x: 410, y: 200 };
-    const nodes = [
-      { id: 'switch', label: 'Central Switch', isHub: true, x: center.x, y: center.y },
-      { id: 'n1', label: 'Node 1 (Sender)', x: 190, y: 110, ip: '192.168.1.11' },
-      { id: 'n2', label: 'Node 2', x: 630, y: 110, ip: '192.168.1.12' },
-      { id: 'n3', label: 'Node 3', x: 630, y: 290, ip: '192.168.1.13' },
-      { id: 'n4', label: 'Node 4 (Target)', x: 190, y: 290, ip: '192.168.1.14' },
-      { id: 'server', label: 'School Server', x: 410, y: 70, ip: '192.168.1.200' }
-    ];
+  // -------------------------------------------------------------------------
+  // Draw Interactive Cable Link
+  // -------------------------------------------------------------------------
+  function drawCableLink(g, link, fromNode, toNode) {
+    const lg = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    lg.setAttribute('class', 'topo-cable-item');
 
-    nodes.slice(1).forEach(n => {
-      const cableId = `cable-switch-${n.id}`;
-      const isCut = cutCables.has(cableId);
-      drawInteractiveCable(linksG, center.x, center.y, n.x, n.y, cableId, isCut);
-    });
+    const strokeWidth = link.isBackbone ? 6 : (link.isDrop ? 3 : 3.5);
+    const x1 = fromNode.x;
+    const y1 = fromNode.y;
+    const x2 = toNode.x;
+    const y2 = toNode.y;
 
-    // Draw central switch
-    drawTopoSwitch(nodesG, center.x, center.y, isSwitchBroken);
-
-    // Draw workstations
-    nodes.slice(1).forEach(n => {
-      drawTopoWorkstation(nodesG, n.x, n.y, n.label, n.ip, n.id);
-    });
-  }
-
-  function renderBusTopology(linksG, nodesG) {
-    const backboneId = 'cable-backbone';
-    const isBackboneCut = cutCables.has(backboneId);
-
-    // Backbone Trunk Line
-    drawInteractiveCable(linksG, 140, 200, 680, 200, backboneId, isBackboneCut, 6);
-
-    // Terminators at ends
-    drawInteractiveTerminator(nodesG, 130, 200, "Terminator A", isTerminatorBroken);
-    drawInteractiveTerminator(nodesG, 690, 200, "Terminator B", isTerminatorBroken);
-
-    const drops = [
-      { id: 'n1', label: 'Node 1 (Sender)', x: 210, y: 95, bx: 210, by: 200, ip: '192.168.1.11' },
-      { id: 'n2', label: 'Node 2', x: 350, y: 305, bx: 350, by: 200, ip: '192.168.1.12' },
-      { id: 'n3', label: 'Node 3', x: 490, y: 95, bx: 490, by: 200, ip: '192.168.1.13' },
-      { id: 'n4', label: 'Node 4 (Target)', x: 610, y: 305, bx: 610, by: 200, ip: '192.168.1.14' }
-    ];
-
-    drops.forEach(d => {
-      const dropId = `cable-drop-${d.id}`;
-      const isCut = cutCables.has(dropId);
-      drawInteractiveCable(linksG, d.x, d.y, d.bx, d.by, dropId, isCut, 3);
-      drawTopoWorkstation(nodesG, d.x, d.y, d.label, d.ip, d.id);
-    });
-  }
-
-  function renderMeshTopology(linksG, nodesG) {
-    const nodes = [
-      { id: 'n1', label: 'Node 1 (Sender)', x: 200, y: 120, ip: '10.0.0.1' },
-      { id: 'n2', label: 'Node 2', x: 620, y: 120, ip: '10.0.0.2' },
-      { id: 'n3', label: 'Node 3', x: 620, y: 280, ip: '10.0.0.3' },
-      { id: 'n4', label: 'Node 4 (Target)', x: 200, y: 280, ip: '10.0.0.4' },
-      { id: 'n5', label: 'Relay Node 5', x: 410, y: 200, ip: '10.0.0.5', isRelay: true }
-    ];
-
-    const links = [
-      ['n1', 'n2'], ['n2', 'n3'], ['n3', 'n4'], ['n4', 'n1'],
-      ['n1', 'n5'], ['n2', 'n5'], ['n3', 'n5'], ['n4', 'n5']
-    ];
-
-    links.forEach(([a, b]) => {
-      const na = nodes.find(n => n.id === a);
-      const nb = nodes.find(n => n.id === b);
-      const cableId = `cable-${a}-${b}`;
-      const isCut = cutCables.has(cableId);
-      drawInteractiveCable(linksG, na.x, na.y, nb.x, nb.y, cableId, isCut, 3);
-    });
-
-    nodes.forEach(n => {
-      if (n.isRelay) {
-        drawTopoRouter(nodesG, n.x, n.y, n.label, n.ip);
-      } else {
-        drawTopoWorkstation(nodesG, n.x, n.y, n.label, n.ip, n.id);
-      }
-    });
-  }
-
-  // Draw cable with wide clickable hitbox for effortless scissors cutting
-  function drawInteractiveCable(g, x1, y1, x2, y2, cableId, isCut, strokeWidth = 3) {
-    const lineGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-
-    if (isCut) {
-      // Severed visual gap
+    if (link.isCut) {
       const midX = (x1 + x2) / 2;
       const midY = (y1 + y2) / 2;
-      
+
       const line1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       line1.setAttribute('x1', x1); line1.setAttribute('y1', y1);
       line1.setAttribute('x2', x1 + (midX - x1) * 0.7); line1.setAttribute('y2', y1 + (midY - y1) * 0.7);
       line1.setAttribute('stroke', '#ef4444');
       line1.setAttribute('stroke-width', strokeWidth);
-      line1.setAttribute('stroke-dasharray', '4, 4');
+      line1.setAttribute('class', 'topo-cable-severed');
 
       const line2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       line2.setAttribute('x1', x2); line2.setAttribute('y1', y2);
       line2.setAttribute('x2', x2 + (midX - x2) * 0.7); line2.setAttribute('y2', y2 + (midY - y2) * 0.7);
       line2.setAttribute('stroke', '#ef4444');
       line2.setAttribute('stroke-width', strokeWidth);
-      line2.setAttribute('stroke-dasharray', '4, 4');
+      line2.setAttribute('class', 'topo-cable-severed');
 
       // Severed Badge
       const badge = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       badge.setAttribute('transform', `translate(${midX}, ${midY})`);
       const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-      rect.setAttribute('x', '-26'); rect.setAttribute('y', '-10');
-      rect.setAttribute('width', '52'); rect.setAttribute('height', '20');
-      rect.setAttribute('rx', '4');
-      rect.setAttribute('fill', '#ef4444');
-      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      text.setAttribute('font-size', '10');
-      text.setAttribute('font-weight', '800');
-      text.setAttribute('fill', '#ffffff');
-      text.setAttribute('text-anchor', 'middle');
-      text.setAttribute('y', '4');
-      text.textContent = '⚡ SEVERED';
+      rect.setAttribute('x', '-28'); rect.setAttribute('y', '-10');
+      rect.setAttribute('width', '56'); rect.setAttribute('height', '20');
+      rect.setAttribute('class', 'severed-badge-rect');
+      const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      txt.setAttribute('class', 'severed-badge-text');
+      txt.setAttribute('y', '1');
+      txt.textContent = '⚡ SEVERED';
       badge.appendChild(rect);
-      badge.appendChild(text);
+      badge.appendChild(txt);
 
-      lineGroup.appendChild(line1);
-      lineGroup.appendChild(line2);
-      lineGroup.appendChild(badge);
+      lg.appendChild(line1);
+      lg.appendChild(line2);
+      lg.appendChild(badge);
     } else {
-      const visibleLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      visibleLine.setAttribute('x1', x1); visibleLine.setAttribute('y1', y1);
-      visibleLine.setAttribute('x2', x2); visibleLine.setAttribute('y2', y2);
-      visibleLine.setAttribute('stroke', '#334155');
-      visibleLine.setAttribute('stroke-width', strokeWidth);
-      visibleLine.setAttribute('class', 'topo-cable-line');
-      lineGroup.appendChild(visibleLine);
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      line.setAttribute('x1', x1); line.setAttribute('y1', y1);
+      line.setAttribute('x2', x2); line.setAttribute('y2', y2);
+      line.setAttribute('stroke', link.isBackbone ? '#cbd5e1' : '#475569');
+      line.setAttribute('stroke-width', strokeWidth);
+      line.setAttribute('class', 'topo-cable-line healthy');
+      lg.appendChild(line);
     }
 
-    // Invisible wide click hitbox (28px wide)
+    // Wide transparent hitbox for easy clicking/cutting/deleting
     const hitbox = document.createElementNS('http://www.w3.org/2000/svg', 'line');
     hitbox.setAttribute('x1', x1); hitbox.setAttribute('y1', y1);
     hitbox.setAttribute('x2', x2); hitbox.setAttribute('y2', y2);
     hitbox.setAttribute('stroke', 'transparent');
     hitbox.setAttribute('stroke-width', '28');
     hitbox.setAttribute('style', 'cursor: pointer;');
-    hitbox.setAttribute('title', isCut ? 'Click to reconnect wire' : 'Click to cut wire with scissors ✂');
-    hitbox.addEventListener('click', () => toggleCable(cableId));
+    hitbox.setAttribute('title', activeTool === 'delete' ? 'Click to delete this cable' : (link.isCut ? 'Click to reconnect severed cable' : 'Click to snip / sever cable'));
 
-    lineGroup.appendChild(hitbox);
-    g.appendChild(lineGroup);
-  }
+    hitbox.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (activeTool === 'delete') {
+        const fromLabel = fromNode ? fromNode.label : link.from;
+        const toLabel = toNode ? toNode.label : link.to;
+        topoLinks = topoLinks.filter(l => l.id !== link.id);
+        topoFeedbackText.innerHTML = `Deleted cable between <strong>${fromLabel}</strong> and <strong>${toLabel}</strong>.`;
+        renderWorkbench();
+        return;
+      }
 
-  function drawTopoSwitch(g, x, y, isBroken) {
-    const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    grp.setAttribute('transform', `translate(${x}, ${y})`);
-    grp.setAttribute('style', 'cursor: pointer;');
-    grp.setAttribute('title', 'Click to break or repair Central Switch (Single Point of Failure simulation)');
-
-    const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    halo.setAttribute('r', '36');
-    halo.setAttribute('fill', isBroken ? 'rgba(239, 68, 68, 0.2)' : 'rgba(37, 99, 235, 0.1)');
-    halo.setAttribute('stroke', isBroken ? '#ef4444' : '#3b82f6');
-    halo.setAttribute('stroke-width', isBroken ? '3' : '2');
-
-    const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    body.setAttribute('x', '-22'); body.setAttribute('y', '-14');
-    body.setAttribute('width', '44'); body.setAttribute('height', '28');
-    body.setAttribute('rx', '5');
-    body.setAttribute('fill', isBroken ? '#ef4444' : '#1e293b');
-    body.setAttribute('stroke', isBroken ? '#b91c1c' : '#3b82f6');
-    body.setAttribute('stroke-width', '2');
-
-    const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    label.setAttribute('y', '50');
-    label.setAttribute('class', 'node-title');
-    label.setAttribute('font-size', '13');
-    label.setAttribute('font-weight', '800');
-    label.setAttribute('fill', isBroken ? '#ef4444' : 'currentColor');
-    label.textContent = isBroken ? 'SWITCH OFFLINE' : 'Central Switch';
-
-    const sub = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    sub.setAttribute('y', '66');
-    sub.setAttribute('class', 'node-desc');
-    sub.setAttribute('font-size', '10.5');
-    sub.setAttribute('fill', isBroken ? '#ef4444' : 'var(--text-muted)');
-    sub.textContent = isBroken ? 'Single Point of Failure!' : 'Click to Break Switch';
-
-    grp.appendChild(halo);
-    grp.appendChild(body);
-    grp.appendChild(label);
-    grp.appendChild(sub);
-
-    grp.addEventListener('click', () => {
-      isSwitchBroken = !isSwitchBroken;
-      renderTopology();
+      link.isCut = !link.isCut;
+      if (link.isCut) {
+        topoFeedbackText.innerHTML = `Cable severed between <strong>${fromNode.label}</strong> and <strong>${toNode.label}</strong>. Test packet transmission to observe fault handling!`;
+      } else {
+        topoFeedbackText.innerHTML = `Cable reconnected and functional.`;
+      }
+      renderWorkbench();
     });
 
-    g.appendChild(grp);
+    lg.appendChild(hitbox);
+    g.appendChild(lg);
   }
 
-  function drawTopoWorkstation(g, x, y, label, ip, id) {
-    const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    grp.setAttribute('transform', `translate(${x}, ${y})`);
-
-    const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    halo.setAttribute('r', '26');
-    halo.setAttribute('class', 'node-halo halo-device');
-
-    const screen = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    screen.setAttribute('x', '-13'); screen.setAttribute('y', '-12');
-    screen.setAttribute('width', '26'); screen.setAttribute('height', '18');
-    screen.setAttribute('rx', '3');
-    screen.setAttribute('fill', 'none');
-    screen.setAttribute('stroke', 'currentColor');
-    screen.setAttribute('stroke-width', '2');
-
-    const stand = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-    stand.setAttribute('x1', '0'); stand.setAttribute('y1', '6');
-    stand.setAttribute('x2', '0'); stand.setAttribute('y2', '12');
-    stand.setAttribute('stroke', 'currentColor');
-    stand.setAttribute('stroke-width', '2.5');
-
-    const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    title.setAttribute('y', '38');
-    title.setAttribute('class', 'node-title');
-    title.setAttribute('font-size', '12');
-    title.textContent = label;
-
-    const ipText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    ipText.setAttribute('y', '52');
-    ipText.setAttribute('class', 'node-ip');
-    ipText.setAttribute('font-size', '10');
-    ipText.textContent = ip;
-
-    grp.appendChild(halo);
-    grp.appendChild(screen);
-    grp.appendChild(stand);
-    grp.appendChild(title);
-    grp.appendChild(ipText);
-    g.appendChild(grp);
-  }
-
-  function drawTopoRouter(g, x, y, label, ip) {
-    const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    grp.setAttribute('transform', `translate(${x}, ${y})`);
-
-    const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    halo.setAttribute('r', '28');
-    halo.setAttribute('class', 'node-halo halo-router');
-
-    const body = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    body.setAttribute('x', '-14'); body.setAttribute('y', '-11');
-    body.setAttribute('width', '28'); body.setAttribute('height', '22');
-    body.setAttribute('rx', '4');
-    body.setAttribute('class', 'node-router-body');
-
-    const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    title.setAttribute('y', '42');
-    title.setAttribute('class', 'node-title');
-    title.setAttribute('font-size', '12');
-    title.textContent = label;
-
-    grp.appendChild(halo);
-    grp.appendChild(body);
-    grp.appendChild(title);
-    g.appendChild(grp);
-  }
-
-  function drawInteractiveTerminator(g, x, y, label, isBroken) {
-    const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    grp.setAttribute('transform', `translate(${x}, ${y})`);
-    grp.setAttribute('style', 'cursor: pointer;');
-    grp.setAttribute('title', 'Click to remove or restore Terminator');
-
-    const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-    rect.setAttribute('x', '-6'); rect.setAttribute('y', '-18');
-    rect.setAttribute('width', '12'); rect.setAttribute('height', '36');
-    rect.setAttribute('rx', '3');
-    rect.setAttribute('fill', isBroken ? '#475569' : '#ef4444');
-    rect.setAttribute('opacity', isBroken ? '0.3' : '1');
-
-    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('y', '32');
-    text.setAttribute('class', 'node-desc');
-    text.setAttribute('font-size', '10.5');
-    text.setAttribute('fill', isBroken ? '#ef4444' : 'var(--text-muted)');
-    text.textContent = isBroken ? 'MISSING!' : label;
-
-    grp.appendChild(rect);
-    grp.appendChild(text);
-
-    grp.addEventListener('click', () => {
-      isTerminatorBroken = !isTerminatorBroken;
-      renderTopology();
-    });
-
-    g.appendChild(grp);
-  }
-
-  function toggleCable(cableId) {
-    if (cutCables.has(cableId)) {
-      cutCables.delete(cableId);
-    } else {
-      cutCables.add(cableId);
+  // -------------------------------------------------------------------------
+  // Draw Interactive Node
+  // -------------------------------------------------------------------------
+  function drawWorkbenchNode(g, node) {
+    if (node.type === 'tap') {
+      // Tap dot on bus backbone
+      const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      dot.setAttribute('cx', node.x); dot.setAttribute('cy', node.y);
+      dot.setAttribute('r', '6');
+      dot.setAttribute('fill', '#60a5fa');
+      dot.setAttribute('stroke', '#1e293b');
+      dot.setAttribute('stroke-width', '2');
+      g.appendChild(dot);
+      return;
     }
-    renderTopology();
+
+    const grp = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    grp.setAttribute('class', `topo-node-g node-${node.type} ${node.isBroken ? 'broken' : ''} ${cableStartNode && cableStartNode.id === node.id ? 'cable-selected' : ''}`);
+    grp.setAttribute('transform', `translate(${node.x}, ${node.y})`);
+    grp.setAttribute('data-id', node.id);
+
+    // Halo circle
+    const halo = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    halo.setAttribute('r', node.type === 'switch' ? '34' : '28');
+    halo.setAttribute('class', 'node-halo-circle');
+    halo.setAttribute('fill', node.isBroken ? 'rgba(239, 68, 68, 0.2)' : 'rgba(30, 41, 59, 0.7)');
+    halo.setAttribute('stroke', node.isBroken ? '#ef4444' : (node.type === 'switch' ? '#3b82f6' : (node.type === 'server' ? '#8b5cf6' : '#64748b')));
+    halo.setAttribute('stroke-width', '2');
+    grp.appendChild(halo);
+
+    // Visual Icon representation based on device type
+    if (node.type === 'pc') {
+      // Monitor Screen
+      const screen = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      screen.setAttribute('x', '-14'); screen.setAttribute('y', '-13');
+      screen.setAttribute('width', '28'); screen.setAttribute('height', '19');
+      screen.setAttribute('rx', '3');
+      screen.setAttribute('fill', node.isBroken ? '#7f1d1d' : '#1e293b');
+      screen.setAttribute('stroke', node.isBroken ? '#ef4444' : '#94a3b8');
+      screen.setAttribute('stroke-width', '1.8');
+      
+      const stand = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      stand.setAttribute('x1', '0'); stand.setAttribute('y1', '6');
+      stand.setAttribute('x2', '0'); stand.setAttribute('y2', '12');
+      stand.setAttribute('stroke', '#94a3b8');
+      stand.setAttribute('stroke-width', '2.5');
+
+      const base = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      base.setAttribute('x1', '-8'); base.setAttribute('y1', '12');
+      base.setAttribute('x2', '8'); base.setAttribute('y2', '12');
+      base.setAttribute('stroke', '#94a3b8');
+      base.setAttribute('stroke-width', '2');
+
+      grp.appendChild(screen);
+      grp.appendChild(stand);
+      grp.appendChild(base);
+
+    } else if (node.type === 'switch') {
+      // Rack Switch box with ports
+      const box = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      box.setAttribute('x', '-22'); box.setAttribute('y', '-14');
+      box.setAttribute('width', '44'); box.setAttribute('height', '28');
+      box.setAttribute('rx', '4');
+      box.setAttribute('fill', node.isBroken ? '#7f1d1d' : '#0f172a');
+      box.setAttribute('stroke', node.isBroken ? '#ef4444' : '#3b82f6');
+      box.setAttribute('stroke-width', '2');
+
+      // Port indicator LEDs
+      for (let i = -14; i <= 14; i += 7) {
+        const port = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        port.setAttribute('cx', i);
+        port.setAttribute('cy', '0');
+        port.setAttribute('r', '2');
+        port.setAttribute('fill', node.isBroken ? '#ef4444' : '#10b981');
+        grp.appendChild(port);
+      }
+      grp.appendChild(box);
+
+    } else if (node.type === 'server') {
+      // Server Tower / Stack
+      const stack = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      stack.setAttribute('x', '-15'); stack.setAttribute('y', '-17');
+      stack.setAttribute('width', '30'); stack.setAttribute('height', '34');
+      stack.setAttribute('rx', '3');
+      stack.setAttribute('fill', node.isBroken ? '#7f1d1d' : '#1e1b4b');
+      stack.setAttribute('stroke', node.isBroken ? '#ef4444' : '#a855f7');
+      stack.setAttribute('stroke-width', '2');
+
+      // Drive slots
+      [-10, -2, 6].forEach(slotY => {
+        const slot = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        slot.setAttribute('x1', '-10'); slot.setAttribute('y1', slotY);
+        slot.setAttribute('x2', '4'); slot.setAttribute('y2', slotY);
+        slot.setAttribute('stroke', '#cbd5e1'); slot.setAttribute('stroke-width', '1.5');
+        const led = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        led.setAttribute('cx', '9'); led.setAttribute('cy', slotY);
+        led.setAttribute('r', '1.5'); led.setAttribute('fill', '#10b981');
+        grp.appendChild(slot);
+        grp.appendChild(led);
+      });
+      grp.appendChild(stack);
+
+    } else if (node.type === 'router') {
+      // Router disk
+      const disk = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      disk.setAttribute('r', '16');
+      disk.setAttribute('fill', node.isBroken ? '#7f1d1d' : '#083344');
+      disk.setAttribute('stroke', node.isBroken ? '#ef4444' : '#06b6d4');
+      disk.setAttribute('stroke-width', '2');
+      grp.appendChild(disk);
+
+    } else if (node.type === 'terminator') {
+      // Terminator block
+      const term = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      term.setAttribute('x', '-7'); term.setAttribute('y', '-16');
+      term.setAttribute('width', '14'); term.setAttribute('height', '32');
+      term.setAttribute('rx', '3');
+      term.setAttribute('fill', isTerminatorBroken ? '#334155' : '#ef4444');
+      term.setAttribute('opacity', isTerminatorBroken ? '0.3' : '1');
+      grp.appendChild(term);
+    }
+
+    // Title label
+    const title = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    title.setAttribute('y', node.type === 'terminator' ? '32' : (node.type === 'switch' ? '46' : '42'));
+    title.setAttribute('font-size', '11.5');
+    title.setAttribute('font-weight', '800');
+    title.setAttribute('fill', node.isBroken ? '#ef4444' : '#ffffff');
+    title.setAttribute('text-anchor', 'middle');
+    title.textContent = (node.type === 'terminator' && isTerminatorBroken) ? 'MISSING!' : (node.isBroken ? 'OFFLINE (SPOF)' : node.label);
+    grp.appendChild(title);
+
+    // IP badge (if any)
+    if (node.ip && !node.isBroken) {
+      const ipText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      ipText.setAttribute('y', '56');
+      ipText.setAttribute('font-size', '9.5');
+      ipText.setAttribute('font-family', 'var(--font-mono)');
+      ipText.setAttribute('fill', 'var(--text-muted)');
+      ipText.setAttribute('text-anchor', 'middle');
+      ipText.textContent = node.ip;
+      grp.appendChild(ipText);
+    }
+
+    // Dynamic Sender / Receiver Role Badge (Accurately reflects current ping selection)
+    const isSender = (topoSrcNode && topoSrcNode.value === node.id);
+    const isReceiver = (topoDstNode && topoDstNode.value === node.id);
+
+    if ((isSender || isReceiver) && !node.isBroken && node.type !== 'terminator' && node.type !== 'tap') {
+      const badgeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      badgeG.setAttribute('transform', 'translate(0, -32)');
+      badgeG.setAttribute('class', isSender ? 'node-role-sender' : 'node-role-receiver');
+
+      const badgeRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      badgeRect.setAttribute('x', isSender ? '-33' : '-37');
+      badgeRect.setAttribute('y', '-9');
+      badgeRect.setAttribute('width', isSender ? '66' : '74');
+      badgeRect.setAttribute('height', '18');
+      badgeRect.setAttribute('rx', '4');
+      badgeRect.setAttribute('fill', isSender ? '#1d4ed8' : '#047857');
+      badgeRect.setAttribute('stroke', isSender ? '#93c5fd' : '#6ee7b7');
+      badgeRect.setAttribute('stroke-width', '1.5');
+
+      const badgeTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      badgeTxt.setAttribute('y', '3.5');
+      badgeTxt.setAttribute('font-size', '9.5');
+      badgeTxt.setAttribute('font-weight', '800');
+      badgeTxt.setAttribute('fill', '#ffffff');
+      badgeTxt.setAttribute('text-anchor', 'middle');
+      badgeTxt.textContent = isSender ? 'SENDER' : 'RECEIVER';
+
+      badgeG.appendChild(badgeRect);
+      badgeG.appendChild(badgeTxt);
+      grp.appendChild(badgeG);
+    }
+
+    // Interactions
+    setupNodeInteractivity(grp, node);
+
+    g.appendChild(grp);
   }
 
+  // -------------------------------------------------------------------------
+  // Node Interactivity: Context-Aware Move, Cable, Snip, Delete
+  // -------------------------------------------------------------------------
+  function setupNodeInteractivity(elem, node) {
+    let isDragging = false;
+    let didMove = false;
+    let startX = 0;
+    let startY = 0;
+    let ignoreNextClick = false;
+
+    elem.addEventListener('mousedown', (e) => {
+      if (e.button !== 0) return; // Only primary mouse button
+      isDragging = true;
+      didMove = false;
+      startX = e.clientX;
+      startY = e.clientY;
+
+      const onMouseMove = (moveEvt) => {
+        if (!isDragging) return;
+        const dx = moveEvt.clientX - startX;
+        const dy = moveEvt.clientY - startY;
+        if (Math.hypot(dx, dy) > 4) {
+          didMove = true;
+          elem.classList.add('dragging');
+        }
+        if (!didMove) return;
+
+        const rect = topoSvg.getBoundingClientRect();
+        const svgW = 980;
+        const svgH = 470;
+        const scaleX = svgW / rect.width;
+        const scaleY = svgH / rect.height;
+
+        const newX = Math.max(35, Math.min(svgW - 35, (moveEvt.clientX - rect.left) * scaleX));
+        const newY = Math.max(35, Math.min(svgH - 45, (moveEvt.clientY - rect.top) * scaleY));
+
+        node.x = Math.round(newX);
+        node.y = Math.round(newY);
+
+        renderWorkbench();
+      };
+
+      const onMouseUp = () => {
+        if (didMove) {
+          ignoreNextClick = true;
+          setTimeout(() => { ignoreNextClick = false; }, 60);
+        }
+        isDragging = false;
+        elem.classList.remove('dragging');
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+      };
+
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    });
+
+    elem.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (ignoreNextClick) return;
+
+      if (activeTool === 'cable') {
+        if (!cableStartNode) {
+          cableStartNode = node;
+          topoHudHint.innerHTML = `<strong>Cable Mode:</strong> Selected <em>${node.label}</em>. Now click the second device to connect them!`;
+          renderWorkbench();
+        } else if (cableStartNode.id === node.id) {
+          cableStartNode = null;
+          topoHudHint.innerHTML = `Cancelled cable connection.`;
+          renderWorkbench();
+        } else {
+          // Connect cable between cableStartNode and node
+          const existing = topoLinks.find(l => (l.from === cableStartNode.id && l.to === node.id) || (l.from === node.id && l.to === cableStartNode.id));
+          if (!existing) {
+            topoLinks.push({
+              id: `link-${cableStartNode.id}-${node.id}-${Date.now()}`,
+              from: cableStartNode.id,
+              to: node.id,
+              isCut: false
+            });
+            topoFeedbackText.innerHTML = `Connected Ethernet cable between <strong>${cableStartNode.label}</strong> and <strong>${node.label}</strong>.`;
+          }
+          cableStartNode = null;
+          topoHudHint.innerHTML = `Cable connected! Drag devices to rearrange or select another tool.`;
+          renderWorkbench();
+        }
+
+      } else if (activeTool === 'cut') {
+        if (node.type === 'terminator') {
+          isTerminatorBroken = !isTerminatorBroken;
+          topoFeedbackText.innerHTML = isTerminatorBroken ? `<strong style="color:#ef4444;">Terminator Removed!</strong> Signals will reflect and bounce down the bus cable.` : `Terminator restored. Signals are properly absorbed.`;
+        } else {
+          node.isBroken = !node.isBroken;
+          topoFeedbackText.innerHTML = node.isBroken ? `<strong style="color:#ef4444;">${node.label} Failed!</strong> Testing network tolerance to hardware outage.` : `${node.label} restored and back online.`;
+        }
+        renderWorkbench();
+
+      } else if (activeTool === 'delete') {
+        topoNodes = topoNodes.filter(n => n.id !== node.id);
+        topoLinks = topoLinks.filter(l => l.from !== node.id && l.to !== node.id);
+        if (cableStartNode && cableStartNode.id === node.id) cableStartNode = null;
+        topoFeedbackText.innerHTML = `Deleted device <strong>${node.label}</strong> and its connected cables.`;
+        renderWorkbench();
+
+      } else {
+        topoFeedbackText.innerHTML = `Selected <strong>${node.label}</strong>${node.ip ? ` (${node.ip})` : ''}. Drag to reposition anywhere on the canvas.`;
+      }
+    });
+  }
+
+  // Helper generators for unique node identifiers and IPs
+  function getNextPcInfo() {
+    const usedNumbers = new Set();
+    const usedIps = new Set();
+    topoNodes.forEach(n => {
+      if (n.type === 'pc') {
+        const match = n.label && n.label.match(/PC\s*(\d+)/i);
+        if (match) usedNumbers.add(parseInt(match[1], 10));
+      }
+      if (n.ip) {
+        const ipMatch = n.ip.match(/192\.168\.1\.(\d+)/);
+        if (ipMatch) usedIps.add(parseInt(ipMatch[1], 10));
+      }
+    });
+
+    let num = 1;
+    while (usedNumbers.has(num)) num++;
+
+    let ipLastOctet = 10 + num;
+    while (usedIps.has(ipLastOctet)) ipLastOctet++;
+
+    return {
+      label: `PC ${num}`,
+      ip: `192.168.1.${ipLastOctet}`
+    };
+  }
+
+  function getNextSwitchLabel() {
+    const switchCount = topoNodes.filter(n => n.type === 'switch').length;
+    if (switchCount === 0) return 'Central Switch';
+    return `Switch ${switchCount + 1}`;
+  }
+
+  function getNextServerInfo() {
+    const serverNodes = topoNodes.filter(n => n.type === 'server');
+    if (serverNodes.length === 0) {
+      return { label: 'Server', ip: '192.168.1.200' };
+    }
+    const num = serverNodes.length + 1;
+    return { label: `Server ${num}`, ip: `192.168.1.${200 + serverNodes.length}` };
+  }
+
+  // Canvas click to add devices
+  topoSvg.addEventListener('click', (e) => {
+    if (activeTool === 'add-pc' || activeTool === 'add-switch' || activeTool === 'add-server') {
+      const rect = topoSvg.getBoundingClientRect();
+      const svgW = 980;
+      const svgH = 470;
+      const x = Math.round((e.clientX - rect.left) * (svgW / rect.width));
+      const y = Math.round((e.clientY - rect.top) * (svgH / rect.height));
+
+      if (activeTool === 'add-pc') {
+        const id = `pc_${nextNodeId++}`;
+        const pcInfo = getNextPcInfo();
+        topoNodes.push({ id, label: pcInfo.label, type: 'pc', x, y, ip: pcInfo.ip, isBroken: false });
+        topoFeedbackText.innerHTML = `Placed <strong>${pcInfo.label}</strong> (${pcInfo.ip}) on canvas. Use <strong>Cable</strong> to connect it to the network!`;
+      } else if (activeTool === 'add-switch') {
+        const id = `sw_${nextNodeId++}`;
+        const label = getNextSwitchLabel();
+        topoNodes.push({ id, label, type: 'switch', x, y, isBroken: false });
+        topoFeedbackText.innerHTML = `Placed <strong>${label}</strong> on canvas. Connect workstations to it to build a Star network.`;
+      } else if (activeTool === 'add-server') {
+        const id = `srv_${nextNodeId++}`;
+        const srvInfo = getNextServerInfo();
+        topoNodes.push({ id, label: srvInfo.label, type: 'server', x, y, ip: srvInfo.ip, isBroken: false });
+        topoFeedbackText.innerHTML = `Placed <strong>${srvInfo.label}</strong> on canvas.`;
+      }
+      renderWorkbench();
+    }
+  });
+
+  // -------------------------------------------------------------------------
+  // Tool Modes Switching
+  // -------------------------------------------------------------------------
+  topoToolButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tool = btn.dataset.tool;
+
+      // Toggle off if clicking the already-selected tool
+      if (activeTool === tool) {
+        activeTool = null;
+        btn.classList.remove('active');
+        cableStartNode = null;
+        topoSvg.classList.remove('cursor-crosshair', 'cursor-scissors', 'cursor-delete');
+        topoHudHint.innerHTML = `Drag any device to move. Select a tool from the dock to add devices, connect cables, or snip.`;
+        renderWorkbench();
+        return;
+      }
+
+      topoToolButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeTool = tool;
+      cableStartNode = null;
+
+      // Cursor states
+      topoSvg.classList.remove('cursor-crosshair', 'cursor-scissors', 'cursor-delete');
+      if (activeTool === 'cable' || activeTool === 'add-pc' || activeTool === 'add-switch' || activeTool === 'add-server') {
+        topoSvg.classList.add('cursor-crosshair');
+      } else if (activeTool === 'cut') {
+        topoSvg.classList.add('cursor-scissors');
+      } else if (activeTool === 'delete') {
+        topoSvg.classList.add('cursor-delete');
+      }
+
+      // Hints
+      if (activeTool === 'add-pc') topoHudHint.innerHTML = `<strong>Add PC:</strong> Click anywhere on the grid canvas to place a Workstation PC.`;
+      if (activeTool === 'add-switch') topoHudHint.innerHTML = `<strong>Add Switch:</strong> Click on the canvas to place a Central Switch.`;
+      if (activeTool === 'add-server') topoHudHint.innerHTML = `<strong>Add Server:</strong> Click on the canvas to place a Dedicated Server.`;
+      if (activeTool === 'cable') topoHudHint.innerHTML = `<strong>Connect Cable:</strong> Click the first device, then click the second device to link them.`;
+      if (activeTool === 'cut') topoHudHint.innerHTML = `<strong>Snip / Cut:</strong> Click any cable to snip it, or click a switch to simulate hardware crash.`;
+      if (activeTool === 'delete') topoHudHint.innerHTML = `<strong>Delete:</strong> Click any device or cable to remove it from the network.`;
+
+      renderWorkbench();
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Topology Recognition & Diagnostics Updates
+  // -------------------------------------------------------------------------
+  function updateMetricsAndFacts() {
+    const pcCount = topoNodes.filter(n => n.type === 'pc' || n.type === 'server' || n.type === 'router').length;
+    const switchCount = topoNodes.filter(n => n.type === 'switch').length;
+    const cableCount = topoLinks.length;
+    const cutCount = topoLinks.filter(l => l.isCut).length;
+
+    metricNodes.textContent = `${pcCount} Endpoints ${switchCount > 0 ? `+ ${switchCount} Switch` : ''}`;
+    metricCables.textContent = `${cableCount} Links (${cutCount} severed)`;
+
+    // Detect topology automatically
+    let detected = currentTopo;
+    if (switchCount === 1 && cableCount >= pcCount && currentTopo !== 'bus') {
+      detected = 'star';
+    } else if (topoNodes.some(n => n.type === 'terminator') || topoLinks.some(l => l.isBackbone)) {
+      detected = 'bus';
+    } else if (pcCount >= 4 && cableCount >= pcCount * 1.4) {
+      detected = 'mesh';
+    }
+
+    const def = topoDefinitions[detected] || topoDefinitions.custom;
+    if (topoCurrentTitle) topoCurrentTitle.innerHTML = def.title;
+    topoClassifiedTag.textContent = def.tag;
+    metricCost.textContent = def.cost;
+    metricSpof.textContent = def.spof;
+    metricCollisions.textContent = def.collisions;
+    metricPaths.textContent = def.paths;
+
+    factCardTitle.innerHTML = def.factTitle;
+    factCardBody.innerHTML = def.factBody;
+    factExamTip.innerHTML = def.examTip;
+
+    // Active fact tab button
+    factTabBtns.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.fact === detected);
+    });
+  }
+
+  // Quick fact tab switching
+  factTabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      factTabBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const target = btn.dataset.fact;
+      const def = topoDefinitions[target] || topoDefinitions.star;
+      factCardTitle.innerHTML = def.factTitle;
+      factCardBody.innerHTML = def.factBody;
+      factExamTip.innerHTML = def.examTip;
+    });
+  });
+
+  // -------------------------------------------------------------------------
+  // Network Health Check
+  // -------------------------------------------------------------------------
   function checkNetworkHealth() {
+    const hasBrokenSwitch = topoNodes.some(n => n.type === 'switch' && n.isBroken);
+    const hasCutBackbone = topoLinks.some(l => l.isBackbone && l.isCut);
+    const cutCount = topoLinks.filter(l => l.isCut).length;
+
     if (currentTopo === 'star') {
-      if (isSwitchBroken) {
+      if (hasBrokenSwitch) {
         topoHealthBadge.className = 'topo-health-badge offline';
         topoHealthBadge.textContent = '● TOTAL NETWORK CRASH (SPOF)';
         topoFeedbackIcon.textContent = '✕';
-        topoFeedbackText.innerHTML = `<strong style="color:#ef4444;">Central Switch Failed!</strong> Because all devices connect through the switch, NO devices can communicate. This is the classic GCSE <em>Single Point of Failure</em>!`;
-      } else if (cutCables.has('cable-switch-n1')) {
+        topoFeedbackText.innerHTML = `<strong style="color:#ef4444;">Central Switch Failed!</strong> Because all devices connect through the switch, NO devices can communicate. This is the classic GCSE <em>Single Point of Failure (SPOF)</em>!`;
+      } else if (cutCount > 0) {
         topoHealthBadge.className = 'topo-health-badge degraded';
-        topoHealthBadge.textContent = '● Partial Outage (Node 1 Isolated)';
+        topoHealthBadge.textContent = `● Isolated Devices (${cutCount} severed)`;
         topoFeedbackIcon.textContent = '!';
-        topoFeedbackText.innerHTML = `<strong>Node 1 Disconnected:</strong> Only Node 1 lost connection. All other workstations (Nodes 2, 3, 4, Server) communicate normally at full speed!`;
-      } else if (cutCables.has('cable-switch-n4')) {
-        topoHealthBadge.className = 'topo-health-badge degraded';
-        topoHealthBadge.textContent = '● Partial Outage (Node 4 Isolated)';
-        topoFeedbackIcon.textContent = '!';
-        topoFeedbackText.innerHTML = `<strong>Node 4 Disconnected:</strong> Node 4 cannot receive data, but the rest of the star network is completely unaffected.`;
-      } else if (cutCables.size > 0) {
-        topoHealthBadge.className = 'topo-health-badge degraded';
-        topoHealthBadge.textContent = `● Isolated Devices (${cutCables.size} cables cut)`;
-        topoFeedbackIcon.textContent = 'i';
-        topoFeedbackText.innerHTML = `Workstations with cut cables are isolated. The remaining devices continue operating normally through the switch.`;
+        topoFeedbackText.innerHTML = `<strong>Cable Severed:</strong> Only machines with broken cables are disconnected. The rest of the star network continues communicating at full wire speed!`;
       } else {
         topoHealthBadge.className = 'topo-health-badge online';
         topoHealthBadge.textContent = '● 100% Operational';
         topoFeedbackIcon.textContent = '✓';
-        topoFeedbackText.innerHTML = `Star network fully online. Central switch directly forwards frames to destination ports without packet collisions.`;
+        topoFeedbackText.innerHTML = `Star network fully online. The central switch routes frames directly to destination ports without packet collisions.`;
       }
+
     } else if (currentTopo === 'bus') {
-      if (cutCables.has('cable-backbone')) {
+      if (hasCutBackbone) {
         topoHealthBadge.className = 'topo-health-badge offline';
-        topoHealthBadge.textContent = '● TOTAL NETWORK FAILURE';
+        topoHealthBadge.textContent = '● TOTAL NETWORK COLLAPSE';
         topoFeedbackIcon.textContent = '✕';
         topoFeedbackText.innerHTML = `<strong style="color:#ef4444;">Backbone Severed!</strong> Without a continuous cable, signals hit the break and bounce back. Colliding signals destroy all traffic across the entire bus!`;
       } else if (isTerminatorBroken) {
         topoHealthBadge.className = 'topo-health-badge offline';
         topoHealthBadge.textContent = '● SIGNAL BOUNCE / REFLECTION';
         topoFeedbackIcon.textContent = '!';
-        topoFeedbackText.innerHTML = `<strong style="color:#ef4444;">Missing Terminator:</strong> Signals reach the end of the cable without being absorbed. They reflect back down the bus and collide with oncoming packets!`;
-      } else if (cutCables.has('cable-drop-n1') || cutCables.has('cable-drop-n4')) {
+        topoFeedbackText.innerHTML = `<strong style="color:#ef4444;">Missing Terminator:</strong> Signals reach the cable end without absorption. They reflect back down the bus and collide with oncoming packets!`;
+      } else if (cutCount > 0) {
         topoHealthBadge.className = 'topo-health-badge degraded';
         topoHealthBadge.textContent = '● Drop Cable Severed';
         topoFeedbackIcon.textContent = 'i';
-        topoFeedbackText.innerHTML = `A drop cable broke. Only that single device loses access; the backbone cable continues functioning.`;
+        topoFeedbackText.innerHTML = `A drop cable is severed. Only that single workstation lost access; the shared backbone remains functional.`;
       } else {
         topoHealthBadge.className = 'topo-health-badge online';
         topoHealthBadge.textContent = '● 100% Operational';
         topoFeedbackIcon.textContent = '✓';
-        topoFeedbackText.innerHTML = `Bus network online. Broadcast signals reach all nodes; terminators absorb excess energy at both ends.`;
+        topoFeedbackText.innerHTML = `Bus network online. Broadcast signals reach all nodes; terminators absorb excess energy at both cable ends.`;
       }
-    } else if (currentTopo === 'mesh') {
-      const isDirectCut = cutCables.has('cable-n1-n4');
-      const isAlt1Cut = cutCables.has('cable-n1-n5');
-      const isAlt2Cut = cutCables.has('cable-n4-n5');
 
-      if (isDirectCut && (isAlt1Cut || isAlt2Cut) && cutCables.has('cable-n3-n4')) {
-        topoHealthBadge.className = 'topo-health-badge offline';
-        topoHealthBadge.textContent = '● Path Disconnected';
-        topoFeedbackIcon.textContent = '❌';
-        topoFeedbackText.innerHTML = `<strong style="color:#ef4444;">All Redundant Routes Cut:</strong> Node 4 is completely isolated because all redundant cables were severed.`;
-      } else if (isDirectCut) {
+    } else if (currentTopo === 'mesh') {
+      const link14 = topoLinks.find(l => (l.from === 'pc1' && l.to === 'pc4') || (l.from === 'pc4' && l.to === 'pc1'));
+      const directCut = link14 ? link14.isCut : false;
+
+      if (cutCount >= 3) {
+        topoHealthBadge.className = 'topo-health-badge degraded';
+        topoHealthBadge.textContent = `● High Fault Tolerance (${cutCount} cuts)`;
+        topoFeedbackIcon.textContent = '⚡';
+        topoFeedbackText.innerHTML = `Multiple cables severed, but mesh routing algorithms find alternate redundant routes around broken links!`;
+      } else if (directCut) {
         topoHealthBadge.className = 'topo-health-badge degraded';
         topoHealthBadge.textContent = '● Dynamic Rerouting Active';
         topoFeedbackIcon.textContent = '⚡';
-        topoFeedbackText.innerHTML = `<span style="color:#10b981; font-weight:800;">Self-Healing Mesh:</span> Direct wire (Node 1 ➔ Node 4) is severed! The mesh network automatically reroutes data via <strong>Relay Node 5</strong> with zero downtime.`;
+        topoFeedbackText.innerHTML = `<span style="color:#10b981; font-weight:800;">Self-Healing Mesh:</span> Direct wire (PC 1 ➔ PC 4) is cut! The mesh network automatically and seamlessly reroutes traffic around the failure with zero downtime.`;
       } else {
         topoHealthBadge.className = 'topo-health-badge online';
         topoHealthBadge.textContent = '● 100% Operational (Redundant)';
         topoFeedbackIcon.textContent = '✓';
-        topoFeedbackText.innerHTML = `Mesh network online. Multiple redundant connections ensure no single point of failure exists!`;
+        topoFeedbackText.innerHTML = `Mesh network online. Multiple redundant connections guarantee no single point of failure exists!`;
       }
+    } else {
+      topoHealthBadge.className = 'topo-health-badge online';
+      topoHealthBadge.textContent = `● Custom Lab (${topoNodes.length} devices)`;
+      topoFeedbackIcon.textContent = '✓';
+      topoFeedbackText.innerHTML = `Custom network ready. Select source &amp; destination nodes above to test packet delivery.`;
     }
   }
 
-  // Animated Packet Transmission Simulation across Topologies
-  function sendTopoPacket() {
-    if (isTopoAnimating) return;
-    isTopoAnimating = true;
-    const packetsG = document.getElementById('topoPacketsLayer');
-    if (!packetsG) { isTopoAnimating = false; return; }
-    packetsG.innerHTML = '';
+  // -------------------------------------------------------------------------
+  // Pathfinding (BFS)
+  // -------------------------------------------------------------------------
+  function findGraphPath(startId, targetId) {
+    if (startId === targetId) return [startId];
 
-    topoPingBtn.disabled = true;
-    topoPingBtn.textContent = '⏳ Transmitting...';
+    const queue = [[startId]];
+    const visited = new Set([startId]);
 
-    if (currentTopo === 'star') {
-      // Node 1 (190, 110) -> Switch (410, 200) -> Node 4 (190, 290)
-      const p1Cut = cutCables.has('cable-switch-n1');
-      const p4Cut = cutCables.has('cable-switch-n4');
+    while (queue.length > 0) {
+      const path = queue.shift();
+      const current = path[path.length - 1];
 
-      animateLinePacket(packetsG, 190, 110, 410, 200, '#3b82f6', (progress) => {
-        if (p1Cut && progress > 0.3) {
-          showTopoBurst(packetsG, 190 + 66, 110 + 27, '#ef4444', 'Dropped at break');
-          finishTopoAnimation('Dropped: Cable to switch is cut! Packet could not reach the switch.');
-          return false;
+      if (current === targetId) return path;
+
+      // Find non-severed neighbors whose node is not broken
+      const connectedLinks = topoLinks.filter(l => !l.isCut && (l.from === current || l.to === current));
+      for (const link of connectedLinks) {
+        const neighborId = link.from === current ? link.to : link.from;
+        const neighborNode = topoNodes.find(n => n.id === neighborId);
+
+        if (!neighborNode || neighborNode.isBroken) continue;
+
+        if (!visited.has(neighborId)) {
+          visited.add(neighborId);
+          queue.push([...path, neighborId]);
         }
-        return true;
-      }, () => {
-        // Reached switch!
-        if (isSwitchBroken) {
-          showTopoBurst(packetsG, 410, 200, '#ef4444', 'SWITCH DEAD');
-          finishTopoAnimation('Dropped: Central Switch is broken! Single Point of Failure stopped the packet.');
-          return;
-        }
-
-        // Forwarding to Node 4
-        animateLinePacket(packetsG, 410, 200, 190, 290, '#10b981', (progress) => {
-          if (p4Cut && progress > 0.3) {
-            showTopoBurst(packetsG, 410 - 66, 200 + 27, '#ef4444', 'Cable to Node 4 Cut');
-            finishTopoAnimation('Dropped: Outgoing cable to Node 4 is cut. Switch could not deliver packet.');
-            return false;
-          }
-          return true;
-        }, () => {
-          showTopoBurst(packetsG, 190, 290, '#10b981', 'Delivered ✓');
-          finishTopoAnimation('Success: Central switch forwarded packet directly to Node 4 port without broadcasting to other machines.');
-        });
-      });
-
-    } else if (currentTopo === 'bus') {
-      // Node 1 (210, 95) -> Tap (210, 200) -> Broadcasts left and right
-      const drop1Cut = cutCables.has('cable-drop-n1');
-      const backboneCut = cutCables.has('cable-backbone');
-
-      animateLinePacket(packetsG, 210, 95, 210, 200, '#3b82f6', (prog) => {
-        if (drop1Cut && prog > 0.3) {
-          showTopoBurst(packetsG, 210, 130, '#ef4444', 'Drop Cut');
-          finishTopoAnimation('Dropped: Drop cable from Node 1 is cut; packet cannot enter backbone.');
-          return false;
-        }
-        return true;
-      }, () => {
-        // On backbone!
-        if (backboneCut) {
-          animateLinePacket(packetsG, 210, 200, 410, 200, '#ef4444', () => true, () => {
-            showTopoBurst(packetsG, 410, 200, '#ef4444', 'COLLISION / REFLECT');
-            finishTopoAnimation('Fatal Crash: Packet hit severed backbone! Signals reflect and collide, taking down the whole bus.');
-          });
-          return;
-        }
-
-        if (isTerminatorBroken) {
-          animateLinePacket(packetsG, 210, 200, 690, 200, '#f59e0b', () => true, () => {
-            showTopoBurst(packetsG, 690, 200, '#ef4444', 'SIGNAL BOUNCE');
-            finishTopoAnimation('Error: Missing terminator! Signal bounced off cable end and caused a data collision.');
-          });
-          return;
-        }
-
-        // Normal transmission along bus to Node 4 tap (610, 200) and down to (610, 305)
-        animateLinePacket(packetsG, 210, 200, 610, 200, '#10b981', () => true, () => {
-          if (cutCables.has('cable-drop-n4')) {
-            showTopoBurst(packetsG, 610, 240, '#ef4444', 'Drop 4 Cut');
-            finishTopoAnimation('Dropped: Node 4 drop cable is severed; packet passed along bus without reaching workstation.');
-          } else {
-            animateLinePacket(packetsG, 610, 200, 610, 305, '#10b981', () => true, () => {
-              showTopoBurst(packetsG, 610, 305, '#10b981', 'Accepted ✓');
-              finishTopoAnimation('Success: Broadcast signal traveled along the bus. Node 4 accepted its packet, and terminators absorbed leftover energy.');
-            });
-          }
-        });
-      });
-
-    } else if (currentTopo === 'mesh') {
-      const directCut = cutCables.has('cable-n1-n4');
-      const relay1Cut = cutCables.has('cable-n1-n5');
-      const relay2Cut = cutCables.has('cable-n4-n5');
-
-      if (!directCut) {
-        // Direct route Node 1 -> Node 4
-        animateLinePacket(packetsG, 200, 120, 200, 280, '#10b981', () => true, () => {
-          showTopoBurst(packetsG, 200, 280, '#10b981', 'Delivered (Direct) ✓');
-          finishTopoAnimation('Success (Direct Path): Packet traveled directly from Node 1 to Node 4 (1 hop, fastest).');
-        });
-      } else if (!relay1Cut && !relay2Cut) {
-        // Self-healing detour via Relay Node 5!
-        topoFeedbackText.innerHTML = `<span style="color:#10b981;">Direct cable severed! Rerouting dynamically via Relay Node 5...</span>`;
-        animateLinePacket(packetsG, 200, 120, 410, 200, '#06b6d4', () => true, () => {
-          showTopoBurst(packetsG, 410, 200, '#06b6d4', 'Rerouted ➔');
-          animateLinePacket(packetsG, 410, 200, 200, 280, '#06b6d4', () => true, () => {
-            showTopoBurst(packetsG, 200, 280, '#10b981', 'Delivered (Detour) ✓');
-            finishTopoAnimation('Self-Healing Success: Direct wire was cut, but mesh routing dynamically steered packet via Relay Node 5!');
-          });
-        });
-      } else {
-        // All paths broken
-        animateLinePacket(packetsG, 200, 120, 200, 180, '#ef4444', () => true, () => {
-          showTopoBurst(packetsG, 200, 180, '#ef4444', 'No Path Found');
-          finishTopoAnimation('Dropped: Both direct and relay paths are severed. Target is completely unreachable.');
-        });
       }
     }
+    return null;
+  }
+
+  // -------------------------------------------------------------------------
+  // Animated Packet Transmission Simulation
+  // -------------------------------------------------------------------------
+  function sendTopoPacket() {
+    if (isTopoAnimating) return;
+    const srcId = topoSrcNode ? topoSrcNode.value : 'pc1';
+    const dstId = topoDstNode ? topoDstNode.value : 'pc4';
+
+    const srcNode = topoNodes.find(n => n.id === srcId);
+    const dstNode = topoNodes.find(n => n.id === dstId);
+
+    if (!srcNode || !dstNode) {
+      topoFeedbackText.innerHTML = 'Please choose a valid Source and Destination device.';
+      return;
+    }
+
+    if (srcId === dstId) {
+      topoFeedbackText.innerHTML = `Source and destination are the same device (<strong>${srcNode.label}</strong>). Select a different destination!`;
+      return;
+    }
+
+    isTopoAnimating = true;
+    topoPingBtn.disabled = true;
+    topoPingBtn.textContent = '⏳ Transmitting...';
+    const packetsG = document.getElementById('topoPacketsLayer');
+    if (packetsG) packetsG.innerHTML = '';
+
+    // Specialized Bus Simulation
+    if (currentTopo === 'bus') {
+      simulateBusPacket(packetsG, srcNode, dstNode);
+      return;
+    }
+
+    // Pathfinding across star, mesh, or custom
+    const path = findGraphPath(srcId, dstId);
+
+    if (path) {
+      // Direct or rerouted path found!
+      const isDetour = currentTopo === 'mesh' && path.length > 2;
+      if (isDetour) {
+        topoFeedbackText.innerHTML = `<span style="color:#10b981; font-weight:800;">⚡ Self-Healing Mesh:</span> Direct wire is severed, but dynamic routing rerouted packet via <strong>${topoNodes.find(n => n.id === path[1]).label}</strong>!`;
+      } else {
+        topoFeedbackText.innerHTML = `Transmitting packet from <strong>${srcNode.label}</strong> to <strong>${dstNode.label}</strong>...`;
+      }
+
+      animatePathHops(packetsG, path, 0, () => {
+        showTopoBurst(packetsG, dstNode.x, dstNode.y, '#10b981', 'Delivered ✓');
+        const msg = currentTopo === 'star'
+          ? `Success: Central switch read destination MAC address and forwarded packet directly to ${dstNode.label} without broadcasting.`
+          : (isDetour
+            ? `Self-Healing Success: Dynamic mesh routing steered packet around severed links with zero downtime!`
+            : `Success: Packet delivered cleanly across ${path.length - 1} hop(s).`);
+        finishTopoAnimation(msg);
+      });
+
+    } else {
+      // Path blocked! Determine why and animate up to the failure point
+      simulateBlockedPacket(packetsG, srcNode, dstNode);
+    }
+  }
+
+  function animatePathHops(packetsG, path, hopIndex, onComplete) {
+    if (hopIndex >= path.length - 1) {
+      if (onComplete) onComplete();
+      return;
+    }
+
+    const n1 = topoNodes.find(n => n.id === path[hopIndex]);
+    const n2 = topoNodes.find(n => n.id === path[hopIndex + 1]);
+
+    animateLinePacket(packetsG, n1.x, n1.y, n2.x, n2.y, '#3b82f6', null, () => {
+      if (n2.type === 'switch') {
+        showTopoBurst(packetsG, n2.x, n2.y, '#3b82f6', 'SWITCH PORT');
+      }
+      animatePathHops(packetsG, path, hopIndex + 1, onComplete);
+    });
+  }
+
+  function simulateBlockedPacket(packetsG, srcNode, dstNode) {
+    // Check if source cable is cut
+    const srcLink = topoLinks.find(l => (l.from === srcNode.id || l.to === srcNode.id));
+    if (srcLink && srcLink.isCut) {
+      const otherNode = topoNodes.find(n => n.id === (srcLink.from === srcNode.id ? srcLink.to : srcLink.from));
+      const midX = (srcNode.x + otherNode.x) / 2;
+      const midY = (srcNode.y + otherNode.y) / 2;
+      animateLinePacket(packetsG, srcNode.x, srcNode.y, midX, midY, '#ef4444', null, () => {
+        showTopoBurst(packetsG, midX, midY, '#ef4444', 'CABLE CUT');
+        finishTopoAnimation(`Dropped: Cable from ${srcNode.label} is cut! Packet could not reach the switch.`);
+      });
+      return;
+    }
+
+    // Check if central switch is broken (in star)
+    const centralSw = topoNodes.find(n => n.type === 'switch');
+    if (centralSw && centralSw.isBroken) {
+      animateLinePacket(packetsG, srcNode.x, srcNode.y, centralSw.x, centralSw.y, '#ef4444', null, () => {
+        showTopoBurst(packetsG, centralSw.x, centralSw.y, '#ef4444', 'SWITCH DEAD');
+        finishTopoAnimation(`Dropped: Central Switch is broken! Classic GCSE Single Point of Failure (SPOF) stopped packet.`);
+      });
+      return;
+    }
+
+    // Default dropped packet animation
+    animateLinePacket(packetsG, srcNode.x, srcNode.y, (srcNode.x + dstNode.x) / 2, (srcNode.y + dstNode.y) / 2, '#ef4444', null, () => {
+      showTopoBurst(packetsG, (srcNode.x + dstNode.x) / 2, (srcNode.y + dstNode.y) / 2, '#ef4444', 'PATH BLOCKED');
+      finishTopoAnimation(`Dropped: No viable network route between ${srcNode.label} and ${dstNode.label}! All connecting links severed.`);
+    });
+  }
+
+  // Specialized Bus packet simulation
+  function simulateBusPacket(packetsG, srcNode, dstNode) {
+    const tapSrc = topoNodes.find(n => n.type === 'tap' && Math.abs(n.x - srcNode.x) < 20);
+    const tapDst = topoNodes.find(n => n.type === 'tap' && Math.abs(n.x - dstNode.x) < 20);
+    const dropSrcLink = topoLinks.find(l => (l.from === srcNode.id || l.to === srcNode.id) && l.isDrop);
+    const hasCutBackbone = topoLinks.some(l => l.isBackbone && l.isCut);
+
+    // 1. Drop cable down to backbone
+    animateLinePacket(packetsG, srcNode.x, srcNode.y, tapSrc.x, tapSrc.y, '#3b82f6', (prog) => {
+      if (dropSrcLink && dropSrcLink.isCut && prog > 0.4) {
+        showTopoBurst(packetsG, (srcNode.x + tapSrc.x) / 2, (srcNode.y + tapSrc.y) / 2, '#ef4444', 'Drop Cut');
+        finishTopoAnimation(`Dropped: Drop cable from ${srcNode.label} is severed; packet cannot enter backbone.`);
+        return false;
+      }
+      return true;
+    }, () => {
+      // Reached backbone!
+      if (hasCutBackbone) {
+        const breakX = 490;
+        animateLinePacket(packetsG, tapSrc.x, tapSrc.y, breakX, tapSrc.y, '#ef4444', null, () => {
+          showTopoBurst(packetsG, breakX, tapSrc.y, '#ef4444', 'COLLISION / BOUNCE');
+          finishTopoAnimation(`Fatal Crash: Packet hit severed backbone! Signals reflect and collide, taking down the entire bus.`);
+        });
+        return;
+      }
+
+      if (isTerminatorBroken) {
+        animateLinePacket(packetsG, tapSrc.x, tapSrc.y, 840, tapSrc.y, '#f59e0b', null, () => {
+          showTopoBurst(packetsG, 840, tapSrc.y, '#ef4444', 'SIGNAL BOUNCE');
+          finishTopoAnimation(`Collision Error: Missing Terminator! Unabsorbed signal bounced back down the wire and collided with traffic.`);
+        });
+        return;
+      }
+
+      // Normal transmission along backbone to destination tap
+      animateLinePacket(packetsG, tapSrc.x, tapSrc.y, tapDst.x, tapDst.y, '#10b981', null, () => {
+        const dropDstLink = topoLinks.find(l => (l.from === dstNode.id || l.to === dstNode.id) && l.isDrop);
+        if (dropDstLink && dropDstLink.isCut) {
+          showTopoBurst(packetsG, (tapDst.x + dstNode.x) / 2, (tapDst.y + dstNode.y) / 2, '#ef4444', 'Drop Cut');
+          finishTopoAnimation(`Dropped: ${dstNode.label} drop cable is severed; broadcast packet passed along bus without reaching workstation.`);
+        } else {
+          animateLinePacket(packetsG, tapDst.x, tapDst.y, dstNode.x, dstNode.y, '#10b981', null, () => {
+            showTopoBurst(packetsG, dstNode.x, dstNode.y, '#10b981', 'Accepted ✓');
+            finishTopoAnimation(`Success: Broadcast packet traveled along backbone. ${dstNode.label} accepted its packet; terminators absorbed excess energy.`);
+          });
+        }
+      });
+    });
   }
 
   function animateLinePacket(g, x1, y1, x2, y2, color, stepCheck, onDone) {
     const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    circle.setAttribute('r', '8');
+    circle.setAttribute('r', '8.5');
     circle.setAttribute('fill', color);
     circle.setAttribute('stroke', '#ffffff');
-    circle.setAttribute('stroke-width', '2');
+    circle.setAttribute('stroke-width', '2.5');
+    circle.setAttribute('filter', 'url(#topoGlow)');
     g.appendChild(circle);
 
     let progress = 0;
     const interval = setInterval(() => {
-      progress += 0.08;
+      progress += 0.07;
       if (stepCheck && !stepCheck(progress)) {
         clearInterval(interval);
         circle.remove();
@@ -1720,63 +2504,149 @@ document.addEventListener('DOMContentLoaded', () => {
         circle.setAttribute('cx', curX);
         circle.setAttribute('cy', curY);
       }
-    }, 24);
+    }, 22);
   }
 
   function showTopoBurst(g, x, y, color, text) {
+    const targetG = document.getElementById('topoOverlaysLayer') || g;
     const burst = document.createElementNS('http://www.w3.org/2000/svg', 'g');
     burst.setAttribute('transform', `translate(${x}, ${y})`);
+    burst.setAttribute('class', 'topo-burst-effect');
 
+    // Pulsing glowing ring
     const ring = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-    ring.setAttribute('r', '14');
+    ring.setAttribute('r', '28');
     ring.setAttribute('fill', 'none');
     ring.setAttribute('stroke', color);
     ring.setAttribute('stroke-width', '3');
+    ring.setAttribute('filter', 'url(#topoGlow)');
+
+    // Floating Badge Card (Above node so it appears crisply in front of the device icon)
+    const badge = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    badge.setAttribute('transform', 'translate(0, -38)');
+
+    const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bgRect.setAttribute('x', '-56');
+    bgRect.setAttribute('y', '-13');
+    bgRect.setAttribute('width', '112');
+    bgRect.setAttribute('height', '26');
+    bgRect.setAttribute('rx', '13');
+    bgRect.setAttribute('fill', color === '#10b981' ? '#064e3b' : (color === '#ef4444' ? '#7f1d1d' : '#1e293b'));
+    bgRect.setAttribute('stroke', color);
+    bgRect.setAttribute('stroke-width', '2');
+    bgRect.setAttribute('filter', 'url(#topoGlow)');
 
     const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    lbl.setAttribute('y', '-16');
-    lbl.setAttribute('font-size', '11');
+    lbl.setAttribute('y', '4');
+    lbl.setAttribute('font-size', '12');
     lbl.setAttribute('font-weight', '800');
-    lbl.setAttribute('fill', color);
+    lbl.setAttribute('fill', '#ffffff');
     lbl.setAttribute('text-anchor', 'middle');
     lbl.textContent = text;
 
-    burst.appendChild(ring);
-    burst.appendChild(lbl);
-    g.appendChild(burst);
+    badge.appendChild(bgRect);
+    badge.appendChild(lbl);
 
-    setTimeout(() => burst.remove(), 1800);
+    burst.appendChild(ring);
+    burst.appendChild(badge);
+    targetG.appendChild(burst);
+
+    if (urlTopoParams.get('burst') !== '1') {
+      setTimeout(() => burst.remove(), 2500);
+    }
   }
 
   function finishTopoAnimation(feedbackText) {
     isTopoAnimating = false;
     topoPingBtn.disabled = false;
-    topoPingBtn.textContent = '▶ Send Packet (1 ➔ 4)';
+    topoPingBtn.textContent = '▶ Send Packet';
     if (feedbackText) {
       topoFeedbackText.innerHTML = feedbackText;
     }
   }
 
+  // -------------------------------------------------------------------------
+  // Event Listeners for Topo Pills & Action Buttons
+  // -------------------------------------------------------------------------
   topoPills.forEach(pill => {
     pill.addEventListener('click', () => {
       topoPills.forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
-      currentTopo = pill.dataset.topo;
-      cutCables.clear();
-      isSwitchBroken = false;
-      isTerminatorBroken = false;
-      renderTopology();
+      const topo = pill.dataset.topo;
+      currentTopo = topo;
+
+      if (topo === 'star') loadStarPreset();
+      else if (topo === 'bus') loadBusPreset();
+      else if (topo === 'mesh') loadMeshPreset();
+      else loadCustomPreset();
     });
   });
 
   topoRepairBtn.addEventListener('click', () => {
-    cutCables.clear();
-    isSwitchBroken = false;
+    topoLinks.forEach(l => l.isCut = false);
+    topoNodes.forEach(n => n.isBroken = false);
     isTerminatorBroken = false;
-    renderTopology();
+    renderWorkbench();
+    topoFeedbackText.innerHTML = 'All cables reconnected and all devices restored to full working order!';
   });
 
   topoPingBtn.addEventListener('click', sendTopoPacket);
+
+  // Dynamic dropdown change listeners to update Sender and Receiver role badges in real time
+  if (topoSrcNode) {
+    topoSrcNode.addEventListener('change', () => renderWorkbench());
+  }
+  if (topoDstNode) {
+    topoDstNode.addEventListener('change', () => renderWorkbench());
+  }
+
+  // URL parameter & hash support (e.g. ?topo=bus or #topologies-bus or #topologies-mesh)
+  const urlTopoParams = new URLSearchParams(window.location.search);
+  const currentHash = window.location.hash.toLowerCase();
+  const initialTopo = urlTopoParams.get('topo') || (currentHash.includes('bus') ? 'bus' : (currentHash.includes('mesh') ? 'mesh' : (currentHash.includes('custom') ? 'custom' : null)));
+  if (initialTopo || currentHash.includes('topologies')) {
+    const topoTabBtn = document.querySelector('.view-tab-btn[data-tab="topologies"]');
+    if (topoTabBtn) topoTabBtn.click();
+  }
+  if (initialTopo === 'bus') {
+    const pill = document.querySelector('#topoPills [data-topo="bus"]');
+    if (pill) pill.click();
+  } else if (initialTopo === 'mesh') {
+    const pill = document.querySelector('#topoPills [data-topo="mesh"]');
+    if (pill) pill.click();
+  } else if (initialTopo === 'custom') {
+    const pill = document.querySelector('#topoPills [data-topo="custom"]');
+    if (pill) pill.click();
+  } else {
+    loadStarPreset();
+  }
+
+  const scenarioParam = urlTopoParams.get('scenario');
+  if (scenarioParam === 'spof') {
+    const sw = topoNodes.find(n => n.id === 'sw1');
+    if (sw) sw.isBroken = true;
+    renderWorkbench();
+  } else if (scenarioParam === 'sever') {
+    const l = topoLinks.find(x => x.id === 'link-bb-mid2');
+    if (l) l.isCut = true;
+    renderWorkbench();
+  } else if (scenarioParam === 'bounce') {
+    isTerminatorBroken = true;
+    renderWorkbench();
+  } else if (scenarioParam === 'cut1') {
+    if (topoLinks[0]) topoLinks[0].isCut = true;
+    renderWorkbench();
+  }
+
+  if (urlTopoParams.get('burst') === '1') {
+    setTimeout(() => {
+      const dstNode = topoNodes.find(n => n.id === 'pc4');
+      if (dstNode) {
+        showTopoBurst(null, dstNode.x, dstNode.y, '#10b981', 'Delivered ✓');
+      }
+    }, 150);
+  }
+
 
 
   // =========================================================================
@@ -3410,8 +4280,8 @@ document.addEventListener('DOMContentLoaded', () => {
       // Step 5: Shared Key Match Confirmation
       internetHighwayArea.innerHTML = `
         <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; padding: 16px; width: 100%;">
-          <div style="width: 38px; height: 38px; border-radius: 50%; background: rgba(234, 179, 8, 0.15); border: 1.5px solid #eab308; display: flex; align-items: center; justify-content: center; color: #facc15; font-weight: 800; font-size: 14px;">KEY</div>
-          <strong style="color: #34d399; font-size: 14px;">Identical Key Established!</strong>
+          <div class="shared-key-emblem">KEY</div>
+          <strong class="shared-key-title">Identical Key Established!</strong>
           <span style="font-size: 11px; color: var(--text-secondary); max-width: 280px; line-height: 1.5;">
             Both devices calculated the exact matching secret key without ever sharing their private secrets.
           </span>

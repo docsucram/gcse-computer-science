@@ -1,39 +1,66 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
-    --paper-bg: #f5f3ec;
-    --paper-card: #fdfcf9;
-    --paper-recessed: #ede8db;
-    --paper-border: #ded7c6;
-    --paper-border-strong: #c2b8a3;
+    --paper-bg: #f8fafc;
+    --paper-card: #ffffff;
+    --paper-recessed: #f1f5f9;
+    --paper-border: #e2e8f0;
+    --paper-border-strong: #cbd5e1;
 
-    --ink-primary: #1e2229;
-    --ink-secondary: #585e6b;
-    --ink-faint: #8e95a2;
+    --ink-primary: #001736;
+    --ink-secondary: #475569;
+    --ink-faint: #94a3b8;
 
-    --oxford-navy: #1e3a5f;
-    --navy-tint: #edf3f9;
-    --cardinal-red: #a82020;
-    --red-tint: #faecec;
-    --amber-mid: #b45309;
-    --amber-tint: #fef3c7;
-    --forest-green: #1a6b3c;
-    --green-tint: #edf7f0;
+    --isaac-yellow: #f5b700;
+    --isaac-magenta: #c8006b;
+    --isaac-navy: #001736;
+
+    --oxford-navy: #001736;
+    --navy-tint: #f0f4f9;
+    --cardinal-red: #dc2626;
+    --red-tint: #fef2f2;
+    --amber-mid: #d97706;
+    --amber-tint: #fefce8;
+    --forest-green: #059669;
+    --green-tint: #f0fdf4;
 
     --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     --font-serif: 'Newsreader', Georgia, serif;
     --font-mono: 'JetBrains Mono', monospace;
   }
 
+  html.dark,
+  [data-theme="dark"] {
+    --paper-bg: #11141a;
+    --paper-card: #181c24;
+    --paper-recessed: #202632;
+    --paper-border: #2e3646;
+    --paper-border-strong: #3f495e;
+
+    --ink-primary: #f3f4f6;
+    --ink-secondary: #9ca3af;
+    --ink-faint: #6b7280;
+
+    --isaac-navy: #f3f4f6;
+    --oxford-navy: #f3f4f6;
+    --navy-tint: rgba(56, 189, 248, 0.12);
+
+    --cardinal-red: #f87171;
+    --red-tint: rgba(239, 68, 68, 0.12);
+    --amber-mid: #fbbf24;
+    --amber-tint: rgba(245, 158, 11, 0.12);
+    --forest-green: #34d399;
+    --green-tint: rgba(16, 185, 129, 0.12);
+  }
+
   body {
     margin: 0;
     padding: 0;
     background-color: var(--paper-bg);
-    background-image: 
-      linear-gradient(to right, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
-    background-size: 32px 32px;
+    background-image: none;
     color: var(--ink-primary);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
@@ -185,9 +212,30 @@
 }
 
 .algo-tab-btn.active {
-  background: var(--oxford-navy);
+  background: var(--isaac-magenta);
   color: #ffffff;
   font-weight: 700;
+  box-shadow: 0 1px 3px rgba(200, 0, 107, 0.25);
+}
+
+.aqa-core-badge {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: #fef08a;
+  color: #854d0e;
+  border: 1px solid #fde047;
+  letter-spacing: 0.02em;
+  display: inline-block;
+  line-height: 1.2;
+}
+
+.algo-tab-btn.active .aqa-core-badge {
+  background: #ffffff;
+  color: #c8006b;
+  border-color: #ffffff;
 }
 
 .workbench-tools-group {
@@ -601,3 +649,119 @@
   color: #78350f;
   line-height: 1.45;
 }
+
+html.dark .cgp-exam-tip-box {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
+html.dark .spec-pill {
+  border-color: #3f495e;
+  background: rgba(56, 189, 248, 0.12);
+  color: #7dd3fc;
+}
+
+html.dark .tool-btn.warning {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+}
+
+html.dark .tool-btn.warning:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+
+html.dark .tool-btn.success {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
+}
+
+html.dark .tool-btn.success:hover {
+  background: rgba(16, 185, 129, 0.25);
+}
+
+html.dark header {
+  background-color: var(--paper-card) !important;
+  border-bottom-color: var(--paper-border) !important;
+}
+
+html.dark footer {
+  background-color: var(--paper-card) !important;
+  border-top-color: var(--paper-border) !important;
+}
+
+html.dark .bg-\[\#fdfcf9\],
+html.dark .bg-\[\#f5f3ec\],
+html.dark .bg-white {
+  background-color: var(--paper-card) !important;
+}
+
+html.dark .bg-\[\#ede8db\],
+html.dark .bg-\[\#f1f5f9\],
+html.dark .bg-\[\#edf3f9\] {
+  background-color: var(--paper-recessed) !important;
+}
+
+html.dark .bg-\[\#fdf2f8\] {
+  background-color: rgba(200, 0, 107, 0.15) !important;
+}
+
+html.dark .bg-\[\#fef3c7\] {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+}
+
+html.dark .bg-\[\#fee2e2\] {
+  background-color: rgba(220, 38, 38, 0.15) !important;
+}
+
+html.dark .bg-\[\#edf7f0\],
+html.dark .bg-\[\#dcfce7\] {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+}
+
+html.dark .border-\[\#ded7c6\],
+html.dark .border-\[\#c2b8a3\],
+html.dark .border-\[\#cbd5e1\],
+html.dark .border-\[\#e2e8f0\] {
+  border-color: var(--paper-border) !important;
+}
+
+html.dark .text-\[\#1e2229\],
+html.dark .text-\[\#0f172a\] {
+  color: var(--ink-primary) !important;
+}
+
+html.dark .text-\[\#585e6b\],
+html.dark .text-\[\#475569\],
+html.dark .text-\[\#64748b\] {
+  color: var(--ink-secondary) !important;
+}
+
+html.dark .text-\[\#8e95a2\],
+html.dark .text-\[\#94a3b8\] {
+  color: var(--ink-faint) !important;
+}
+
+html.dark .text-\[\#1e3a5f\] {
+  color: #7dd3fc !important;
+}
+
+html.dark .text-\[\#1a6b3c\] {
+  color: #6ee7b7 !important;
+}
+
+html.dark .text-\[\#78350f\] {
+  color: #fde047 !important;
+}
+
+html.dark .text-\[\#374151\] {
+  color: var(--ink-secondary) !important;
+}
+
+html.dark .text-\[\#b45309\] {
+  color: #fbbf24 !important;
+}
+
+

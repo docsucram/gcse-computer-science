@@ -7,7 +7,7 @@
 /* Main Module Container */
 .module-container {
   width: 100%;
-  max-width: 1360px;
+  max-width: 1540px;
   margin: 0 auto;
   padding: 16px 20px 48px 20px;
   position: relative;
@@ -151,25 +151,89 @@
   border-color: var(--accent-primary);
 }
 
-/* Key Badges */
+/* Key Badges & Entity Roles (WCAG AAA High-Contrast) */
 .badge-pk {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  padding: 1px 5px;
-  border-radius: 4px;
+  background: #fef3c7;
+  color: #78350f;
+  border: 1.5px solid #d97706;
+  padding: 1px 6px;
+  border-radius: 3px;
   font-weight: 800;
-  font-size: 10px;
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
+}
+
+html.dark .badge-pk {
+  background: rgba(217, 119, 6, 0.25);
+  color: #fde68a;
+  border-color: #f59e0b;
 }
 
 .badge-fk {
-  background: rgba(168, 85, 247, 0.15);
-  color: #c084fc;
-  border: 1px solid rgba(168, 85, 247, 0.35);
-  padding: 1px 5px;
+  background: #ede9fe;
+  color: #4c1d95;
+  border: 1.5px solid #7c3aed;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 800;
+  font-size: 10.5px;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
+}
+
+html.dark .badge-fk {
+  background: rgba(124, 58, 237, 0.25);
+  color: #ddd6fe;
+  border-color: #a78bfa;
+}
+
+.badge-parent {
+  background: #fef3c7;
+  color: #78350f;
+  border: 1.5px solid #b45309;
+  padding: 2px 8px;
   border-radius: 4px;
   font-weight: 800;
-  font-size: 10px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.2;
+}
+
+html.dark .badge-parent {
+  background: rgba(217, 119, 6, 0.25);
+  color: #fde68a;
+  border-color: #f59e0b;
+}
+
+.badge-child {
+  background: #ede9fe;
+  color: #4c1d95;
+  border: 1.5px solid #6d28d9;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.2;
+}
+
+html.dark .badge-child {
+  background: rgba(124, 58, 237, 0.25);
+  color: #ddd6fe;
+  border-color: #a78bfa;
 }
 
 /* Database Schema Two-Table Grid */
@@ -355,184 +419,2356 @@ html.dark .preset-chip {
 .trace-step-item.step-select { border-left-color: #34d399; }
 
 /* ========================================================================= */
-/* TAB 2: SQL INJECTION & DEFENSIVE STYLES                                   */
+/* TAB 1: SCHOOL MIS & DATABASE STORAGE SIMULATOR (MS ACCESS GREY THEME)     */
 /* ========================================================================= */
-.attack-defense-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
 
-@media (min-width: 1024px) {
-  .attack-defense-grid {
-    grid-template-columns: 1fr 1.3fr;
-  }
-}
-
-.login-form-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
-  padding: 20px;
-}
-
-.form-group {
-  margin-bottom: 14px;
-}
-
-.form-label {
-  display: block;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-}
-
-.form-input {
-  width: 100%;
-  padding: 8px 12px;
-  background: var(--bg-root);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  color: var(--text-primary);
-  font-family: var(--font-mono);
-  font-size: 13px;
-  outline: none;
-}
-
-.form-input:focus {
-  border-color: var(--accent-primary);
-}
-
-.payload-btn {
-  padding: 4px 8px;
+/* School MIS Application Window Chrome - Classic MS Access Desktop Frame */
+.mis-app-window {
+  background: #ebe9e7;
+  border: 1px solid #c8c6c4;
   border-radius: 4px;
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #f87171;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  cursor: pointer;
-  transition: all var(--transition-fast);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  margin-bottom: 26px;
 }
 
-.payload-btn:hover {
-  background: rgba(239, 68, 68, 0.25);
+html.dark .mis-app-window {
+  background: #1e242d;
+  border-color: #3b4252;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* MIS Application Title Bar - Iconic MS Access Maroon Header */
+.mis-app-titlebar {
+  background: #701a24;
   color: #ffffff;
-}
-
-.mode-toggle-card {
+  padding: 9px 16px;
   display: flex;
-  background: var(--bg-root);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 4px;
-  margin-bottom: 16px;
-  gap: 4px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 2px solid #50131a;
 }
 
-.mode-toggle-btn {
-  flex: 1;
-  padding: 8px 12px;
-  border-radius: var(--radius-md);
-  border: none;
-  background: transparent;
-  color: var(--text-secondary);
-  font-size: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all var(--transition-fast);
+html.dark .mis-app-titlebar {
+  background: #4a1017;
+  border-bottom-color: #380a10;
 }
 
-.mode-toggle-btn.active-vuln {
-  background: #ef4444;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
-}
-
-.mode-toggle-btn.active-sec {
-  background: #10b981;
-  color: #ffffff;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.35);
-}
-
-.auth-result-box {
-  padding: 12px 16px;
-  border-radius: var(--radius-md);
-  font-size: 13px;
-  font-weight: 700;
+.mis-brand {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.mis-school-crest {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #a80000;
+  border: 1px solid #e11d48;
+  border-radius: 3px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.mis-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.mis-app-name {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 13.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: #ffffff;
+}
+
+.mis-app-ver {
+  font-size: 11px;
+  color: #fecdd3;
+  font-family: var(--font-mono);
+}
+
+.mis-sys-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11.5px;
+  color: #f8fafc;
+}
+
+.mis-status-dot {
+  width: 9px;
+  height: 9px;
+  background: #22c55e;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #22c55e;
+  display: inline-block;
+  animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(0.85); }
+}
+
+.mis-user-pill {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  padding: 3px 9px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.mis-top-menu-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+}
+
+.mis-top-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+/* ========================================================================= */
+/* MIS PORTAL SCREENS: WELCOME SPLASH & MAIN MENU SWITCHBOARD                */
+/* ========================================================================= */
+.mis-portal-screen {
+  display: none;
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.mis-portal-screen.active {
+  display: block;
+}
+
+/* SCREEN 1: Welcome Splash Card */
+.mis-welcome-card {
+  padding: 38px 28px 44px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background: linear-gradient(180deg, #fdfbf7 0%, #f3f0ea 100%);
+}
+
+html.dark .mis-welcome-card {
+  background: linear-gradient(180deg, #1b212b 0%, #151a22 100%);
+}
+
+.mis-crest-large {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.crest-shield {
+  font-size: 52px;
+  line-height: 1;
+  width: 84px;
+  height: 84px;
+  background: linear-gradient(135deg, #a80000 0%, #680512 100%);
+  border: 3px solid #fecdd3;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(168, 0, 0, 0.25);
+  margin-bottom: 8px;
+}
+
+html.dark .crest-shield {
+  border-color: #e11d48;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.crest-ribbon {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #701a24;
+  background: #fde8e8;
+  border: 1px solid #f8b4b4;
+  padding: 2px 10px;
+  border-radius: 12px;
+}
+
+html.dark .crest-ribbon {
+  color: #fca5a5;
+  background: rgba(168, 0, 0, 0.25);
+  border-color: #991b1b;
+}
+
+.mis-welcome-title {
+  font-family: var(--font-serif);
+  font-size: 26px;
+  font-weight: 800;
+  color: #201f1e;
+  margin: 0 0 10px 0;
+  letter-spacing: -0.01em;
+}
+
+html.dark .mis-welcome-title {
+  color: #f8fafc;
+}
+
+.mis-welcome-desc {
+  max-width: 680px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #484644;
+  margin: 0 0 24px 0;
+}
+
+html.dark .mis-welcome-desc {
+  color: #cbd5e1;
+}
+
+.mis-welcome-specs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 760px;
+  margin-bottom: 28px;
+}
+
+.welcome-spec-item {
+  background: #ffffff;
+  border: 1px solid #c8c6c4;
+  border-radius: 4px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+html.dark .welcome-spec-item {
+  background: #232a35;
+  border-color: #3b4252;
+}
+
+.spec-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #701a24;
+}
+
+html.dark .spec-label {
+  color: #f43f5e;
+}
+
+.spec-val {
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: #201f1e;
+}
+
+html.dark .spec-val {
+  color: #eceff4;
+}
+
+.mis-welcome-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.mis-btn-hero {
+  background: linear-gradient(135deg, #701a24 0%, #991b1b 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 12px 28px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  box-shadow: 0 4px 14px rgba(112, 26, 36, 0.35);
+  transition: all 0.15s ease;
+}
+
+.mis-btn-hero:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(112, 26, 36, 0.45);
+  background: linear-gradient(135deg, #851e2b 0%, #b91c1c 100%);
+}
+
+.mis-btn-link {
+  background: transparent;
+  border: none;
+  color: #701a24;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  padding: 4px 8px;
+  transition: color 0.15s ease;
+}
+
+html.dark .mis-btn-link {
+  color: #fca5a5;
+}
+
+.mis-btn-link:hover {
+  color: #a80000;
+}
+
+html.dark .mis-btn-link:hover {
+  color: #ffffff;
+}
+
+/* SCREEN 2: Main Navigation Switchboard Menu */
+.mis-switchboard-container {
+  padding: 24px 22px;
+  background: #f4f3f1;
+}
+
+html.dark .mis-switchboard-container {
+  background: #191e26;
+}
+
+.mis-switchboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #c8c6c4;
+}
+
+html.dark .mis-switchboard-header {
+  border-bottom-color: #3b4252;
+}
+
+.switchboard-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.switchboard-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #701a24;
+}
+
+html.dark .switchboard-badge {
+  color: #f43f5e;
+}
+
+.switchboard-title-group h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #201f1e;
+}
+
+html.dark .switchboard-title-group h3 {
+  color: #f8fafc;
+}
+
+.switchboard-title-group p {
+  margin: 0;
+  font-size: 12.5px;
+  color: #605e5c;
+}
+
+html.dark .switchboard-title-group p {
+  color: #94a3b8;
+}
+
+.switchboard-db-pill {
+  background: #dcfce7;
+  color: #14532d;
+  border: 1px solid #16a34a;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+html.dark .switchboard-db-pill {
+  background: rgba(22, 163, 74, 0.2);
+  color: #86efac;
+  border-color: #16a34a;
+}
+
+.mis-menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.mis-menu-tile {
+  background: #ffffff;
+  border: 1px solid #c8c6c4;
+  border-radius: 4px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+html.dark .mis-menu-tile {
+  background: #232a35;
+  border-color: #3b4252;
+}
+
+.mis-menu-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #8a8886;
+}
+
+html.dark .mis-menu-tile:hover {
+  border-color: #4c566a;
+}
+
+.menu-tile-icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.menu-tile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.menu-tile-content h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  color: #201f1e;
+}
+
+html.dark .menu-tile-content h4 {
+  color: #eceff4;
+}
+
+.menu-tile-content p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #605e5c;
+}
+
+html.dark .menu-tile-content p {
+  color: #94a3b8;
+}
+
+.mis-tile-btn {
+  background: #f3f2f1;
+  border: 1px solid #8a8886;
+  border-radius: 3px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #201f1e;
+  cursor: pointer;
+  align-self: flex-start;
+  transition: all 0.15s ease;
+}
+
+html.dark .mis-tile-btn {
+  background: #1e242d;
+  border-color: #4c566a;
+  color: #eceff4;
+}
+
+.mis-tile-btn:hover {
+  background: #701a24;
+  color: #ffffff;
+  border-color: #701a24;
+}
+
+html.dark .mis-tile-btn:hover {
+  background: #e11d48;
+  border-color: #e11d48;
+}
+
+/* Menu Live Search in Tile 2 */
+.mis-menu-search-bar {
+  margin-top: 6px;
+}
+
+.mis-menu-search-bar input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 7px 10px;
+  font-size: 12px;
+  border: 1px solid #8a8886;
+  border-radius: 3px;
+  background: #ffffff;
+  color: #201f1e;
+  outline: none;
+}
+
+html.dark .mis-menu-search-bar input {
+  background: #151921;
+  border-color: #4c566a;
+  color: #eceff4;
+}
+
+.mis-menu-search-bar input:focus {
+  border-color: #701a24;
+  box-shadow: 0 0 0 1px #701a24;
+}
+
+html.dark .mis-menu-search-bar input:focus {
+  border-color: #e11d48;
+  box-shadow: 0 0 0 1px #e11d48;
+}
+
+.mis-search-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  max-height: 110px;
+  overflow-y: auto;
+}
+
+.mis-search-chip {
+  background: #edebe9;
+  border: 1px solid #c8c6c4;
+  border-radius: 3px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #201f1e;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+html.dark .mis-search-chip {
+  background: #282e39;
+  border-color: #3b4252;
+  color: #eceff4;
+}
+
+.mis-search-chip:hover {
+  background: #701a24;
+  color: #ffffff;
+  border-color: #701a24;
+}
+
+html.dark .mis-search-chip:hover {
+  background: #e11d48;
+  border-color: #e11d48;
+}
+
+.mis-search-chip code {
+  font-size: 10px;
+  background: rgba(0, 0, 0, 0.08);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+html.dark .mis-search-chip code {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.mis-toolbar-separator {
+  width: 1px;
+  height: 18px;
+  background: #c8c6c4;
+  margin: 0 4px;
+}
+
+html.dark .mis-toolbar-separator {
+  background: #4c566a;
+}
+
+.mis-btn-switchboard {
+  background: #701a24 !important;
+  color: #ffffff !important;
+  border-color: #50131a !important;
+}
+
+.mis-btn-switchboard:hover {
+  background: #8e1f2c !important;
+  color: #ffffff !important;
+}
+
+/* Visual Flash Animations for Row Modifications */
+@keyframes flashGreen {
+  0% { background-color: rgba(34, 197, 94, 0.45); }
+  50% { background-color: rgba(34, 197, 94, 0.25); }
+  100% { background-color: transparent; }
+}
+
+@keyframes flashUpdated {
+  0% { background-color: rgba(14, 165, 233, 0.4); }
+  50% { background-color: rgba(14, 165, 233, 0.2); }
+  100% { background-color: transparent; }
+}
+
+@keyframes flashRed {
+  0% { background-color: rgba(239, 68, 68, 0.5); }
+  50% { background-color: rgba(239, 68, 68, 0.25); }
+  100% { background-color: transparent; }
+}
+
+.row-highlight-added {
+  animation: flashGreen 2.4s ease-out forwards !important;
+  outline: 2px solid #16a34a;
+  outline-offset: -2px;
+}
+
+.row-highlight-updated {
+  animation: flashUpdated 2.4s ease-out forwards !important;
+  outline: 2px solid #0284c7;
+  outline-offset: -2px;
+}
+
+.row-highlight-deleted {
+  animation: flashRed 1.8s ease-out forwards !important;
+  outline: 2px solid #dc2626;
+  outline-offset: -2px;
+}
+
+/* Database Engine Inspection & Anomaly Lab Bottom Card */
+.database-engine-lab-card {
+  background: #edebe9;
+  border: 1px solid #c8c6c4;
+  border-radius: 4px;
+  padding: 18px;
+  margin-top: 24px;
+  margin-bottom: 26px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+html.dark .database-engine-lab-card {
+  background: #1e242d;
+  border-color: #3b4252;
+}
+
+.engine-lab-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #c8c6c4;
+}
+
+html.dark .engine-lab-header {
+  border-bottom-color: #3b4252;
+}
+
+.engine-lab-title {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.engine-lab-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #701a24;
+}
+
+html.dark .engine-lab-badge {
+  color: #f43f5e;
+}
+
+.engine-lab-title h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #201f1e;
+}
+
+html.dark .engine-lab-title h4 {
+  color: #f8fafc;
+}
+
+.engine-lab-title p {
+  margin: 0;
+  font-size: 12.5px;
+  color: #605e5c;
+  max-width: 820px;
+  line-height: 1.5;
+}
+
+html.dark .engine-lab-title p {
+  color: #94a3b8;
+}
+
+/* MIS Navigation Toolbar - MS Access Ribbon & Record Navigation */
+.mis-toolbar {
+  background: #edebe9;
+  border-bottom: 1px solid #c8c6c4;
+  padding: 7px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+html.dark .mis-toolbar {
+  background: #282e39;
+  border-bottom-color: #3b4252;
+}
+
+.mis-nav-stepper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mis-toolbar-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #323130;
+  margin-right: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+html.dark .mis-toolbar-label {
+  color: #d8dee9;
+}
+
+.mis-tool-btn {
+  background: #ffffff;
+  border: 1px solid #8a8886;
+  color: #201f1e;
+  padding: 4px 8px;
+  font-size: 11.5px;
+  font-weight: 800;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+html.dark .mis-tool-btn {
+  background: #1e242d;
+  border-color: #4c566a;
+  color: #eceff4;
+}
+
+.mis-tool-btn:hover:not(:disabled) {
+  background: #e1dfdd;
+  border-color: #323130;
+  color: #000000;
+}
+
+html.dark .mis-tool-btn:hover:not(:disabled) {
+  background: #3b4252;
+  color: #ffffff;
+}
+
+.mis-tool-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mis-rec-counter {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  color: #201f1e;
+  padding: 4px 10px;
+  background: #ffffff;
+  border: 1px solid #8a8886;
+  border-radius: 2px;
+}
+
+html.dark .mis-rec-counter {
+  background: #1e242d;
+  border-color: #4c566a;
+  color: #eceff4;
+}
+
+.mis-jump-select {
+  padding: 4px 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 2px;
+  border: 1px solid #8a8886;
+  background: #ffffff;
+  color: #201f1e;
+  margin-left: 6px;
+  outline: none;
+}
+
+html.dark .mis-jump-select {
+  background: #1e242d;
+  border-color: #4c566a;
+  color: #eceff4;
+}
+
+.mis-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.mis-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  font-size: 11.5px;
+  font-weight: 700;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid #8a8886;
+  background: #ffffff;
+  color: #201f1e;
+  transition: all 0.15s ease;
+  line-height: 1.2;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.mis-btn:hover {
+  background: #e1dfdd;
+  border-color: #323130;
+}
+
+html.dark .mis-btn {
+  background: #1e242d;
+  border-color: #4c566a;
+  color: #eceff4;
+}
+
+html.dark .mis-btn:hover {
+  background: #3b4252;
+  color: #ffffff;
+}
+
+.mis-btn-primary {
+  border-color: #0369a1;
+  color: #0369a1;
+  background: #f0f9ff;
+}
+.mis-btn-primary:hover {
+  background: #0284c7;
+  color: #ffffff;
+  border-color: #0284c7;
+}
+
+.mis-btn-success {
+  border-color: #15803d;
+  color: #15803d;
+  background: #f0fdf4;
+}
+.mis-btn-success:hover {
+  background: #16a34a;
+  color: #ffffff;
+  border-color: #16a34a;
+}
+
+.mis-btn-danger {
+  border-color: #b91c1c;
+  color: #b91c1c;
+  background: #fef2f2;
+}
+.mis-btn-danger:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+.mis-btn-warn {
+  border-color: #c2410c;
+  color: #c2410c;
+  background: #fff7ed;
+}
+.mis-btn-warn:hover {
+  background: #ea580c;
+  color: #ffffff;
+  border-color: #ea580c;
+}
+
+.mis-btn-subtle {
+  border-color: #8a8886;
+  color: #323130;
+  background: #faf9f8;
+}
+
+/* MIS Form Body - Neutral MS Access Detail Canvas */
+.mis-form-body {
+  padding: 18px;
+  background: #f3f2f1;
+}
+
+html.dark .mis-form-body {
+  background: #191e26;
+}
+
+.mis-profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mis-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 1px solid #c8c6c4;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+html.dark .mis-profile-header {
+  background: #232a35;
+  border-color: #3b4252;
+}
+
+.mis-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 4px;
+  background: #edebe9;
+  color: #201f1e;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 19px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #8a8886;
+  flex-shrink: 0;
+}
+
+html.dark .mis-avatar {
+  background: #2e3440;
+  color: #eceff4;
+  border-color: #4c566a;
+}
+
+.mis-profile-headline {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.mis-title-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mis-title-row h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #201f1e;
+}
+
+html.dark .mis-title-row h3 {
+  color: #eceff4;
+}
+
+.mis-id-badge {
+  background: #edebe9;
+  border: 1px solid #8a8886;
+  border-radius: 2px;
+  padding: 2px 7px;
+  font-size: 11px;
+  color: #201f1e;
+  font-weight: 700;
+}
+
+html.dark .mis-id-badge {
+  background: #2e3440;
+  border-color: #4c566a;
+  color: #eceff4;
+}
+
+.mis-status-badge {
+  background: #dcfce7;
+  color: #14532d;
+  border: 1.5px solid #16a34a;
+  border-radius: 2px;
+  padding: 2px 7px;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+html.dark .mis-status-badge {
+  background: rgba(22, 163, 74, 0.2);
+  color: #86efac;
+  border-color: #16a34a;
+}
+
+.mis-sub-text {
+  margin: 0;
+  font-size: 12px;
+  color: #484644;
+}
+
+html.dark .mis-sub-text {
+  color: #d8dee9;
+}
+
+/* MIS Two-Column Structured Fieldset Grid (Access Subform Panels) */
+.mis-grid-split {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 900px) {
+  .mis-grid-split {
+    grid-template-columns: 1.15fr 0.85fr;
+  }
+}
+
+.mis-fieldset {
+  background: #ffffff;
+  border: 1px solid #c8c6c4;
+  border-radius: 3px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+html.dark .mis-fieldset {
+  background: #232a35;
+  border-color: #3b4252;
+}
+
+.mis-fieldset-legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #201f1e;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #c8c6c4;
+}
+
+html.dark .mis-fieldset-legend {
+  color: #eceff4;
+  border-bottom-color: #3b4252;
+}
+
+.mis-field-tag {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #323130;
+  background: #edebe9;
+  border: 1px solid #8a8886;
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+html.dark .mis-field-tag {
+  background: #2e3440;
+  border-color: #4c566a;
+  color: #d8dee9;
+}
+
+.mis-enrollment-badge {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #0284c7;
+  padding: 2px 7px;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+html.dark .mis-enrollment-badge {
+  background: rgba(2, 132, 199, 0.25);
+  color: #7dd3fc;
+  border-color: #0284c7;
+}
+
+.mis-field-row {
+  display: flex;
+  gap: 12px;
+}
+
+.mis-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.mis-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #323130;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+html.dark .mis-label {
+  color: #d8dee9;
+}
+
+.mis-conflict-inline-tag {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1.5px solid #dc2626;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-weight: 800;
+  text-transform: none;
+}
+
+.mis-input, .mis-select {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #ffffff;
+  border: 1px solid #8a8886;
+  border-radius: 2px;
+  color: #201f1e;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+html.dark .mis-input, html.dark .mis-select {
+  background: #151921;
+  border-color: #4c566a;
+  color: #eceff4;
+}
+
+.mis-input:focus, .mis-select:focus {
+  border-color: #005a9e;
+  box-shadow: 0 0 0 1px #005a9e;
+}
+
+.mis-input-readonly {
+  background: #e1dfdd;
+  border: 1px solid #8a8886;
+  color: #323130;
+  cursor: not-allowed;
+  font-family: var(--font-mono);
+  font-weight: 800;
+}
+
+html.dark .mis-input-readonly {
+  background: #2e3440;
+  border-color: #4c566a;
+  color: #d8dee9;
+}
+
+/* MIS Enrolled Courses List */
+.mis-courses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.mis-course-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  background: #faf9f8;
+  border: 1px solid #d2d0ce;
+  border-left: 3px solid #701a24;
+  border-radius: 2px;
+}
+
+html.dark .mis-course-card {
+  background: #1e242d;
+  border-color: #3b4252;
+  border-left-color: #e11d48;
+}
+
+.mis-course-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.mis-course-name {
+  font-size: 12px;
+  font-weight: 800;
+  color: #201f1e;
+}
+
+html.dark .mis-course-name {
+  color: #eceff4;
+}
+
+.mis-course-meta {
+  font-size: 11px;
+  color: #605e5c;
+}
+
+html.dark .mis-course-meta {
+  color: #94a3b8;
+}
+
+.mis-btn-drop {
+  padding: 3px 8px;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mis-btn-drop:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.mis-btn.pulse-save {
+  animation: pulseSaveBtn 1.5s infinite;
+  border-color: #059669 !important;
+}
+
+@keyframes pulseSaveBtn {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1.03); box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.mis-empty-courses {
+  padding: 14px;
+  text-align: center;
+  font-size: 11.5px;
+  color: #8a8886;
+  border: 1px dashed #c8c6c4;
+  border-radius: 2px;
+}
+
+/* Quick Add Course Box */
+.mis-add-course-box {
+  background: #edebe9;
+  border: 1px dashed #8a8886;
+  border-radius: 2px;
+  padding: 9px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+html.dark .mis-add-course-box {
+  background: #1e242d;
+  border-color: #4c566a;
+}
+
+.mis-add-course-title {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #323130;
+  text-transform: uppercase;
+}
+
+html.dark .mis-add-course-title {
+  color: #d8dee9;
+}
+
+.mis-add-course-row {
+  display: flex;
+  gap: 6px;
+}
+
+.mis-add-course-row select {
+  flex: 1;
+}
+
+/* ========================================================================= */
+/* STORAGE ARCHITECTURE TOGGLE DECK (MS ACCESS GREY PANEL)                   */
+/* ========================================================================= */
+.storage-switch-deck {
+  background: #edebe9;
+  border: 1px solid #c8c6c4;
+  border-radius: 4px;
+  padding: 16px 18px;
+  margin-bottom: 22px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+html.dark .storage-switch-deck {
+  background: #1e242d;
+  border-color: #3b4252;
+}
+
+.storage-switch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #c8c6c4;
+}
+
+html.dark .storage-switch-header {
+  border-bottom-color: #3b4252;
+}
+
+.storage-switch-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.switch-kicker {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #701a24;
+}
+
+html.dark .switch-kicker {
+  color: #f43f5e;
+}
+
+.storage-switch-label h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #201f1e;
+}
+
+html.dark .storage-switch-label h3 {
+  color: #eceff4;
+}
+
+/* Prominent Toggle Buttons - Access View Switcher Style */
+.storage-toggle-tabs {
+  display: flex;
+  background: #e1dfdd;
+  padding: 3px;
+  border-radius: 3px;
+  gap: 4px;
+  border: 1px solid #8a8886;
+}
+
+html.dark .storage-toggle-tabs {
+  background: #282e39;
+  border-color: #4c566a;
+}
+
+.storage-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+html.dark .storage-toggle-btn {
+  color: #f3f4f6;
+}
+
+.storage-toggle-btn .toggle-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.storage-toggle-btn .toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.storage-toggle-btn strong {
+  font-size: 12.5px;
+  color: #484644;
+}
+
+html.dark .storage-toggle-btn strong {
+  color: #d8dee9;
+}
+
+.storage-toggle-btn small {
+  font-size: 10.5px;
+  color: #605e5c;
+}
+
+html.dark .storage-toggle-btn small {
+  color: #94a3b8;
+}
+
+/* Active Flat-File State */
+.storage-toggle-btn.active[data-mode="flatfile"] {
+  background: #ffffff;
+  border: 1.5px solid #d97706;
+  box-shadow: 0 1px 4px rgba(217, 119, 6, 0.2);
+}
+
+html.dark .storage-toggle-btn.active[data-mode="flatfile"] {
+  background: #151921;
+  border-color: #f59e0b;
+}
+
+.storage-toggle-btn.active[data-mode="flatfile"] strong {
+  color: #78350f;
+}
+
+html.dark .storage-toggle-btn.active[data-mode="flatfile"] strong {
+  color: #fde68a;
+}
+
+/* Active Relational State */
+.storage-toggle-btn.active[data-mode="relational"] {
+  background: #ffffff;
+  border: 1.5px solid #16a34a;
+  box-shadow: 0 1px 4px rgba(22, 163, 74, 0.2);
+}
+
+html.dark .storage-toggle-btn.active[data-mode="relational"] {
+  background: #151921;
+  border-color: #10b981;
+}
+
+.storage-toggle-btn.active[data-mode="relational"] strong {
+  color: #14532d;
+}
+
+html.dark .storage-toggle-btn.active[data-mode="relational"] strong {
+  color: #86efac;
+}
+
+/* Live Storage Meta Bar */
+.storage-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 10px;
+  font-size: 11.5px;
+  color: #323130;
+}
+
+html.dark .storage-meta-bar {
+  color: #d8dee9;
+}
+
+.meta-pill-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 2px;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+}
+
+.meta-pill.pill-warn {
+  background: #fef3c7;
+  color: #78350f;
+  border: 1px solid #d97706;
+}
+
+.meta-pill.pill-danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1.5px solid #dc2626;
+}
+
+.meta-pill.pill-success {
+  background: #dcfce7;
+  color: #14532d;
+  border: 1px solid #16a34a;
+}
+
+.meta-pill.pill-info {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #0284c7;
+}
+
+/* ========================================================================= */
+/* STORAGE VIEW SECTIONS                                                     */
+/* ========================================================================= */
+.storage-view-section {
+  display: none;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.storage-view-section.active {
+  display: block;
+}
+
+/* Mismatch Anomaly Banner - High Contrast Alert */
+.mismatch-banner {
+  padding: 14px 18px;
+  border-radius: 3px;
+  margin-bottom: 18px;
+  border: 2px solid #dc2626;
+  background: #fef2f2;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+html.dark .mismatch-banner {
+  background: rgba(220, 38, 38, 0.15);
+  border-color: #ef4444;
+}
+
+.mismatch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mismatch-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #991b1b;
+  margin: 0;
+}
+
+html.dark .mismatch-title {
+  color: #fca5a5;
+}
+
+.mismatch-badge {
+  background: #dc2626;
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 2px;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mismatch-body {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #7f1d1d;
+}
+
+html.dark .mismatch-body {
+  color: #fecaca;
+}
+
+.mismatch-tip {
+  font-size: 12px;
+  background: #ffffff;
+  padding: 8px 12px;
+  border-radius: 2px;
+  border-left: 3px solid #dc2626;
+  color: #991b1b;
+  border-top: 1px solid #fecaca;
+  border-right: 1px solid #fecaca;
+  border-bottom: 1px solid #fecaca;
+}
+
+html.dark .mismatch-tip {
+  background: rgba(0, 0, 0, 0.35);
+  color: #fca5a5;
+  border-color: #7f1d1d;
+}
+
+/* Flat-File Demonstration Toolbar */
+.flatfile-demo-bar {
+  background: #edebe9;
+  border: 1px dashed #8a8886;
+  border-radius: 3px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+html.dark .flatfile-demo-bar {
+  background: #282e39;
+  border-color: #4c566a;
+}
+
+.demo-bar-label {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 11.5px;
+  color: #323130;
+}
+
+html.dark .demo-bar-label {
+  color: #d8dee9;
+}
+
+.demo-bar-label strong {
+  color: #201f1e;
+}
+
+html.dark .demo-bar-label strong {
+  color: #eceff4;
+}
+
+.demo-btn-group {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.demo-chip-btn {
+  padding: 5px 11px;
+  border-radius: 2px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid #8a8886;
+  background: #ffffff;
+  color: #201f1e;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.chip-warn {
+  background: #fff7ed;
+  border-color: #ea580c;
+  color: #9a3412;
+}
+.chip-warn:hover {
+  background: #ea580c;
+  color: #ffffff;
+}
+
+.chip-danger {
+  background: #fef2f2;
+  border-color: #dc2626;
+  color: #991b1b;
+}
+.chip-danger:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.chip-gold {
+  background: #fefce8;
+  border-color: #ca8a04;
+  color: #713f12;
+}
+.chip-gold:hover {
+  background: #ca8a04;
+  color: #ffffff;
+}
+
+.chip-success {
+  background: #f0fdf4;
+  border-color: #16a34a;
+  color: #14532d;
+}
+.chip-success:hover {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+/* Table Container Cards - MS Access Datasheet Frame */
+.table-container-card {
+  background: #ffffff;
+  border: 1px solid #c8c6c4;
+  border-radius: 3px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+html.dark .table-container-card {
+  background: #232a35;
+  border-color: #3b4252;
+}
+
+.table-card-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #edebe9;
+}
+
+html.dark .table-card-topbar {
+  border-bottom-color: #3b4252;
+}
+
+.table-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.table-card-title {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #201f1e;
+}
+
+html.dark .table-card-title {
+  color: #eceff4;
+}
+
+.table-card-subtitle {
+  font-size: 12px;
+  color: #484644;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+html.dark .table-card-subtitle {
+  color: #d8dee9;
+}
+
+.table-legend-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.legend-pill {
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 2px;
+}
+
+.pill-redundant {
+  background: #fef3c7;
+  color: #78350f;
+  border: 1px solid #d97706;
+}
+
+.pill-conflict {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1.5px solid #dc2626;
+}
+
+.pill-count {
+  background: #edebe9;
+  color: #201f1e;
+  border: 1px solid #8a8886;
+  font-family: var(--font-mono);
+}
+
+html.dark .pill-count {
+  background: #2e3440;
+  color: #eceff4;
+  border-color: #4c566a;
+}
+
+/* Database Table Layout - MS Access Datasheet View */
+.table-scroll-wrapper {
+  overflow-x: auto;
+  border: 1px solid #c8c6c4;
+  border-radius: 2px;
+}
+
+.sim-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #ffffff;
+}
+
+html.dark .sim-table {
+  background: #1e242d;
+}
+
+.sim-table th {
+  background: #edebe9;
+  color: #201f1e;
+  font-weight: 800;
+  padding: 7px 10px;
+  border-right: 1px solid #c8c6c4;
+  border-bottom: 2px solid #8a8886;
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  text-align: left;
+}
+
+html.dark .sim-table th {
+  background: #282e39;
+  color: #eceff4;
+  border-right-color: #3b4252;
+  border-bottom-color: #4c566a;
+}
+
+.sim-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #e1dfdd;
+  border-right: 1px solid #edebe9;
+  font-size: 12px;
+  color: #201f1e;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+}
+
+html.dark .sim-table td {
+  border-bottom-color: #3b4252;
+  border-right-color: #282e39;
+  color: #d8dee9;
+}
+
+.sim-table tbody tr:hover {
+  background: #f3f9fe;
+}
+
+html.dark .sim-table tbody tr:hover {
+  background: #2e3440;
+}
+
+/* Table Highlighting for Redundancy and Conflicts - High Contrast */
+.cell-redundant {
+  background: #fef3c7 !important;
+  color: #78350f !important;
+  font-weight: 700;
+  border-right: 1px solid #fde68a !important;
+}
+
+html.dark .cell-redundant {
+  background: rgba(217, 119, 6, 0.25) !important;
+  color: #fde68a !important;
+}
+
+.cell-conflict {
+  background: #fee2e2 !important;
+  color: #991b1b !important;
+  font-weight: 800;
+  border: 2px solid #dc2626 !important;
+}
+
+html.dark .cell-conflict {
+  background: rgba(220, 38, 38, 0.3) !important;
+  color: #fca5a5 !important;
+  border-color: #ef4444 !important;
+}
+
+.row-conflict {
+  background: #fff5f5 !important;
+}
+
+html.dark .row-conflict {
+  background: rgba(220, 38, 38, 0.12) !important;
+}
+
+.tag-conflict {
+  display: inline-block;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-left: 4px;
+}
+
+.tag-redundant {
+  display: inline-block;
+  background: #d97706;
+  color: #ffffff;
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-left: 4px;
+}
+
+.tbl-row-btn {
+  padding: 2px 7px;
+  font-size: 10.5px;
+  font-weight: 700;
+  border-radius: 2px;
+  cursor: pointer;
+  border: 1px solid #8a8886;
+  background: #ffffff;
+  color: #201f1e;
+  transition: all 0.15s ease;
+}
+
+html.dark .tbl-row-btn {
+  background: #1e242d;
+  border-color: #4c566a;
+  color: #eceff4;
+}
+
+.tbl-row-btn:hover {
+  border-color: #0369a1;
+  color: #0369a1;
+}
+
+.tbl-row-btn.btn-row-del:hover {
+  border-color: #dc2626;
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+/* Flat-File Metric Deck */
+.flatfile-metric-deck {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
   margin-top: 14px;
 }
 
-.auth-success {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  color: #34d399;
+.metric-card {
+  background: #edebe9;
+  border: 1px solid #c8c6c4;
+  border-radius: 3px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.auth-breach {
-  background: rgba(239, 68, 68, 0.18);
-  border: 1px solid rgba(239, 68, 68, 0.45);
-  color: #f87171;
-  animation: pulseBreach 1s infinite alternate;
+html.dark .metric-card {
+  background: #282e39;
+  border-color: #3b4252;
 }
 
-.auth-denied {
-  background: var(--bg-root);
+.metric-num {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 800;
+  color: #201f1e;
+}
+
+html.dark .metric-num {
+  color: #eceff4;
+}
+
+.metric-num.text-warn {
+  color: #b45309;
+}
+
+.metric-num.text-danger {
+  color: #b91c1c;
+}
+
+.metric-label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #323130;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+html.dark .metric-label {
+  color: #d8dee9;
+}
+
+.metric-card small {
+  font-size: 11px;
+  color: #605e5c;
+}
+
+html.dark .metric-card small {
+  color: #94a3b8;
+}
+
+/* Relational Architecture Banner & Diagrams - MS Access Relationships Window */
+.relational-diagram-banner {
+  background: #edebe9;
+  border: 1px solid #c8c6c4;
+  border-radius: 4px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+html.dark .relational-diagram-banner {
+  background: #1e242d;
+  border-color: #3b4252;
+}
+
+.relational-banner-content {
+  flex: 1;
+  min-width: 280px;
+}
+
+.banner-badge-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.badge-integrity {
+  background: #dcfce7;
+  color: #14532d;
+  border: 1.5px solid #16a34a;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 2px;
+}
+
+html.dark .badge-integrity {
+  background: rgba(22, 163, 74, 0.25);
+  color: #86efac;
+  border-color: #16a34a;
+}
+
+.relational-banner-content h4 {
+  margin: 0 0 4px 0;
+  font-size: 15.5px;
+  font-weight: 800;
+  color: #201f1e;
+}
+
+html.dark .relational-banner-content h4 {
+  color: #eceff4;
+}
+
+.relational-banner-content p {
+  margin: 0;
+  font-size: 12px;
+  color: #323130;
+  line-height: 1.5;
+}
+
+html.dark .relational-banner-content p {
+  color: #d8dee9;
+}
+
+/* Visual Schema Diagram - MS Access Relationships Box */
+.schema-relationship-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid #8a8886;
+  padding: 10px 14px;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+html.dark .schema-relationship-pill {
+  background: #232a35;
+  border-color: #4c566a;
+}
+
+.schema-entity-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: center;
+}
+
+.entity-name {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #201f1e;
+}
+
+html.dark .entity-name {
+  color: #eceff4;
+}
+
+.schema-link-arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.link-symbol {
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 13px;
+  color: #201f1e;
+}
+
+html.dark .link-symbol {
+  color: #eceff4;
+}
+
+.link-label {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #323130;
+  text-transform: uppercase;
+}
+
+html.dark .link-label {
+  color: #d8dee9;
+}
+
+.relational-link-strip {
+  background: #ede9fe;
+  border: 1.5px solid #7c3aed;
+  border-radius: 3px;
+  padding: 9px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #4c1d95;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+html.dark .relational-link-strip {
+  background: rgba(124, 58, 237, 0.2);
+  border-color: #a78bfa;
+  color: #ddd6fe;
+}
+
+.link-strip-icon {
+  font-size: 16px;
+}
+
+/* Concept Cards Deck */
+.concept-cards-deck {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 10px;
+  margin-bottom: 24px;
+}
+
+.concept-card {
+  border-radius: var(--radius-md, 4px);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.concept-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.concept-tag {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.concept-tag-rose { color: #c8006b; }
+.concept-tag-gold { color: #854d0e; }
+.concept-tag-cool { color: #1e3a5f; }
+
+html.dark .concept-tag-rose { color: #f472b6; }
+html.dark .concept-tag-gold { color: #fbbf24; }
+html.dark .concept-tag-cool { color: #7dd3fc; }
+
+.concept-name {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.concept-text {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ========================================================================= */
+/* TAB 2: INTEGRATED CHALLENGE MISSIONS STYLES                               */
+/* ========================================================================= */
+.mission-mode-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: #f1f5f9;
   border: 1px solid var(--border-color);
+  border-radius: var(--radius-md, 4px);
+  padding: 6px 12px;
+  margin-bottom: 20px;
+}
+
+html.dark .mission-mode-bar {
+  background: var(--bg-surface);
+}
+
+.mode-select-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-right: 4px;
+}
+
+.studio-mode-btn {
+  padding: 6px 13px;
+  border-radius: var(--radius-sm, 3px);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.studio-mode-btn:hover {
+  background: #ffffff;
+  color: var(--text-primary);
+}
+
+html.dark .studio-mode-btn:hover {
+  background: var(--bg-surface-elevated);
+}
+
+.studio-mode-btn.active {
+  background: var(--isaac-magenta, #c8006b);
+  color: #ffffff;
+  font-weight: 700;
+  border-color: var(--isaac-magenta, #c8006b);
+}
+
+.active-mission-panel {
+  border-radius: var(--radius-md, 4px);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mission-target-box {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm, 3px);
+  padding: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+html.dark .mission-target-box {
+  background: var(--bg-surface);
+}
+
+.mission-target-title {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-muted);
 }
 
-@keyframes pulseBreach {
-  from { box-shadow: 0 0 10px rgba(239, 68, 68, 0.2); }
-  to { box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
-}
-
-.code-viewer-card {
-  background: var(--bg-root);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px;
-  margin-bottom: 14px;
-  font-family: var(--font-mono);
-  font-size: 12.5px;
-  line-height: 1.55;
-  overflow-x: auto;
-}
-
-.sql-highlight-danger {
-  color: #f87171;
+.mission-target-text {
   font-weight: 700;
-  background: rgba(239, 68, 68, 0.15);
-  padding: 2px 4px;
-  border-radius: 3px;
+  color: #0f172a;
 }
 
-.sql-highlight-safe {
-  color: #34d399;
-  font-weight: 700;
-  background: rgba(16, 185, 129, 0.15);
-  padding: 2px 4px;
-  border-radius: 3px;
-}
-
-/* Defensive Checklist */
-.defense-checklist {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 14px;
-}
-
-.defense-check-item {
-  background: var(--bg-surface-elevated);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  font-size: 12px;
+html.dark .mission-target-text {
+  color: #f8fafc;
 }
 
 /* ========================================================================= */

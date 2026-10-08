@@ -6,6 +6,17 @@
   <meta name="description" content="GCSE Computer Science - Interactive visualizers, simulations, and revision tools for AQA GCSE (8525).">
   <meta name="theme-color" content="#1e3a5f">
   <title>GCSE Computer Science — Interactive Revision Guide</title>
+
+  <script>
+    (function() {
+      var t = new URLSearchParams(window.location.search).get('theme') || localStorage.getItem('theme') || localStorage.getItem('gcse_theme');
+      if (t === 'dark' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    })();
+  </script>
   
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   
@@ -16,31 +27,35 @@
   
   <style>
     :root {
-      --paper-bg: #f5f3ec;
-      --paper-card: #fdfcf9;
-      --paper-recessed: #ede8db;
-      --paper-border: #ded7c6;
-      --paper-border-strong: #c2b8a3;
+      --paper-bg: #f8fafc;
+      --paper-card: #ffffff;
+      --paper-recessed: #f1f5f9;
+      --paper-border: #e2e8f0;
+      --paper-border-strong: #cbd5e1;
 
-      --ink-primary: #1e2229;
-      --ink-secondary: #585e6b;
-      --ink-faint: #8e95a2;
+      --ink-primary: #001736;
+      --ink-secondary: #475569;
+      --ink-faint: #94a3b8;
 
-      --oxford-navy: #1e3a5f;
-      --navy-tint: #edf3f9;
+      --isaac-yellow: #f5b700;
+      --isaac-magenta: #c8006b;
+      --isaac-navy: #001736;
+
+      --oxford-navy: #001736;
+      --navy-tint: #f0f4f9;
       --navy-border: #cbd5e1;
-      --forest-green: #1a6b3c;
-      --green-tint: #edf7f0;
-      --cardinal-red: #a82020;
-      --amber-mid: #b45309;
-      --amber-tint: #fef3c7;
+      --forest-green: #059669;
+      --green-tint: #f0fdf4;
+      --cardinal-red: #dc2626;
+      --amber-mid: #d97706;
+      --amber-tint: #fefce8;
 
       --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-serif: 'Newsreader', Georgia, serif;
       --font-mono: 'JetBrains Mono', monospace;
 
-      --radius-sm: 2px;
-      --radius-md: 3px;
+      --radius-sm: 4px;
+      --radius-md: 6px;
     }
 
     * {
@@ -51,10 +66,7 @@
 
     body {
       background-color: var(--paper-bg);
-      background-image: 
-        linear-gradient(to right, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
-      background-size: 32px 32px;
+      background-image: none;
       color: var(--ink-primary);
       font-family: var(--font-sans);
       -webkit-font-smoothing: antialiased;
@@ -82,8 +94,8 @@
       z-index: 40;
       background: var(--paper-card);
       border-bottom: 1px solid var(--paper-border);
-      border-top: 3px solid var(--oxford-navy);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      border-top: 4px solid var(--isaac-yellow);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
 
     .nav-inner {
@@ -212,10 +224,10 @@
     }
 
     .filter-btn.active {
-      background: var(--oxford-navy);
+      background: var(--isaac-magenta);
       color: #ffffff;
       font-weight: 700;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 1px 3px rgba(200, 0, 107, 0.25);
     }
 
     .search-wrap {
@@ -444,6 +456,157 @@
     .footer-links a:hover {
       text-decoration: underline;
     }
+
+    /* Dark Theme Styles */
+    html.dark,
+    [data-theme="dark"] {
+      --paper-bg: #11141a;
+      --paper-card: #181c24;
+      --paper-recessed: #202632;
+      --paper-border: #2e3646;
+      --paper-border-strong: #3f495e;
+
+      --ink-primary: #f3f4f6;
+      --ink-secondary: #9ca3af;
+      --ink-faint: #6b7280;
+
+      --oxford-navy: #f3f4f6;
+      --navy-tint: rgba(56, 189, 248, 0.12);
+      --navy-border: rgba(56, 189, 248, 0.25);
+      --green-tint: rgba(16, 185, 129, 0.12);
+    }
+
+    html.dark .site-nav {
+      background: var(--paper-card);
+      border-bottom-color: var(--paper-border);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    html.dark .brand-icon {
+      background: var(--isaac-magenta);
+    }
+
+    html.dark .spec-pill {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: rgba(56, 189, 248, 0.3);
+      color: #7dd3fc;
+    }
+
+    html.dark .search-input {
+      background: var(--paper-card);
+      border-color: var(--paper-border);
+      color: var(--ink-primary);
+    }
+
+    html.dark .search-input:focus {
+      border-color: var(--isaac-magenta);
+    }
+
+    html.dark .filter-btn {
+      background: var(--paper-card);
+      border-color: var(--paper-border);
+      color: var(--ink-secondary);
+    }
+
+    html.dark .filter-btn:hover {
+      background: var(--paper-recessed);
+      color: var(--ink-primary);
+    }
+
+    html.dark .filter-btn.active {
+      background: var(--isaac-magenta);
+      border-color: var(--isaac-magenta);
+      color: #ffffff;
+    }
+
+    html.dark .module-card {
+      background: var(--paper-card);
+      border-color: var(--paper-border);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    html.dark .module-card:hover {
+      border-color: var(--paper-border-strong);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+    }
+
+    html.dark .card-icon {
+      background: rgba(56, 189, 248, 0.12);
+      border-color: rgba(56, 189, 248, 0.25);
+      color: #38bdf8;
+    }
+
+    html.dark .card-icon.green-tint {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.25);
+      color: #34d399;
+    }
+
+    html.dark .card-spec {
+      color: #38bdf8;
+    }
+
+    html.dark .feature-pill {
+      background: var(--paper-recessed);
+      border-color: var(--paper-border);
+      color: var(--ink-secondary);
+    }
+
+    html.dark .btn-launch {
+      background: #2563eb;
+      color: #ffffff;
+    }
+
+    html.dark .btn-launch:hover {
+      background: #1d4ed8;
+    }
+
+    html.dark .site-footer {
+      background: var(--paper-card);
+      border-top-color: var(--paper-border);
+    }
+
+    html.dark .footer-links {
+      color: #93c5fd;
+    }
+
+    /* Theme Toggle Button */
+    .theme-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      border-radius: var(--radius-sm);
+      background: var(--paper-recessed);
+      border: 1px solid var(--paper-border);
+      color: var(--ink-secondary);
+      cursor: pointer;
+      transition: all 150ms ease;
+    }
+
+    .theme-toggle-btn:hover {
+      background: var(--paper-border);
+      color: var(--ink-primary);
+    }
+
+    html.dark .theme-toggle-btn {
+      background: var(--paper-recessed);
+      border-color: var(--paper-border);
+      color: var(--ink-primary);
+    }
+
+    html.dark .theme-toggle-btn:hover {
+      background: #2a3242;
+      border-color: #3f495e;
+      color: #ffffff;
+    }
+
+    html.dark #sunIcon { display: block !important; }
+    html.dark #moonIcon { display: none !important; }
+    html:not(.dark) #sunIcon { display: none !important; }
+    html:not(.dark) #moonIcon { display: block !important; }
   </style>
 </head>
 <body>
@@ -466,6 +629,22 @@
 
       <div style="display: flex; align-items: center; gap: 10px;">
         <span class="spec-pill">AQA 8525 GCSE</span>
+        <button id="themeToggleBtn" class="theme-toggle-btn" title="Toggle Dark/Light Mode" aria-label="Toggle theme">
+          <svg id="sunIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg id="moonIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
       </div>
     </div>
   </header>
@@ -488,9 +667,9 @@
     <!-- Filter & Search Toolbar -->
     <div class="toolbar-bar">
       <div class="filter-tabs">
-        <button class="filter-btn active" data-filter="all">All Topics (8)</button>
+        <button class="filter-btn active" data-filter="all">All Topics (10)</button>
         <button class="filter-btn" data-filter="paper1">Paper 1: Algorithms &amp; Code (3)</button>
-        <button class="filter-btn" data-filter="paper2">Paper 2: Systems &amp; Data (5)</button>
+        <button class="filter-btn" data-filter="paper2">Paper 2: Systems &amp; Data (7)</button>
       </div>
 
       <div class="search-wrap">
@@ -563,17 +742,17 @@
             </div>
           </div>
           <p class="card-desc">
-            Step-by-step trace table solver with variable grids, boundary testing, logic errors, and modular subroutines.
+            Step-by-step trace table solver with variable grids, live program error debugger, test plan boundary matrix, and modular subroutines.
           </p>
           <div class="card-pills">
-            <span class="feature-pill">Variable Grids</span>
-            <span class="feature-pill">Iteration Tracing</span>
-            <span class="feature-pill">Test Data Types</span>
-            <span class="feature-pill">Subroutines</span>
+            <span class="feature-pill">Trace Tables</span>
+            <span class="feature-pill">Program Debugger</span>
+            <span class="feature-pill">Boundary Test Matrix</span>
+            <span class="feature-pill">Structuring Code</span>
           </div>
         </div>
         <div class="card-footer">
-          <span class="status-text">Trace Solver &bull; Exam Tests</span>
+          <span class="status-text">Trace Solver &bull; Program Debugger</span>
           <a href="./modules/trace-tables/index.html" class="btn-launch" title="Launch Design & Testing">
             <span>Explore</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -623,8 +802,8 @@
         </div>
       </div>
 
-      <!-- 4. Numbers & Characters -->
-      <div class="module-card" data-category="paper2" data-search="numbers characters binary hexadecimal denary twos complement addition shifts bits nibbles bytes units ascii unicode 3.3.1 paper 2">
+      <!-- 4. Numbers & BitMaster Arcade -->
+      <div class="module-card" data-category="paper2" data-search="numbers binary hexadecimal denary arcade game bitmaster twos complement addition shifts bits nibbles bytes units 3.3.1 paper 2">
         <div>
           <div class="card-header">
             <div class="card-icon">
@@ -636,22 +815,61 @@
             </div>
             <div class="card-meta">
               <span class="card-spec">Paper 2 &bull; &sect;3.3.1</span>
-              <h2 class="card-title">Numbers &amp; Characters</h2>
+              <h2 class="card-title">Number Systems &amp; "BitMaster" Arcade</h2>
             </div>
           </div>
           <p class="card-desc">
-            Interactive 8-bit registers for live Denary, Binary, and Hex conversion, two's complement signed arithmetic, binary shifts, and character encoding.
+            Master binary arithmetic with the "BitMaster" arcade game, live 8-bit registers, two's complement, binary shifts, and decimal vs binary data units.
           </p>
           <div class="card-pills">
-            <span class="feature-pill">Binary &amp; Hex</span>
+            <span class="feature-pill">⚡ BitMaster Arcade</span>
+            <span class="feature-pill">8-Bit Register &amp; Hex</span>
             <span class="feature-pill">Two's Complement</span>
-            <span class="feature-pill">Binary Shifts</span>
-            <span class="feature-pill">ASCII &amp; Unicode</span>
+            <span class="feature-pill">Binary Addition</span>
           </div>
         </div>
         <div class="card-footer">
-          <span class="status-text">8-Bit Register Sandbox</span>
-          <a href="./modules/binary-numbers/index.html" class="btn-launch" title="Launch Numbers & Characters">
+          <span class="status-text">Arcade Game &bull; Register Sandbox</span>
+          <a href="./modules/binary-numbers/index.html" class="btn-launch" title="Launch Number Systems">
+            <span>Explore</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- 5. Character Sets & Huffman Coding -->
+      <div class="module-card" data-category="paper2" data-search="characters text encoding ascii unicode utf-8 huffman coding compression prefix code tree variable length 3.3.2 paper 2">
+        <div>
+          <div class="card-header">
+            <div class="card-icon green-tint">
+              <!-- Font / Character icon -->
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="4 7 4 4 20 4 20 7"></polyline>
+                <line x1="9" y1="20" x2="15" y2="20"></line>
+                <line x1="12" y1="4" x2="12" y2="20"></line>
+              </svg>
+            </div>
+            <div class="card-meta">
+              <span class="card-spec">Paper 2 &bull; &sect;3.3.2</span>
+              <h2 class="card-title">Character Sets &amp; Huffman Coding</h2>
+            </div>
+          </div>
+          <p class="card-desc">
+            Explore 7-bit ASCII, 8-bit Extended ASCII, and multi-byte Unicode UTF-8 with an interactive message encoder, +32 case flipper, and live Huffman coding tree lab.
+          </p>
+          <div class="card-pills">
+            <span class="feature-pill">ASCII vs Unicode</span>
+            <span class="feature-pill">Interactive Message Encoder</span>
+            <span class="feature-pill">+32 Bit 5 Flipper</span>
+            <span class="feature-pill">Huffman Tree Lab</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="status-text">Interactive Encoder &bull; Tree Builder</span>
+          <a href="./modules/character-encoding/index.html" class="btn-launch" title="Launch Character Sets">
             <span>Explore</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -825,6 +1043,46 @@
         </div>
       </div>
 
+      <!-- 9. Boolean Logic & Circuits -->
+      <div class="module-card" data-category="paper2" data-search="boolean logic gates and or not xor nand nor truth table breadboard circuit alu adder 3.4.3 paper 2">
+        <div>
+          <div class="card-header">
+            <div class="card-icon blue-tint">
+              <!-- Logic Gate SVG Icon -->
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 6h4c3.31 0 6 2.69 6 6s-2.69 6-6 6H4z"></path>
+                <line x1="2" y1="9" x2="4" y2="9"></line>
+                <line x1="2" y1="15" x2="4" y2="15"></line>
+                <line x1="14" y1="12" x2="22" y2="12"></line>
+              </svg>
+            </div>
+            <div class="card-meta">
+              <span class="card-spec">Paper 2 &bull; &sect;3.4.3</span>
+              <h2 class="card-title">Boolean Logic &amp; Circuits</h2>
+            </div>
+          </div>
+          <p class="card-desc">
+            Interactive logic gate breadboard with live wiring, current flow indicators, real-time truth tables, circuit challenges, and half adder simulators.
+          </p>
+          <div class="card-pills">
+            <span class="feature-pill">Interactive Breadboard</span>
+            <span class="feature-pill">AND &bull; OR &bull; NOT &bull; XOR</span>
+            <span class="feature-pill">Live Truth Tables</span>
+            <span class="feature-pill">Circuit Puzzles</span>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="status-text">Interactive Gate Sandbox</span>
+          <a href="./modules/logic-gates/index.html" class="btn-launch" title="Launch Boolean Logic & Circuits">
+            <span>Explore</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+
     </div>
   </main>
 
@@ -842,6 +1100,7 @@
         <a href="./modules/binary-numbers/index.html">Numbers &amp; Hex</a>
         <a href="./modules/cpu-sim/index.html">CPU Architecture</a>
         <a href="./modules/networks/index.html">Networks &amp; Routing</a>
+        <a href="./modules/logic-gates/index.html">Boolean Logic</a>
       </div>
     </div>
   </footer>
@@ -884,6 +1143,16 @@
       });
 
       searchInput.addEventListener('input', applyFilters);
+
+      // Theme Toggle Support
+      const themeBtn = document.getElementById('themeToggleBtn');
+      if (themeBtn) {
+        themeBtn.addEventListener('click', function() {
+          const isDark = document.documentElement.classList.toggle('dark');
+          localStorage.setItem('theme', isDark ? 'dark' : 'light');
+          localStorage.setItem('gcse_theme', isDark ? 'dark' : 'light');
+        });
+      }
     })();
   </script>
 </body>

@@ -1,5 +1,5 @@
 /**
- * GCSE Trace Table Lab Logic
+ * GCSE Trace Table Interactive Workbench Logic
  * Aligned with AQA 8525 Paper 1 (Computational Thinking, Algorithms & Testing)
  */
 
@@ -15,8 +15,9 @@
     const sunIcon = document.getElementById('sunIcon');
     const moonIcon = document.getElementById('moonIcon');
 
-    const saved = localStorage.getItem('theme');
-    const isDark = saved === 'dark';
+    const p = new URLSearchParams(window.location.search).get('theme');
+    const saved = p || localStorage.getItem('gcse_theme') || localStorage.getItem('theme');
+    const isDark = saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches);
     if (isDark) {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
@@ -40,11 +41,13 @@
           document.documentElement.classList.remove('dark');
           document.documentElement.classList.add('light');
           localStorage.setItem('theme', 'light');
+          localStorage.setItem('gcse_theme', 'light');
           updateIcons(false);
         } else {
           document.documentElement.classList.add('dark');
           document.documentElement.classList.remove('light');
           localStorage.setItem('theme', 'dark');
+          localStorage.setItem('gcse_theme', 'dark');
           updateIcons(true);
         }
       });
@@ -57,10 +60,15 @@
 
   const PROBLEMS = [
     {
-      id: 'q1',
-      title: 'Q1: Counter & While Loop',
-      marksBadge: '3 MARKS (WARM-UP)',
-      prompt: 'Trace the execution of this algorithm that calculates the triangular sum of numbers up to 4 using a <code>while</code> loop.',
+      id: 'q0',
+      type: 'worked_example',
+      prefilledRows: [0, 1, 2, 3, 4, 5],
+      title: '0. Worked Example: While Loop & Counter',
+      marksBadge: 'WORKED EXAMPLE (DEMO)',
+      badgeClass: 'badge-worked',
+      tierBadge: 'WORKED EXAMPLE (DEMO)',
+      tierDesc: '<strong>Worked Example:</strong> Step through line-by-line using <strong>Step Line</strong> or <strong>▶ Auto Play</strong> on the left to observe how each line updates the trace table and live variables inspector.',
+      prompt: 'Watch how the trace table records variable updates. Click <strong>Step Line</strong> to execute each Python statement and observe how variables change in the table and inspector.',
       code: [
         'total = 0',
         'count = 1',
@@ -72,9 +80,10 @@
       columns: ['count', 'total', 'Output'],
       initialVars: { count: '—', total: '—' },
       markSchemeNotes: `
-        • <strong>1 Mark:</strong> Correct initialisation row: <code>count: 1, total: 0</code><br>
-        • <strong>1 Mark:</strong> Correct loop updates: <code>total</code> sequence (1, 3, 6, 10) and <code>count</code> (2, 3, 4, 5)<br>
-        • <strong>1 Mark:</strong> Correct terminal condition and final output: <code>Done. Total = 10</code>
+        • <strong>Initialisation row:</strong> <code>count: 1, total: 0</code> recorded on lines 1 &amp; 2.<br>
+        • <strong>Golden Rule:</strong> Variables only appear on a line when their value changes!<br>
+        • <strong>Loop updates:</strong> <code>total</code> sequence (1, 3, 6, 10) and <code>count</code> (2, 3, 4, 5)<br>
+        • <strong>Termination &amp; Output:</strong> Loop exits when <code>count <= 4</code> is False (at count = 5). Output: <code>Done. Total = 10</code>.
       `,
       solutionRows: [
         { count: '1',  total: '0',  output: '' },
@@ -104,10 +113,15 @@
       ]
     },
     {
-      id: 'q2',
-      title: 'Q2: Modulo & Selection Trap',
-      marksBadge: '4 MARKS (EXAM TRAP)',
-      prompt: 'Trace this algorithm containing a decrementing loop and an <code>if score % 2 == 0</code> even-number check.',
+      id: 'q1',
+      type: 'partially_filled',
+      prefilledRows: [0, 1],
+      title: '1. Guided Practice: Modulo & Selection',
+      marksBadge: '4 MARKS (GUIDED PRACTICE)',
+      badgeClass: 'badge-guided',
+      tierBadge: 'GUIDED PRACTICE (PARTIALLY FILLED)',
+      tierDesc: '<strong>Guided Practice:</strong> Rows 1 &amp; 2 are pre-filled (marked <span class="given-tag">GIVEN</span>) to guide you. Fill in rows 3 to 6, then click <strong>Run &amp; Check Trace</strong> to test your answers against code execution.',
+      prompt: 'Trace this algorithm containing a decrementing loop and an <code>if score % 2 == 0</code> even-number check. <strong>Rows 1 &amp; 2 are pre-filled as a guide.</strong> Complete rows 3 to 6!',
       code: [
         'score = 10',
         'bonus = 0',
@@ -120,10 +134,11 @@
       columns: ['score', 'bonus', 'Output'],
       initialVars: { score: '—', bonus: '—' },
       markSchemeNotes: `
-        • <strong>1 Mark:</strong> Initial values: <code>score: 10, bonus: 0</code><br>
-        • <strong>1 Mark:</strong> Iteration 1: <code>bonus: 2, score: 7</code><br>
-        • <strong>1 Mark:</strong> Subsequent decrements: <code>score: 4, bonus: 4, score: 1, score: -2</code><br>
-        • <strong>1 Mark:</strong> Correct termination (stops at -2) and final output: <code>Bonus = 4</code>
+        • <strong>Given Rows (1 &amp; 2):</strong> Initial values <code>score: 10, bonus: 0</code> and first iteration <code>bonus: 2, score: 7</code>.<br>
+        • <strong>Row 3:</strong> <code>score: 4</code> (7 % 2 == 0 is False, so bonus is unchanged &amp; left blank).<br>
+        • <strong>Row 4:</strong> 4 % 2 == 0 is True &rarr; <code>bonus: 4, score: 1</code>.<br>
+        • <strong>Row 5:</strong> 1 % 2 == 0 is False &rarr; <code>score: -2</code> (bonus left blank).<br>
+        • <strong>Row 6:</strong> -2 &gt; 0 is False &rarr; loop terminates. Output: <code>Bonus = 4</code>.
       `,
       solutionRows: [
         { score: '10', bonus: '0', output: '' },
@@ -155,10 +170,15 @@
       ]
     },
     {
-      id: 'q3',
-      title: 'Q3: Search with Boolean Flag',
-      marksBadge: '5 MARKS (CORE AQA)',
-      prompt: 'Trace an array search that stops immediately once a value greater than 6 is found using a boolean flag.',
+      id: 'q2',
+      type: 'blank',
+      prefilledRows: [],
+      title: '2. Independent Practice: Search with Flag',
+      marksBadge: '5 MARKS (INDEPENDENT)',
+      badgeClass: 'badge-independent',
+      tierBadge: 'INDEPENDENT PRACTICE',
+      tierDesc: '<strong>Independent Practice:</strong> Complete this blank trace table from scratch. Remember the Golden Rule: only enter a value when that variable changes! Click <strong>Run &amp; Check Trace</strong> when ready.',
+      prompt: 'Trace an array search that stops immediately once a value greater than 6 is found using a boolean flag. Complete the blank trace table from scratch.',
       code: [
         'nums = [4, 7, 2, 9]',
         'found = False',
@@ -201,10 +221,15 @@
       ]
     },
     {
-      id: 'q4',
-      title: 'Q4: Integer Div & Mod (Binary)',
-      marksBadge: '5 MARKS (ALGORITHMIC)',
-      prompt: 'Trace how repeated integer division (<code>//</code>) and modulo (<code>%</code>) convert decimal number 13 into binary.',
+      id: 'q3',
+      type: 'blank',
+      prefilledRows: [],
+      title: '3. Exam Challenge: Integer Div & Mod (Binary)',
+      marksBadge: '5 MARKS (EXAM CHALLENGE)',
+      badgeClass: 'badge-challenge',
+      tierBadge: 'EXAM CHALLENGE',
+      tierDesc: '<strong>Exam Challenge:</strong> Algorithmic binary conversion with integer division and modulo. Complete the blank trace table from scratch, then click <strong>Run &amp; Check Trace</strong>.',
+      prompt: 'Trace how repeated integer division (<code>//</code>) and modulo (<code>%</code>) convert decimal number 13 into binary. Complete the blank trace table from scratch.',
       code: [
         'n = 13',
         'bits = ""',
@@ -220,7 +245,7 @@
         • <strong>1 Mark:</strong> Initial values: <code>n: 13, bits: ""</code><br>
         • <strong>1 Mark:</strong> Iteration 1: <code>rem: 1, bits: "1", n: 6</code><br>
         • <strong>1 Mark:</strong> Iteration 2: <code>rem: 0, bits: "01", n: 3</code><br>
-        • <strong>1 Mark:</strong> Iteration 3 & 4: <code>rem: 1, bits: "101", n: 1</code> then <code>rem: 1, bits: "1101", n: 0</code><br>
+        • <strong>1 Mark:</strong> Iteration 3 &amp; 4: <code>rem: 1, bits: "101", n: 1</code> then <code>rem: 1, bits: "1101", n: 0</code><br>
         • <strong>1 Mark:</strong> Loop terminates at n=0 with output: <code>Binary = 1101</code>
       `,
       solutionRows: [
@@ -264,7 +289,6 @@
   let currentStepIndex = -1; // -1 = before start
   let isAutoPlaying = false;
   let autoPlayTimer = null;
-  let activeMode = 'auto'; // 'auto' | 'practice'
 
   // =========================================================================
   // 4. RENDERING & UI UPDATES
@@ -284,15 +308,50 @@
       pill.classList.toggle('active', idx === index);
     });
 
-    // Update headers
-    document.getElementById('problemTitle').textContent = p.title;
-    document.getElementById('problemMarksBadge').textContent = p.marksBadge;
-    document.getElementById('problemPrompt').innerHTML = p.prompt;
-    document.getElementById('markSchemeNotes').innerHTML = p.markSchemeNotes;
+    // Update headers and badges
+    const titleEl = document.getElementById('problemTitle');
+    if (titleEl) titleEl.textContent = p.title;
+
+    const marksBadge = document.getElementById('problemMarksBadge');
+    if (marksBadge) {
+      marksBadge.textContent = p.marksBadge;
+      marksBadge.className = `marks-badge ${p.badgeClass || ''}`;
+    }
+
+    const tierBadge = document.getElementById('tierBadge');
+    if (tierBadge) {
+      tierBadge.textContent = p.tierBadge || p.marksBadge;
+      tierBadge.className = `marks-badge ${p.badgeClass || ''}`;
+    }
+
+    const modeDesc = document.getElementById('modeDescText');
+    if (modeDesc) {
+      modeDesc.innerHTML = p.tierDesc || '';
+    }
+
+    const promptEl = document.getElementById('problemPrompt');
+    if (promptEl) promptEl.innerHTML = p.prompt;
+
+    const markNotes = document.getElementById('markSchemeNotes');
+    if (markNotes) markNotes.innerHTML = p.markSchemeNotes;
+
+    // Show/hide action toolbars based on tier
+    const practiceToolbar = document.getElementById('practiceActionsBar');
+    const workedExampleBar = document.getElementById('workedExampleActionBar');
+
+    if (p.type === 'worked_example') {
+      if (practiceToolbar) practiceToolbar.style.display = 'none';
+      if (workedExampleBar) workedExampleBar.style.display = 'flex';
+    } else {
+      if (practiceToolbar) practiceToolbar.style.display = 'flex';
+      if (workedExampleBar) workedExampleBar.style.display = 'none';
+    }
 
     // Reset console
     const consoleBox = document.getElementById('consoleOutputBox');
-    consoleBox.innerHTML = '<span style="color: var(--text-muted); font-style: italic;">(No output printed yet)</span>';
+    if (consoleBox) {
+      consoleBox.innerHTML = '<span style="color: var(--text-muted); font-style: italic;">(No output printed yet)</span>';
+    }
 
     // Render code view
     renderCode(p.code);
@@ -307,7 +366,7 @@
     const expText = document.getElementById('stepExplanationText');
     if (expText) expText.textContent = "Click 'Step Line' to trace line 1";
 
-    // Reset feedback
+    // Reset feedback & score
     const feedbackBox = document.getElementById('practiceFeedbackBox');
     if (feedbackBox) feedbackBox.style.display = 'none';
     const scoreBadge = document.getElementById('practiceScoreBadge');
@@ -316,6 +375,7 @@
 
   function renderCode(codeLines) {
     const viewer = document.getElementById('codeViewer');
+    if (!viewer) return;
     viewer.innerHTML = '';
 
     codeLines.forEach((lineText, idx) => {
@@ -340,6 +400,7 @@
 
   function renderVarChips(varsObj) {
     const grid = document.getElementById('varWatchGrid');
+    if (!grid) return;
     grid.innerHTML = '';
 
     Object.entries(varsObj).forEach(([vName, vVal]) => {
@@ -358,6 +419,7 @@
     const p = PROBLEMS[activeProblemIndex];
     const head = document.getElementById('traceGridHead');
     const body = document.getElementById('traceGridBody');
+    if (!head || !body) return;
 
     head.innerHTML = '';
     body.innerHTML = '';
@@ -378,8 +440,8 @@
     });
     head.appendChild(htr);
 
-    if (activeMode === 'auto') {
-      // Auto-Sync Mode: Render empty rows initially
+    if (p.type === 'worked_example') {
+      // Worked Example Mode: Pre-rendered cells initially displaying '—'
       p.solutionRows.forEach((row, rowIdx) => {
         const tr = document.createElement('tr');
         tr.id = `traceRow-${rowIdx}`;
@@ -398,24 +460,50 @@
         body.appendChild(tr);
       });
     } else {
-      // Student Test Mode: Render input fields
+      // Practice Mode (Guided with pre-filled scaffolding or Independent / Challenge blank)
+      const prefilledSet = new Set(p.prefilledRows || []);
+
       p.solutionRows.forEach((row, rowIdx) => {
         const tr = document.createElement('tr');
+        tr.id = `traceRow-${rowIdx}`;
 
         const tdStep = document.createElement('td');
         tdStep.textContent = rowIdx + 1;
         tdStep.style.color = 'var(--text-muted)';
         tr.appendChild(tdStep);
 
+        const isPrefilledRow = prefilledSet.has(rowIdx);
+
         p.columns.forEach(col => {
           const td = document.createElement('td');
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.className = 'trace-input';
-          input.setAttribute('data-row', rowIdx);
-          input.setAttribute('data-col', col);
-          input.placeholder = 'leave blank if unchanged';
-          td.appendChild(input);
+
+          if (isPrefilledRow) {
+            let val = '';
+            if (col === 'Output') {
+              val = row.output || '';
+            } else {
+              val = row[col] || '';
+            }
+            const box = document.createElement('div');
+            box.className = 'prefilled-cell-box';
+            box.title = 'Pre-filled reference cell (scaffolding)';
+            box.innerHTML = `
+              <span class="cell-val">${val !== '' ? val : '—'}</span>
+              <span class="given-tag">GIVEN</span>
+            `;
+            td.appendChild(box);
+          } else {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'trace-input';
+            input.setAttribute('data-row', rowIdx);
+            input.setAttribute('data-col', col);
+            input.placeholder = '—';
+            input.autocomplete = 'off';
+            input.spellcheck = false;
+            td.appendChild(input);
+          }
+
           tr.appendChild(td);
         });
         body.appendChild(tr);
@@ -424,7 +512,7 @@
   }
 
   // =========================================================================
-  // 5. STEPPER ENGINE (AUTO-SYNC MODE)
+  // 5. STEPPER ENGINE
   // =========================================================================
 
   function stepForward() {
@@ -454,6 +542,7 @@
     stopAutoPlay();
     currentStepIndex = -1;
     const p = PROBLEMS[activeProblemIndex];
+    if (!p) return;
 
     // Remove active code lines
     document.querySelectorAll('.code-line').forEach(l => l.classList.remove('active'));
@@ -473,66 +562,72 @@
       expText.textContent = "Click 'Step Line' to trace line 1";
     }
 
-    // Reset table cells
+    // Reset table cells in worked example or active row highlight
     syncTraceTableToStep(-1);
   }
 
   function syncTraceTableToStep(stepIdx) {
-    if (activeMode !== 'auto') return;
     const p = PROBLEMS[activeProblemIndex];
     if (!p) return;
 
-    // Reset all cells in all rows to '—' and clear highlights
+    // Remove active-row from all rows
     p.solutionRows.forEach((row, rowIdx) => {
-      p.columns.forEach(col => {
-        const cell = document.getElementById(`traceCell-${rowIdx}-${col}`);
-        if (cell) {
-          cell.textContent = '—';
-          cell.className = '';
-        }
-      });
       const tr = document.getElementById(`traceRow-${rowIdx}`);
       if (tr) tr.classList.remove('active-row');
     });
 
-    if (stepIdx < 0) return;
+    if (p.type === 'worked_example') {
+      // Reset all cells to '—' and clear highlights
+      p.solutionRows.forEach((row, rowIdx) => {
+        p.columns.forEach(col => {
+          const cell = document.getElementById(`traceCell-${rowIdx}-${col}`);
+          if (cell) {
+            cell.textContent = '—';
+            cell.className = '';
+          }
+        });
+      });
 
-    // Highlight the row of the current step if applicable
-    const currentStep = p.steps[stepIdx];
-    if (currentStep && currentStep.rowIdx !== null) {
-      const tr = document.getElementById(`traceRow-${currentStep.rowIdx}`);
-      if (tr) tr.classList.add('active-row');
-    }
+      if (stepIdx >= 0) {
+        // Replay each step from 0 up to stepIdx
+        for (let i = 0; i <= stepIdx; i++) {
+          const s = p.steps[i];
+          if (!s || s.rowIdx === null) continue;
 
-    // Replay each step from 0 up to stepIdx
-    for (let i = 0; i <= stepIdx; i++) {
-      const s = p.steps[i];
-      if (!s || s.rowIdx === null) continue;
+          const isCurrentStep = (i === stepIdx);
 
-      const isCurrentStep = (i === stepIdx);
+          if (s.changedVar) {
+            const cell = document.getElementById(`traceCell-${s.rowIdx}-${s.changedVar}`);
+            if (cell) {
+              cell.textContent = String(s.vars[s.changedVar]);
+              cell.className = isCurrentStep ? 'cell-changed' : '';
+            }
+          }
 
-      // Variable assignment update
-      if (s.changedVar) {
-        const cell = document.getElementById(`traceCell-${s.rowIdx}-${s.changedVar}`);
-        if (cell) {
-          cell.textContent = String(s.vars[s.changedVar]);
-          cell.className = isCurrentStep ? 'cell-changed' : '';
+          if (s.output) {
+            const cell = document.getElementById(`traceCell-${s.rowIdx}-Output`);
+            if (cell) {
+              cell.textContent = s.output;
+              cell.className = isCurrentStep ? 'cell-output' : '';
+            }
+          }
         }
       }
+    }
 
-      // Terminal output
-      if (s.output) {
-        const cell = document.getElementById(`traceCell-${s.rowIdx}-Output`);
-        if (cell) {
-          cell.textContent = s.output;
-          cell.className = isCurrentStep ? 'cell-output' : '';
-        }
+    // In all modes (Worked Example, Guided, Blank), highlight active row!
+    if (stepIdx >= 0 && stepIdx < p.steps.length) {
+      const currentStep = p.steps[stepIdx];
+      if (currentStep && currentStep.rowIdx !== null) {
+        const tr = document.getElementById(`traceRow-${currentStep.rowIdx}`);
+        if (tr) tr.classList.add('active-row');
       }
     }
   }
 
   function applyStep(stepIdx) {
     const p = PROBLEMS[activeProblemIndex];
+    if (!p) return;
     const step = p.steps[stepIdx];
     if (!step) return;
 
@@ -555,7 +650,7 @@
       }
     });
 
-    // Console output: reconstruct up to current step so Back button also works
+    // Console output: reconstruct up to current step
     let latestOutput = '';
     for (let i = 0; i <= stepIdx; i++) {
       if (p.steps[i].output) latestOutput = p.steps[i].output;
@@ -576,7 +671,7 @@
       expText.textContent = `Line ${step.line}: ${step.desc}`;
     }
 
-    // Sync trace table cells dynamically
+    // Sync trace table highlights & values
     syncTraceTableToStep(stepIdx);
   }
 
@@ -611,34 +706,45 @@
   }
 
   // =========================================================================
-  // 6. STUDENT TEST MODE & VERIFIER
+  // 6. STUDENT PRACTICE MODE & VERIFIER
   // =========================================================================
 
-  function setMode(mode) {
-    activeMode = mode;
-    stopAutoPlay();
-
-    const modeAutoBtn = document.getElementById('modeAutoBtn');
-    const modePracticeBtn = document.getElementById('modePracticeBtn');
-    const modeDesc = document.getElementById('modeDescText');
-    const practiceToolbar = document.getElementById('practiceActionsBar');
-
-    if (mode === 'auto') {
-      modeAutoBtn.classList.add('active');
-      modePracticeBtn.classList.remove('active');
-      modeDesc.innerHTML = '<strong>Auto-Sync Mode:</strong> As you click <strong>Step Line</strong>, the table fills automatically and highlights changing variables.';
-      if (practiceToolbar) practiceToolbar.style.display = 'none';
-    } else {
-      modePracticeBtn.classList.add('active');
-      modeAutoBtn.classList.remove('active');
-      modeDesc.innerHTML = '<strong>Student Test Mode:</strong> Fill in the blanks below as you trace the code! Remember: leave cells blank if a variable does not change.';
-      if (practiceToolbar) practiceToolbar.style.display = 'flex';
+  function normalizeCellVal(val) {
+    if (val === null || val === undefined) return '';
+    let str = String(val).trim();
+    // Strip surrounding quotes: "1" -> 1, '1' -> 1, "" -> empty
+    if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) {
+      str = str.slice(1, -1).trim();
     }
-
-    renderTraceGrid();
+    return str.toLowerCase();
   }
 
-  function checkPracticeAnswers() {
+  function playSuccessFanfare() {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        const ctx = new AudioCtx();
+        if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+        const now = ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + (idx * 0.08));
+          gain.gain.setValueAtTime(0.0001, now + (idx * 0.08));
+          gain.gain.linearRampToValueAtTime(0.18, now + (idx * 0.08) + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + (idx * 0.08) + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + (idx * 0.08));
+          osc.stop(now + (idx * 0.08) + 0.4);
+        });
+      }
+    } catch (e) {}
+  }
+
+  function runAndCheckPracticeAnswers() {
     const p = PROBLEMS[activeProblemIndex];
     if (!p) return;
 
@@ -660,11 +766,13 @@
 
       totalCells++;
 
-      // Normalize string comparisons: ignore outer quotes & case for booleans
-      const cleanUser = userVal.replace(/^["']|["']$/g, '').toLowerCase();
-      const cleanExpected = expectedVal.replace(/^["']|["']$/g, '').toLowerCase();
+      const cleanUser = normalizeCellVal(userVal);
+      const cleanExpected = normalizeCellVal(expectedVal);
 
-      if (cleanUser === cleanExpected) {
+      // Match exact value or treat dash as empty/unchanged
+      const isMatch = (cleanUser === cleanExpected) || (cleanExpected === '' && (cleanUser === '—' || cleanUser === '-'));
+
+      if (isMatch) {
         input.classList.remove('wrong');
         input.classList.add('correct');
         correctCells++;
@@ -674,12 +782,19 @@
       }
     });
 
-    const scorePct = Math.round((correctCells / totalCells) * 100);
+    const scorePct = totalCells > 0 ? Math.round((correctCells / totalCells) * 100) : 100;
     const feedbackBox = document.getElementById('practiceFeedbackBox');
     const scoreBadge = document.getElementById('practiceScoreBadge');
 
+    // Run execution to the final step so live variables & terminal match completed state
+    if (p.steps && p.steps.length > 0) {
+      currentStepIndex = p.steps.length - 1;
+      applyStep(currentStepIndex);
+    }
+
     if (scoreBadge) {
       scoreBadge.textContent = `${correctCells} / ${totalCells} cells correct (${scorePct}%)`;
+      scoreBadge.style.color = (scorePct === 100) ? 'var(--forest-green, #16a34a)' : (scorePct >= 70 ? 'var(--isaac-gold, #b45309)' : 'var(--cardinal-red, #dc2626)');
     }
 
     if (feedbackBox) {
@@ -690,7 +805,7 @@
         feedbackBox.style.color = 'var(--forest-green, #1a6b3c)';
         feedbackBox.innerHTML = `
           <strong>✓ Full Marks (${correctCells}/${totalCells}):</strong><br>
-          You correctly recorded variable updates only on the lines where values changed, maintained correct loop bounds, and traced the terminal output accurately.
+          Outstanding! Your trace matches the program execution perfectly. You correctly recorded variable updates only when values changed and captured final loop termination and console output accurately.
         `;
         try {
           if (typeof confetti === 'function') {
@@ -701,13 +816,18 @@
             });
           }
         } catch (e) {}
+        playSuccessFanfare();
       } else {
         feedbackBox.style.background = 'var(--red-tint, #fef2f2)';
         feedbackBox.style.border = '1px solid var(--cardinal-red, #a82020)';
         feedbackBox.style.color = 'var(--cardinal-red, #a82020)';
         feedbackBox.innerHTML = `
-          <strong>Check Your Trace (${correctCells} of ${totalCells} cells matched):</strong><br>
-          Red cells highlight where your trace differed from the mark scheme. Check loop conditions carefully, and remember only to write in a column when that variable changes value.
+          <strong>Trace Comparison (${correctCells} of ${totalCells} cells matched):</strong><br>
+          <span style="display:inline-block; margin-top:4px;">
+            • Red cells highlight where your trace diverged from the program execution.<br>
+            • Remember the <strong>Golden Rule</strong>: leave a cell blank if that variable did not change on that iteration.<br>
+            • Use the <strong>Step Line</strong> or <strong>Back</strong> buttons on the left to step through line-by-line and inspect variable values at each step.
+          </span>
         `;
       }
     }
@@ -734,8 +854,44 @@
       input.classList.add('correct');
     });
 
+    if (p.steps && p.steps.length > 0) {
+      currentStepIndex = p.steps.length - 1;
+      applyStep(currentStepIndex);
+    }
+
     const scoreBadge = document.getElementById('practiceScoreBadge');
-    if (scoreBadge) scoreBadge.textContent = 'Solution Revealed (Model Answers)';
+    if (scoreBadge) {
+      scoreBadge.textContent = 'Model Solution Displayed';
+      scoreBadge.style.color = 'var(--oxford-navy, #1e3a8a)';
+    }
+
+    const feedbackBox = document.getElementById('practiceFeedbackBox');
+    if (feedbackBox) {
+      feedbackBox.style.display = 'block';
+      feedbackBox.style.background = 'var(--navy-tint, #e0e7ff)';
+      feedbackBox.style.border = '1px solid var(--navy-border, #bfdbfe)';
+      feedbackBox.style.color = 'var(--oxford-navy, #1e3a8a)';
+      feedbackBox.innerHTML = `
+        <strong>Model Solution Displayed:</strong><br>
+        All cells have been populated with the mark scheme answers. Step through the code with <strong>Back</strong> and <strong>Step Line</strong> to trace how each value is produced.
+      `;
+    }
+  }
+
+  function clearPracticeInputs() {
+    const inputs = document.querySelectorAll('.trace-input');
+    inputs.forEach(input => {
+      input.value = '';
+      input.classList.remove('correct', 'wrong');
+    });
+
+    const scoreBadge = document.getElementById('practiceScoreBadge');
+    if (scoreBadge) scoreBadge.textContent = '';
+
+    const feedbackBox = document.getElementById('practiceFeedbackBox');
+    if (feedbackBox) feedbackBox.style.display = 'none';
+
+    resetTrace();
   }
 
   // =========================================================================
@@ -762,19 +918,18 @@
     if (btnReset) btnReset.addEventListener('click', resetTrace);
     if (btnAutoPlay) btnAutoPlay.addEventListener('click', toggleAutoPlay);
 
-    // Mode buttons
-    const modeAutoBtn = document.getElementById('modeAutoBtn');
-    const modePracticeBtn = document.getElementById('modePracticeBtn');
-    if (modeAutoBtn) modeAutoBtn.addEventListener('click', () => setMode('auto'));
-    if (modePracticeBtn) modePracticeBtn.addEventListener('click', () => setMode('practice'));
-
-    // Practice buttons
+    // Practice action buttons
     const btnCheck = document.getElementById('btnCheckPracticeAnswers');
     const btnReveal = document.getElementById('btnRevealAnswers');
-    if (btnCheck) btnCheck.addEventListener('click', checkPracticeAnswers);
-    if (btnReveal) btnReveal.addEventListener('click', revealSolution);
+    const btnClear = document.getElementById('btnClearPractice');
+    const btnGoToGuided = document.getElementById('btnGoToGuided');
 
-    // Initial load
+    if (btnCheck) btnCheck.addEventListener('click', runAndCheckPracticeAnswers);
+    if (btnReveal) btnReveal.addEventListener('click', revealSolution);
+    if (btnClear) btnClear.addEventListener('click', clearPracticeInputs);
+    if (btnGoToGuided) btnGoToGuided.addEventListener('click', () => loadProblem(1));
+
+    // Initial load: 0. Worked Example
     loadProblem(0);
   }
 

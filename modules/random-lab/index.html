@@ -43,8 +43,8 @@
   <!-- Top Sticky Navigation -->
   <header class="site-nav">
     <div class="container nav-container">
-      <div style="display: flex; align-items: center; gap: 14px;">
-        <a href="../../index.html" class="btn btn-secondary btn-sm" title="Return to Revision Hub">
+      <div class="header-brand-group">
+        <a href="../../index.html" class="btn btn-secondary btn-sm back-link" title="Return to Revision Hub">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
@@ -52,24 +52,18 @@
           Back to Hub
         </a>
 
-        <div class="nav-title-group" style="display: flex; align-items: center; gap: 10px;">
+        <div class="nav-title-group">
           <div class="nav-icon-badge" style="background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);">
-            <!-- Dice / Seed SVG -->
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <!-- 3-pip Dice SVG matching front page -->
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
               <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"></circle>
               <circle cx="15.5" cy="8.5" r="1.5" fill="currentColor"></circle>
               <circle cx="12" cy="12" r="1.5" fill="currentColor"></circle>
-              <circle cx="8.5" cy="15.5" r="1.5" fill="currentColor"></circle>
-              <circle cx="15.5" cy="15.5" r="1.5" fill="currentColor"></circle>
             </svg>
           </div>
-          <div>
-            <h1 class="nav-module-title" style="margin: 0; font-size: 15.5px; font-weight: 800;">
-              Random Numbers &amp; PRNG
-            </h1>
-          </div>
-          <span class="badge badge-topic" style="font-size: 10px;">AQA 8525 §3.2</span>
+          <h1 class="nav-module-title">Random Numbers &amp; PRNG</h1>
+          <span class="badge badge-topic">AQA 8525 §3.2</span>
         </div>
       </div>
 
@@ -92,7 +86,7 @@
           PRNG Engine &amp; Math
         </button>
 
-        <button class="view-tab-btn" data-tab="exam" role="tab" aria-selected="false">
+        <button class="view-tab-btn" data-tab="revision" role="tab" aria-selected="false">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
@@ -137,7 +131,7 @@
       <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
         <h2>Procedural Generation &amp; Random Numbers</h2>
-        <p>Explore pseudo-random number generators by simulating coin flips, rolling dice, and procedurally generating terrain from mathematical seeds.</p>
+        <p>When computers generate data, like a game world, automatically using algorithms it is called procedural generation. Computers take a seed value and generate pseudo-random numbers from it to power this procedural generation. Explore this below.</p>
       </div>
 
       <!-- Mode Selector Toolbar -->
@@ -257,8 +251,8 @@
       
       <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
-        <h2>PRNG Engine &amp; Mathematics</h2>
-        <p>Step through how deterministic math formulas turn seed numbers into predictable sequences of pseudo-random values.</p>
+        <h2>Pseudo-Random Numbers</h2>
+        <p>Computers cannot produce true random numbers by themselves. Although the numbers that computers produce may look random, if you start with the same seed value they will always follow the exact same predictable pattern.</p>
       </div>
 
       <div class="rl-engine-grid">
@@ -348,12 +342,12 @@
     <!-- =================================================================== -->
     <!-- TAB 3: REVISION                                                     -->
     <!-- =================================================================== -->
-    <section id="tab-exam" class="tab-view">
+    <section id="tab-revision" class="tab-view">
       
       <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
         <h2>Random Numbers Revision</h2>
-        <p>Core concepts, pseudocode syntax, and exam requirements for random number generation in GCSE Computer Science.</p>
+        <p>Master GCSE pseudocode syntax, understand PRNG vs true physical random generators, and see why games and simulations use seeds to create infinite repeatable worlds.</p>
       </div>
 
       <!-- Revision Cards Stack -->

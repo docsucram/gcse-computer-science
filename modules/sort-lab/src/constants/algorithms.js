@@ -28,6 +28,7 @@ export const ALGORITHMS = {
       stability: 'Stable because equal elements are never swapped past one another (only strict `>` triggers swap).'
     },
     analogy: '🫧 Like bubbles rising in fizzy soda! It compares two side-by-side neighbours: if the left item is bigger, they swap places. By the end of Pass 1, the largest number has bubbled all the way to the right end!',
+    compactDesc: "Compares adjacent pairs and swaps them if out of order. Larger values 'bubble' to the end of the list with each pass.",
     description: "Imagine lining students up by height from shortest to tallest. You walk down the line from left to right, comparing two neighbours at a time. If the person on the left is taller than the person on the right, you swap them. By the time you reach the end of your very first walk, the tallest person has 'bubbled' all the way to the far right. You then repeat the walk for the rest of the line until you can make an entire pass without swapping anyone.",
     pros: [
       'Extremely simple to implement and understand for beginners.',
@@ -148,6 +149,7 @@ export const ALGORITHMS = {
       stability: 'Stable sort: preserves relative ordering when merge condition uses `<=`.'
     },
     analogy: '✂️ Divide & Conquer (Zipper Teeth)! It chops the list in half again and again until every item is alone in its own 1-item box (a list of 1 is always sorted!). Then it merges neighbouring boxes back together like teeth on a zipper, picking the smaller number each time.',
+    compactDesc: "Divide-and-conquer: recursively splits the list in half down to single items, then merges sorted pairs back together.",
     description: "Imagine being handed a messy stack of 30 shuffled exam papers. Instead of trying to sort them all at once, you keep splitting the pile in half until you have 30 individual piles with just 1 paper each (a pile of 1 paper is already sorted!). Then you work backwards, picking up two piles at a time, looking at their top papers, and zipping the smaller paper into a neat combined pile. You repeat this pairing up until the whole stack is merged into one ordered pile.",
     pros: [
       'Guaranteed consistent O(n log n) performance for all inputs (best, average, worst).',
@@ -247,6 +249,7 @@ export const ALGORITHMS = {
       stability: 'Stable sort: elements with identical values maintain original order.'
     },
     analogy: '🃏 Sorting playing cards in your hand! You look at the unsorted cards on the table one-by-one, pick the next card up, and slide it backwards into its exact right spot among the cards you already hold.',
+    compactDesc: "Builds a sorted list one item at a time by picking each element and sliding it left into its correct position.",
     description: "Just like sorting a hand of playing cards. You leave your cards face down on the table, pick them up one by one, and slide each new card backwards into its exact correct spot among the cards you are already holding. You repeat this until every card from the table is sitting neatly in order in your hand.",
     pros: [
       'Very efficient for small datasets (n < 30) or nearly sorted lists.',
@@ -340,6 +343,7 @@ export const ALGORITHMS = {
       stability: 'Unstable: long-distance swaps can reorder identical elements.'
     },
     analogy: '🔍 Finding the shortest person in a crowd! It scans the entire unsorted list for the smallest number and swaps it straight into the first spot. Then it repeats for the 2nd spot, 3rd spot, and so on.',
+    compactDesc: "Scans the remaining list for the smallest element and swaps it directly into the next open slot at the front.",
     description: "Imagine looking through a rack of clothes to find the smallest size. You scan through the entire unsorted rack to spot the absolute smallest item, then swap it with whatever is currently hanging in the very first slot. Then you scan the rest of the rack for the second smallest item and put it in the second slot. You repeat this one winner at a time until the entire rack is sorted.",
     pros: [
       'Minimizes the number of writes/swaps: performs at most n - 1 swaps total.',
@@ -418,6 +422,7 @@ export const ALGORITHMS = {
       stability: 'Unstable: swapping elements across the pivot can disrupt relative order.'
     },
     analogy: '🎯 The Pivot Teeter-Totter! Pick a target number (the pivot). Push everything smaller to the left, and everything bigger to the right. Repeat on both sides until every number is locked in place!',
+    compactDesc: "Pivots around an element, partitioning smaller items left and larger items right, then recurses on both partitions.",
     description: "Pick one number to be the 'pivot' (the divider). Then split everyone else into two groups: all smaller numbers are tossed to the left, and all bigger numbers are tossed to the right. The pivot is now locked in its exact permanent spot! You then repeat the same trick on the left group and the right group until every single number is in place.",
     pros: [
       'Fastest general-purpose comparison sort in practice with very small constant factors.',
@@ -481,6 +486,7 @@ export const ALGORITHMS = {
       space: 'O(1) auxiliary in-place memory.',
       stability: 'Unstable due to bidirectional swapping over the full length.'
     },
+    compactDesc: "A concise 2-loop sorting curiosity that sorts through systematic symmetric comparisons and swaps.",
     description: 'A mind-bendingly short, symmetric 2-loop sorting algorithm published by Stanley P. Y. Fung in 2021. Both loops iterate from 0 to n-1.',
     pros: [
       'Remarkably concise: only 4 lines of code.',

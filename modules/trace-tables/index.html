@@ -14,15 +14,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
+  <!-- Shared Design System -->
+  <link rel="stylesheet" href="../../shared/styles.css">
   <link rel="stylesheet" href="./modular.css">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   
   <script>
     (function() {
       try {
-        var theme = localStorage.getItem('theme');
-        if (theme === 'dark') {
+        var p = new URLSearchParams(window.location.search).get('theme');
+        var s = p || localStorage.getItem('gcse_theme') || localStorage.getItem('theme');
+        if (s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
           document.documentElement.classList.add('dark');
           document.documentElement.classList.remove('light');
         } else {
@@ -35,20 +37,23 @@
   
   <style>
     :root {
-      /* Warm Drafting Paper Revision Palette */
-      --paper-bg: #f5f3ec;
-      --paper-card: #fdfcf9;
-      --paper-recessed: #ede8db;
-      --paper-border: #ded7c6;
-      --paper-border-strong: #c2b8a3;
+      /* Clean Substrate Revision Palette (Isaac Computer Science Standard) */
+      --paper-bg: #f8fafc;
+      --paper-card: #ffffff;
+      --paper-recessed: #f1f5f9;
+      --paper-border: #e2e8f0;
+      --paper-border-strong: #cbd5e1;
 
-      --ink-primary: #1e2229;
-      --ink-secondary: #585e6b;
-      --ink-faint: #8e95a2;
+      --ink-primary: #0f172a;
+      --ink-secondary: #475569;
+      --ink-faint: #94a3b8;
 
       --oxford-navy: #1e3a5f;
       --navy-tint: #edf3f9;
       --navy-border: #cbd5e1;
+
+      --isaac-magenta: #c8006b;
+      --isaac-gold: #f5b700;
 
       --forest-green: #1a6b3c;
       --green-tint: #edf7f0;
@@ -57,14 +62,23 @@
       --red-tint: #fef2f2;
 
       --amber-mid: #b45309;
-      --amber-tint: #fef3c7;
+      --amber-tint: #fefce8;
+
+      --panel-rose-bg: #fdf2f8;
+      --panel-rose-border: #f9a8d4;
+      --panel-gold-bg: #fefce8;
+      --panel-gold-border: #fef08a;
+      --panel-cool-bg: #f0f4f9;
+      --panel-cool-border: #cbd5e1;
+      --panel-mint-bg: #f0fdf4;
+      --panel-mint-border: #bbf7d0;
 
       --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-serif: 'Newsreader', Georgia, serif;
       --font-mono: 'JetBrains Mono', monospace;
 
-      --radius-sm: 2px;
-      --radius-md: 3px;
+      --radius-sm: 3px;
+      --radius-md: 4px;
     }
 
     html.dark {
@@ -78,12 +92,27 @@
       --ink-secondary: #cbd5e1;
       --ink-faint: #94a3b8;
 
-      --navy-tint: rgba(59, 130, 246, 0.15);
-      --navy-border: rgba(59, 130, 246, 0.35);
+      --oxford-navy: #7dd3fc;
+      --navy-tint: rgba(56, 189, 248, 0.15);
+      --navy-border: rgba(56, 189, 248, 0.35);
 
+      --forest-green: #34d399;
       --green-tint: rgba(16, 185, 129, 0.15);
+
+      --cardinal-red: #f87171;
       --red-tint: rgba(239, 68, 68, 0.15);
+
+      --amber-mid: #fbbf24;
       --amber-tint: rgba(245, 158, 11, 0.15);
+
+      --panel-rose-bg: rgba(244, 63, 94, 0.12);
+      --panel-rose-border: rgba(244, 63, 94, 0.3);
+      --panel-gold-bg: rgba(245, 158, 11, 0.12);
+      --panel-gold-border: rgba(245, 158, 11, 0.3);
+      --panel-cool-bg: rgba(56, 189, 248, 0.12);
+      --panel-cool-border: rgba(56, 189, 248, 0.3);
+      --panel-mint-bg: rgba(16, 185, 129, 0.12);
+      --panel-mint-border: rgba(16, 185, 129, 0.3);
     }
 
     * {
@@ -94,10 +123,7 @@
 
     body {
       background-color: var(--paper-bg);
-      background-image: 
-        linear-gradient(to right, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 0, 0, 0.035) 1px, transparent 1px);
-      background-size: 32px 32px;
+      background-image: none;
       color: var(--ink-primary);
       font-family: var(--font-sans);
       -webkit-font-smoothing: antialiased;
@@ -161,19 +187,13 @@
       color: var(--oxford-navy);
     }
 
-    .brand-divider {
-      height: 18px;
-      width: 1px;
-      background: var(--paper-border);
-    }
-
-    .brand-title-wrap {
+    .nav-title-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
 
-    .brand-title {
+    .nav-module-title {
       font-family: var(--font-serif);
       font-size: 17px;
       font-weight: 700;
@@ -181,18 +201,7 @@
       margin: 0;
       line-height: 1;
       letter-spacing: -0.01em;
-    }
-
-    .badge-topic {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      font-weight: 700;
-      color: var(--oxford-navy);
-      background: var(--navy-tint);
-      border: 1px solid var(--navy-border);
-      padding: 2px 7px;
-      border-radius: var(--radius-sm);
-      letter-spacing: 0.02em;
+      white-space: nowrap;
     }
 
     /* Tab switcher in header bar */
@@ -227,10 +236,10 @@
     }
 
     .view-tab-btn.active {
-      background: var(--oxford-navy);
+      background: var(--isaac-magenta);
       color: #ffffff;
       font-weight: 700;
-      border-color: var(--oxford-navy);
+      border-color: var(--isaac-magenta);
     }
 
     .header-actions {
@@ -314,9 +323,9 @@
     }
 
     .challenge-pill-btn.active {
-      background: var(--oxford-navy);
+      background: var(--isaac-magenta);
       color: #ffffff;
-      border-color: var(--oxford-navy);
+      border-color: var(--isaac-magenta);
       font-weight: 700;
     }
 
@@ -438,8 +447,8 @@
     .btn-step-primary {
       padding: 6px 14px;
       border-radius: var(--radius-sm);
-      border: 1px solid var(--oxford-navy);
-      background: var(--oxford-navy);
+      border: 1px solid var(--isaac-magenta);
+      background: var(--isaac-magenta);
       color: #ffffff;
       font-size: 12px;
       font-weight: 700;
@@ -451,17 +460,50 @@
     }
 
     .btn-step-primary:hover {
-      background: #152942;
-      border-color: #152942;
+      background: #a00055;
+      border-color: #a00055;
+    }
+
+    .btn-step-secondary {
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--paper-border-strong);
+      background: var(--paper-card);
+      color: var(--ink-primary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .btn-step-secondary:hover {
+      border-color: var(--oxford-navy);
+      color: var(--oxford-navy);
+      background: var(--paper-recessed);
+    }
+
+    html.dark .btn-step-secondary {
+      background: var(--paper-card);
+      border-color: var(--paper-border-strong);
+      color: var(--ink-primary);
+    }
+
+    html.dark .btn-step-secondary:hover {
+      border-color: var(--oxford-navy);
+      color: var(--oxford-navy);
+      background: var(--paper-recessed);
     }
 
     /* Explanation Callout */
     .step-explain-box {
       margin-top: 10px;
       padding: 9px 12px;
-      background: var(--amber-tint);
-      border: 1px solid #fde68a;
-      border-left: 3px solid var(--amber-mid);
+      background: var(--panel-gold-bg);
+      border: 1px solid var(--panel-gold-border);
+      border-left: 3px solid var(--isaac-gold);
       border-radius: var(--radius-sm);
       font-size: 12px;
       display: flex;
@@ -470,7 +512,7 @@
     }
 
     .step-explain-text {
-      color: #78350f;
+      color: #854d0e;
       font-family: var(--font-mono);
       font-size: 11.5px;
       line-height: 1.5;
@@ -536,9 +578,9 @@
 
     /* Exam Tip Callout */
     .exam-tip-card {
-      background: var(--amber-tint);
-      border: 1px solid #fde68a;
-      border-left: 4px solid var(--amber-mid);
+      background: var(--panel-gold-bg);
+      border: 1px solid var(--panel-gold-border);
+      border-left: 4px solid var(--isaac-gold);
       border-radius: var(--radius-md);
       padding: 14px 16px;
     }
@@ -546,41 +588,92 @@
     .exam-tip-title {
       font-size: 12.5px;
       font-weight: 800;
-      color: #78350f;
+      color: #854d0e;
       margin-bottom: 4px;
     }
 
     .exam-tip-body {
       font-size: 12px;
-      color: #78350f;
+      color: #713f12;
       line-height: 1.55;
     }
 
+    html.dark .step-explain-text {
+      color: #fde047;
+    }
+
+    html.dark .exam-tip-title {
+      color: #fde047;
+    }
+
+    html.dark .exam-tip-body {
+      color: #fef08a;
+    }
+
     /* Trace Table Styles */
-    .mode-toggle-group {
+    .badge-worked {
+      background: var(--navy-tint);
+      color: var(--oxford-navy);
+      border: 1px solid var(--navy-border);
+    }
+    .badge-guided {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+    .badge-independent {
+      background: #e0e7ff;
+      color: #3730a3;
+      border: 1px solid #c7d2fe;
+    }
+    .badge-challenge {
+      background: #fae8ff;
+      color: #86198f;
+      border: 1px solid #f5d0fe;
+    }
+    html.dark .badge-guided {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border-color: rgba(245, 158, 11, 0.3);
+    }
+    html.dark .badge-independent {
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+    html.dark .badge-challenge {
+      background: rgba(217, 70, 239, 0.15);
+      color: #f0abfc;
+      border-color: rgba(217, 70, 239, 0.3);
+    }
+
+    .prefilled-cell-box {
       display: inline-flex;
-      border-radius: var(--radius-sm);
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      min-width: 60px;
+      padding: 5px 8px;
       background: var(--paper-recessed);
-      padding: 2px;
-      border: 1px solid var(--paper-border-strong);
-    }
-
-    .mode-btn {
-      padding: 4px 10px;
-      font-size: 11.5px;
-      font-weight: 600;
-      border: none;
-      background: transparent;
-      color: var(--ink-secondary);
+      border: 1px dashed var(--paper-border-strong);
       border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: all 0.15s ease;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--ink-primary);
+      box-sizing: border-box;
     }
 
-    .mode-btn.active {
-      background: var(--oxford-navy);
-      color: #ffffff;
-      font-weight: 700;
+    .given-tag {
+      font-size: 8.5px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 1px 4px;
+      border-radius: 2px;
+      background: var(--navy-tint);
+      color: var(--oxford-navy);
+      border: 1px solid var(--navy-border);
+      user-select: none;
     }
 
     .trace-table-wrapper {
@@ -702,41 +795,76 @@
       <!-- Left: Back link & Title -->
       <div class="header-brand-group">
         <a href="../../index.html" class="back-link" title="Return to Revision Hub">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="19" y1="12" x2="5" y2="12"></line>
             <polyline points="12 19 5 12 12 5"></polyline>
           </svg>
           Back to Hub
         </a>
 
-        <div class="brand-divider"></div>
-
-        <div class="brand-title-wrap">
-          <h1 class="brand-title">Design &amp; Testing</h1>
-          <span class="badge-topic">AQA 8525 §3.2</span>
+        <div class="nav-title-group">
+          <div class="nav-icon-badge" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%);">
+            <!-- Table icon matching front page -->
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+              <line x1="3" y1="9" x2="21" y2="9"></line>
+              <line x1="3" y1="15" x2="21" y2="15"></line>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+            </svg>
+          </div>
+          <h1 class="nav-module-title">Design &amp; Testing</h1>
+          <span class="badge badge-topic">AQA 8525 §3.2</span>
         </div>
       </div>
 
       <!-- Center: Sub-Module Switcher Tabs in Header -->
       <nav class="view-tabs" role="tablist">
-        <button type="button" class="view-tab-btn active" id="tabBtnTrace" role="tab" aria-selected="true">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-            <line x1="3" y1="9" x2="21" y2="9"></line>
-            <line x1="3" y1="15" x2="21" y2="15"></line>
-            <line x1="9" y1="3" x2="9" y2="21"></line>
-          </svg>
-          Trace Tables
-        </button>
-
-        <button type="button" class="view-tab-btn" id="tabBtnModules" role="tab" aria-selected="false">
+        <button type="button" class="view-tab-btn active" id="tabBtnModules" role="tab" aria-selected="true">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="3" width="7" height="7"></rect>
             <rect x="14" y="3" width="7" height="7"></rect>
             <rect x="14" y="14" width="7" height="7"></rect>
             <rect x="3" y="14" width="7" height="7"></rect>
           </svg>
-          Structuring Code
+          1. Structuring programmes
+        </button>
+
+        <button type="button" class="view-tab-btn" id="tabBtnDebugger" role="tab" aria-selected="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          2. Understanding Program Errors
+        </button>
+
+        <button type="button" class="view-tab-btn" id="tabBtnTesting" role="tab" aria-selected="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11l3 3L22 4"></path>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+          </svg>
+          3. Test Plans &amp; Boundaries
+        </button>
+
+        <button type="button" class="view-tab-btn" id="tabBtnTrace" role="tab" aria-selected="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="3" y1="15" x2="21" y2="15"></line>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+          </svg>
+          4. Trace Tables
+        </button>
+
+        <button type="button" class="view-tab-btn" id="tabBtnRevision" role="tab" aria-selected="false">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          5. Revision
         </button>
       </nav>
 
@@ -769,20 +897,20 @@
     <!-- =================================================================== -->
     <!-- SUB-MODULE 1: INTERACTIVE TRACE TABLES                              -->
     <!-- =================================================================== -->
-    <div id="submoduleTrace" class="submodule-view">
+    <div id="submoduleTrace" class="submodule-view" style="display: none;">
 
       <!-- View Banner -->
       <div class="view-banner">
         <h2>Interactive Trace Tables</h2>
-        <p>Trace algorithms step-by-step, record changing variable states, and verify outputs against exam mark scheme criteria.</p>
+        <p>A trace table is a testing tool used to track the values of variables step-by-step as an algorithm executes. It allows programmers to test logic, verify correct outputs, and find subtle bugs without needing a computer.</p>
       </div>
 
       <!-- Problem Selector Tabs -->
       <div class="challenge-pills" id="challengeSelectorBar">
-        <button type="button" class="challenge-pill-btn active" data-index="0">Q1: While Loop &amp; Counter</button>
-        <button type="button" class="challenge-pill-btn" data-index="1">Q2: Modulo &amp; Conditionals</button>
-        <button type="button" class="challenge-pill-btn" data-index="2">Q3: Linear Search &amp; Flag</button>
-        <button type="button" class="challenge-pill-btn" data-index="3">Q4: DIV / MOD Conversion</button>
+        <button type="button" class="challenge-pill-btn active" data-index="0">0. Worked Example: While Loop</button>
+        <button type="button" class="challenge-pill-btn" data-index="1">1. Guided Practice: Modulo &amp; Selection</button>
+        <button type="button" class="challenge-pill-btn" data-index="2">2. Independent Practice: Search &amp; Flag</button>
+        <button type="button" class="challenge-pill-btn" data-index="3">3. Exam Challenge: DIV / MOD Binary</button>
       </div>
 
       <!-- Main Two-Column Layout -->
@@ -794,8 +922,8 @@
           <!-- Code Execution Card -->
           <div class="panel">
             <div class="panel-title-bar">
-              <h3 class="panel-title" id="problemTitle">Q1: Total Accumulator</h3>
-              <span id="problemMarksBadge" class="marks-badge">3 MARKS</span>
+              <h3 class="panel-title" id="problemTitle">0. Worked Example: While Loop &amp; Counter</h3>
+              <span id="problemMarksBadge" class="marks-badge badge-worked">WORKED EXAMPLE (DEMO)</span>
             </div>
 
             <!-- Problem Prompt -->
@@ -823,9 +951,9 @@
                   ▶ Auto Play
                 </button>
               </div>
-              <button type="button" id="btnResetTrace" class="control-btn" title="Reset to Start">
+              <button type="button" id="btnResetTrace" class="control-btn" title="Reset Stepper to Start">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
-                Reset
+                Reset Stepper
               </button>
             </div>
    
@@ -864,17 +992,12 @@
           <div class="panel" style="display: flex; flex-direction: column; height: 100%;">
             <div class="panel-title-bar">
               <h3 class="panel-title">Interactive Trace Table</h3>
-
-              <!-- Mode Switcher: Auto-Trace vs Student Practice Mode -->
-              <div class="mode-toggle-group">
-                <button type="button" class="mode-btn active" id="modeAutoBtn">Auto-Sync Mode</button>
-                <button type="button" class="mode-btn" id="modePracticeBtn">Student Test Mode</button>
-              </div>
+              <span id="tierBadge" class="marks-badge badge-worked">WORKED EXAMPLE (DEMO)</span>
             </div>
 
-            <!-- Mode Description -->
-            <div id="modeDescText" style="font-size: 12px; color: var(--ink-secondary); margin-bottom: 12px;">
-              <strong>Auto-Sync Mode:</strong> As you click <strong>Step Line</strong>, the table fills automatically and highlights changing variables.
+            <!-- Tier Description / Instructions -->
+            <div id="modeDescText" style="font-size: 12px; color: var(--ink-secondary); margin-bottom: 12px; line-height: 1.55;">
+              <strong>Worked Example:</strong> Step through line-by-line using <strong>Step Line</strong> or <strong>▶ Auto Play</strong> on the left to see how each line updates the trace table and live variables inspector.
             </div>
 
             <!-- Table Container -->
@@ -889,17 +1012,33 @@
               </table>
             </div>
 
-            <!-- Student Mode Action Toolbar -->
+            <!-- Student Mode Action Toolbar (Guided & Practice) -->
             <div id="practiceActionsBar" style="display: none; margin-top: 14px; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-              <div style="display: flex; gap: 8px;">
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
                 <button type="button" id="btnCheckPracticeAnswers" class="btn-practice-primary">
-                  ✓ Check My Answers
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Run &amp; Check Trace
                 </button>
-                <button type="button" id="btnRevealAnswers" class="control-btn">
+                <button type="button" id="btnRevealAnswers" class="control-btn" title="Reveal reference model solution">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                   Reveal Solution
                 </button>
+                <button type="button" id="btnClearPractice" class="control-btn" title="Clear typed answers">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                  Clear Inputs
+                </button>
               </div>
-              <span id="practiceScoreBadge" style="font-size: 12px; font-weight: 700; color: var(--forest-green);"></span>
+              <span id="practiceScoreBadge" style="font-size: 12px; font-weight: 700;"></span>
+            </div>
+
+            <!-- Worked Example Action Callout Bar -->
+            <div id="workedExampleActionBar" style="display: flex; margin-top: 14px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+              <div style="font-size: 12px; color: var(--ink-secondary);">
+                💡 <em>Click <strong>Step Line</strong> on the left to watch each row get filled and variables update.</em>
+              </div>
+              <button type="button" id="btnGoToGuided" class="btn-step-secondary" style="font-size: 12px;">
+                Next: Try Guided Practice ➔
+              </button>
             </div>
 
             <!-- Practice Feedback Banner -->
@@ -926,8 +1065,8 @@
         </div>
 
         <!-- Card 2: Exam Mark Scheme Criteria -->
-        <div style="background: var(--paper-card); border: 1px solid var(--paper-border); border-radius: var(--radius-md); padding: 14px 16px;">
-          <div style="font-size: 11px; font-weight: 700; color: var(--ink-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
+        <div style="background: var(--panel-cool-bg); border: 1px solid var(--panel-cool-border); border-radius: var(--radius-md); padding: 14px 16px;">
+          <div style="font-size: 11px; font-weight: 700; color: var(--oxford-navy); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px;">
             Exam Mark Scheme Criteria:
           </div>
           <div id="markSchemeNotes" class="mark-scheme-notes-box">
@@ -939,248 +1078,922 @@
     <!-- END SUB-MODULE 1 -->
 
     <!-- =================================================================== -->
-    <!-- SUB-MODULE 2: STRUCTURING CODE INTO MODULES                         -->
+    <!-- SUB-MODULE 2: PROGRAM DEBUGGER                                      -->
     <!-- =================================================================== -->
-    <div id="submoduleModular" class="submodule-view" style="display: none;">
+    <div id="submoduleDebugger" class="submodule-view" style="display: none;">
 
       <!-- View Banner -->
       <div class="view-banner">
-        <h2>Structuring Code into Modules</h2>
-        <p>Decomposition, subroutines (functions vs procedures), and Structure Charts.</p>
+        <h2>2. Understanding Program Errors</h2>
+        <p>Find, diagnose, and fix Python syntax, logic, and runtime errors. Use the interactive code scratchpad to repair defects directly in the code and verify your fixes in the live terminal.</p>
       </div>
 
-      <!-- 4 Core Theory Concept Cards -->
-      <div class="modular-concept-grid">
-        <div class="modular-concept-card">
-          <div class="concept-card-head">
-            <div class="concept-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
-            </div>
-            <h4 class="concept-title">What is a Subroutine?</h4>
+      <!-- STREAMLINED TYPES OF ERRORS TAXONOMY STRIP -->
+      <div class="errors-taxonomy-strip">
+        <div class="taxonomy-strip-card card-syntax">
+          <div class="strip-card-header">
+            <strong>1. Syntax Errors</strong>
+            <span class="strip-pill pill-syntax">PRE-RUN HALT</span>
           </div>
-          <p class="concept-body">
-            A named, self-contained block of code that performs a <strong>single specific task</strong>. Divided into <strong>Functions</strong> (which return a value) and <strong>Procedures</strong> (which execute actions without returning a value).
-          </p>
+          <p>Syntax is the spelling and grammar of a programming language. Programming languages have rules for spelling, punctuation and grammar, just like the English language.</p>
+          <div class="strip-bullets-title">Syntax errors include:</div>
+          <ul>
+            <li>incorrectly spelled statements, keywords, or variable names</li>
+            <li>missing punctuation (quotes, brackets, colons <code>:</code>, etc.)</li>
+          </ul>
+          <div class="strip-code-preview">
+            <code>while points &gt; 0 <span class="text-err"># missing ':'</span></code>
+            <small>SyntaxError: expected ':'</small>
+          </div>
         </div>
 
-        <div class="modular-concept-card">
-          <div class="concept-card-head">
-            <div class="concept-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-            </div>
-            <h4 class="concept-title">The Main Module</h4>
+        <div class="taxonomy-strip-card card-logic">
+          <div class="strip-card-header">
+            <strong>2. Logic Errors</strong>
+            <span class="strip-pill pill-logic">0 CRASHES / WRONG RESULT</span>
           </div>
-          <p class="concept-body">
-            The master orchestrator of the program. It controls top-level sequence and flow, delegating detailed calculations, data validation, and input/output to dedicated subroutines.
-          </p>
+          <p>A logic error occurs when the code runs without crashing, but doesn't do what the programmer intended (produces the wrong output).</p>
+          <div class="strip-bullets-title">Logic errors include:</div>
+          <ul>
+            <li>using the wrong operator (e.g. <code>&lt;</code> instead of <code>&lt;=</code>)</li>
+            <li>incorrect formula or calculation</li>
+            <li>infinite loops where a counter variable never updates</li>
+          </ul>
+          <div class="strip-code-preview multiline">
+            <pre><code>points = 5
+while points &gt; 0:
+    discount = discount + 2
+    points = points  <span class="text-warn"># missing decrement (- 1)</span></code></pre>
+            <small style="color: #f59e0b; margin-top: 2px;">[Timeout: Infinite loop]</small>
+          </div>
         </div>
 
-        <div class="modular-concept-card">
-          <div class="concept-card-head">
-            <div class="concept-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <h4 class="concept-title">4 Key Exam Advantages</h4>
+        <div class="taxonomy-strip-card card-runtime">
+          <div class="strip-card-header">
+            <strong>3. Runtime &amp; Type Errors</strong>
+            <span class="strip-pill pill-runtime">CRASHES MID-RUN</span>
           </div>
-          <p class="concept-body">
-            <strong>1. Reusability:</strong> Eliminates duplicated code.<br>
-            <strong>2. Simpler Debugging:</strong> Isolate defects to one subroutine.<br>
-            <strong>3. Unit Testing:</strong> Test modules independently.<br>
-            <strong>4. Team Collaboration:</strong> Divide modules across programmers.
-          </p>
-        </div>
-
-        <div class="modular-concept-card">
-          <div class="concept-card-head">
-            <div class="concept-icon">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle></svg>
-            </div>
-            <h4 class="concept-title">Single Responsibility</h4>
+          <p>A runtime error occurs while the program is actively executing. The syntax is valid, but the CPU is directed to execute an impossible operation.</p>
+          <div class="strip-bullets-title">Runtime errors include:</div>
+          <ul>
+            <li>division by zero (<code>x / 0</code>)</li>
+            <li>incompatible data types (adding <code>str</code> to <code>float</code>)</li>
+            <li>accessing a list item that doesn't exist (index out of range)</li>
+          </ul>
+          <div class="strip-code-preview multiline">
+            <pre><code>price = 12.50
+fee = "5.00"
+total = price + fee  <span class="text-err"># incompatible types!</span></code></pre>
+            <small style="color: #f87171; margin-top: 2px;">TypeError: float + str</small>
           </div>
-          <p class="concept-body">
-            A well-designed module focuses on <strong>one job</strong>. Avoid monolithic subroutines that try to do everything, and avoid splitting off trivial one-liners like <code>x = x + 1</code>.
-          </p>
-        </div>
-      </div>
-
-      <!-- Interactive Module Architect Workbench -->
-      <div style="margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-        <div>
-          <h3 style="font-family: var(--font-serif); margin: 0; font-size: 18px; font-weight: 700; color: var(--ink-primary);">
-            Module Architect: "Should This Block Be a Subroutine?"
-          </h3>
-        </div>
-        
-        <!-- Scenario Selector Pills -->
-        <div class="scenario-pill-bar" id="scenarioPillContainer">
-          <!-- Populated dynamically: Cinema, RPG, Grades -->
         </div>
       </div>
 
-      <p style="font-size: 13px; color: var(--ink-secondary); margin: 0 0 16px 0; line-height: 1.55;">
-        <span id="scenarioDesc">Inspect the monolithic script below. Notice blocks that are copy-pasted multiple times! Click on any highlighted candidate block to decide if it should be extracted into a separate subroutine or kept in the Main Module.</span>
-      </p>
+      <!-- Challenge / Scenario Pills -->
+      <div class="challenge-pills" id="debugScenarioPills" style="margin-bottom: 20px;">
+        <!-- Populated dynamically via JS -->
+      </div>
 
-      <!-- Workbench Grid: Left = Code Inspector, Right = Decision Workbench -->
-      <div class="modular-workbench-grid">
-        
-        <!-- Left: Monolithic Code Inspector -->
-        <div class="modular-code-card">
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <strong id="scenarioTitle" style="font-family: var(--font-serif); font-size: 15px; color: var(--ink-primary);">Cinema Booking</strong>
-            <span style="font-size: 11px; color: var(--ink-faint);">Click blocks to inspect</span>
+      <!-- Unified In-Place Code Scratchpad & Terminal Console (Matching User Mockup) -->
+      <div class="ide-editor-container" style="margin-bottom: 22px;">
+        <!-- Editor Title Bar -->
+        <div class="ide-tab-bar">
+          <div class="ide-tab active">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="opacity: 0.85;"><path d="M11.9 1a6.9 6.9 0 0 0-6.9 6.9v2.1h6.9v1H4.1A4.1 4.1 0 0 0 0 15.1a4.1 4.1 0 0 0 4.1 4.1H6v-2.8a4.1 4.1 0 0 1 4.1-4.1h7.8a2.1 2.1 0 0 0 2.1-2.1V7.9A6.9 6.9 0 0 0 11.9 1zm-2.1 2.8a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"></path><path d="M12.1 23a6.9 6.9 0 0 0 6.9-6.9v-2.1h-6.9v-1h7.8a4.1 4.1 0 0 0 4.1-4.1 4.1 4.1 0 0 0-4.1-4.1H18v2.8a4.1 4.1 0 0 1-4.1 4.1H6.1a2.1 2.1 0 0 0-2.1 2.1v2.3A6.9 6.9 0 0 0 12.1 23zm2.1-2.8a1.4 1.4 0 1 1 0-2.8 1.4 1.4 0 0 1 0 2.8z"></path></svg>
+            <span id="ideActiveTabName">loyalty_discount.py</span>
           </div>
-
-          <div class="monolith-viewer" id="monolithViewer">
-            <!-- Populated dynamically with clickable block spans -->
-          </div>
-
-          <div style="font-size: 11.5px; color: var(--ink-secondary); line-height: 1.5; background: var(--paper-recessed); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
-            <strong>Exam Hint:</strong> Look for blocks that are repeated or contain complex self-contained logic. Extracting them into subroutines reduces duplication and keeps the main algorithm clean.
+          <div class="ide-tab-info">
+            <span>Editable In-Place Scratchpad</span>
+            <span style="opacity: 0.6;">•</span>
+            <span style="opacity: 0.8;">[Ctrl+Enter to Run]</span>
           </div>
         </div>
 
-        <!-- Right: Decision Workbench -->
-        <div class="modular-decision-card">
-          
-          <div style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 11px; font-weight: 700; color: var(--ink-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Evaluate Candidate Block</span>
+        <!-- In-Place Code Scratchpad with Synchronized Gutter -->
+        <div class="scratchpad-wrapper">
+          <div id="scratchpadGutter" class="scratchpad-gutter">
+            <!-- Line numbers rendered dynamically -->
+          </div>
+          <textarea id="debugCodeEditor" class="scratchpad-textarea" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off" placeholder="# Type Python code here..."></textarea>
+        </div>
+
+        <!-- Python Terminal Bar with Run and Reset Buttons Directly Embedded -->
+        <div class="ide-terminal-container">
+          <div class="ide-terminal-header">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span id="scenarioScoreBadge" class="marks-badge" style="font-size: 11px;">Score: 0 / 6 Correct</span>
-              <button type="button" id="btnResetModularChoices" class="control-btn" style="font-size: 11px; padding: 2px 8px;">↺ Reset</button>
+              <span class="terminal-dot red"></span>
+              <span class="terminal-dot yellow"></span>
+              <span class="terminal-dot green"></span>
+              <span style="font-weight: 700; color: #94a3b8; font-size: 11px; margin-left: 4px; letter-spacing: 0.04em;">PYTHON TERMINAL OUTPUT</span>
             </div>
-          </div>
-
-          <!-- Active Block Decision Box -->
-          <div class="decision-block-box">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-              <strong id="activeBlockTitle" style="font-size: 13px; color: var(--ink-primary);">Block 1: Age Validation</strong>
-              <button type="button" id="btnNextBlock" class="control-btn" style="font-size: 11px; padding: 3px 10px;">
-                Next Block →
+            
+            <!-- Action Controls Embedded Directly in Terminal Header (Matching User Mockup) -->
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <button type="button" id="btnRunDebugger" class="btn-step-primary" style="padding: 6px 16px; font-size: 12.5px; border-radius: var(--radius-sm);">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                Run Python Script
+              </button>
+              <button type="button" id="btnResetDebugger" class="control-btn" style="padding: 6px 12px; font-size: 12px; border-radius: var(--radius-sm);" title="Reset code back to starter code">
+                ↺ Reset
               </button>
             </div>
-
-            <!-- Code snippet preview -->
-            <pre id="activeBlockSnippet" style="background: #1e2229; color: #f1f5f9; padding: 10px 12px; border-radius: var(--radius-sm); font-size: 11.5px; margin: 0; overflow-x: auto; font-family: var(--font-mono);"></pre>
-
-            <div style="font-size: 12px; font-weight: 700; color: var(--ink-secondary); margin-top: 4px;">
-              Should this block be extracted into an independent subroutine?
-            </div>
-
-            <!-- Decision Action Buttons -->
-            <div class="decision-buttons-row">
-              <button type="button" id="btnDecisionExtract" class="btn-decision btn-decision-extract">
-                <span style="font-size: 14px; font-weight: 800;">YES</span>
-                <span>Extract Subroutine</span>
-                <span style="font-size: 10px; font-weight: 500; opacity: 0.85;">(Reusable / Specific Task)</span>
-              </button>
-
-              <button type="button" id="btnDecisionMain" class="btn-decision btn-decision-main">
-                <span style="font-size: 14px; font-weight: 800;">NO</span>
-                <span>Keep in Main</span>
-                <span style="font-size: 10px; font-weight: 500; opacity: 0.85;">(Controller / 1-Liner)</span>
-              </button>
-            </div>
-
-            <!-- Feedback Callout -->
-            <div id="decisionFeedbackBox" class="decision-feedback-callout" style="display: none;">
-              <!-- Rationale injected dynamically -->
-            </div>
           </div>
-
-        </div>
-
-      </div>
-
-      <!-- FULL-WIDTH STRUCTURE CHART & ARCHITECTURE COMPARISON -->
-      <div class="structure-chart-panel" style="margin-bottom: 24px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
-          <div>
-            <h3 style="font-family: var(--font-serif); margin: 0; font-size: 17px; font-weight: 700; color: var(--ink-primary);">
-              Program Architecture: Monolith vs Structure Chart
-            </h3>
-            <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--ink-secondary);">
-              Decomposition turns a monolithic script into a modular Structure Chart showing data flow and subroutines.
-            </p>
+          <div id="debuggerConsole" class="debugger-terminal-screen">
+            <span class="console-msg-dim">Click "▶ Run Python Script" or press Ctrl+Enter to test execution.</span>
           </div>
-
-          <div class="refactor-tabs-group" style="margin-bottom: 0;">
-            <button type="button" id="tabChartMonolith" class="refactor-tab-btn">Monolithic (Before)</button>
-            <button type="button" id="tabChartAqa" class="refactor-tab-btn active">Structure Chart (After)</button>
-          </div>
-        </div>
-
-        <!-- Chart Container Area -->
-        <div id="chartDisplayArea" style="min-height: 240px; margin-bottom: 14px;">
-          <!-- Dynamically populated via JS: Either Monolithic View or Full Structure Chart -->
-        </div>
-
-        <!-- Legend / Key for Structure Chart notation -->
-        <div class="aqa-chart-legend" id="chartLegendBox">
-          <div class="legend-item"><span class="legend-symbol" style="color: var(--oxford-navy);">○ ↓</span> <strong>Parameter:</strong> Data passed down into subroutine</div>
-          <div class="legend-item"><span class="legend-symbol" style="color: var(--forest-green);">↑ ○</span> <strong>Return Value:</strong> Output returned up to caller</div>
-          <div class="legend-item"><span class="badge-mini badge-func">FUNCTION</span> Returns a value</div>
-          <div class="legend-item"><span class="badge-mini badge-proc">PROCEDURE</span> Executes action (no return)</div>
-          <div class="legend-item"><span class="badge-mini" style="background: var(--amber-tint); color: var(--amber-mid); border: 1px solid rgba(180, 83, 9, 0.3);">Reused</span> Eliminates duplicate code</div>
         </div>
       </div>
 
-      <!-- Exam Essentials: Functions vs Procedures & Variable Scope -->
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; margin-bottom: 24px;">
+      <!-- Prompt & Instruction Card Beneath Code (Matching User Mockup) -->
+      <div class="debugger-prompt-container" style="margin-bottom: 24px;">
+        <h3 id="debugScenarioTitle" style="font-family: var(--font-serif); font-size: 20px; font-weight: 700; color: var(--ink-primary); margin: 0 0 4px 0;">Test 1: Loyalty Discount Counter</h3>
+        <p id="debugScenarioSpec" style="font-size: 13px; color: var(--ink-secondary); margin: 0 0 10px 0; line-height: 1.5;">Accumulate £2 discount for each 5 loyalty points. Points should decrement to 0. Expected output: "Final Discount: £10".</p>
         
-        <!-- Card 1: Function vs Procedure -->
-        <div style="background: var(--paper-card); border: 1px solid var(--paper-border); border-left: 4px solid var(--forest-green); border-radius: var(--radius-md); padding: 16px 18px;">
-          <div style="font-family: var(--font-serif); font-size: 15px; font-weight: 700; color: var(--forest-green); margin-bottom: 6px;">
-            Functions vs Procedures (Core Exam Definition)
-          </div>
-          <p style="font-size: 12.5px; color: var(--ink-secondary); line-height: 1.55; margin: 0 0 10px 0;">
-            Mark schemes distinguish between functions and procedures based on return values:
-          </p>
-          <div style="font-size: 12px; line-height: 1.6; background: var(--paper-recessed); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
-            • <strong>Function:</strong> Calculates and <strong>returns a value</strong> back to the calling statement (e.g. <code>price = calc_ticket_price(age)</code>). Represented by the <span style="color: var(--forest-green); font-weight: 700;">↑ ○ Return Arrow</span> on Structure Charts.<br>
-            • <strong>Procedure:</strong> Executes actions (e.g. printing a ticket receipt or updating a database record) but <strong>does not return a value</strong>.
-          </div>
+        <!-- Big Prominent Instruction Line (Matching User Mockup) -->
+        <div id="debugScenarioDirective" style="font-size: 18px; font-weight: 700; color: var(--ink-primary); margin-bottom: 12px; line-height: 1.4;">
+          The above code contains two errors, correct them in the code above until it can run without errors.
         </div>
 
-        <!-- Card 2: Local vs Global Variables -->
-        <div style="background: var(--paper-card); border: 1px solid var(--paper-border); border-left: 4px solid var(--oxford-navy); border-radius: var(--radius-md); padding: 16px 18px;">
-          <div style="font-family: var(--font-serif); font-size: 15px; font-weight: 700; color: var(--oxford-navy); margin-bottom: 6px;">
-            Local vs Global Scope &amp; Parameters
-          </div>
-          <p style="font-size: 12.5px; color: var(--ink-secondary); line-height: 1.55; margin: 0 0 10px 0;">
-            Why does modular code keep software free from accidental side effects?
-          </p>
-          <div style="font-size: 12px; line-height: 1.6; background: var(--paper-recessed); padding: 10px 12px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
-            • <strong>Local Variables:</strong> Declared inside a subroutine. Accessible only within that subroutine and freed from memory when execution ends.<br>
-            • <strong>Global Variables:</strong> Declared in the main program. Accessible everywhere, but risky because unintended modifications can introduce subtle bugs.<br>
-            • <strong>Parameters:</strong> The controlled mechanism for passing values into subroutines without relying on global variables.
-          </div>
+        <div>
+          <button type="button" id="btnHintDebugger" class="control-btn" style="padding: 6px 14px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px;">
+            💡 Hint
+          </button>
         </div>
 
-      </div>
-
-      <!-- Theory Quick Quiz -->
-      <div class="modular-quiz-card">
-        <div style="margin-bottom: 6px;">
-          <h4 style="font-family: var(--font-serif); margin: 0; font-size: 17px; font-weight: 700; color: var(--ink-primary);">
-            Modular Programming Theory Quiz
-          </h4>
+        <!-- Hint Callout Box -->
+        <div id="debugHintBox" class="debug-hint-box" style="display: none; margin-top: 12px;">
+          <!-- Dynamic hint content -->
         </div>
-        <p style="font-size: 13px; color: var(--ink-secondary); margin: 0 0 16px 0;">
-          Test your understanding of subroutines, decomposition, and main modules with typical Paper 1 multiple-choice questions:
-        </p>
 
-        <div id="modularQuizContainer">
-          <!-- Dynamically populated quiz questions -->
+        <!-- Explanation Box on Completion (Revealed dynamically) -->
+        <div id="debugExplanationBox" class="debug-explanation-card" style="display: none; margin-top: 16px;">
+          <!-- Populated on completion by debugger.js -->
         </div>
       </div>
 
     </div>
     <!-- END SUB-MODULE 2 -->
 
+    <!-- =================================================================== -->
+    <!-- SUB-MODULE 3: TEST PLAN BUILDER                                     -->
+    <!-- =================================================================== -->
+    <div id="submoduleTesting" class="submodule-view" style="display: none;">
+
+      <!-- View Banner -->
+      <div class="view-banner">
+        <h2>3. Test Plans &amp; Boundary Testing</h2>
+        <p>Even when a program runs without errors it can still produce the wrong results. This is why testing is important. A test plan should include testing valid, erroneous and boundary thresholds to see if the output matches the expected result.</p>
+      </div>
+
+      <!-- TEST DATA TAXONOMY CARDS -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 22px;">
+        <div style="background: var(--paper-card); border: 1px solid var(--paper-border); border-left: 4px solid #10b981; border-radius: var(--radius-sm); padding: 14px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <strong style="color: #15803d; font-size: 13.5px;">1. Normal (Valid) Data</strong>
+            <span class="test-chip normal">TYPICAL</span>
+          </div>
+          <p style="font-size: 12px; color: var(--ink-secondary); margin: 0; line-height: 1.5;">
+            Sensible data well inside the acceptable domain range. Expected to execute and pass smoothly (e.g. 12 hrs on a 1–24 hr rental).
+          </p>
+        </div>
+
+        <div style="background: var(--paper-card); border: 1px solid var(--paper-border); border-left: 4px solid #f59e0b; border-radius: var(--radius-sm); padding: 14px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <strong style="color: #b45309; font-size: 13.5px;">2. Boundary (Extreme) Data</strong>
+            <span class="test-chip boundary">EXACT EDGES</span>
+          </div>
+          <p style="font-size: 12px; color: var(--ink-secondary); margin: 0; line-height: 1.5;">
+            Values on the exact perimeter threshold limits (e.g. exactly 1 hr and 24 hrs). Crucial because developers regularly make comparison bugs (<code>&lt;</code> vs <code>&lt;=</code>).
+          </p>
+        </div>
+
+        <div style="background: var(--paper-card); border: 1px solid var(--paper-border); border-left: 4px solid #ef4444; border-radius: var(--radius-sm); padding: 14px 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <strong style="color: #b91c1c; font-size: 13.5px;">3. Erroneous Data</strong>
+            <span class="test-chip erroneous">INVALID</span>
+          </div>
+          <p style="font-size: 12px; color: var(--ink-secondary); margin: 0; line-height: 1.5;">
+            Completely invalid inputs breaching domain bounds or data types (e.g. 0 hrs, 35 hrs, negative numbers, or non-numeric strings). Must be safely rejected.
+          </p>
+        </div>
+      </div>
+
+      <!-- Challenge / Scenario Pills -->
+      <div class="challenge-pills" id="testplanScenarioPills">
+        <!-- Rendered by testplan.js -->
+      </div>
+
+      <!-- Scenario Spec Header (Clean unboxed banner without misplaced buttons) -->
+      <div style="background: var(--paper-card); border: 1px solid var(--paper-border); border-radius: var(--radius-md); padding: 16px 20px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        <div style="max-width: 800px;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+            <span class="python-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M11.9 1a6.9 6.9 0 0 0-6.9 6.9v2.1h6.9v1H4.1A4.1 4.1 0 0 0 0 15.1a4.1 4.1 0 0 0 4.1 4.1H6v-2.8a4.1 4.1 0 0 1 4.1-4.1h7.8a2.1 2.1 0 0 0 2.1-2.1V7.9A6.9 6.9 0 0 0 11.9 1zm-2.1 2.8a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"></path><path d="M12.1 23a6.9 6.9 0 0 0 6.9-6.9v-2.1h-6.9v-1h7.8a4.1 4.1 0 0 0 4.1-4.1 4.1 4.1 0 0 0-4.1-4.1H18v2.8a4.1 4.1 0 0 1-4.1 4.1H6.1a2.1 2.1 0 0 0-2.1 2.1v2.3A6.9 6.9 0 0 0 12.1 23zm2.1-2.8a1.4 1.4 0 1 1 0-2.8 1.4 1.4 0 0 1 0 2.8z"></path></svg>
+              Python 3.11
+            </span>
+            <span class="badge badge-topic">TEST HARNESS SPECIFICATION</span>
+            <h3 id="testplanScenarioTitle" style="font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: var(--ink-primary); margin: 0;">Loading Test Suite...</h3>
+          </div>
+          <p id="testplanScenarioSpec" style="font-size: 13px; color: var(--ink-secondary); margin: 0; line-height: 1.55;">Specification loading...</p>
+        </div>
+
+        <div class="mission-target-badge">
+          <span class="target-label">Acceptable Domain:</span>
+          <code id="testplanDomainPreview">1 to 24 hrs</code>
+        </div>
+      </div>
+
+      <!-- Number Line Range Spectrum -->
+      <div class="numberline-visual-box" style="margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 700; color: var(--ink-primary);">
+          <span>Input Domain Range &amp; Test Placement Visualiser</span>
+          <span id="nlValidZone" style="color: var(--oxford-navy); font-family: var(--font-mono);">Valid Range</span>
+        </div>
+        <div class="numberline-track" id="numberlineTrack">
+          <div class="track-zone-invalid" style="width: 25%;">Erroneous (&lt; min)</div>
+          <div class="track-zone-valid" style="width: 50%;">Acceptable Normal Range</div>
+          <div class="track-zone-invalid" style="width: 25%;">Erroneous (&gt; max)</div>
+        </div>
+        <div class="numberline-ticks-row" style="position: relative; height: 20px; margin-top: 4px;">
+          <span style="position: absolute; left: 0;">&minus;&infin;</span>
+          <span id="nlMinTick" style="position: absolute; left: 25%; transform: translateX(-50%); font-weight: 700; color: var(--forest-green);">Min Boundary</span>
+          <span id="nlMaxTick" style="position: absolute; left: 75%; transform: translateX(-50%); font-weight: 700; color: var(--forest-green);">Max Boundary</span>
+          <span style="position: absolute; right: 0;">+&infin;</span>
+        </div>
+      </div>
+
+      <!-- Workbench Grid (Code Under Test vs Test Matrix Table) -->
+      <div class="testplan-workbench-grid">
+
+        <!-- Left: Code Under Test (IDE Card with Code Viewer & Live Execution Terminal) -->
+        <div class="testplan-ide-card">
+          <div class="ide-tab-bar">
+            <div class="ide-tab active">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="opacity: 0.85;"><path d="M11.9 1a6.9 6.9 0 0 0-6.9 6.9v2.1h6.9v1H4.1A4.1 4.1 0 0 0 0 15.1a4.1 4.1 0 0 0 4.1 4.1H6v-2.8a4.1 4.1 0 0 1 4.1-4.1h7.8a2.1 2.1 0 0 0 2.1-2.1V7.9A6.9 6.9 0 0 0 11.9 1zm-2.1 2.8a1.4 1.4 0 1 1 0 2.8 1.4 1.4 0 0 1 0-2.8z"></path><path d="M12.1 23a6.9 6.9 0 0 0 6.9-6.9v-2.1h-6.9v-1h7.8a4.1 4.1 0 0 0 4.1-4.1 4.1 4.1 0 0 0-4.1-4.1H18v2.8a4.1 4.1 0 0 1-4.1 4.1H6.1a2.1 2.1 0 0 0-2.1 2.1v2.3A6.9 6.9 0 0 0 12.1 23zm2.1-2.8a1.4 1.4 0 1 1 0-2.8 1.4 1.4 0 0 1 0 2.8z"></path></svg>
+              <span id="testplanFileName">validator.py</span>
+            </div>
+            <div class="ide-tab-info">
+              <span>Python 3.11</span>
+              <span style="opacity: 0.6;">•</span>
+              <span style="opacity: 0.8;">Algorithm Under Test</span>
+            </div>
+          </div>
+
+          <div class="testplan-code-viewer-wrap">
+            <div id="testplanCodeViewer" class="testplan-code-lines">
+              <!-- Rendered by testplan.js -->
+            </div>
+          </div>
+
+          <!-- Integrated Mini Execution Terminal -->
+          <div class="testplan-mini-terminal">
+            <div class="ide-terminal-header">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="terminal-dot red"></span>
+                <span class="terminal-dot yellow"></span>
+                <span class="terminal-dot green"></span>
+                <span style="font-weight: 700; color: #94a3b8; font-size: 10.5px; letter-spacing: 0.04em;">TEST HARNESS RUNTIME</span>
+              </div>
+              <span id="testplanTerminalStatus" class="terminal-status-pill ready">READY</span>
+            </div>
+            <div id="testplanConsole" class="testplan-terminal-screen">
+              <span class="console-msg-dim">Select or enter test data and click "Execute Test Harness" to run.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Test Matrix Table & Defect Alert -->
+        <div class="testplan-matrix-panel">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4 style="font-family: var(--font-serif); font-size: 15px; font-weight: 700; color: var(--ink-primary); margin: 0;">
+              Test Plan Matrix
+            </h4>
+            <span id="testSuiteBadge" class="challenge-result-chip fail">0 / 4 Tests Completed</span>
+          </div>
+
+          <!-- Defect Alert Banner (shown when boundary bug detected) -->
+          <div id="testDefectAlert" class="defect-alert-banner" style="display: none;">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- Table Matrix -->
+          <div class="testplan-table-wrapper">
+            <table class="testplan-table">
+              <thead>
+                <tr>
+                  <th style="width: 22%;">Test Type</th>
+                  <th style="width: 20%;">Your Test Data</th>
+                  <th style="width: 24%;">Expected Result</th>
+                  <th style="width: 34%;">Outcome &amp; Rationale</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr id="testRowNormal">
+                  <td>
+                    <span class="test-chip normal">Normal</span>
+                    <div style="font-size: 10px; color: var(--ink-faint); margin-top: 2px;">Typical in-range value</div>
+                  </td>
+                  <td>
+                    <input type="text" id="inputTestNormal" class="testplan-input" placeholder="e.g. enter value">
+                  </td>
+                  <td>
+                    <select id="selectExpNormal" class="testplan-select">
+                      <option value="">-- Expected --</option>
+                    </select>
+                  </td>
+                  <td id="resNormal" class="test-outcome-cell">
+                    <span style="color: var(--ink-faint); font-size: 11px;">Enter test value &amp; run</span>
+                  </td>
+                </tr>
+                <tr id="testRowBoundLower">
+                  <td>
+                    <span class="test-chip boundary">Boundary (Min)</span>
+                    <div style="font-size: 10px; color: var(--ink-faint); margin-top: 2px;">Lower threshold limit</div>
+                  </td>
+                  <td>
+                    <input type="text" id="inputTestBoundLower" class="testplan-input" placeholder="e.g. exact min">
+                  </td>
+                  <td>
+                    <select id="selectExpLower" class="testplan-select">
+                      <option value="">-- Expected --</option>
+                    </select>
+                  </td>
+                  <td id="resLower" class="test-outcome-cell">
+                    <span style="color: var(--ink-faint); font-size: 11px;">Enter test value &amp; run</span>
+                  </td>
+                </tr>
+                <tr id="testRowBoundUpper">
+                  <td>
+                    <span class="test-chip boundary">Boundary (Max)</span>
+                    <div style="font-size: 10px; color: var(--ink-faint); margin-top: 2px;">Upper threshold limit</div>
+                  </td>
+                  <td>
+                    <input type="text" id="inputTestBoundUpper" class="testplan-input" placeholder="e.g. exact max">
+                  </td>
+                  <td>
+                    <select id="selectExpUpper" class="testplan-select">
+                      <option value="">-- Expected --</option>
+                    </select>
+                  </td>
+                  <td id="resUpper" class="test-outcome-cell">
+                    <span style="color: var(--ink-faint); font-size: 11px;">Enter test value &amp; run</span>
+                  </td>
+                </tr>
+                <tr id="testRowErroneous">
+                  <td>
+                    <span class="test-chip erroneous">Erroneous</span>
+                    <div style="font-size: 10px; color: var(--ink-faint); margin-top: 2px;">Out-of-range value</div>
+                  </td>
+                  <td>
+                    <input type="text" id="inputTestErroneous" class="testplan-input" placeholder="e.g. invalid value">
+                  </td>
+                  <td>
+                    <select id="selectExpErr" class="testplan-select">
+                      <option value="">-- Expected --</option>
+                    </select>
+                  </td>
+                  <td id="resErr" class="test-outcome-cell">
+                    <span style="color: var(--ink-faint); font-size: 11px;">Enter test value &amp; run</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Test Table Action Toolbar: Placed DIRECTLY below the test table! -->
+          <div class="testplan-matrix-toolbar" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--paper-border);">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button type="button" id="btnRunTestPlan" class="btn-step-primary" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 18px; font-size: 13px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                Execute Test Harness
+              </button>
+              <button type="button" id="btnResetTestPlan" class="control-btn" title="Clear test inputs">
+                ↺ Clear Inputs
+              </button>
+            </div>
+
+            <!-- Patch button: HIDDEN until test harness runs and catches a boundary defect! -->
+            <div id="patchButtonSlot" style="display: none;">
+              <button type="button" id="btnPatchTestBug" class="btn-step-primary" style="background: #0284c7; border-color: #0284c7; padding: 8px 16px; font-size: 12.5px;">
+                🛠️ Patch Code Bug &amp; Re-test
+              </button>
+            </div>
+          </div>
+
+          <p style="font-size: 11.5px; color: var(--ink-secondary); line-height: 1.5; margin: 8px 0 0 0;">
+            <strong>Note:</strong> A test plan must specify the test data value, the category, and the <em>expected output</em> before execution. Testing only normal data allows boundary defects (such as using <code>&lt;</code> instead of <code>&lt;=</code>) to remain hidden in production code.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+    <!-- END SUB-MODULE 3 -->
+
+    <!-- =================================================================== -->
+    <!-- SUB-MODULE 4: STRUCTURING CODE INTO MODULES                         -->
+    <!-- =================================================================== -->
+    <div id="submoduleModular" class="submodule-view" style="display: block;">
+
+      <!-- View Banner -->
+      <div class="view-banner">
+        <h2>1. Structuring programmes</h2>
+        <p>Decomposition breaks complex problems down into self-contained sub-problems, which are organized into structured subroutines. Functions and procedures communicate cleanly using parameters and return values, creating reliable software that is easy to build, test, and understand.</p>
+      </div>
+
+      <!-- REAL-WORLD PEDAGOGICAL ANALOGY: CAR ASSEMBLY & REUSABILITY (TAP TO READ) -->
+      <details class="tap-to-read-box analogy-card" style="background: var(--paper-card); border: 1px solid var(--paper-border); border-left: 4px solid var(--oxford-navy); border-radius: var(--radius-md); padding: 14px 18px; margin-bottom: 22px;">
+        <summary style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; list-style: none;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <strong style="font-family: var(--font-serif); font-size: 15px; color: var(--ink-primary);">Why Modular? The Car Analogy</strong>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 10.5px; font-family: var(--font-mono); color: var(--oxford-navy); background: var(--navy-tint); padding: 2px 7px; border-radius: var(--radius-sm); font-weight: 700;">MODULAR ARCHITECTURE</span>
+            <span class="tap-hint" style="font-size: 11px; color: var(--ink-secondary); font-weight: 600;">Tap to read ▾</span>
+          </div>
+        </summary>
+        <div style="padding-top: 14px; border-top: 1px solid var(--paper-border); margin-top: 12px;">
+          <p style="font-size: 13px; color: var(--ink-secondary); line-height: 1.6; margin: 0 0 14px 0;">
+            Imagine if car manufacturers forged an entire vehicle as a single, solid lump of welded metal. If a headlight burned out or a tyre popped, you would have to scrap the whole vehicle! Instead, cars are assembled from pre-tested, interchangeable parts: braking callipers, alternator, and engine blocks. Crucially, <strong>a well-engineered modular component like a wheel, battery, or engine can also be reused in another car model</strong> without redesigning it from scratch. In software, writing everything in one giant monolithic script is just as dangerous. Programmers use <strong>Decomposition</strong> to break complex systems down into independent, reusable <strong>Subroutines</strong> that can be shared across programs.
+          </p>
+
+          <!-- 3-Step Visual Progression -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px;">
+            <div style="background: var(--paper-recessed); border: 1px solid var(--paper-border); border-radius: var(--radius-sm); padding: 12px 14px;">
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #dc2626; margin-bottom: 4px;">
+                <span>1. Monolith (Raw Mess)</span>
+              </div>
+              <p style="font-size: 11.5px; color: var(--ink-secondary); margin: 0; line-height: 1.45;">
+                500 lines in one huge file. If line 10 crashes, the whole system dies. Impossible to test in pieces or share across a team.
+              </p>
+            </div>
+
+            <div style="background: var(--paper-recessed); border: 1px solid var(--paper-border); border-radius: var(--radius-sm); padding: 12px 14px;">
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #b45309; margin-bottom: 4px;">
+                <span>2. Subroutines (Modular Parts)</span>
+              </div>
+              <p style="font-size: 11.5px; color: var(--ink-secondary); margin: 0; line-height: 1.45;">
+                Independent, single-purpose functions &amp; procedures: <code>check_abs()</code>, <code>calc_pressure()</code>, <code>apply_brakes()</code>. Reusable in other vehicles!
+              </p>
+            </div>
+
+            <div style="background: var(--paper-recessed); border: 1px solid var(--paper-border); border-radius: var(--radius-sm); padding: 12px 14px;">
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #15803d; margin-bottom: 4px;">
+                <span>3. Structure Chart (Assembled Blueprint)</span>
+              </div>
+              <p style="font-size: 11.5px; color: var(--ink-secondary); margin: 0; line-height: 1.45;">
+                A tree blueprint showing exactly who calls whom, with clean parameters passed down &darr; and return values passed up &uarr;.
+              </p>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <!-- INTERACTIVE PART A: STRUCTURE CHART HIERARCHY BUILDER -->
+      <div class="modular-task-block" style="margin-bottom: 34px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+          <div>
+            <span class="badge badge-topic">INTERACTIVE CHALLENGE 1</span>
+            <h3 id="decompScenarioTitle" style="font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: var(--ink-primary); margin: 4px 0 0 0;">
+              Challenge 1: Assemble the Structure Chart
+            </h3>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" id="btnDecompCheck" class="btn-step-primary" title="Check your placed hierarchy">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              Check Answer
+            </button>
+            <button type="button" id="btnDecompAutoFill" class="btn-step-secondary" title="Complete structure chart automatically">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+              Model Solution
+            </button>
+            <button type="button" id="btnDecompReset" class="btn-step-secondary" title="Clear all placed blocks">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path><path d="M3 3v5h5"></path></svg>
+              Reset Chart
+            </button>
+          </div>
+        </div>
+
+        <!-- Scenario Selection Tabs -->
+        <div class="challenge-pills" id="decompScenarioPills" style="margin-bottom: 14px;">
+          <!-- Rendered dynamically by decomposition.js -->
+        </div>
+
+        <!-- Scenario Description & Hierarchy Guide -->
+        <p id="decompScenarioDesc" style="font-size: 13px; color: var(--ink-secondary); margin: 0 0 14px 0; line-height: 1.55;">
+          You are designing embedded software for a cash machine (ATM). It reads the customer card and PIN, checks account balance, dispenses cash by checking daily limits and calculating banknote breakdown, and then ejects the card with a receipt.
+        </p>
+
+        <!-- Hierarchy Instructions & Legend -->
+        <div class="decomp-legend-bar" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px; font-size: 11.5px; background: var(--paper-recessed); padding: 9px 14px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+          <div style="color: var(--ink-secondary);">
+            <strong style="color: var(--ink-primary);">Instructions:</strong> Click a block in the pool to select it, then click an empty slot in the chart (or drag &amp; drop) to place it. Beware of irrelevant distractor tasks!
+          </div>
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <span style="display: inline-flex; align-items: center; gap: 5px;">
+              <span style="width: 10px; height: 10px; border-radius: 50%; background: #e11d48; display: inline-block;"></span>
+              <span style="color: var(--ink-secondary);">Root Program</span>
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 5px;">
+              <span style="width: 10px; height: 10px; border-radius: 2px; background: #f59e0b; display: inline-block;"></span>
+              <span style="color: var(--ink-secondary);">Level 1 Sub-problems</span>
+            </span>
+            <span style="display: inline-flex; align-items: center; gap: 5px;">
+              <span style="width: 10px; height: 10px; border-radius: 2px; background: #0d9488; display: inline-block;"></span>
+              <span style="color: var(--ink-secondary);">Level 2 Subroutines</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Unplaced Blocks Pool -->
+        <div class="decomp-pool-box">
+          <div style="font-size: 11px; font-weight: 700; color: var(--ink-secondary); text-transform: uppercase; letter-spacing: 0.05em;">
+            Candidate Blocks Pool (Click to select &amp; place):
+          </div>
+          <div class="decomp-blocks-row" id="decompBlockPool">
+            <!-- Rendered by decomposition.js -->
+          </div>
+        </div>
+
+        <!-- Completion Alert -->
+        <div id="decompFeedbackBox" class="defect-alert-banner" style="display: none; margin-bottom: 16px;"></div>
+
+        <!-- Structure Chart Hierarchy Canvas -->
+        <div class="decomp-chart-canvas">
+          
+          <!-- Level 0: Root Node (Magenta) -->
+          <div id="chartRootNode" class="chart-node-root">
+            ATM Controller
+          </div>
+
+          <!-- Vertical stem -->
+          <div class="chart-tree-trunk"></div>
+
+          <!-- Level 1: Sub-problems Container -->
+          <div class="chart-level1-bar-wrap">
+            <div class="chart-level1-crossbar"></div>
+            
+            <div class="chart-level1-grid">
+              
+              <!-- Slot 1 -->
+              <div class="chart-col">
+                <div class="chart-col-stem"></div>
+                <div id="slot_l1_0" class="chart-node-slot empty"></div>
+              </div>
+
+              <!-- Slot 2 -->
+              <div class="chart-col">
+                <div class="chart-col-stem"></div>
+                <div id="slot_l1_1" class="chart-node-slot empty"></div>
+              </div>
+
+              <!-- Slot 3: Dispense Cash (Parents Level 2) -->
+              <div class="chart-col">
+                <div class="chart-col-stem"></div>
+                <div id="slot_l1_2" class="chart-node-slot empty"></div>
+
+                <!-- Level 2 Branching Stem under Slot 3 -->
+                <div class="chart-level2-sub-branch">
+                  <div class="chart-level2-stem"></div>
+                  <div class="chart-level2-crossbar"></div>
+
+                  <div class="chart-level2-grid">
+                    <div class="chart-col">
+                      <div class="chart-col-stem"></div>
+                      <div id="slot_l2_0" class="chart-node-slot empty"></div>
+                    </div>
+
+                    <div class="chart-col">
+                      <div class="chart-col-stem"></div>
+                      <div id="slot_l2_1" class="chart-node-slot empty"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Slot 4 -->
+              <div class="chart-col">
+                <div class="chart-col-stem"></div>
+                <div id="slot_l1_3" class="chart-node-slot empty"></div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- INTERACTIVE PART B: DATA FLOW & PARAMETERS WIRING CHALLENGE -->
+      <div class="modular-task-block" style="margin-bottom: 34px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+          <div>
+            <span class="badge badge-topic">INTERACTIVE CHALLENGE 2</span>
+            <h3 style="font-family: var(--font-serif); font-size: 18px; font-weight: 700; color: var(--ink-primary); margin: 4px 0 0 0;">
+              Challenge 2: Data Flow, Parameters &amp; Return Value Wiring
+            </h3>
+          </div>
+          <span style="font-size: 11px; font-family: var(--font-mono); color: var(--ink-secondary);">
+            Inputs &darr; (Parameters) &bull; Outputs &uarr; (Returns) &bull; Internal 🔒 (Local Scope)
+          </span>
+        </div>
+
+        <p style="font-size: 13px; color: var(--ink-secondary); margin: 0 0 16px 0; line-height: 1.55;">
+          Subroutines exchange data with their calling module across boundaries. Select candidate variables from the pool and assign them into their correct role: <strong>Parameters</strong> (passed down &darr; ○), <strong>Return Values</strong> (passed up &uarr; ○), or <strong>Local Variables</strong> (kept internal). The structure chart couple diagram updates live and checks automatically once all variables are assigned.
+        </p>
+
+        <div id="dataFlowCardArea">
+          <!-- Populated by decomposition.js -->
+        </div>
+      </div>
+
+      <!-- INTERACTIVE PART C: MODULE ARCHITECT ("SHOULD THIS BE A MODULE?") -->
+      <div class="modular-task-block" style="margin-bottom: 34px;">
+        <div style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <span class="badge badge-topic">INTERACTIVE CHALLENGE 3</span>
+            <h3 style="font-family: var(--font-serif); margin: 4px 0 0 0; font-size: 18px; font-weight: 700; color: var(--ink-primary);">
+              Challenge 3: "Should This Code Block Be a Subroutine?"
+            </h3>
+          </div>
+          <div class="scenario-pill-bar" id="scenarioPillContainer"></div>
+        </div>
+
+        <p style="font-size: 13px; color: var(--ink-secondary); margin: 0 0 16px 0; line-height: 1.55;">
+          <span id="scenarioDesc">Inspect the monolithic script below. Look for copy-pasted validation loops and self-contained calculations. Decide whether to extract each block into an independent subroutine or keep it in the Main Module.</span>
+        </p>
+
+        <!-- Workbench Grid: Left = Code Inspector, Right = Decision Workbench -->
+        <div class="modular-workbench-grid">
+          
+          <!-- Left: Monolithic Code Inspector -->
+          <div class="modular-code-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <strong id="scenarioTitle" style="font-family: var(--font-serif); font-size: 15px; color: var(--ink-primary);">Cinema Booking</strong>
+              <span style="font-size: 11px; color: var(--ink-faint);">Click blocks to inspect</span>
+            </div>
+
+            <div class="monolith-viewer" id="monolithViewer"></div>
+
+            <div style="font-size: 11.5px; color: var(--ink-secondary); line-height: 1.5; background: var(--paper-recessed); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+              <strong>Architecture Tip:</strong> Repeated blocks or self-contained formulas should be extracted into subroutines. Top-level program flow controls belong in the Main Module.
+            </div>
+          </div>
+
+          <!-- Right: Decision Workbench -->
+          <div class="modular-decision-card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 11px; font-weight: 700; color: var(--ink-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Evaluate Candidate Block</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span id="scenarioScoreBadge" class="marks-badge" style="font-size: 11px;">Score: 0 / 6 Correct</span>
+                <button type="button" id="btnResetModularChoices" class="control-btn" style="font-size: 11px; padding: 2px 8px;">↺ Reset</button>
+              </div>
+            </div>
+
+            <div class="decision-block-box">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <strong id="activeBlockTitle" style="font-size: 13px; color: var(--ink-primary);">Block 1: Age Validation</strong>
+                <button type="button" id="btnNextBlock" class="control-btn" style="font-size: 11px; padding: 3px 10px;">
+                  Next Block &rarr;
+                </button>
+              </div>
+
+              <pre id="activeBlockSnippet" style="background: #1e2229; color: #f1f5f9; padding: 10px 12px; border-radius: var(--radius-sm); font-size: 11.5px; margin: 0; overflow-x: auto; font-family: var(--font-mono);"></pre>
+
+              <div style="font-size: 12px; font-weight: 700; color: var(--ink-secondary); margin-top: 4px;">
+                Should this block be extracted into an independent subroutine?
+              </div>
+
+              <div class="decision-buttons-row">
+                <button type="button" id="btnDecisionExtract" class="btn-decision btn-decision-extract">
+                  <span style="font-size: 14px; font-weight: 800;">YES</span>
+                  <span>Extract Subroutine</span>
+                  <span style="font-size: 10px; font-weight: 500; opacity: 0.85;">(Reusable / Specific Task)</span>
+                </button>
+
+                <button type="button" id="btnDecisionMain" class="btn-decision btn-decision-main">
+                  <span style="font-size: 14px; font-weight: 800;">NO</span>
+                  <span>Keep in Main</span>
+                  <span style="font-size: 10px; font-weight: 500; opacity: 0.85;">(Controller / 1-Liner)</span>
+                </button>
+              </div>
+
+              <div id="decisionFeedbackBox" class="decision-feedback-callout" style="display: none;"></div>
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- Structure Chart & Comparison Tab -->
+        <div class="structure-chart-panel" style="margin-top: 20px; margin-bottom: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
+            <div>
+              <h4 style="font-family: var(--font-serif); margin: 0; font-size: 16px; font-weight: 700; color: var(--ink-primary);">
+                Architecture Comparison: Monolith vs Modular Chart
+              </h4>
+            </div>
+
+            <div class="refactor-tabs-group" style="margin-bottom: 0;">
+              <button type="button" id="tabChartMonolith" class="refactor-tab-btn">Monolithic (Before)</button>
+              <button type="button" id="tabChartAqa" class="refactor-tab-btn active">Structure Chart (After)</button>
+            </div>
+          </div>
+
+          <div id="chartDisplayArea" style="min-height: 200px; margin-bottom: 14px;"></div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- SUB-MODULE 3: REVISION & EXAM TRAPS                                 -->
+    <!-- =================================================================== -->
+    <div id="submoduleRevision" class="submodule-view" style="display: none;">
+
+      <!-- View Banner -->
+      <div class="view-banner">
+        <h2>5. Design &amp; Testing Revision</h2>
+        <p>Comprehensive exam revision deck covering modular program design, decomposition, subroutine classification, error diagnosis, test data types, and trace tables.</p>
+      </div>
+
+      <div class="aqa-factors-stack">
+
+        <!-- SECTION A: MODULAR PROGRAM DESIGN & ARCHITECTURE -->
+        <div style="margin-bottom: 24px;">
+          <h3 style="font-family: var(--font-serif); font-size: 17px; color: var(--ink-primary); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+            <span style="font-size: 16px;">🧩</span> Modular Programming &amp; Architecture
+          </h3>
+
+          <div class="modular-concept-grid">
+            <div class="modular-concept-card">
+              <div class="concept-card-head">
+                <div class="concept-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+                </div>
+                <h4 class="concept-title">What is Decomposition?</h4>
+              </div>
+              <p class="concept-body">
+                Breaking down a complex problem or software system into <strong>smaller, self-contained sub-problems</strong>. Each sub-problem is simpler to design, write, test, and debug independently.
+              </p>
+            </div>
+
+            <div class="modular-concept-card">
+              <div class="concept-card-head">
+                <div class="concept-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </div>
+                <h4 class="concept-title">What is a Subroutine?</h4>
+              </div>
+              <p class="concept-body">
+                A named, self-contained block of instructions performing <strong>one specific task</strong>. Subroutines are divided into <strong>Functions</strong> (which return a value) and <strong>Procedures</strong> (which do not return a value).
+              </p>
+            </div>
+
+            <div class="modular-concept-card">
+              <div class="concept-card-head">
+                <div class="concept-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <h4 class="concept-title">Benefits of modular code</h4>
+              </div>
+              <p class="concept-body">
+                <strong>1. Reusability:</strong> Call subroutines repeatedly or in other programs without copy-pasting code.<br>
+                <strong>2. Easier Debugging:</strong> Isolate bugs to one subroutine.<br>
+                <strong>3. Unit Testing:</strong> Test modules in isolation.<br>
+                <strong>4. Teamwork:</strong> Programmers work on separate modules concurrently.
+              </p>
+            </div>
+
+            <div class="modular-concept-card">
+              <div class="concept-card-head">
+                <div class="concept-icon">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle></svg>
+                </div>
+                <h4 class="concept-title">Parameters &amp; Scope</h4>
+              </div>
+              <p class="concept-body">
+                <strong>Parameters</strong> pass data down into subroutines. <strong>Return values</strong> pass results back to the caller. <strong>Local variables</strong> exist only while the subroutine runs, avoiding variable clashes and bugs from unintended global changes.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION B: TESTING, VERIFICATION & ERROR DIAGNOSIS -->
+        <h3 style="font-family: var(--font-serif); font-size: 17px; color: var(--ink-primary); margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 16px;">🔍</span> Testing, Debugging &amp; Trace Tables
+        </h3>
+
+        <!-- Card 1: Trace Table Execution Rules -->
+        <div class="trap-card" style="padding: 16px 20px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-topic">RULE 1: TRACE TABLE CONVENTIONS</span>
+            <span style="font-size: 11px; font-weight: 700; color: #b45309;">Paper 1 Essential</span>
+          </div>
+          <h4 style="font-family: var(--font-serif); font-size: 17px; font-weight: 700; color: var(--ink-primary); margin: 0 0 8px 0;">
+            Golden Rules for Completing Exam Trace Tables
+          </h4>
+          <p style="font-size: 13px; color: var(--ink-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+            Examiners mark trace tables using strict coordinate grids. Remember these 3 rules to avoid losing marks:
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; font-size: 12px; line-height: 1.55;">
+            <div style="background: var(--paper-recessed); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+              <strong style="color: var(--oxford-navy);">1. Only Write on Value Changes:</strong> Do not rewrite a variable's value on a new line if it has not changed. Leave blank spaces until a reassignment happens.
+            </div>
+            <div style="background: var(--paper-recessed); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+              <strong style="color: var(--oxford-navy);">2. Dedicated Output Column:</strong> Only write values in the Output column when a print/display statement explicitly executes. Never write calculation intermediates here.
+            </div>
+            <div style="background: var(--paper-recessed); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+              <strong style="color: var(--oxford-navy);">3. Condition Columns:</strong> When the exam includes condition evaluation columns (e.g. <code>x &lt; 5</code>), write <strong>TRUE</strong> or <strong>FALSE</strong> clearly.
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Types of Test Data -->
+        <div class="trap-card" style="padding: 16px 20px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-topic">RULE 2: TEST DATA STRATEGIES</span>
+            <span style="font-size: 11px; font-weight: 700; color: #16a34a;">3 Required Categories</span>
+          </div>
+          <h4 style="font-family: var(--font-serif); font-size: 17px; font-weight: 700; color: var(--ink-primary); margin: 0 0 8px 0;">
+            Normal vs Boundary vs Erroneous Test Data
+          </h4>
+          <p style="font-size: 13px; color: var(--ink-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+            Suppose a program accepts pupil exam percentages from <strong>0 to 100 inclusive</strong>:
+          </p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; font-size: 12px; line-height: 1.55;">
+            <div style="background: var(--paper-recessed); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border); border-left: 3px solid #10b981;">
+              <strong style="color: #15803d;">Normal (Valid) Data:</strong> Sensible test inputs that fall safely within the expected range (e.g. <strong>45, 72, 88</strong>). Should be accepted smoothly.
+            </div>
+            <div style="background: var(--paper-recessed); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border); border-left: 3px solid #f59e0b;">
+              <strong style="color: #b45309;">Boundary (Extreme) Data:</strong> Values on the exact edge limits of acceptability, plus just outside (e.g. <strong>0, 100</strong> and outside <strong>-1, 101</strong>). Catches off-by-one errors.
+            </div>
+            <div style="background: var(--paper-recessed); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border); border-left: 3px solid #ef4444;">
+              <strong style="color: #b91c1c;">Erroneous (Invalid) Data:</strong> Values of incorrect data type or clearly illegal inputs (e.g. <strong>"seventy", -25, null</strong>). The program should reject them with validation errors.
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Syntax vs Logic vs Runtime Errors -->
+        <div class="trap-card" style="padding: 16px 20px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-topic">RULE 3: ERROR CLASSIFICATION</span>
+            <span style="font-size: 11px; font-weight: 700; color: #dc2626;">Common Trap</span>
+          </div>
+          <h4 style="font-family: var(--font-serif); font-size: 17px; font-weight: 700; color: var(--ink-primary); margin: 0 0 8px 0;">
+            Syntax vs Logic vs Runtime Errors
+          </h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; font-size: 12px; line-height: 1.55;">
+            <div style="background: var(--paper-recessed); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+              <strong style="color: var(--ink-primary);">Syntax Error:</strong> Breaks grammatical programming rules (e.g. spelling <code>prnt("hi")</code> or missing colon/brackets). Detected by the interpreter before running.
+            </div>
+            <div style="background: var(--paper-recessed); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+              <strong style="color: var(--ink-primary);">Logic Error:</strong> The program compiles and runs without crashing, but outputs the wrong answer (e.g. using <code>+</code> instead of <code>-</code>, or <code>&lt;</code> instead of <code>&lt;=</code>).
+            </div>
+            <div style="background: var(--paper-recessed); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+              <strong style="color: var(--ink-primary);">Runtime Error:</strong> An illegal operation causes the program to crash abruptly while executing (e.g. dividing by zero, file not found, index out of range).
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: Functions vs Procedures -->
+        <div class="trap-card" style="padding: 16px 20px; margin-bottom: 16px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-topic">RULE 4: SUBROUTINE CLASSIFICATION</span>
+            <span style="font-size: 11px; font-weight: 700; color: #7c3aed;">Core Vocabulary</span>
+          </div>
+          <h4 style="font-family: var(--font-serif); font-size: 17px; font-weight: 700; color: var(--ink-primary); margin: 0 0 8px 0;">
+            Functions Return Values; Procedures Do Not
+          </h4>
+          <p style="font-size: 13px; color: var(--ink-secondary); line-height: 1.6; margin: 0 0 10px 0;">
+            In GCSE pseudocode and programming languages, subroutines are split into two categories based on output behavior:
+          </p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12px; line-height: 1.55;">
+            <div style="background: var(--paper-recessed); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+              <strong style="color: #4f46e5;">Function:</strong> Must include a <code>return</code> statement that sends data back to the expression where it was called (e.g. <code>area = calculateArea(5, 10)</code>).
+            </div>
+            <div style="background: var(--paper-recessed); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--paper-border);">
+              <strong style="color: #4f46e5;">Procedure:</strong> Executes actions (e.g. <code>displayMenu()</code> or saving to disk) but does <strong>not</strong> send a value back to the caller.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    <!-- END SUB-MODULE 3 -->
+
   </main>
 
   <script src="./app.js"></script>
+  <script src="./debugger.js"></script>
+  <script src="./testplan.js"></script>
+  <script src="./decomposition.js"></script>
   <script src="./modular.js"></script>
 </body>
 </html>

@@ -446,6 +446,10 @@
   text-transform: uppercase;
 }
 
+html.dark .mini-flow-node-tag {
+  color: #cbd5e1;
+}
+
 .mini-flow-node-val {
   font-size: 13px;
   font-weight: 800;
@@ -1177,9 +1181,15 @@ html.dark .motherboard-frame {
 }
 
 .format-btn.active {
-  background: rgba(56, 189, 248, 0.2);
-  color: #38bdf8;
+  background: rgba(2, 132, 199, 0.15);
+  color: #0284c7;
   font-weight: 800;
+}
+
+html.dark .format-btn.active,
+[data-theme="dark"] .format-btn.active {
+  background: rgba(56, 189, 248, 0.25);
+  color: #38bdf8;
 }
 
 .ram-rack-slots {
@@ -3603,12 +3613,12 @@ html.dark .beyond-gcse-row p strong {
 
 /* Benchmark Scoreboard */
 .read-benchmark-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-color);
+  background: #f0f4f9; /* Soft Light Cool Slate Pastel */
+  border: 1.5px solid #cbd5e1;
   border-radius: var(--radius-lg);
   padding: 18px 22px;
   margin-top: 24px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .benchmark-head {

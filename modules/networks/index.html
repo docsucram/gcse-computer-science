@@ -12,6 +12,15 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css">
+  <script>
+    (function() {
+      const p = new URLSearchParams(window.location.search).get('theme');
+      const s = p || localStorage.getItem('gcse_theme') || localStorage.getItem('theme');
+      if (s === 'dark' || (!s && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    })();
+  </script>
 </head>
 <body>
 
@@ -29,10 +38,17 @@
           Back to Hub
         </a>
 
-        <div class="brand-divider"></div>
-
-        <div class="brand-title-wrap">
-          <h1 class="brand-title">Networks &amp; Protocols</h1>
+        <div class="nav-title-group">
+          <div class="nav-icon-badge" style="background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);">
+            <!-- Network / Router icon matching front page -->
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="8" rx="2"></rect>
+              <rect x="2" y="14" width="20" height="8" rx="2"></rect>
+              <line x1="6" y1="6" x2="6.01" y2="6"></line>
+              <line x1="6" y1="18" x2="6.01" y2="18"></line>
+            </svg>
+          </div>
+          <h1 class="nav-module-title">Networks &amp; Protocols</h1>
           <span class="badge badge-topic">AQA 8525 §3.5</span>
         </div>
       </div>
@@ -87,7 +103,7 @@
       <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
         <h2>Packet Routing &amp; Network Protocols</h2>
-        <p>Send messages, inspect packet slicing, and follow IP routing across routers, DNS, and fibre optic cables.</p>
+        <p>Networks transmit data by breaking large files into smaller chunks called packets, which travel independently across routers using IP addresses. If packets take different routes or arrive out of order, the receiving device reassembles them using sequence numbers in the header.</p>
       </div>
 
       <!-- Dynamic Storyline Bar (Human, Conversational, Directly Connected) -->
@@ -161,13 +177,13 @@
               <path id="linkBetaGamma" d="M 660 370 Q 770 370 870 250" class="wire-link backbone-cable"></path>
               
               <!-- CHAT DESTINATION LINKS (Friend's device via mast) -->
-              <g id="groupChatLinks">
+              <g id="groupChatLinks" style="display: none;">
                 <path id="linkGammaDestMast" d="M 870 250 Q 950 210 1020 180" class="wire-link fibre-link"></path>
                 <path id="linkDestMastPhone" d="M 1020 180 Q 1070 180 1120 250" class="wire-link wireless-wave-path"></path>
               </g>
 
               <!-- WEB DESTINATION LINKS (Shows different websites live on different servers!) -->
-              <g id="groupWebLinks" style="display: none;">
+              <g id="groupWebLinks" style="display: block;">
                 <path id="linkGammaBbc" d="M 870 250 Q 980 150 1120 130" class="wire-link fibre-link" data-server="bbc"></path>
                 <path id="linkGammaWiki" d="M 870 250 L 1120 250" class="wire-link fibre-link" data-server="wiki"></path>
                 <path id="linkGammaPython" d="M 870 250 Q 980 350 1120 370" class="wire-link fibre-link" data-server="python"></path>
@@ -184,99 +200,99 @@
             <g id="worldNodes" class="world-nodes">
 
               <!-- Node 1: Sender Anchor (Coordinates: 150, 250) -->
-              <g class="world-node sender-anchor" id="nodeSender" transform="translate(150, 250)">
+              <g class="world-node sender-anchor" id="nodeSender" transform="translate(150, 250)" data-tooltip-key="nodeSender">
                 <circle r="36" class="node-halo halo-device"></circle>
                 <!-- Phone Silhouette -->
                 <rect x="-12" y="-20" width="24" height="40" rx="5" class="node-device-body"></rect>
                 <circle cx="0" cy="14" r="2.2" fill="currentColor"></circle>
                 <text y="54" class="node-title">Your Phone</text>
                 <text y="70" class="node-ip">192.168.1.104</text>
-                <text y="84" class="node-spec-tag">Source IP</text>
+                <text y="84" class="node-spec-tag">Source IP ⓘ</text>
               </g>
 
               <!-- Node 2: 4G/5G Cell Mast (Coordinates: 300, 180) -->
-              <g class="world-node mast-anchor" id="nodeMast" transform="translate(300, 180)">
+              <g class="world-node mast-anchor" id="nodeMast" transform="translate(300, 180)" data-tooltip-key="nodeMast">
                 <circle r="32" class="node-halo halo-mast"></circle>
                 <!-- Mast Tower SVG -->
                 <path d="M 0 -18 L 0 16 M -10 -8 L 10 -8 M -5 16 L 5 16" stroke="currentColor" stroke-width="2.6" fill="none"></path>
                 <path d="M -14 -14 Q -18 -4 -14 6 M 14 -14 Q 18 -4 14 6" stroke="currentColor" stroke-width="2" fill="none"></path>
-                <text y="50" class="node-title">Cell Mast</text>
+                <text y="50" class="node-title">Cell Mast ⓘ</text>
                 <text y="66" class="node-desc">Radio ➔ Optical Fibre</text>
               </g>
 
               <!-- Node 3: Local ISP Gateway Router (Coordinates: 460, 250) -->
-              <g class="world-node router-anchor" id="nodeIsp" transform="translate(460, 250)">
+              <g class="world-node router-anchor" id="nodeIsp" transform="translate(460, 250)" data-tooltip-key="nodeIsp">
                 <circle r="36" class="node-halo halo-router"></circle>
                 <rect x="-14" y="-11" width="28" height="22" rx="4" class="node-router-body"></rect>
                 <line x1="-8" y1="0" x2="8" y2="0" stroke="currentColor" stroke-width="2.5"></line>
-                <text y="54" class="node-title">ISP Gateway</text>
+                <text y="54" class="node-title">ISP Gateway ⓘ</text>
                 <text y="70" class="node-ip">81.2.14.1</text>
                 <text y="84" class="node-spec-tag">Reads Dest IP</text>
               </g>
 
               <!-- Node 4: DNS Server (Domain Name System Resolver) (Coordinates: 640, 80) -->
-              <g class="world-node dns-anchor" id="nodeDns" transform="translate(640, 80)">
+              <g class="world-node dns-anchor" id="nodeDns" transform="translate(640, 80)" data-tooltip-key="nodeDns">
                 <circle r="34" class="node-halo halo-dns"></circle>
                 <rect x="-14" y="-14" width="28" height="28" rx="4" class="node-dns-body"></rect>
                 <line x1="-8" y1="-5" x2="8" y2="-5" stroke="currentColor" stroke-width="2.2"></line>
                 <line x1="-8" y1="3" x2="8" y2="3" stroke="currentColor" stroke-width="2.2"></line>
-                <text y="52" class="node-title">DNS Resolver</text>
+                <text y="52" class="node-title">DNS Resolver ⓘ</text>
                 <text y="68" class="node-ip">8.8.8.8</text>
                 <text y="82" class="node-spec-tag">Translates URL ➔ IP</text>
               </g>
 
               <!-- Node 5: Router Alpha (Path A - Top) (Coordinates: 660, 200) -->
-              <g class="world-node router-anchor" id="nodeAlpha" transform="translate(660, 200)">
+              <g class="world-node router-anchor" id="nodeAlpha" transform="translate(660, 200)" data-tooltip-key="nodeAlpha">
                 <circle r="32" class="node-halo halo-router"></circle>
                 <rect x="-13" y="-10" width="26" height="20" rx="3" class="node-router-body"></rect>
-                <text y="50" class="node-title">Router Alpha</text>
+                <text y="50" class="node-title">Router Alpha ⓘ</text>
                 <text y="66" class="node-ping" id="alphaPingText">Path A (12ms)</text>
               </g>
 
               <!-- Node 6: Router Beta (Path B - Bottom with direct interaction!) (Coordinates: 660, 370) -->
-              <g class="world-node router-anchor clickable-router" id="nodeBeta" transform="translate(660, 370)" title="Click to cause congestion or block this router!">
+              <g class="world-node router-anchor clickable-router" id="nodeBeta" transform="translate(660, 370)" data-tooltip-key="nodeBeta" title="Click to cause congestion or block this router!">
                 <circle r="32" class="node-halo halo-router" id="betaHalo"></circle>
                 <rect x="-13" y="-10" width="26" height="20" rx="3" class="node-router-body"></rect>
                 <!-- Hazard Icon (shown when congested) -->
                 <g id="hazardIcon" style="display: none;"><polygon points="0,-8 9,7 -9,7" fill="#f59e0b" stroke="#18181b" stroke-width="1"/><text x="0" y="5" font-size="9" font-weight="bold" fill="#000" text-anchor="middle">!</text></g>
-                <text y="50" class="node-title" id="betaTitle">Router Beta</text>
+                <text y="50" class="node-title" id="betaTitle">Router Beta ⓘ</text>
                 <text y="66" class="node-ping" id="betaPingText">Path B (16ms)</text>
                 <text y="80" class="node-action-prompt" id="betaPrompt">Click to Congest</text>
               </g>
 
               <!-- Node 7: Router Gamma (Egress Aggregator) (Coordinates: 870, 250) -->
-              <g class="world-node router-anchor" id="nodeGamma" transform="translate(870, 250)">
+              <g class="world-node router-anchor" id="nodeGamma" transform="translate(870, 250)" data-tooltip-key="nodeGamma">
                 <circle r="34" class="node-halo halo-router"></circle>
                 <rect x="-14" y="-11" width="28" height="22" rx="4" class="node-router-body"></rect>
-                <text y="52" class="node-title">Router Gamma</text>
+                <text y="52" class="node-title">Router Gamma ⓘ</text>
                 <text y="68" class="node-desc">Egress Router</text>
               </g>
 
               <!-- CHAT DESTINATION NODES (Friend's device) -->
-              <g id="groupChatNodes">
+              <g id="groupChatNodes" style="display: none;">
                 <!-- Node 8: Destination Mast (Coordinates: 1020, 180) -->
-                <g class="world-node mast-anchor" id="nodeDestMast" transform="translate(1020, 180)">
+                <g class="world-node mast-anchor" id="nodeDestMast" transform="translate(1020, 180)" data-tooltip-key="nodeDestMast">
                   <circle r="32" class="node-halo halo-mast"></circle>
                   <path d="M 0 -18 L 0 16 M -10 -8 L 10 -8 M -5 16 L 5 16" stroke="currentColor" stroke-width="2.6" fill="none"></path>
-                  <text y="50" class="node-title" id="destMastTitle">Friend's Mast</text>
+                  <text y="50" class="node-title" id="destMastTitle">Friend's Mast ⓘ</text>
                   <text y="66" class="node-desc">Final Wireless Hop</text>
                 </g>
 
                 <!-- Node 9: Friend's Phone (Coordinates: 1120, 250) -->
-                <g class="world-node recipient-anchor" id="nodeRecipient" transform="translate(1120, 250)">
+                <g class="world-node recipient-anchor" id="nodeRecipient" transform="translate(1120, 250)" data-tooltip-key="nodeRecipient">
                   <circle r="38" class="node-halo halo-device"></circle>
                   <rect x="-13" y="-21" width="26" height="42" rx="5" class="node-device-body"></rect>
                   <circle cx="0" cy="15" r="2.2" fill="currentColor"></circle>
-                  <text y="56" class="node-title" id="destDeviceTitle">Friend's Phone</text>
+                  <text y="56" class="node-title" id="destDeviceTitle">Friend's Phone ⓘ</text>
                   <text y="72" class="node-ip" id="destDeviceIp">172.56.21.90</text>
                   <text y="86" class="node-spec-tag">Reassembles Data</text>
                 </g>
               </g>
 
               <!-- WEB DESTINATION SERVERS (Shows that different websites live on different servers!) -->
-              <g id="groupWebServers" style="display: none;">
+              <g id="groupWebServers" style="display: block;">
                 <!-- Server 1: BBC Web Server (Coordinates: 1120, 130) -->
-                <g class="world-node server-anchor" id="nodeServerBbc" transform="translate(1120, 130)">
+                <g class="world-node server-anchor" id="nodeServerBbc" transform="translate(1120, 130)" data-tooltip-key="nodeServerBbc">
                   <circle r="34" class="node-halo halo-server" id="haloServerBbc"></circle>
                   <rect x="-18" y="-14" width="36" height="28" rx="4" class="node-server-body"></rect>
                   <line x1="-12" y1="-6" x2="6" y2="-6" stroke="currentColor" stroke-width="2"></line>
@@ -285,13 +301,13 @@
                   <circle cx="10" cy="-6" r="1.5" fill="#10b981"></circle>
                   <circle cx="10" cy="0" r="1.5" fill="#10b981"></circle>
                   <circle cx="10" cy="6" r="1.5" fill="#10b981"></circle>
-                  <text y="38" class="node-title">BBC Server</text>
+                  <text y="38" class="node-title">BBC Server ⓘ</text>
                   <text y="52" class="node-ip">151.101.0.81</text>
                   <text y="65" class="node-spec-tag">London, UK</text>
                 </g>
 
                 <!-- Server 2: Wikipedia Server (Coordinates: 1120, 250) -->
-                <g class="world-node server-anchor" id="nodeServerWiki" transform="translate(1120, 250)">
+                <g class="world-node server-anchor" id="nodeServerWiki" transform="translate(1120, 250)" data-tooltip-key="nodeServerWiki">
                   <circle r="34" class="node-halo halo-server" id="haloServerWiki"></circle>
                   <rect x="-18" y="-14" width="36" height="28" rx="4" class="node-server-body"></rect>
                   <line x1="-12" y1="-6" x2="6" y2="-6" stroke="currentColor" stroke-width="2"></line>
@@ -300,13 +316,13 @@
                   <circle cx="10" cy="-6" r="1.5" fill="#10b981"></circle>
                   <circle cx="10" cy="0" r="1.5" fill="#10b981"></circle>
                   <circle cx="10" cy="6" r="1.5" fill="#10b981"></circle>
-                  <text y="38" class="node-title">Wikipedia Server</text>
+                  <text y="38" class="node-title">Wikipedia Server ⓘ</text>
                   <text y="52" class="node-ip">208.80.154.224</text>
                   <text y="65" class="node-spec-tag">Virginia, USA</text>
                 </g>
 
                 <!-- Server 3: Python Server (Coordinates: 1120, 370) -->
-                <g class="world-node server-anchor" id="nodeServerPython" transform="translate(1120, 370)">
+                <g class="world-node server-anchor" id="nodeServerPython" transform="translate(1120, 370)" data-tooltip-key="nodeServerPython">
                   <circle r="34" class="node-halo halo-server" id="haloServerPython"></circle>
                   <rect x="-18" y="-14" width="36" height="28" rx="4" class="node-server-body"></rect>
                   <line x1="-12" y1="-6" x2="6" y2="-6" stroke="currentColor" stroke-width="2"></line>
@@ -315,7 +331,7 @@
                   <circle cx="10" cy="-6" r="1.5" fill="#10b981"></circle>
                   <circle cx="10" cy="0" r="1.5" fill="#10b981"></circle>
                   <circle cx="10" cy="6" r="1.5" fill="#10b981"></circle>
-                  <text y="38" class="node-title">Python Server</text>
+                  <text y="38" class="node-title">Python Server ⓘ</text>
                   <text y="52" class="node-ip">151.101.192.223</text>
                   <text y="65" class="node-spec-tag">Oregon, USA</text>
                 </g>
@@ -355,45 +371,27 @@
             
             <!-- Prominent Mode Switcher Tabs -->
             <div class="sender-mode-tabs">
-              <button class="mode-tab-btn active" id="tabModeChat" type="button">
-                Chat Messaging
+              <button class="mode-tab-btn active" id="tabModeWeb" type="button">
+                🌐 Web &amp; DNS
               </button>
-              <button class="mode-tab-btn" id="tabModeWeb" type="button">
-                Web &amp; DNS
+              <button class="mode-tab-btn" id="tabModeChat" type="button">
+                💬 WhatsApp Relay
               </button>
             </div>
 
             <div class="device-screen">
               <div class="screen-top-bar">
                 <span class="carrier-text">4G LTE • 100%</span>
-                <span class="battery-text" id="senderAppLabel">Chat</span>
+                <span class="battery-text" id="senderAppLabel">Browser</span>
               </div>
 
-              <!-- Chat Mode View -->
-              <div id="senderChatView" class="device-app-view">
-                <div class="chat-app-header">
-                  <div class="avatar-circle">M</div>
-                  <div>
-                    <div class="chat-app-title">Study Group</div>
-                    <div class="chat-app-sub">Online (AQA CS)</div>
-                  </div>
-                </div>
-
-                <div class="message-composer">
-                  <input type="text" id="interactiveMessageInput" class="composer-input" value="Meet at the library at 4pm!" placeholder="Type your message...">
-                  <button id="sendActionBtn" class="composer-send-btn" title="Tap to send packets across the internet!">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Web Mode View (Alternative) -->
-              <div id="senderWebView" class="device-app-view" style="display: none;">
+              <!-- Web Mode View (Default Active View) -->
+              <div id="senderWebView" class="device-app-view" style="display: block;">
                 <div class="chat-app-header">
                   <div class="avatar-circle" style="background:#0284c7;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
                   <div>
                     <div class="chat-app-title">Web Browser</div>
-                    <div class="chat-app-sub">Requires DNS lookup first</div>
+                    <div class="chat-app-sub">DNS Lookup ➔ HTTP Page Retrieval</div>
                   </div>
                 </div>
 
@@ -407,7 +405,25 @@
                   <button id="browserGoBtn" class="browser-go-btn" title="Request Web Page">Go ➔</button>
                 </div>
                 <div class="browser-hint-text">
-                  Different websites live on <strong>different servers</strong> across the world. <strong>DNS (8.8.8.8)</strong> translates the domain name into that server's specific IP address so routers can steer your request to the right place!
+                  Different websites live on <strong>different servers</strong> across the world. <strong>DNS (8.8.8.8)</strong> translates the human domain name into the server's numeric IP so routers steer your HTTP request to the right machine!
+                </div>
+              </div>
+
+              <!-- Chat Mode View (Alternative) -->
+              <div id="senderChatView" class="device-app-view" style="display: none;">
+                <div class="chat-app-header">
+                  <div class="avatar-circle">M</div>
+                  <div>
+                    <div class="chat-app-title">Study Group</div>
+                    <div class="chat-app-sub">Online (AQA CS)</div>
+                  </div>
+                </div>
+
+                <div class="message-composer">
+                  <input type="text" id="interactiveMessageInput" class="composer-input" value="Meet at the library at 4pm!" placeholder="Type your message...">
+                  <button id="sendActionBtn" class="composer-send-btn" title="Tap to send packets across the internet!">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                  </button>
                 </div>
               </div>
 
@@ -435,26 +451,26 @@
               <div class="envelope-section header-section">
                 <div class="section-tag-stamp">1. PACKET HEADER (Metadata)</div>
                 <div class="tag-meta-grid">
-                  <div class="meta-field-col"><span class="meta-label">Source IP:</span> <strong id="envSrcIp">192.168.1.104</strong></div>
-                  <div class="meta-field-col"><span class="meta-label">Destination IP:</span> <strong id="envDestIp">172.56.21.90</strong></div>
-                  <div class="meta-field-col"><span class="meta-label">Sequence #:</span> <strong id="envSeq" class="text-accent">#1 of 3</strong></div>
-                  <div class="meta-field-col"><span class="meta-label">Protocol:</span> <strong id="envProto">TCP / IP</strong></div>
-                  <div class="meta-field-col full-row"><span class="meta-label">TTL (Time to Live):</span> <div><strong id="envTtl">64 hops</strong> <span class="sub-explain">(prevents infinite loops)</span></div></div>
+                  <div class="meta-field-col" data-tooltip-key="srcIp"><span class="meta-label">Source IP:</span> <strong id="envSrcIp">192.168.1.104</strong> <span class="info-hint-icon">?</span></div>
+                  <div class="meta-field-col" data-tooltip-key="destIp"><span class="meta-label">Destination IP:</span> <strong id="envDestIp">151.101.0.81</strong> <span class="info-hint-icon">?</span></div>
+                  <div class="meta-field-col" data-tooltip-key="seq"><span class="meta-label">Sequence #:</span> <strong id="envSeq" class="text-accent">#1 of 3</strong> <span class="info-hint-icon">?</span></div>
+                  <div class="meta-field-col" data-tooltip-key="proto"><span class="meta-label">Protocol:</span> <strong id="envProto">TCP / IP</strong> <span class="info-hint-icon">?</span></div>
+                  <div class="meta-field-col full-row" data-tooltip-key="ttl"><span class="meta-label">TTL (Time to Live):</span> <div><strong id="envTtl">64 hops</strong> <span class="sub-explain">(prevents infinite loops)</span> <span class="info-hint-icon">?</span></div></div>
                 </div>
               </div>
 
               <!-- Part 2: Payload Letter -->
-              <div class="envelope-section payload-section">
-                <div class="section-tag-stamp">2. PAYLOAD (Data Chunk)</div>
+              <div class="envelope-section payload-section" data-tooltip-key="payload">
+                <div class="section-tag-stamp">2. PAYLOAD (Data Chunk) <span class="info-hint-icon">?</span></div>
                 <div class="payload-letter-box">
-                  <code id="envPayload">"Meet at the "</code>
+                  <code id="envPayload">"&lt;!DOCTYPE html&gt;&lt;title&gt;BBC News&lt;/title&gt;"</code>
                 </div>
-                <div class="payload-size-label" id="envBytes">12 bytes of text</div>
+                <div class="payload-size-label" id="envBytes">38 bytes of text</div>
               </div>
 
               <!-- Part 3: Trailer Wax Seal -->
-              <div class="envelope-section trailer-section">
-                <div class="section-tag-stamp">3. TRAILER (Error Check)</div>
+              <div class="envelope-section trailer-section" data-tooltip-key="crc">
+                <div class="section-tag-stamp">3. TRAILER (Error Check) <span class="info-hint-icon">?</span></div>
                 <div class="wax-seal-box">
                   <div>
                     <span class="meta-label">CRC32 Checksum:</span>
@@ -475,7 +491,7 @@
             <div class="device-screen">
               <div class="screen-top-bar">
                 <span class="carrier-text" id="destCarrierText">5G • Incoming</span>
-                <span class="battery-text">16:00</span>
+                <span class="battery-text" id="destClockText">16:00</span>
               </div>
 
               <!-- Reassembly Live Buffer -->
@@ -491,7 +507,28 @@
 
               <!-- Live Rendered Screen -->
               <div class="destination-rendered-app" id="destAppBody">
-                <div class="dest-chat-bubble" id="destChatBubble">
+                <!-- Web Mode: Rendered Browser Viewport -->
+                <div id="destWebView" class="dest-web-view" style="display: block;">
+                  <div class="browser-rendered-page">
+                    <div class="browser-site-header">
+                      <span class="site-lock">🔒</span>
+                      <span class="site-url" id="siteUrlDisplay">https://bbc.co.uk</span>
+                      <span class="site-badge" id="siteStatusBadge">200 OK</span>
+                    </div>
+                    <div class="browser-site-content">
+                      <div class="site-hero-headline" id="siteHeroHeadline">BBC News • Technology</div>
+                      <p class="site-hero-lead" id="siteHeroLead">All 3 response packets arrived safely and reassembled into the full webpage!</p>
+                      <div class="site-packet-receipts">
+                        <span class="receipt-tag" id="receiptTag1">Packet #1: &lt;!DOCTYPE html&gt; Header ✓</span>
+                        <span class="receipt-tag" id="receiptTag2">Packet #2: &lt;article&gt; Live Tech Updates ✓</span>
+                        <span class="receipt-tag" id="receiptTag3">Packet #3: &lt;footer&gt; © BBC News 2026 ✓</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Chat Mode: WhatsApp Bubble Viewport -->
+                <div id="destChatBubble" class="dest-chat-bubble" style="display: none;">
                   <div class="bubble-content" id="destBubbleContent">
                     <em>Waiting for transmission...</em>
                   </div>
@@ -517,98 +554,194 @@
 
       <div class="standalone-stage-header">
         <div>
-          <h2>Network Topologies: Star, Bus &amp; Mesh</h2>
-          <p>Cut wires or simulate hardware failures to test network resilience. Watch packets route, bounce, or self-heal in real time across Star, Bus, and Mesh architectures.</p>
+          <h2>Network Topologies: Interactive Network Builder &amp; Lab</h2>
+          <p>A network topology is the physical or logical arrangement of connected devices and cables. Different layouts (Star, Bus, and Mesh) balance installation costs against reliability, cable faults, and data collision risks.</p>
         </div>
         <!-- Topology selector pills -->
         <div class="topo-pill-group" id="topoPills">
-          <button class="topo-pill active" data-topo="star">Star</button>
-          <button class="topo-pill" data-topo="bus">Bus</button>
-          <button class="topo-pill" data-topo="mesh">Mesh</button>
+          <button class="topo-pill active" data-topo="star">Star Network</button>
+          <button class="topo-pill" data-topo="bus">Bus Network</button>
+          <button class="topo-pill" data-topo="mesh">Mesh Network</button>
+          <button class="topo-pill" data-topo="custom">Blank Canvas</button>
         </div>
       </div>
 
-      <!-- Quick Preset & Fault Injection Bar -->
-      <div class="topo-preset-bar">
-        <span class="topo-preset-label">Test Scenarios:</span>
-        <div class="topo-preset-buttons" id="topoPresetButtons">
-          <!-- Dynamically populated based on active topology -->
-        </div>
-      </div>
+      <!-- Network Builder Workbench Container -->
+      <div class="topo-workbench-container">
+        
+        <!-- Builder Controls & Simulation Bar -->
+        <div class="topo-workbench-toolbar">
+          <div class="topo-tb-group">
+            <span class="topo-tb-tag">Test Scenarios:</span>
+            <div class="topo-preset-buttons" id="topoPresetButtons">
+              <!-- Dynamically populated based on active topology -->
+            </div>
+          </div>
 
-      <div class="topo-grid-layout">
-        <!-- Interactive Topology Canvas -->
-        <div class="topo-interactive-stage">
-          <div class="topo-stage-toolbar">
-            <div class="topo-hud">
+          <div class="topo-tb-divider"></div>
+
+          <!-- Packet Flow & Action Controls -->
+          <div class="topo-tb-group topo-sim-group">
+            <span class="topo-tb-tag">Packet Ping:</span>
+            <div class="topo-sim-selects">
+              <label for="topoSrcNode">From:</label>
+              <select id="topoSrcNode" class="topo-node-select" aria-label="Source device"></select>
+              <span class="topo-flow-arrow">➔</span>
+              <label for="topoDstNode">To:</label>
+              <select id="topoDstNode" class="topo-node-select" aria-label="Destination device"></select>
+            </div>
+            <div class="topo-action-btns">
+              <button id="topoPingBtn" class="tactile-btn play-btn" title="Transmit animated packet between chosen devices">
+                ▶ Send Packet
+              </button>
+              <button id="topoRepairBtn" class="tactile-btn reset-btn" title="Reconnect all severed wires &amp; restore hardware">
+                ↺ Repair All
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- High-res Canvas Stage -->
+        <div class="topo-stage-box">
+          <div class="topo-canvas-hud">
+            <div class="topo-hud-left">
               <span class="topo-stage-title" id="topoCurrentTitle">Star Topology (Central Switch)</span>
               <span class="topo-health-badge online" id="topoHealthBadge">● 100% Operational</span>
             </div>
-            <div class="topo-stage-actions">
-              <button id="topoPingBtn" class="tactile-btn play-btn" title="Transmit animated packet">▶ Send Packet (1 ➔ 4)</button>
-              <button id="topoRepairBtn" class="tactile-btn reset-btn" title="Reconnect all severed wires">↺ Repair All Cables</button>
+            <div class="topo-hud-hint" id="topoHudHint">
+              Drag any device to move. Use the tools bar on the left to add devices, connect cables, snip, or delete.
             </div>
           </div>
 
-          <div class="topo-canvas-container">
-            <svg id="topoSvg" viewBox="0 0 820 400" preserveAspectRatio="xMidYMid meet">
-              <defs>
-                <filter id="topoGlow" x="-20%" y="-20%" width="140%" height="140%">
-                  <feGaussianBlur stdDeviation="3" result="blur"></feGaussianBlur>
-                  <feMerge>
-                    <feMergeNode in="blur"></feMergeNode>
-                    <feMergeNode in="SourceGraphic"></feMergeNode>
-                  </feMerge>
-                </filter>
-              </defs>
-              <!-- Drawn by JS -->
-            </svg>
+          <div class="topo-stage-body">
+            <!-- Narrow Vertical Tool Dock on the left -->
+            <aside class="topo-tool-dock" id="topoToolButtons" aria-label="Network Design Tools">
+              <button class="topo-tool-btn" data-tool="add-pc" title="Add Workstation PC (Click canvas to place)">
+                <span class="tool-icon">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+                </span>
+                <span class="tool-label">+ PC</span>
+              </button>
+              <button class="topo-tool-btn" data-tool="add-switch" title="Add Central Switch (Click canvas to place)">
+                <span class="tool-icon">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="6" cy="12" r="1.5" fill="currentColor"></circle><circle cx="10" cy="12" r="1.5" fill="currentColor"></circle><circle cx="14" cy="12" r="1.5" fill="currentColor"></circle><circle cx="18" cy="12" r="1.5" fill="currentColor"></circle></svg>
+                </span>
+                <span class="tool-label">+ Switch</span>
+              </button>
+              <button class="topo-tool-btn" data-tool="add-server" title="Add Dedicated Server (Click canvas to place)">
+                <span class="tool-icon">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="7" rx="2"></rect><rect x="2" y="14" width="20" height="7" rx="2"></rect><line x1="6" y1="6.5" x2="6.01" y2="6.5"></line><line x1="6" y1="17.5" x2="6.01" y2="17.5"></line></svg>
+                </span>
+                <span class="tool-label">+ Server</span>
+              </button>
+              <div class="dock-divider"></div>
+              <button class="topo-tool-btn" data-tool="cable" title="Connect Cable (Click two devices to connect)">
+                <span class="tool-icon">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                </span>
+                <span class="tool-label">Cable</span>
+              </button>
+              <button class="topo-tool-btn" data-tool="cut" title="Snip / Cut (Click any cable or switch to test failure)">
+                <span class="tool-icon">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><line x1="20" y1="4" x2="8.12" y2="15.88"></line><line x1="14.47" y1="14.48" x2="20" y2="20"></line><line x1="8.12" y1="8.12" x2="12" y2="12"></line></svg>
+                </span>
+                <span class="tool-label">Snip</span>
+              </button>
+              <button class="topo-tool-btn" data-tool="delete" title="Delete (Click any device or cable to remove)">
+                <span class="tool-icon">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                </span>
+                <span class="tool-label">Delete</span>
+              </button>
+            </aside>
+
+            <!-- Canvas Container -->
+            <div class="topo-canvas-container" id="topoCanvasContainer">
+              <svg id="topoSvg" viewBox="0 0 980 470" preserveAspectRatio="xMidYMid meet">
+                <defs>
+                  <pattern id="topoGridPattern" width="28" height="28" patternUnits="userSpaceOnUse">
+                    <circle cx="14" cy="14" r="1.2" fill="rgba(255, 255, 255, 0.1)"></circle>
+                  </pattern>
+                  <filter id="topoGlow" x="-30%" y="-30%" width="160%" height="160%">
+                    <feGaussianBlur stdDeviation="3.5" result="blur"></feGaussianBlur>
+                    <feMerge>
+                      <feMergeNode in="blur"></feMergeNode>
+                      <feMergeNode in="SourceGraphic"></feMergeNode>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#topoGridPattern)" pointer-events="none"></rect>
+              </svg>
+            </div>
           </div>
 
           <div class="topo-live-feedback" id="topoFeedback">
-            <div class="feedback-icon" id="topoFeedbackIcon">ℹ️</div>
+            <div class="feedback-icon" id="topoFeedbackIcon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            </div>
             <div class="feedback-text" id="topoFeedbackText">
-              Star network online. Click any cable to snip it with scissors ✂, or click the Central Switch to simulate hardware failure.
+              Star network online. Central switch directly forwards frames to destination ports without packet collisions.
             </div>
           </div>
         </div>
 
-        <!-- AQA Exam Revision Insights -->
-        <div class="topo-exam-insights">
-          <div class="topo-metrics-card">
+      </div>
+
+      <!-- Live Diagnostics & GCSE Exam Revision Dashboard -->
+      <div class="topo-dashboard-grid">
+        
+        <!-- Live Topology Diagnostics -->
+        <div class="topo-metrics-card">
+          <div class="card-header-row">
             <h4>Live Topology Diagnostics</h4>
-            <div class="topo-metrics-grid">
-              <div class="metric-item">
-                <span class="metric-label">Cable Cost</span>
-                <strong class="metric-val" id="metricCost">Moderate (O(N))</strong>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label">Single Point of Failure</span>
-                <strong class="metric-val" id="metricSpof">Central Switch</strong>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label">Collisions</span>
-                <strong class="metric-val" id="metricCollisions">Zero (Switched)</strong>
-              </div>
-              <div class="metric-item">
-                <span class="metric-label">Redundant Paths</span>
-                <strong class="metric-val" id="metricPaths">0 (Single link per node)</strong>
-              </div>
-            </div>
+            <span class="topo-classified-tag" id="topoClassifiedTag">Star Topology</span>
           </div>
-
-          <div class="topo-fact-card" id="factCardDetail">
-            <h4 id="factCardTitle">⭐ Star Topology in GCSE Exams</h4>
-            <p id="factCardBody">
-              In a star network, each workstation has its own dedicated connection to a central switch. 
-              <strong>Advantage:</strong> If one workstation cable breaks, no other device is affected. 
-              <strong>Disadvantage:</strong> If the central switch fails, the entire network goes down (Single Point of Failure).
-            </p>
-            <div class="fact-exam-tip" id="factExamTip">
-              <strong>Exam Tip:</strong> AQA often asks why a school would choose a star topology over a bus topology. Key answers: higher bandwidth per machine, no packet collisions, and cable breaks only affect one computer.
+          <div class="topo-metrics-grid">
+            <div class="metric-item">
+              <span class="metric-label">Nodes / Devices</span>
+              <strong class="metric-val" id="metricNodes">6 Devices</strong>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Total Cable Links</span>
+              <strong class="metric-val" id="metricCables">5 Links</strong>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Cabling Cost &amp; Scale</span>
+              <strong class="metric-val" id="metricCost">Moderate • O(N) cables</strong>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Single Point of Failure</span>
+              <strong class="metric-val" id="metricSpof">Central Switch (SPOF)</strong>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Collision Domain</span>
+              <strong class="metric-val" id="metricCollisions">Zero (Switched ports)</strong>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Redundant Paths</span>
+              <strong class="metric-val" id="metricPaths">0 (Single link per node)</strong>
             </div>
           </div>
         </div>
+
+        <!-- GCSE Exam Study Card -->
+        <div class="topo-fact-card" id="factCardDetail">
+          <div class="fact-card-header">
+            <h4 id="factCardTitle">Star Topology in GCSE Computer Science</h4>
+            <div class="fact-quick-tabs" id="factQuickTabs">
+              <button class="fact-tab-btn active" data-fact="star">Star</button>
+              <button class="fact-tab-btn" data-fact="bus">Bus</button>
+              <button class="fact-tab-btn" data-fact="mesh">Mesh</button>
+            </div>
+          </div>
+          <div class="fact-card-body" id="factCardBody">
+            <!-- Dynamically populated based on active topology -->
+          </div>
+          <div class="fact-exam-tip" id="factExamTip">
+            <!-- Dynamically populated based on active topology -->
+          </div>
+        </div>
+
       </div>
 
     </div>
@@ -621,7 +754,7 @@
       <div class="standalone-stage-header">
         <div>
           <h2>The TCP/IP 4-Layer Model</h2>
-          <p>How a message is packaged with headers on the sender (Encapsulation), sent across the wire, and unpacked layer-by-layer on the receiver (Decapsulation).</p>
+          <p>The TCP/IP model divides network communication into four modular layers so protocols can be updated without rewriting the entire system. As data travels down the stack, each layer wraps the payload in its own specialized header (encapsulation) before physical transmission.</p>
         </div>
       </div>
 
@@ -1178,7 +1311,7 @@
       <div class="standalone-stage-header">
         <div>
           <h2>Networks Revision Guide &amp; Key Exam Traps</h2>
-          <p>Plain, readable, high-impact GCSE facts directly aligned with the syllabus.</p>
+          <p>Key definitions, network architectures, and exam traps for Paper 2 (§3.5). Review packet switching, TCP/IP 4-layer protocols, topology trade-offs, and public key encryption.</p>
         </div>
       </div>
 
@@ -1227,6 +1360,9 @@
     </div>
 
   </main>
+
+  <!-- Interactive GCSE Hover & Tap Tooltip Card -->
+  <div id="networkTooltip" class="network-tooltip" style="display: none;"></div>
 
   <script src="./app.js"></script>
 </body>
