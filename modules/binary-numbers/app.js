@@ -768,30 +768,88 @@
       if (!ctx) return;
       const now = ctx.currentTime;
 
-      if (type === 'click') {
+      if (type === 'click' || type === 'tap') {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(360, now);
-        osc.frequency.exponentialRampToValueAtTime(180, now + 0.04);
+        osc.frequency.setValueAtTime(340, now);
+        osc.frequency.exponentialRampToValueAtTime(160, now + 0.035);
         gain.gain.setValueAtTime(0.06, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start(now);
-        osc.stop(now + 0.04);
-      } else if (type === 'success') {
+        osc.stop(now + 0.035);
+      } else if (type === 'switch') {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.exponentialRampToValueAtTime(220, now + 0.045);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.045);
+      } else if (type === 'correct' || type === 'success') {
+        // Ascending triumphant major chord (C5, E5, G5)
         [523.25, 659.25, 783.99].forEach((freq, idx) => {
           const osc = ctx.createOscillator();
           const gain = ctx.createGain();
           osc.type = 'sine';
-          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-          gain.gain.setValueAtTime(0.12, now + idx * 0.08);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.25);
+          const startTime = now + idx * 0.06;
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.12, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.28);
           osc.connect(gain);
           gain.connect(ctx.destination);
-          osc.start(now + idx * 0.08);
-          osc.stop(now + idx * 0.08 + 0.25);
+          osc.start(startTime);
+          osc.stop(startTime + 0.28);
+        });
+      } else if (type === 'wrong') {
+        // Low error thud / buzzer (160Hz -> 80Hz)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, now);
+        osc.frequency.exponentialRampToValueAtTime(80, now + 0.14);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.14);
+      } else if (type === 'victory') {
+        // 4-note victory arpeggio: C5 -> E5 -> G5 -> C6
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          const startTime = now + idx * 0.09;
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.14, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + 0.35);
+        });
+      } else if (type === 'perfect10') {
+        // 5-note grand fanfare with shimmer: C5 -> E5 -> G5 -> C6 -> E6
+        [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = idx === 4 ? 'triangle' : 'sine';
+          const startTime = now + idx * 0.11;
+          const dur = idx === 4 ? 0.8 : 0.45;
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.16, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + dur);
         });
       }
     } catch (e) {}
@@ -2006,9 +2064,10 @@
       icon: "💡",
       color: "#3b82f6",
       levels: [
-        { id: 1, name: "Apprentice", mode: "mc_nibble", desc: "Multiple Choice: 4-bit Binary ↔ Denary" },
-        { id: 2, name: "Operator", mode: "switches_nibble", desc: "Toggle 4-bit Switches with Place Values" },
-        { id: 3, name: "Architect", mode: "blind_nibble", desc: "Rapid Blind Switches (Hidden Values)" }
+        { id: 1, name: "Apprentice", mode: "mc_nibble_den2bin", desc: "Denary → 4-Bit Binary (e.g. 9 → 1001)" },
+        { id: 2, name: "Operator", mode: "mc_nibble_bin2den", desc: "4-Bit Binary → Denary (e.g. 0110 → 6)" },
+        { id: 3, name: "Tactician", mode: "switches_nibble", desc: "Toggle 4-Bit Switches with Place Values" },
+        { id: 4, name: "Grandmaster", mode: "blind_nibble", desc: "Rapid Blind Switches (Hidden Values)" }
       ]
     },
     {
@@ -2018,9 +2077,10 @@
       icon: "💾",
       color: "#10b981",
       levels: [
-        { id: 1, name: "Apprentice", mode: "mc_byte", desc: "Multiple Choice: 8-bit Conversions" },
-        { id: 2, name: "Operator", mode: "switches_byte", desc: "Toggle 8-bit Switches with Place Values" },
-        { id: 3, name: "Architect", mode: "blind_byte", desc: "Blind 8-bit Switches (Speed Run)" }
+        { id: 1, name: "Apprentice", mode: "mc_byte_den2bin", desc: "Denary → 8-Bit Binary (e.g. 42 → 00101010)" },
+        { id: 2, name: "Operator", mode: "mc_byte_bin2den", desc: "8-Bit Binary → Denary (Place Values 128..1)" },
+        { id: 3, name: "Tactician", mode: "switches_byte", desc: "Toggle 8-Bit Switches to Match Target Total" },
+        { id: 4, name: "Grandmaster", mode: "blind_byte", desc: "Blind 8-Bit Switches (Speed Run)" }
       ]
     },
     {
@@ -2030,9 +2090,10 @@
       icon: "🔮",
       color: "#8b5cf6",
       levels: [
-        { id: 1, name: "Apprentice", mode: "mc_hex_nibble", desc: "Single Hex Digits (0x0 to 0xF)" },
-        { id: 2, name: "Operator", mode: "mc_hex_byte", desc: "2-Digit Hex Bytes (0x00 to 0xFF)" },
-        { id: 3, name: "Architect", mode: "keypad_hex", desc: "Direct Hex & Denary Conversion Keypad" }
+        { id: 1, name: "Apprentice", mode: "mc_hex_nibble_to_den", desc: "Single Hex Digits → Denary (0x0 to 0xF)" },
+        { id: 2, name: "Operator", mode: "mc_hex_den_to_nibble", desc: "Denary → Hex Digits (e.g. 14 → 0xE)" },
+        { id: 3, name: "Tactician", mode: "mc_hex_byte", desc: "2-Digit Hex Bytes (0x00 to 0xFF)" },
+        { id: 4, name: "Grandmaster", mode: "keypad_hex", desc: "Direct Hex Keypad (Type 2-Digit Hex)" }
       ]
     },
     {
@@ -2042,9 +2103,10 @@
       icon: "⚔️",
       color: "#f59e0b",
       levels: [
-        { id: 1, name: "Apprentice", mode: "mc_add_simple", desc: "4-bit Addition without Carries" },
-        { id: 2, name: "Operator", mode: "mc_add_carries", desc: "8-bit Addition with Multiple Carries" },
-        { id: 3, name: "Architect", mode: "mc_add_overflow", desc: "Detect Overflow & Add Under Pressure" }
+        { id: 1, name: "Apprentice", mode: "mc_add_simple", desc: "4-Bit Addition (Zero Carries)" },
+        { id: 2, name: "Operator", mode: "mc_add_carries", desc: "Addition with Carries (1 + 1 = 0 C 1)" },
+        { id: 3, name: "Tactician", mode: "mc_add_8bit", desc: "Full 8-Bit Binary Addition" },
+        { id: 4, name: "Grandmaster", mode: "mc_add_overflow", desc: "Detect Overflow Errors (Sum > 255)" }
       ]
     },
     {
@@ -2054,9 +2116,10 @@
       icon: "❄️",
       color: "#06b6d4",
       levels: [
-        { id: 1, name: "Apprentice", mode: "mc_twos_comp_easy", desc: "Identify Sign Bits & Negate Binary" },
-        { id: 2, name: "Operator", mode: "switches_twos_comp", desc: "Construct Negative Values (-128 MSB)" },
-        { id: 3, name: "Architect", mode: "mc_twos_comp_hard", desc: "Signed Binary ↔ Denary (-128 to +127)" }
+        { id: 1, name: "Apprentice", mode: "mc_twos_comp_sign", desc: "Sign Identification (MSB 1 = Negative)" },
+        { id: 2, name: "Operator", mode: "mc_twos_comp_convert", desc: "Invert & Add 1 (+V to -V Conversion)" },
+        { id: 3, name: "Tactician", mode: "mc_twos_comp_eval", desc: "Signed Binary → Denary (-128 MSB)" },
+        { id: 4, name: "Grandmaster", mode: "switches_twos_comp", desc: "Two's Complement Switchboard (-128 MSB)" }
       ]
     },
     {
@@ -2066,9 +2129,10 @@
       icon: "⚙️",
       color: "#ec4899",
       levels: [
-        { id: 1, name: "Apprentice", mode: "mc_shift_left", desc: "Left Shifts (Multiplication by 2, 4, 8)" },
-        { id: 2, name: "Operator", mode: "mc_shift_right", desc: "Right Shifts (Division & Truncation)" },
-        { id: 3, name: "Architect", mode: "mc_shift_mixed", desc: "Multi-Step Shifts & Bit Loss Traps" }
+        { id: 1, name: "Apprentice", mode: "mc_shift_left", desc: "Left Shifts (Multiply by 2, 4, 8)" },
+        { id: 2, name: "Operator", mode: "mc_shift_right", desc: "Right Shifts (Divide by 2, 4 with Truncation)" },
+        { id: 3, name: "Tactician", mode: "mc_shift_multistep", desc: "Multi-Step Shifts & Arithmetic Effect" },
+        { id: 4, name: "Grandmaster", mode: "mc_shift_bitloss", desc: "Identify Bit Loss & Precision Traps" }
       ]
     },
     {
@@ -2078,20 +2142,21 @@
       icon: "⚡",
       color: "#eab308",
       levels: [
-        { id: 1, name: "Bronze Circuit", mode: "blitz_easy", desc: "Foundation Blitz (10 Mixed Questions)" },
-        { id: 2, name: "Silver Circuit", mode: "blitz_med", desc: "Intermediate Blitz (10 Mixed Questions)" },
-        { id: 3, name: "Gold Circuit", mode: "blitz_hard", desc: "Grandmaster Blitz (Strict Timer)" }
+        { id: 1, name: "Bronze Circuit", mode: "blitz_conversions", desc: "Conversions Blitz (Binary, Hex & Denary)" },
+        { id: 2, name: "Silver Circuit", mode: "blitz_maths", desc: "Binary Arithmetic & Shifts Blitz" },
+        { id: 3, name: "Gold Circuit", mode: "blitz_signed_hex", desc: "Two's Complement & Hex Advanced Blitz" },
+        { id: 4, name: "Champion Crown", mode: "blitz_grandmaster", desc: "Grandmaster Championship (All Topics Mixed)" }
       ]
     }
   ];
 
   const BITMASTER_RANKS = [
     { minXp: 0, title: "Logic Novice", icon: "💡" },
-    { minXp: 150, title: "Nibble Operator", icon: "💾" },
-    { minXp: 400, title: "Byte Engineer", icon: "⚙️" },
-    { minXp: 800, title: "Hex Architect", icon: "🔮" },
-    { minXp: 1400, title: "Silicon Master", icon: "⚡" },
-    { minXp: 2200, title: "Grand BitMaster", icon: "👑" }
+    { minXp: 200, title: "Nibble Operator", icon: "💾" },
+    { minXp: 550, title: "Byte Engineer", icon: "⚙️" },
+    { minXp: 1100, title: "Hex Architect", icon: "🔮" },
+    { minXp: 1900, title: "Silicon Master", icon: "⚡" },
+    { minXp: 3000, title: "Grand BitMaster", icon: "👑" }
   ];
 
   const bitmasterState = {
@@ -2388,34 +2453,35 @@
 
     const fmtBin = (val, len) => val.toString(2).padStart(len, '0').split('').join(' ');
 
-    if (mode === 'mc_nibble') {
-      const isBinToDen = Math.random() > 0.4;
+    // STAGE 1: THE 4-BIT NIBBLE
+    if (mode === 'mc_nibble_den2bin') {
       const val = Math.floor(Math.random() * 16);
-      if (isBinToDen) {
-        const binStr = fmtBin(val, 4);
-        const dists = generateDistractors(val, 0, 15, 'denary');
-        const options = shuffleArray([val, ...dists]);
-        return {
-          type: 'mc',
-          prompt: "Convert 4-Bit Binary to Denary:",
-          display: binStr,
-          hint: "Nibble place values: 8 • 4 • 2 • 1",
-          correctAnswer: String(val),
-          options: options.map(String)
-        };
-      } else {
-        const binStr = val.toString(2).padStart(4, '0');
-        const dists = generateDistractors(binStr, 0, 15, 'binary');
-        const options = shuffleArray([binStr, ...dists]);
-        return {
-          type: 'mc',
-          prompt: `Convert Denary ${val} to 4-Bit Binary:`,
-          display: String(val),
-          hint: "Which bits add up to this number?",
-          correctAnswer: binStr,
-          options: options.map(String)
-        };
-      }
+      const binStr = val.toString(2).padStart(4, '0');
+      const dists = generateDistractors(binStr, 0, 15, 'binary');
+      const options = shuffleArray([binStr, ...dists]);
+      return {
+        type: 'mc',
+        prompt: `Convert Denary ${val} to 4-Bit Binary:`,
+        display: String(val),
+        hint: "Nibble place values: 8 • 4 • 2 • 1",
+        correctAnswer: binStr,
+        options: options.map(String)
+      };
+    }
+
+    if (mode === 'mc_nibble_bin2den') {
+      const val = Math.floor(Math.random() * 16);
+      const binStr = fmtBin(val, 4);
+      const dists = generateDistractors(val, 0, 15, 'denary');
+      const options = shuffleArray([val, ...dists]);
+      return {
+        type: 'mc',
+        prompt: "Convert 4-Bit Binary to Denary:",
+        display: binStr,
+        hint: "Place values: 8 • 4 • 2 • 1",
+        correctAnswer: String(val),
+        options: options.map(String)
+      };
     }
 
     if (mode === 'switches_nibble' || mode === 'blind_nibble') {
@@ -2424,41 +2490,42 @@
         type: 'switches',
         bitsCount: 4,
         blind: mode === 'blind_nibble',
-        prompt: `Assemble Denary ${val} using 4-Bit Switches:`,
+        prompt: `Assemble Denary ${val} with 4-Bit Switches:`,
         display: String(val),
-        hint: mode === 'blind_nibble' ? "Blind Mode: Place values HIDDEN (8, 4, 2, 1)!" : "Toggle switches (8, 4, 2, 1) to match total",
+        hint: mode === 'blind_nibble' ? "Blind Mode: Place values HIDDEN (8, 4, 2, 1)!" : "Toggle bits (8, 4, 2, 1) to match total",
         correctAnswer: val
       };
     }
 
-    if (mode === 'mc_byte') {
-      const isBinToDen = Math.random() > 0.4;
+    // STAGE 2: THE 8-BIT BYTE
+    if (mode === 'mc_byte_den2bin') {
       const val = Math.floor(Math.random() * 256);
-      if (isBinToDen) {
-        const binStr = fmtBin(val, 8);
-        const dists = generateDistractors(val, 0, 255, 'denary');
-        const options = shuffleArray([val, ...dists]);
-        return {
-          type: 'mc',
-          prompt: "Convert 8-Bit Byte to Denary:",
-          display: binStr,
-          hint: "Place values: 128 • 64 • 32 • 16 • 8 • 4 • 2 • 1",
-          correctAnswer: String(val),
-          options: options.map(String)
-        };
-      } else {
-        const binStr = val.toString(2).padStart(8, '0');
-        const dists = generateDistractors(binStr, 0, 255, 'binary');
-        const options = shuffleArray([binStr, ...dists]);
-        return {
-          type: 'mc',
-          prompt: `Convert Denary ${val} to 8-Bit Binary:`,
-          display: String(val),
-          hint: "Match the correct 8-bit byte",
-          correctAnswer: binStr,
-          options: options.map(String)
-        };
-      }
+      const binStr = val.toString(2).padStart(8, '0');
+      const dists = generateDistractors(binStr, 0, 255, 'binary');
+      const options = shuffleArray([binStr, ...dists]);
+      return {
+        type: 'mc',
+        prompt: `Convert Denary ${val} to 8-Bit Binary:`,
+        display: String(val),
+        hint: "Place values: 128 • 64 • 32 • 16 • 8 • 4 • 2 • 1",
+        correctAnswer: binStr,
+        options: options.map(String)
+      };
+    }
+
+    if (mode === 'mc_byte_bin2den') {
+      const val = Math.floor(Math.random() * 256);
+      const binStr = fmtBin(val, 8);
+      const dists = generateDistractors(val, 0, 255, 'denary');
+      const options = shuffleArray([val, ...dists]);
+      return {
+        type: 'mc',
+        prompt: "Convert 8-Bit Byte to Denary:",
+        display: binStr,
+        hint: "Place values: 128 • 64 • 32 • 16 • 8 • 4 • 2 • 1",
+        correctAnswer: String(val),
+        options: options.map(String)
+      };
     }
 
     if (mode === 'switches_byte' || mode === 'blind_byte') {
@@ -2467,69 +2534,57 @@
         type: 'switches',
         bitsCount: 8,
         blind: mode === 'blind_byte',
-        prompt: `Construct Denary ${val} with 8-Bit Switches:`,
+        prompt: `Assemble Denary ${val} with 8-Bit Switches:`,
         display: String(val),
         hint: mode === 'blind_byte' ? "Blind Mode: Place values hidden!" : "Toggle bits to match the target value",
         correctAnswer: val
       };
     }
 
-    if (mode === 'mc_hex_nibble') {
+    // STAGE 3: HEXADECIMAL SCRIBE
+    if (mode === 'mc_hex_nibble_to_den') {
       const val = Math.floor(Math.random() * 16);
       const hex = val.toString(16).toUpperCase();
-      const bin = fmtBin(val, 4);
-      if (Math.random() > 0.5) {
-        const dists = generateDistractors(val, 0, 15, 'denary');
-        const options = shuffleArray([val, ...dists]);
-        return {
-          type: 'mc',
-          prompt: `What is Hexadecimal 0x${hex} in Denary?`,
-          display: `0x${hex}`,
-          hint: "Remember: A=10, B=11, C=12, D=13, E=14, F=15",
-          correctAnswer: String(val),
-          options: options.map(String)
-        };
-      } else {
-        const dists = generateDistractors(hex, 0, 15, 'hex');
-        const options = shuffleArray([hex, ...dists]);
-        return {
-          type: 'mc',
-          prompt: `Convert 4-Bit Binary (${bin}) to Hex:`,
-          display: bin,
-          hint: "One hex digit represents 4 bits",
-          correctAnswer: hex,
-          options: options.map(String)
-        };
-      }
+      const dists = generateDistractors(val, 0, 15, 'denary');
+      const options = shuffleArray([val, ...dists]);
+      return {
+        type: 'mc',
+        prompt: `What is Hexadecimal 0x${hex} in Denary?`,
+        display: `0x${hex}`,
+        hint: "Remember: A=10, B=11, C=12, D=13, E=14, F=15",
+        correctAnswer: String(val),
+        options: options.map(String)
+      };
+    }
+
+    if (mode === 'mc_hex_den_to_nibble') {
+      const val = Math.floor(Math.random() * 16);
+      const hex = `0x${val.toString(16).toUpperCase()}`;
+      const dists = generateDistractors(val.toString(16).toUpperCase(), 0, 15, 'hex').map(h => `0x${h}`);
+      const options = shuffleArray([hex, ...dists]);
+      return {
+        type: 'mc',
+        prompt: `Convert Denary ${val} to Hexadecimal:`,
+        display: String(val),
+        hint: "Base 16: 0–9 then A, B, C, D, E, F",
+        correctAnswer: hex,
+        options: options.map(String)
+      };
     }
 
     if (mode === 'mc_hex_byte') {
       const val = Math.floor(Math.random() * 256);
       const hex = val.toString(16).toUpperCase().padStart(2, '0');
-      const bin = fmtBin(val, 8);
-      if (Math.random() > 0.5) {
-        const dists = generateDistractors(val, 0, 255, 'denary');
-        const options = shuffleArray([val, ...dists]);
-        return {
-          type: 'mc',
-          prompt: `Convert Hex 0x${hex} to Denary:`,
-          display: `0x${hex}`,
-          hint: `Left nibble &times; 16 + Right nibble`,
-          correctAnswer: String(val),
-          options: options.map(String)
-        };
-      } else {
-        const dists = generateDistractors(hex, 0, 255, 'hex');
-        const options = shuffleArray([hex, ...dists]);
-        return {
-          type: 'mc',
-          prompt: `What is Binary ${bin} in Hexadecimal?`,
-          display: bin,
-          hint: "Split into two 4-bit nibbles and convert each",
-          correctAnswer: hex,
-          options: options.map(String)
-        };
-      }
+      const dists = generateDistractors(val, 0, 255, 'denary');
+      const options = shuffleArray([val, ...dists]);
+      return {
+        type: 'mc',
+        prompt: `Convert Hex 0x${hex} to Denary:`,
+        display: `0x${hex}`,
+        hint: `Left nibble × 16 + Right nibble`,
+        correctAnswer: String(val),
+        options: options.map(String)
+      };
     }
 
     if (mode === 'keypad_hex') {
@@ -2544,12 +2599,16 @@
       };
     }
 
-    if (mode === 'mc_add_simple' || mode === 'mc_add_carries' || mode === 'mc_add_overflow') {
-      let a = Math.floor(Math.random() * 12);
-      let b = Math.floor(Math.random() * 12);
+    // STAGE 4: BINARY ADDITION
+    if (mode === 'mc_add_simple' || mode === 'mc_add_carries' || mode === 'mc_add_8bit' || mode === 'mc_add_overflow') {
+      let a = Math.floor(Math.random() * 8);
+      let b = Math.floor(Math.random() * 8);
       if (mode === 'mc_add_carries') {
-        a = Math.floor(Math.random() * 120) + 10;
-        b = Math.floor(Math.random() * 120) + 10;
+        a = Math.floor(Math.random() * 30) + 10;
+        b = Math.floor(Math.random() * 30) + 10;
+      } else if (mode === 'mc_add_8bit') {
+        a = Math.floor(Math.random() * 110) + 15;
+        b = Math.floor(Math.random() * 110) + 15;
       } else if (mode === 'mc_add_overflow') {
         a = Math.floor(Math.random() * 100) + 150;
         b = Math.floor(Math.random() * 80) + 50;
@@ -2565,8 +2624,8 @@
       if (mode === 'mc_add_overflow') {
         const correctOpt = isOverflow ? "OVERFLOW (Sum > 255)" : binSum;
         const dists = isOverflow 
-          ? [binSum, "NO ERROR (Valid 8-bit)", "Syntax Error"]
-          : ["OVERFLOW (Dropped Carry)", "00000000", (sum + 2).toString(2).padStart(8, '0')];
+          ? [binSum, "NO ERROR (Valid 8-bit)", "00000000"]
+          : ["OVERFLOW (Sum > 255)", (sum + 4).toString(2).padStart(8, '0'), (sum ^ 3).toString(2).padStart(8, '0')];
         const options = shuffleArray([correctOpt, ...dists]);
         return {
           type: 'mc',
@@ -2583,39 +2642,59 @@
           type: 'mc',
           prompt: "Calculate the Binary Sum:",
           display: `${binA}\n+ ${binB}`,
-          hint: `Denary check: ${a} + ${b} = ${sum}`,
+          hint: `Check: ${a} + ${b} = ${sum}`,
           correctAnswer: binSum,
           options: options.map(String)
         };
       }
     }
 
-    if (mode === 'mc_twos_comp_easy' || mode === 'mc_twos_comp_hard') {
+    // STAGE 5: TWO'S COMPLEMENT
+    if (mode === 'mc_twos_comp_sign') {
+      const isNeg = Math.random() > 0.5;
+      const val = isNeg ? -(Math.floor(Math.random() * 127) + 1) : (Math.floor(Math.random() * 127) + 1);
+      const binStr = (isNeg ? (256 + val) : val).toString(2).padStart(8, '0');
+      const correctOpt = isNeg ? "Negative (< 0, MSB = 1)" : "Positive (≥ 0, MSB = 0)";
+      const wrongOpt = isNeg ? "Positive (≥ 0, MSB = 0)" : "Negative (< 0, MSB = 1)";
+      return {
+        type: 'mc',
+        prompt: "In Two's Complement, is this value Positive or Negative?",
+        display: binStr,
+        hint: "Inspect the Most Significant Bit (MSB, bit 7)",
+        correctAnswer: correctOpt,
+        options: shuffleArray([correctOpt, wrongOpt, "Overflow Error", "Invalid Pattern"])
+      };
+    }
+
+    if (mode === 'mc_twos_comp_convert') {
+      const posVal = Math.floor(Math.random() * 60) + 1;
+      const negVal = -posVal;
+      const twosComp = (256 + negVal).toString(2).padStart(8, '0');
+      const dists = generateDistractors(twosComp, 0, 255, 'binary');
+      const options = shuffleArray([twosComp, ...dists]);
+      return {
+        type: 'mc',
+        prompt: `Convert Denary ${negVal} to Two's Complement:`,
+        display: String(negVal),
+        hint: `Tip: Write +${posVal}, flip bits, and add 1`,
+        correctAnswer: twosComp,
+        options: options.map(String)
+      };
+    }
+
+    if (mode === 'mc_twos_comp_eval') {
       const negVal = -(Math.floor(Math.random() * 120) + 1);
       const twosComp = (256 + negVal).toString(2).padStart(8, '0');
-      if (Math.random() > 0.5) {
-        const dists = generateDistractors(negVal, -128, -1, 'denary');
-        const options = shuffleArray([negVal, ...dists]);
-        return {
-          type: 'mc',
-          prompt: "Interpret Two's Complement (MSB is -128):",
-          display: twosComp,
-          hint: "MSB is 1 &rarr; Negative number! -128 + sum of other bits",
-          correctAnswer: String(negVal),
-          options: options.map(String)
-        };
-      } else {
-        const dists = generateDistractors(twosComp, 0, 255, 'binary');
-        const options = shuffleArray([twosComp, ...dists]);
-        return {
-          type: 'mc',
-          prompt: `What is Denary ${negVal} in Two's Complement?`,
-          display: String(negVal),
-          hint: "Step 1: Write positive. Step 2: Invert all bits. Step 3: Add 1.",
-          correctAnswer: twosComp,
-          options: options.map(String)
-        };
-      }
+      const dists = generateDistractors(negVal, -128, -1, 'denary');
+      const options = shuffleArray([negVal, ...dists]);
+      return {
+        type: 'mc',
+        prompt: "Interpret Two's Complement (MSB is -128):",
+        display: twosComp,
+        hint: "MSB is -128 + sum of remaining positive bits",
+        correctAnswer: String(negVal),
+        options: options.map(String)
+      };
     }
 
     if (mode === 'switches_twos_comp') {
@@ -2626,36 +2705,97 @@
         isTwosComp: true,
         prompt: `Construct ${negVal} in Two's Complement:`,
         display: String(negVal),
-        hint: "MSB bit is worth -128! Add positive bits to reach target",
+        hint: "MSB switch is worth -128! Add positive bits to reach target",
         correctAnswer: negVal
       };
     }
 
-    if (mode === 'mc_shift_left' || mode === 'mc_shift_right' || mode === 'mc_shift_mixed') {
-      const isLeft = mode === 'mc_shift_left' ? true : (mode === 'mc_shift_right' ? false : Math.random() > 0.5);
-      const shiftAmount = Math.floor(Math.random() * 2) + 1;
-      const initialVal = isLeft ? Math.floor(Math.random() * 30) + 2 : (Math.floor(Math.random() * 100) + 10);
+    // STAGE 6: LOGICAL SHIFTS
+    if (mode === 'mc_shift_left' || mode === 'mc_shift_right' || mode === 'mc_shift_multistep' || mode === 'mc_shift_bitloss') {
+      const isLeft = mode === 'mc_shift_left' ? true : (mode === 'mc_shift_right' ? false : (mode === 'mc_shift_bitloss' ? true : Math.random() > 0.5));
+      const shiftAmount = mode === 'mc_shift_multistep' ? 3 : (Math.floor(Math.random() * 2) + 1);
+      const initialVal = isLeft ? Math.floor(Math.random() * 25) + 3 : (Math.floor(Math.random() * 100) + 10);
       const initialBin = initialVal.toString(2).padStart(8, '0');
       const resultVal = isLeft ? (initialVal << shiftAmount) & 255 : (initialVal >> shiftAmount);
       const resultBin = resultVal.toString(2).padStart(8, '0');
 
+      if (mode === 'mc_shift_bitloss') {
+        const testVal = Math.floor(Math.random() * 60) + 130; // MSB is 1
+        const testBin = testVal.toString(2).padStart(8, '0');
+        const correctOpt = "Bit Loss / Overflow (MSB discarded)";
+        const wrongOpts = ["Value Doubles Accurately", "MSB wraps to LSB", "Number becomes negative"];
+        return {
+          type: 'mc',
+          prompt: "What happens when this number is shifted LEFT by 1?",
+          display: testBin,
+          hint: "Most Significant Bit (1) gets pushed out of the 8-bit register",
+          correctAnswer: correctOpt,
+          options: shuffleArray([correctOpt, ...wrongOpts])
+        };
+      }
+
       const dists = generateDistractors(resultBin, 0, 255, 'binary');
       const options = shuffleArray([resultBin, ...dists]);
-
       return {
         type: 'mc',
         prompt: `Perform a Logical ${isLeft ? 'LEFT' : 'RIGHT'} Shift by ${shiftAmount} bit${shiftAmount > 1 ? 's' : ''}:`,
         display: initialBin,
-        hint: isLeft ? `Multiply by ${Math.pow(2, shiftAmount)} (insert 0s at right)` : `Integer divide by ${Math.pow(2, shiftAmount)} (truncate dropped bits)`,
+        hint: isLeft ? `Multiply by ${Math.pow(2, shiftAmount)} (insert 0s at right)` : `Integer divide by ${Math.pow(2, shiftAmount)} (drop fractional bits)`,
         correctAnswer: resultBin,
         options: options.map(String)
       };
     }
 
-    // Default Blitz
+    // STAGE 7: THE MASTER GAUNTLET
+    if (mode === 'blitz_conversions' || mode === 'blitz_maths' || mode === 'blitz_signed_hex' || mode === 'blitz_grandmaster') {
+      const rnd = Math.random();
+      if (rnd < 0.33) {
+        const val = Math.floor(Math.random() * 256);
+        const binStr = fmtBin(val, 8);
+        const dists = generateDistractors(val, 0, 255, 'denary');
+        return {
+          type: 'mc',
+          prompt: "Gauntlet Blitz: Convert Binary to Denary:",
+          display: binStr,
+          hint: "Sum active place values",
+          correctAnswer: String(val),
+          options: shuffleArray([val, ...dists]).map(String)
+        };
+      } else if (rnd < 0.66) {
+        const val = Math.floor(Math.random() * 256);
+        const hex = val.toString(16).toUpperCase().padStart(2, '0');
+        const dists = generateDistractors(val, 0, 255, 'denary');
+        return {
+          type: 'mc',
+          prompt: `Gauntlet Blitz: Convert Hex 0x${hex} to Denary:`,
+          display: `0x${hex}`,
+          hint: "Left nibble × 16 + Right nibble",
+          correctAnswer: String(val),
+          options: shuffleArray([val, ...dists]).map(String)
+        };
+      } else {
+        const a = Math.floor(Math.random() * 60) + 10;
+        const b = Math.floor(Math.random() * 60) + 10;
+        const sum = a + b;
+        const binA = a.toString(2).padStart(8, '0');
+        const binB = b.toString(2).padStart(8, '0');
+        const binSum = sum.toString(2).padStart(8, '0');
+        const dists = generateDistractors(binSum, 0, 255, 'binary');
+        return {
+          type: 'mc',
+          prompt: "Gauntlet Blitz: Calculate Binary Sum:",
+          display: `${binA}\n+ ${binB}`,
+          hint: `${a} + ${b} = ${sum}`,
+          correctAnswer: binSum,
+          options: shuffleArray([binSum, ...dists]).map(String)
+        };
+      }
+    }
+
+    // Fallback
     return {
       type: 'mc',
-      prompt: "Gauntlet Blitz: Convert Binary to Denary:",
+      prompt: "Convert Binary to Denary:",
       display: "0 1 0 1 1 0 1 0",
       hint: "Place values 64 + 16 + 8 + 2",
       correctAnswer: "90",
@@ -2764,6 +2904,7 @@
       btn.textContent = opt;
 
       btn.addEventListener('click', () => {
+        playSynthSound('tap');
         handleBitmasterMCAnswer(opt, btn);
       });
 
@@ -2802,6 +2943,33 @@
     }
   }
 
+  function showBitmasterToast(message, icon = '❌', durationMs = 1800, callback = null) {
+    const toast = document.getElementById('bitmasterInlineFeedback');
+    const iconEl = document.getElementById('bitmasterFeedbackIcon');
+    const textEl = document.getElementById('bitmasterFeedbackText');
+    if (!toast) {
+      if (callback) callback();
+      return;
+    }
+    if (iconEl) iconEl.textContent = icon;
+    if (textEl) textEl.textContent = message;
+    toast.style.display = 'flex';
+    setTimeout(() => {
+      toast.style.display = 'none';
+      if (callback) callback();
+    }, durationMs);
+  }
+
+  function showBitmasterAbandonModal() {
+    const modal = document.getElementById('bitmasterModalAbandon');
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function hideBitmasterAbandonModal() {
+    const modal = document.getElementById('bitmasterModalAbandon');
+    if (modal) modal.style.display = 'none';
+  }
+
   function renderBitmasterSwitchboard(bitsCount = 8, isBlind = false, isTwosComp = false) {
     const container = document.getElementById('bitmasterSwitchBitsContainer');
     if (!container) return;
@@ -2833,7 +3001,7 @@
           bitBtn.querySelector('.switch-cell-val').textContent = '0';
         }
 
-        playSynthSound('click');
+        playSynthSound('switch');
         updateBitmasterSwitchSum(weights, isBlind);
       });
 
@@ -2860,8 +3028,9 @@
         } else {
           playSynthSound('wrong');
           bitmasterState.mistakesThisRound++;
-          alert(`Not quite! Target was ${bitmasterState.currentQuestion.correctAnswer}, but your switches made ${currentTotal}.`);
-          loadNextBitmasterQuestion();
+          showBitmasterToast(`Not quite! Target was ${bitmasterState.currentQuestion.correctAnswer}, but your switches made ${currentTotal}.`, '❌', 1900, () => {
+            loadNextBitmasterQuestion();
+          });
         }
       };
     }
@@ -2894,7 +3063,7 @@
       btn.textContent = k;
 
       btn.addEventListener('click', () => {
-        playSynthSound('click');
+        playSynthSound('tap');
         if (k === 'DEL') {
           bitmasterState.keypadBuffer = bitmasterState.keypadBuffer.slice(0, -1);
         } else if (k === 'OK') {
@@ -2923,14 +3092,77 @@
     } else {
       playSynthSound('wrong');
       bitmasterState.mistakesThisRound++;
-      alert(`Not quite! Correct answer was ${bitmasterState.currentQuestion.correctAnswer}`);
-      loadNextBitmasterQuestion();
+      showBitmasterToast(`Not quite! The correct answer was ${bitmasterState.currentQuestion.correctAnswer}.`, '❌', 1900, () => {
+        loadNextBitmasterQuestion();
+      });
     }
   }
 
   // =========================================================================
   // VICTORY & SCORING SCREEN
   // =========================================================================
+
+  function fireConfetti() {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.style.position = 'fixed';
+      canvas.style.inset = '0';
+      canvas.style.width = '100vw';
+      canvas.style.height = '100vh';
+      canvas.style.pointerEvents = 'none';
+      canvas.style.zIndex = '9999';
+      document.body.appendChild(canvas);
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const width = canvas.width = window.innerWidth;
+      const height = canvas.height = window.innerHeight;
+
+      const colors = ['#f59e0b', '#ec4899', '#3b82f6', '#10b981', '#8b5cf6', '#ef4444'];
+      const particles = Array.from({ length: 65 }, () => ({
+        x: width / 2,
+        y: height / 2,
+        vx: (Math.random() - 0.5) * 16,
+        vy: (Math.random() - 0.7) * 18,
+        size: Math.random() * 8 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: 1,
+        rotation: Math.random() * 360,
+        vRot: (Math.random() - 0.5) * 10
+      }));
+
+      const startTime = performance.now();
+      function animate(time) {
+        const elapsed = time - startTime;
+        ctx.clearRect(0, 0, width, height);
+
+        particles.forEach(p => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.vy += 0.4;
+          p.rotation += p.vRot;
+          p.alpha = Math.max(0, 1 - elapsed / 2200);
+
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.translate(p.x, p.y);
+          ctx.rotate((p.rotation * Math.PI) / 180);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.5);
+          ctx.restore();
+        });
+
+        if (elapsed < 2200) {
+          requestAnimationFrame(animate);
+        } else {
+          canvas.remove();
+        }
+      }
+      requestAnimationFrame(animate);
+    } catch (e) {
+      console.warn("Confetti animation error:", e);
+    }
+  }
 
   function finishBitmasterRound() {
     if (bitmasterState.timerInterval) {
@@ -2939,8 +3171,12 @@
     }
 
     const accuracy = Math.round((bitmasterState.correctThisRound / bitmasterState.totalQuestions) * 100);
-    let starsEarned = 1;
+    let starsEarned = 0;
 
+    // Strict clear criteria:
+    // 3 Stars = 10/10 correct with 0 mistakes in <= 50s
+    // 2 Stars = >= 8/10 correct (<= 2 mistakes)
+    // 1 Star = >= 5/10 correct
     if (bitmasterState.correctThisRound === 10 && bitmasterState.mistakesThisRound === 0 && bitmasterState.elapsedSeconds <= 50) {
       starsEarned = 3;
     } else if (bitmasterState.correctThisRound >= 8 && bitmasterState.mistakesThisRound <= 2) {
@@ -2957,7 +3193,7 @@
       bitmasterState.stars[saveKey] = starsEarned;
     }
 
-    const xpBonus = starsEarned === 3 ? 100 : (starsEarned === 2 ? 50 : 25);
+    const xpBonus = starsEarned === 3 ? 120 : (starsEarned === 2 ? 60 : (starsEarned === 1 ? 30 : 10));
     bitmasterState.xp += xpBonus;
     saveBitmasterProgress();
     updateBitmasterHUD();
@@ -2968,26 +3204,44 @@
     const subtextEl = document.getElementById('bitmasterVictorySubtext');
     const xpEl = document.getElementById('bitmasterVictoryXp');
     const accEl = document.getElementById('bitmasterVictoryAccuracy');
+    const tipEl = document.getElementById('bitmasterVictoryTip');
 
     if (starsEarned === 3) {
-      if (badgeEl) badgeEl.textContent = '⚡';
+      if (badgeEl) badgeEl.textContent = '👑';
       if (titleEl) titleEl.textContent = 'Grandmaster Precision!';
       if (starsEl) starsEl.textContent = '⭐⭐⭐';
       fireConfetti();
-      playSynthSound('victory');
+      playSynthSound('perfect10');
+      if (tipEl) {
+        tipEl.innerHTML = `🏆 <strong>Flawless 10/10 Mastery!</strong> Cleared in ${bitmasterState.elapsedSeconds}s with 0 mistakes. Maximum 3-Star Grandmaster achieved!`;
+      }
     } else if (starsEarned === 2) {
-      if (badgeEl) badgeEl.textContent = '⚙️';
+      if (badgeEl) badgeEl.textContent = '⚡';
       if (titleEl) titleEl.textContent = 'Stage Mastered!';
       if (starsEl) starsEl.textContent = '⭐⭐☆';
       playSynthSound('victory');
+      if (tipEl) {
+        const timeDiff = bitmasterState.elapsedSeconds > 50 ? `${bitmasterState.elapsedSeconds - 50}s faster` : '';
+        const mistakeMsg = bitmasterState.mistakesThisRound > 0 ? `eliminate ${bitmasterState.mistakesThisRound} mistake(s)` : '';
+        const reqs = [mistakeMsg, timeDiff].filter(Boolean).join(' and ');
+        tipEl.innerHTML = `💡 <strong>To earn 3 Stars:</strong> Score 10/10 in &lt; 50s with 0 mistakes. Try again to ${reqs || 'beat the 50s clock'}!`;
+      }
     } else if (starsEarned === 1) {
       if (badgeEl) badgeEl.textContent = '💡';
       if (titleEl) titleEl.textContent = 'Trial Passed';
       if (starsEl) starsEl.textContent = '⭐☆☆';
+      playSynthSound('victory');
+      if (tipEl) {
+        tipEl.innerHTML = `💡 <strong>To earn 2 Stars:</strong> Score at least 8/10 correct (&le; 2 mistakes). You scored ${bitmasterState.correctThisRound}/10!`;
+      }
     } else {
-      if (badgeEl) badgeEl.textContent = '❌';
-      if (titleEl) titleEl.textContent = 'Stage Incomplete';
+      if (badgeEl) badgeEl.textContent = '🔄';
+      if (titleEl) titleEl.textContent = 'Trial Incomplete';
       if (starsEl) starsEl.textContent = '☆☆☆';
+      playSynthSound('wrong');
+      if (tipEl) {
+        tipEl.innerHTML = `💡 <strong>To pass this level:</strong> Score at least 5/10 correct. Review binary place values and retry!`;
+      }
     }
 
     if (subtextEl) {
@@ -3001,8 +3255,14 @@
     const retryBtn = document.getElementById('bitmasterSummaryRetryBtn');
     const contBtn = document.getElementById('bitmasterSummaryContinueBtn');
 
-    if (retryBtn) retryBtn.onclick = () => startBitmasterRound();
-    if (contBtn) contBtn.onclick = () => showBitmasterScreen('stages');
+    if (retryBtn) retryBtn.onclick = () => {
+      playSynthSound('tap');
+      startBitmasterRound();
+    };
+    if (contBtn) contBtn.onclick = () => {
+      playSynthSound('tap');
+      showBitmasterScreen('stages');
+    };
   }
 
   // =========================================================================
@@ -3012,28 +3272,61 @@
 
     // Setup native Fullscreen button
     const fsBtn = document.getElementById('bitmasterFullscreenBtn');
+    const hudExitFsBtn = document.getElementById('bitmasterHudExitFsBtn');
     const arena = document.getElementById('bitmasterArena');
     const fsText = document.getElementById('bitmasterFullscreenText');
 
+    function toggleFullscreen() {
+      playSynthSound('tap');
+      if (!document.fullscreenElement) {
+        if (arena.requestFullscreen) {
+          arena.requestFullscreen();
+        } else if (arena.webkitRequestFullscreen) {
+          arena.webkitRequestFullscreen();
+        }
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        }
+      }
+    }
+
     if (fsBtn && arena) {
-      fsBtn.addEventListener('click', () => {
-        if (!document.fullscreenElement) {
-          if (arena.requestFullscreen) {
-            arena.requestFullscreen();
-          } else if (arena.webkitRequestFullscreen) {
-            arena.webkitRequestFullscreen();
-          }
-        } else {
-          if (document.exitFullscreen) {
-            document.exitFullscreen();
-          }
+      fsBtn.addEventListener('click', toggleFullscreen);
+    }
+    if (hudExitFsBtn) {
+      hudExitFsBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
         }
       });
+    }
 
-      document.addEventListener('fullscreenchange', () => {
-        const isFs = !!document.fullscreenElement;
-        if (fsText) fsText.textContent = isFs ? 'Exit Fullscreen' : 'Fullscreen Mode';
-        arena.classList.toggle('is-fullscreen', isFs);
+    document.addEventListener('fullscreenchange', () => {
+      const isFs = !!document.fullscreenElement;
+      if (fsText) fsText.textContent = isFs ? 'Exit Fullscreen' : 'Fullscreen Mode';
+      if (hudExitFsBtn) hudExitFsBtn.style.display = isFs ? 'inline-flex' : 'none';
+      arena.classList.toggle('is-fullscreen', isFs);
+    });
+
+    // In-Arena Modal Actions (Abandon Current Trial)
+    const keepPlayingBtn = document.getElementById('bitmasterModalKeepPlayingBtn');
+    const abandonConfirmBtn = document.getElementById('bitmasterModalAbandonConfirmBtn');
+
+    if (keepPlayingBtn) {
+      keepPlayingBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        hideBitmasterAbandonModal();
+      });
+    }
+
+    if (abandonConfirmBtn) {
+      abandonConfirmBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        hideBitmasterAbandonModal();
+        if (bitmasterState.timerInterval) clearInterval(bitmasterState.timerInterval);
+        showBitmasterScreen('levels');
       });
     }
 
@@ -3041,13 +3334,10 @@
     const hudBackBtn = document.getElementById('bitmasterHudBackBtn');
     if (hudBackBtn) {
       hudBackBtn.addEventListener('click', () => {
-        playSynthSound('click');
+        playSynthSound('tap');
         const activeScreen = document.querySelector('.bitmaster-screen.active');
         if (activeScreen && activeScreen.id === 'bitmasterScreenGame') {
-          if (confirm("Abandon current trial and return to levels?")) {
-            if (bitmasterState.timerInterval) clearInterval(bitmasterState.timerInterval);
-            showBitmasterScreen('levels');
-          }
+          showBitmasterAbandonModal();
         } else if (activeScreen && activeScreen.id === 'bitmasterScreenLevels') {
           showBitmasterScreen('stages');
         } else {

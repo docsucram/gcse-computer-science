@@ -151,10 +151,16 @@
         
         <!-- HUD Header -->
         <div class="bitmaster-hud-bar">
-          <button class="bitmaster-hud-btn" id="bitmasterHudBackBtn" style="display: none;" title="Back to Stages">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-            <span>Stages</span>
-          </button>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <button class="bitmaster-hud-btn" id="bitmasterHudBackBtn" style="display: none;" title="Back to Stages">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              <span>Stages</span>
+            </button>
+            <button class="bitmaster-hud-btn bitmaster-exit-fs-btn" id="bitmasterHudExitFsBtn" style="display: none;" title="Exit Fullscreen">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+              <span>Exit Fullscreen</span>
+            </button>
+          </div>
           <div class="bitmaster-hud-title" id="bitmasterHudTitle">
             ⚡ BitMaster Arena
           </div>
@@ -206,6 +212,25 @@
             <p id="bitmasterStageHeaderDesc">4-Bit Binary &amp; Denary Mastery (0–15)</p>
           </div>
 
+          <!-- Star Rating Criteria Guide Banner -->
+          <div class="bitmaster-criteria-card">
+            <div class="criteria-card-header">
+              <span class="criteria-icon">⭐</span>
+              <span class="criteria-title">How to Earn High Star Ratings</span>
+            </div>
+            <div class="criteria-pills-row">
+              <div class="criteria-pill criteria-pill-gold">
+                <strong>⭐⭐⭐ 3 Stars:</strong> 10/10 Correct in &lt; 50s (0 mistakes)
+              </div>
+              <div class="criteria-pill criteria-pill-silver">
+                <strong>⭐⭐ 2 Stars:</strong> &ge; 8/10 Correct (&le; 2 mistakes)
+              </div>
+              <div class="criteria-pill criteria-pill-bronze">
+                <strong>⭐ 1 Star:</strong> &ge; 5/10 Correct
+              </div>
+            </div>
+          </div>
+
           <div class="bitmaster-levels-list" id="bitmasterLevelsList">
             <!-- Rendered dynamically -->
           </div>
@@ -229,6 +254,12 @@
             <div class="challenge-prompt" id="bitmasterPromptLabel">Convert Binary to Denary:</div>
             <div class="challenge-display" id="bitmasterMainDisplay">0 1 0 1</div>
             <div class="challenge-hint" id="bitmasterHintSubtext">4-bit value</div>
+          </div>
+
+          <!-- Inline Feedback Toast for Switchboard & Keypad mistakes -->
+          <div id="bitmasterInlineFeedback" class="bitmaster-feedback-toast" style="display: none;" role="alert">
+            <span class="feedback-icon" id="bitmasterFeedbackIcon">❌</span>
+            <div class="feedback-text" id="bitmasterFeedbackText">Not quite!</div>
           </div>
 
           <!-- Interaction Zone A: 2x2 Answer Tiles -->
@@ -279,9 +310,25 @@
               </div>
             </div>
 
+            <!-- Personalized Rating & Improvement Tip -->
+            <div id="bitmasterVictoryTip" class="bitmaster-victory-tip"></div>
+
             <div class="victory-buttons">
               <button id="bitmasterSummaryRetryBtn" class="control-btn">Play Again</button>
               <button id="bitmasterSummaryContinueBtn" class="control-btn control-btn-primary">Stages Menu &rarr;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- IN-ARENA MODAL: Abandon Current Trial -->
+        <div id="bitmasterModalAbandon" class="bitmaster-modal-backdrop" style="display: none;">
+          <div class="bitmaster-modal-dialog">
+            <div class="modal-dialog-icon">⚠️</div>
+            <h3 class="modal-dialog-title">Abandon Current Trial?</h3>
+            <p class="modal-dialog-body">Progress and score in this round will not be saved. Return to levels?</p>
+            <div class="modal-dialog-actions">
+              <button id="bitmasterModalKeepPlayingBtn" class="control-btn control-btn-primary">Keep Playing</button>
+              <button id="bitmasterModalAbandonConfirmBtn" class="control-btn control-btn-danger">Exit to Levels</button>
             </div>
           </div>
         </div>

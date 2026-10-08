@@ -1757,9 +1757,14 @@ html.dark .converter-preset-btn:hover,
   max-width: 780px;
   margin: 0 auto;
   background: var(--paper-card);
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(200, 0, 107, 0.05) 0%, transparent 60%),
+    linear-gradient(rgba(0, 23, 54, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 23, 54, 0.02) 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px, 24px 24px;
   border: 2px solid var(--paper-border-strong);
   border-radius: 20px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06), 0 0 0 1px rgba(200, 0, 107, 0.08);
   padding: 24px;
   position: relative;
   transition: all 0.25s ease;
@@ -1767,9 +1772,14 @@ html.dark .converter-preset-btn:hover,
 
 html.dark .bitmaster-arena,
 [data-theme="dark"] .bitmaster-arena {
-  background: #151922;
+  background: #131720;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(200, 0, 107, 0.12) 0%, transparent 65%),
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 100% 100%, 24px 24px, 24px 24px;
   border-color: #2b3240;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 12px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(200, 0, 107, 0.12);
 }
 
 @media (max-width: 640px) {
@@ -1852,6 +1862,30 @@ html.dark .bitmaster-arena.is-fullscreen {
   font-size: 18px;
   font-weight: 800;
   color: var(--ink-primary);
+  text-align: center;
+}
+
+@media (max-width: 540px) {
+  .bitmaster-hud-bar {
+    gap: 8px;
+    margin-bottom: 14px;
+    padding-bottom: 10px;
+  }
+  .bitmaster-hud-title {
+    font-size: 13.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+  .bitmaster-hud-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+  .hud-stat-pill {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
 }
 
 .bitmaster-hud-stats {
@@ -2527,3 +2561,240 @@ html.dark .stat-card {
   gap: 12px;
   justify-content: center;
 }
+
+/* Star Rating Criteria Banner */
+.bitmaster-criteria-card {
+  background: var(--paper-recessed);
+  border: 1.5px solid var(--paper-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+}
+
+html.dark .bitmaster-criteria-card {
+  background: #171c26;
+  border-color: #28303f;
+}
+
+.criteria-card-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.criteria-icon {
+  font-size: 14px;
+}
+
+.criteria-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.criteria-pills-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+@media (min-width: 600px) {
+  .criteria-pills-row {
+    flex-direction: row;
+  }
+}
+
+.criteria-pill {
+  flex: 1;
+  font-size: 11px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--paper-border);
+  color: var(--ink-secondary);
+  background: var(--paper-card);
+  line-height: 1.35;
+}
+
+.criteria-pill strong {
+  display: block;
+  font-size: 11.5px;
+  margin-bottom: 2px;
+}
+
+.criteria-pill-gold {
+  border-color: rgba(234, 179, 8, 0.4);
+  background: rgba(234, 179, 8, 0.08);
+}
+.criteria-pill-gold strong { color: #b45309; }
+html.dark .criteria-pill-gold strong { color: #facc15; }
+
+.criteria-pill-silver {
+  border-color: rgba(148, 163, 184, 0.4);
+  background: rgba(148, 163, 184, 0.08);
+}
+.criteria-pill-silver strong { color: #475569; }
+html.dark .criteria-pill-silver strong { color: #cbd5e1; }
+
+.criteria-pill-bronze {
+  border-color: rgba(249, 115, 22, 0.4);
+  background: rgba(249, 115, 22, 0.08);
+}
+.criteria-pill-bronze strong { color: #c2410c; }
+html.dark .criteria-pill-bronze strong { color: #fb923c; }
+
+/* In-HUD Exit Fullscreen Button */
+.bitmaster-exit-fs-btn {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+.bitmaster-exit-fs-btn:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  color: #dc2626 !important;
+}
+
+/* In-Arena Modal Backdrop & Dialog */
+.bitmaster-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-radius: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 50;
+  animation: modalFadeIn 0.18s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.bitmaster-modal-dialog {
+  background: var(--paper-card);
+  border: 2px solid var(--paper-border-strong);
+  border-radius: 16px;
+  padding: 22px 20px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  animation: modalScaleUp 0.18s ease;
+}
+
+html.dark .bitmaster-modal-dialog {
+  background: #181d28;
+  border-color: #333d4e;
+}
+
+@keyframes modalScaleUp {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-dialog-icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+
+.modal-dialog-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--ink-primary);
+  margin: 0 0 6px 0;
+}
+
+.modal-dialog-body {
+  font-size: 13px;
+  color: var(--ink-secondary);
+  line-height: 1.45;
+  margin: 0 0 18px 0;
+}
+
+.modal-dialog-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.control-btn-danger {
+  background: #ef4444;
+  color: #ffffff;
+  border: 1px solid #dc2626;
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.control-btn-danger:hover {
+  background: #dc2626;
+}
+
+/* Inline Feedback Toast */
+.bitmaster-feedback-toast {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #fee2e2;
+  border: 1.5px solid #ef4444;
+  border-radius: 10px;
+  color: #991b1b;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 14px;
+  animation: toastBounce 0.2s ease;
+}
+
+html.dark .bitmaster-feedback-toast {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #fca5a5;
+}
+
+@keyframes toastBounce {
+  from { transform: translateY(-6px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.feedback-icon {
+  font-size: 18px;
+}
+
+.feedback-text {
+  flex: 1;
+  text-align: left;
+  line-height: 1.35;
+}
+
+/* Victory Rating Tip */
+.bitmaster-victory-tip {
+  margin-bottom: 18px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.4;
+  background: rgba(37, 99, 235, 0.08);
+  border: 1px solid rgba(37, 99, 235, 0.2);
+  color: #1d4ed8;
+  text-align: center;
+}
+
+html.dark .bitmaster-victory-tip {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+}
+
