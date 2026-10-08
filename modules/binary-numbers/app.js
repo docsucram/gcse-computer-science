@@ -2286,7 +2286,7 @@
     });
 
     const backBtn = document.getElementById('bitmasterHudBackBtn');
-    const hudTitle = document.getElementById('bitmasterHudTitle');
+    const backText = document.getElementById('bitmasterHudBackText');
 
     if (screenName === 'stages') {
       if (screens.stages) {
@@ -2294,32 +2294,35 @@
         screens.stages.style.display = 'block';
       }
       if (backBtn) backBtn.style.display = 'none';
-      if (hudTitle) hudTitle.textContent = 'BitMaster Arena';
       renderBitmasterStagesGrid();
     } else if (screenName === 'levels') {
       if (screens.levels) {
         screens.levels.classList.add('active');
         screens.levels.style.display = 'block';
       }
-      if (backBtn) backBtn.style.display = 'inline-flex';
-      const stage = BITMASTER_STAGES.find(s => s.id === bitmasterState.activeStage);
-      if (hudTitle && stage) hudTitle.textContent = stage.title;
+      if (backBtn) {
+        backBtn.style.display = 'inline-flex';
+        if (backText) backText.textContent = 'Stages';
+      }
       renderBitmasterLevelsScreen();
     } else if (screenName === 'game') {
       if (screens.game) {
         screens.game.classList.add('active');
         screens.game.style.display = 'block';
       }
-      if (backBtn) backBtn.style.display = 'inline-flex';
-      const stage = BITMASTER_STAGES.find(s => s.id === bitmasterState.activeStage);
-      if (hudTitle && stage) hudTitle.textContent = `${stage.title} • L${bitmasterState.activeLevel}`;
+      if (backBtn) {
+        backBtn.style.display = 'inline-flex';
+        if (backText) backText.textContent = 'Levels';
+      }
     } else if (screenName === 'summary') {
       if (screens.summary) {
         screens.summary.classList.add('active');
         screens.summary.style.display = 'block';
       }
-      if (backBtn) backBtn.style.display = 'inline-flex';
-      if (hudTitle) hudTitle.textContent = 'Stage Results';
+      if (backBtn) {
+        backBtn.style.display = 'inline-flex';
+        if (backText) backText.textContent = 'Levels';
+      }
     }
   }
 
@@ -3547,7 +3550,7 @@
     };
     if (contBtn) contBtn.onclick = () => {
       playSynthSound('tap');
-      showBitmasterScreen('stages');
+      showBitmasterScreen('levels');
     };
   }
 
@@ -3556,9 +3559,11 @@
     loadBitmasterSave();
     updateBitmasterHUD();
 
-    // Setup native Fullscreen button
+    // Setup native Fullscreen button & top-right HUD symbol toggle
     const fsBtn = document.getElementById('bitmasterFullscreenBtn');
-    const hudExitFsBtn = document.getElementById('bitmasterHudExitFsBtn');
+    const hudFsToggleBtn = document.getElementById('bitmasterFullscreenToggleBtn');
+    const fsEnterIcon = document.getElementById('bitmasterFsEnterIcon');
+    const fsExitIcon = document.getElementById('bitmasterFsExitIcon');
     const arena = document.getElementById('bitmasterArena');
     const fsText = document.getElementById('bitmasterFullscreenText');
 
@@ -3580,19 +3585,19 @@
     if (fsBtn && arena) {
       fsBtn.addEventListener('click', toggleFullscreen);
     }
-    if (hudExitFsBtn) {
-      hudExitFsBtn.addEventListener('click', () => {
-        playSynthSound('tap');
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
-      });
+    if (hudFsToggleBtn) {
+      hudFsToggleBtn.addEventListener('click', toggleFullscreen);
     }
 
     document.addEventListener('fullscreenchange', () => {
       const isFs = !!document.fullscreenElement;
       if (fsText) fsText.textContent = isFs ? 'Exit Fullscreen' : 'Fullscreen Mode';
-      if (hudExitFsBtn) hudExitFsBtn.style.display = isFs ? 'inline-flex' : 'none';
+      if (fsEnterIcon) fsEnterIcon.style.display = isFs ? 'none' : 'block';
+      if (fsExitIcon) fsExitIcon.style.display = isFs ? 'block' : 'none';
+      if (hudFsToggleBtn) {
+        hudFsToggleBtn.title = isFs ? 'Exit Fullscreen' : 'Toggle Fullscreen';
+        hudFsToggleBtn.setAttribute('aria-label', isFs ? 'Exit Fullscreen' : 'Toggle Fullscreen');
+      }
       arena.classList.toggle('is-fullscreen', isFs);
     });
 
@@ -3624,6 +3629,8 @@
         const activeScreen = document.querySelector('.bitmaster-screen.active');
         if (activeScreen && activeScreen.id === 'bitmasterScreenGame') {
           showBitmasterAbandonModal();
+        } else if (activeScreen && activeScreen.id === 'bitmasterScreenSummary') {
+          showBitmasterScreen('levels');
         } else if (activeScreen && activeScreen.id === 'bitmasterScreenLevels') {
           showBitmasterScreen('stages');
         } else {

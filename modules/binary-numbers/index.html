@@ -154,26 +154,30 @@
         
         <!-- HUD Header -->
         <div class="bitmaster-hud-bar">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button class="bitmaster-hud-btn" id="bitmasterHudBackBtn" style="display: none;" title="Back to Stages">
+          <div class="bitmaster-hud-left">
+            <button class="bitmaster-hud-btn" id="bitmasterHudBackBtn" style="display: none;" title="Go Back">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-              <span>Stages</span>
-            </button>
-            <button class="bitmaster-hud-btn bitmaster-exit-fs-btn" id="bitmasterHudExitFsBtn" style="display: none;" title="Exit Fullscreen">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
-              <span>Exit Fullscreen</span>
+              <span id="bitmasterHudBackText">Stages</span>
             </button>
           </div>
-          <div class="bitmaster-hud-title" id="bitmasterHudTitle">
-            BitMaster Arena
-          </div>
-          <div class="bitmaster-hud-stats">
-            <span class="hud-stat-pill hud-stars">
-              ⭐ <span id="bitmasterTotalStars">0</span>
-            </span>
-            <span class="hud-stat-pill hud-xp">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 3px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span id="bitmasterTotalXP">0</span> XP
-            </span>
+          <div class="bitmaster-hud-right">
+            <div class="bitmaster-hud-stats">
+              <span class="hud-stat-pill hud-stars" title="Total Stars Earned">
+                ⭐ <span id="bitmasterTotalStars">0</span>
+              </span>
+              <span class="hud-stat-pill hud-xp" title="Architecture XP">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 3px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span id="bitmasterTotalXP">0</span> XP
+              </span>
+            </div>
+            <!-- Sleek Symbol-Only Fullscreen Toggle Button in Top Right -->
+            <button class="bitmaster-hud-icon-btn" id="bitmasterFullscreenToggleBtn" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">
+              <svg id="bitmasterFsEnterIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+              </svg>
+              <svg id="bitmasterFsExitIcon" style="display: none;" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/>
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -341,7 +345,7 @@
 
             <div class="victory-buttons">
               <button id="bitmasterSummaryRetryBtn" class="control-btn">Play Again</button>
-              <button id="bitmasterSummaryContinueBtn" class="control-btn control-btn-primary">Stages Menu &rarr;</button>
+              <button id="bitmasterSummaryContinueBtn" class="control-btn control-btn-primary">Levels Menu &rarr;</button>
             </div>
           </div>
         </div>
