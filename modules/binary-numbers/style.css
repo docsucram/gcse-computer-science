@@ -2367,10 +2367,6 @@ html.dark .converter-preset-btn:hover,
   }
 }
 
-.bitmaster-stage-card:nth-child(7) {
-  grid-column: 1 / -1;
-}
-
 /* Chunky Bevelled Stage Cards */
 .bitmaster-stage-card {
   display: flex;
@@ -2422,11 +2418,14 @@ html.dark .converter-preset-btn:hover,
 
 .stage-badge-s1 { background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(59, 130, 246, 0.1)); border-color: #3b82f6; color: #60a5fa; }
 .stage-badge-s2 { background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1)); border-color: #10b981; color: #34d399; }
-.stage-badge-s3 { background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.1)); border-color: #8b5cf6; color: #a78bfa; }
-.stage-badge-s4 { background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.1)); border-color: #f59e0b; color: #fbbf24; }
-.stage-badge-s5 { background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(6, 182, 212, 0.1)); border-color: #06b6d4; color: #22d3ee; }
-.stage-badge-s6 { background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(236, 72, 153, 0.1)); border-color: #ec4899; color: #f472b6; }
-.stage-badge-s7 { background: linear-gradient(135deg, rgba(234, 179, 8, 0.35), rgba(234, 179, 8, 0.1)); border-color: #eab308; color: #facc15; }
+.stage-badge-s3 { background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(14, 165, 233, 0.1)); border-color: #0ea5e9; color: #38bdf8; }
+.stage-badge-s4 { background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.1)); border-color: #8b5cf6; color: #a78bfa; }
+.stage-badge-s5 { background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(168, 85, 247, 0.1)); border-color: #a855f7; color: #c084fc; }
+.stage-badge-s6 { background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.1)); border-color: #f59e0b; color: #fbbf24; }
+.stage-badge-s7 { background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.1)); border-color: #ef4444; color: #f87171; }
+.stage-badge-s8 { background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(236, 72, 153, 0.1)); border-color: #ec4899; color: #f472b6; }
+.stage-badge-s9 { background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(6, 182, 212, 0.1)); border-color: #06b6d4; color: #22d3ee; }
+.stage-badge-s10 { background: linear-gradient(135deg, rgba(234, 179, 8, 0.35), rgba(234, 179, 8, 0.1)); border-color: #eab308; color: #facc15; }
 
 .stage-card-info {
   flex: 1;
@@ -3629,24 +3628,26 @@ html.dark .converter-preset-btn:hover,
 
 .hex-nibbles-container {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
   justify-content: center;
-  flex-wrap: wrap;
+  align-items: stretch;
+  flex-wrap: nowrap; /* Never wrap! Always side-by-side even on mobile */
 }
 
 .hex-nibble-card {
   background: #0d121f;
   border: 2.5px solid #3b4261;
   border-radius: 20px;
-  padding: 16px 14px;
+  padding: 14px 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
-  flex: 1 1 240px;
-  max-width: 340px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 320px;
 }
 
 .hex-nibble-card-header {
@@ -3682,26 +3683,27 @@ html.dark .converter-preset-btn:hover,
 }
 
 .hex-digit-badge {
-  font-size: 38px;
+  font-size: 32px;
   font-weight: 900;
   font-family: var(--font-mono, monospace);
   color: #f59e0b;
   background: linear-gradient(180deg, #1e2238 0%, #111424 100%);
   border: 2px solid #6366f1;
   border-radius: 14px;
-  width: 72px;
-  height: 64px;
+  min-width: 72px;
+  padding: 0 10px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 0 #090b14, 0 6px 16px rgba(99, 102, 241, 0.25);
-  margin: 4px 0 2px;
+  margin: 3px 0 1px;
 }
 
 .hex-nibble-bits-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 6px;
   width: 100%;
 }
 
@@ -3709,7 +3711,7 @@ html.dark .converter-preset-btn:hover,
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .hex-bit-weight {
@@ -3721,9 +3723,9 @@ html.dark .converter-preset-btn:hover,
 
 .bitmaster-flip-btn {
   width: 100%;
-  min-height: 52px;
+  min-height: 50px;
   font-family: var(--font-mono, monospace);
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 900;
   border-radius: 12px;
   background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
@@ -3735,6 +3737,69 @@ html.dark .converter-preset-btn:hover,
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .hex-nibbles-container {
+    gap: 8px;
+  }
+  .hex-nibble-card {
+    padding: 10px 5px;
+    border-radius: 14px;
+    border-width: 2px;
+    gap: 7px;
+  }
+  .hex-digit-badge {
+    font-size: 22px !important;
+    min-width: 54px !important;
+    height: 44px !important;
+    padding: 0 6px !important;
+    border-radius: 10px !important;
+    margin: 1px 0 !important;
+  }
+  .hex-nibble-card-tag {
+    font-size: 8.5px !important;
+  }
+  .hex-nibble-denary-hint {
+    font-size: 9px !important;
+  }
+  .hex-nibble-bits-row {
+    gap: 3px !important;
+  }
+  .hex-bit-weight {
+    font-size: 10.5px !important;
+  }
+  .bitmaster-flip-btn {
+    min-height: 38px !important;
+    font-size: 16px !important;
+    border-radius: 8px !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .hex-nibbles-container {
+    gap: 4px;
+  }
+  .hex-nibble-card {
+    padding: 7px 3px;
+    border-radius: 10px;
+  }
+  .hex-digit-badge {
+    font-size: 18px !important;
+    min-width: 46px !important;
+    height: 38px !important;
+  }
+  .hex-nibble-bits-row {
+    gap: 2px !important;
+  }
+  .hex-bit-weight {
+    font-size: 9.5px !important;
+  }
+  .bitmaster-flip-btn {
+    min-height: 34px !important;
+    font-size: 14px !important;
+    border-radius: 6px !important;
+  }
 }
 
 .bitmaster-flip-btn:hover {
