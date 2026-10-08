@@ -2262,16 +2262,25 @@
       const prevXp = rank.minXp;
       const targetXp = nextRank.minXp;
       const progress = Math.min(100, Math.max(0, Math.round(((bitmasterState.xp - prevXp) / (targetXp - prevXp)) * 100)));
-      if (xpLabelEl) xpLabelEl.textContent = `${bitmasterState.xp} / ${targetXp} XP (${nextRank.title})`;
+      if (xpLabelEl) xpLabelEl.textContent = `${bitmasterState.xp} / ${targetXp} XP`;
       if (xpBarFillEl) xpBarFillEl.style.width = `${progress}%`;
     } else {
-      if (xpLabelEl) xpLabelEl.textContent = `${bitmasterState.xp} XP • Maximum Tier`;
+      if (xpLabelEl) xpLabelEl.textContent = `${bitmasterState.xp} XP • Maximum Rank`;
       if (xpBarFillEl) xpBarFillEl.style.width = '100%';
     }
+
+    // Update Title Screen preview stats if present
+    const titleRankEl = document.getElementById('bitmasterTitleRankName');
+    const titleStarsEl = document.getElementById('bitmasterTitleStarsCount');
+    const titleXpEl = document.getElementById('bitmasterTitleXpCount');
+    if (titleRankEl) titleRankEl.textContent = rank.title;
+    if (titleStarsEl) titleStarsEl.textContent = `${totalStars} / 84 ⭐`;
+    if (titleXpEl) titleXpEl.textContent = `${bitmasterState.xp} XP`;
   }
 
   function showBitmasterScreen(screenName) {
     const screens = {
+      title: document.getElementById('bitmasterScreenTitle'),
       stages: document.getElementById('bitmasterScreenStages'),
       levels: document.getElementById('bitmasterScreenLevels'),
       game: document.getElementById('bitmasterScreenGame'),
@@ -2288,12 +2297,22 @@
     const backBtn = document.getElementById('bitmasterHudBackBtn');
     const backText = document.getElementById('bitmasterHudBackText');
 
-    if (screenName === 'stages') {
+    if (screenName === 'title') {
+      if (screens.title) {
+        screens.title.classList.add('active');
+        screens.title.style.display = 'block';
+      }
+      if (backBtn) backBtn.style.display = 'none';
+      updateBitmasterHUD();
+    } else if (screenName === 'stages') {
       if (screens.stages) {
         screens.stages.classList.add('active');
         screens.stages.style.display = 'block';
       }
-      if (backBtn) backBtn.style.display = 'none';
+      if (backBtn) {
+        backBtn.style.display = 'inline-flex';
+        if (backText) backText.textContent = 'Title';
+      }
       renderBitmasterStagesGrid();
     } else if (screenName === 'levels') {
       if (screens.levels) {
@@ -3621,7 +3640,74 @@
       });
     }
 
-    // HUD Back Button
+    // Title Screen Start Arcade Button
+    const startBtn = document.getElementById('bitmasterStartBtn');
+    if (startBtn) {
+      startBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        showBitmasterScreen('stages');
+      });
+    }
+
+    // Click Rank Card -> Open Rank Progression & Reset Modal
+    const rankCard = document.getElementById('bitmasterRankCard');
+    if (rankCard) {
+      rankCard.addEventListener('click', () => {
+        playSynthSound('tap');
+        showBitmasterRankModal();
+      });
+    }
+
+    const rankModalCloseBtn = document.getElementById('bitmasterRankModalCloseBtn');
+    const rankModalDoneBtn = document.getElementById('bitmasterRankModalDoneBtn');
+    if (rankModalCloseBtn) {
+      rankModalCloseBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        hideBitmasterRankModal();
+      });
+    }
+    if (rankModalDoneBtn) {
+      rankModalDoneBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        hideBitmasterRankModal();
+      });
+    }
+
+    // Reset Scores Flow
+    const resetScoresBtn = document.getElementById('bitmasterResetScoresBtn');
+    const resetConfirmModal = document.getElementById('bitmasterModalResetConfirm');
+    const cancelResetBtn = document.getElementById('bitmasterModalCancelResetBtn');
+    const confirmResetBtn = document.getElementById('bitmasterModalConfirmResetBtn');
+
+    if (resetScoresBtn && resetConfirmModal) {
+      resetScoresBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        resetConfirmModal.style.display = 'flex';
+      });
+    }
+
+    if (cancelResetBtn && resetConfirmModal) {
+      cancelResetBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        resetConfirmModal.style.display = 'none';
+      });
+    }
+
+    if (confirmResetBtn && resetConfirmModal) {
+      confirmResetBtn.addEventListener('click', () => {
+        playSynthSound('wrong');
+        localStorage.removeItem('bitmaster_save_v1');
+        bitmasterState.xp = 0;
+        bitmasterState.stars = {};
+        saveBitmasterProgress();
+        updateBitmasterHUD();
+        renderBitmasterRankModal();
+        renderBitmasterStagesGrid();
+        resetConfirmModal.style.display = 'none';
+      });
+    }
+
+    // HUD Back Button (Strict 4-Tier Hierarchy: Game -> Levels -> Stages -> Title)
     const hudBackBtn = document.getElementById('bitmasterHudBackBtn');
     if (hudBackBtn) {
       hudBackBtn.addEventListener('click', () => {
@@ -3633,13 +3719,91 @@
           showBitmasterScreen('levels');
         } else if (activeScreen && activeScreen.id === 'bitmasterScreenLevels') {
           showBitmasterScreen('stages');
+        } else if (activeScreen && activeScreen.id === 'bitmasterScreenStages') {
+          showBitmasterScreen('title');
         } else {
-          showBitmasterScreen('stages');
+          showBitmasterScreen('title');
         }
       });
     }
 
-    showBitmasterScreen('stages');
+    showBitmasterScreen('title');
+  }
+
+  function renderBitmasterRankModal() {
+    const currentRank = getCurrentBitmasterRank();
+    const nextRank = getNextBitmasterRank();
+
+    const curAvatar = document.getElementById('bitmasterModalCurrentAvatar');
+    const curTitle = document.getElementById('bitmasterModalCurrentTitle');
+    const curXp = document.getElementById('bitmasterModalCurrentXp');
+
+    const nextBadge = document.getElementById('bitmasterModalNextBadge');
+    const nextAvatar = document.getElementById('bitmasterModalNextAvatar');
+    const nextTitle = document.getElementById('bitmasterModalNextTitle');
+    const nextReq = document.getElementById('bitmasterModalNextReq');
+
+    const meterWrap = document.getElementById('bitmasterModalMeterWrap');
+    const meterFill = document.getElementById('bitmasterModalMeterFill');
+    const progressPct = document.getElementById('bitmasterModalProgressPct');
+    const ladderList = document.getElementById('bitmasterRankLadderList');
+
+    if (curAvatar) curAvatar.innerHTML = currentRank.svgIcon;
+    if (curTitle) curTitle.textContent = currentRank.title;
+    if (curXp) curXp.textContent = `${bitmasterState.xp} XP`;
+
+    if (nextRank) {
+      if (nextBadge) nextBadge.textContent = 'NEXT RANK';
+      if (nextAvatar) nextAvatar.innerHTML = nextRank.svgIcon;
+      if (nextTitle) nextTitle.textContent = nextRank.title;
+      const diff = Math.max(0, nextRank.minXp - bitmasterState.xp);
+      if (nextReq) nextReq.textContent = `Need ${diff} more XP`;
+
+      const prevXp = currentRank.minXp;
+      const pct = Math.min(100, Math.max(0, Math.round(((bitmasterState.xp - prevXp) / (nextRank.minXp - prevXp)) * 100)));
+      if (meterWrap) meterWrap.style.display = 'block';
+      if (meterFill) meterFill.style.width = `${pct}%`;
+      if (progressPct) progressPct.textContent = `${pct}%`;
+    } else {
+      if (nextBadge) nextBadge.textContent = 'MAX RANK';
+      if (nextAvatar) nextAvatar.innerHTML = currentRank.svgIcon;
+      if (nextTitle) nextTitle.textContent = 'Grand BitMaster';
+      if (nextReq) nextReq.textContent = 'Highest Rank Attained! 👑';
+      if (meterWrap) meterWrap.style.display = 'none';
+    }
+
+    if (ladderList) {
+      ladderList.innerHTML = BITMASTER_RANKS.map(r => {
+        const isCurrent = r.title === currentRank.title;
+        const isUnlocked = bitmasterState.xp >= r.minXp;
+        return `
+          <div class="rank-ladder-row ${isCurrent ? 'current-tier' : ''} ${isUnlocked ? 'unlocked' : 'locked'}">
+            <div class="ladder-rank-avatar">${r.svgIcon}</div>
+            <div class="ladder-rank-info">
+              <div class="ladder-rank-name">
+                <span>${r.title}</span>
+                ${isCurrent ? '<span class="ladder-current-tag">ACTIVE</span>' : ''}
+              </div>
+              <div class="ladder-rank-xp">${r.minXp} XP required</div>
+            </div>
+            <div class="ladder-rank-status">
+              ${isUnlocked ? '<span class="status-unlocked-icon">✓</span>' : '<span class="status-locked-icon">🔒</span>'}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  function showBitmasterRankModal() {
+    renderBitmasterRankModal();
+    const modal = document.getElementById('bitmasterModalRank');
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function hideBitmasterRankModal() {
+    const modal = document.getElementById('bitmasterModalRank');
+    if (modal) modal.style.display = 'none';
   }
 
   // =========================================================================

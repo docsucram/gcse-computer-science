@@ -181,22 +181,97 @@
           </div>
         </div>
 
+        <!-- SCREEN 0: TITLE SCREEN (ARCADE WELCOME) -->
+        <div id="bitmasterScreenTitle" class="bitmaster-screen active">
+          <div class="bitmaster-title-hero">
+            <div class="title-hero-badge-wrap">
+              <div class="title-hero-chip">
+                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="4" y="4" width="16" height="16" rx="2"/>
+                  <rect x="9" y="9" width="6" height="6"/>
+                  <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3"/>
+                </svg>
+              </div>
+            </div>
+
+            <h1 class="title-hero-heading">BitMaster</h1>
+            <div class="title-hero-subheading">Binary &amp; Hex Mental Arcade</div>
+            <p class="title-hero-desc">
+              Sharpen your mental conversion speed, column addition, and two's complement reflexes across 7 stages. Clear all challenges to achieve the rank of Grand BitMaster.
+            </p>
+
+            <div class="title-features-pills">
+              <div class="title-feature-pill">
+                <span class="pill-icon">🕹️</span>
+                <span>7 Stages</span>
+              </div>
+              <div class="title-feature-pill">
+                <span class="pill-icon">⚡</span>
+                <span>28 Levels</span>
+              </div>
+              <div class="title-feature-pill">
+                <span class="pill-icon">⏱️</span>
+                <span>60s Sprint</span>
+              </div>
+              <div class="title-feature-pill">
+                <span class="pill-icon">👑</span>
+                <span>Rank Ladder</span>
+              </div>
+            </div>
+
+            <div class="title-player-stats" id="bitmasterTitleStatsPreview">
+              <div class="title-stat-item">
+                <span class="title-stat-label">Current Rank</span>
+                <span class="title-stat-value text-cyan" id="bitmasterTitleRankName">Logic Novice</span>
+              </div>
+              <div class="title-stat-divider"></div>
+              <div class="title-stat-item">
+                <span class="title-stat-label">Stars Cleared</span>
+                <span class="title-stat-value text-amber" id="bitmasterTitleStarsCount">0 / 84 ⭐</span>
+              </div>
+              <div class="title-stat-divider"></div>
+              <div class="title-stat-item">
+                <span class="title-stat-label">Total XP</span>
+                <span class="title-stat-value text-pink" id="bitmasterTitleXpCount">0 XP</span>
+              </div>
+            </div>
+
+            <div class="title-action-wrap">
+              <button id="bitmasterStartBtn" class="bitmaster-big-start-btn">
+                <span>START ARCADE</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- SCREEN 1: STAGE SELECTION -->
-        <div id="bitmasterScreenStages" class="bitmaster-screen active">
-          <!-- Architect Tier Panel -->
-          <div class="bitmaster-rank-card">
+        <div id="bitmasterScreenStages" class="bitmaster-screen">
+          <!-- BitMaster Title Banner above Rank -->
+          <div class="bitmaster-stages-title-bar">
+            <h2 class="bitmaster-stages-title">BitMaster</h2>
+            <span class="bitmaster-stages-subtitle">Choose a stage to begin</span>
+          </div>
+
+          <!-- Rank Profile Panel (Clickable to view next rank and reset scores) -->
+          <div class="bitmaster-rank-card" id="bitmasterRankCard" title="Click to view rank progression &amp; reset scores">
             <div class="bitmaster-rank-avatar" id="bitmasterAvatarIcon">💡</div>
             <div class="bitmaster-rank-details">
               <div class="bitmaster-rank-header">
                 <div>
-                  <span class="rank-eyebrow">SYSTEM RANK</span>
+                  <span class="rank-eyebrow">RANK</span>
                   <div class="bitmaster-rank-title" id="bitmasterRankTitle">Logic Novice</div>
                 </div>
-                <div class="bitmaster-xp-label" id="bitmasterXpLabel">0 / 150 XP</div>
+                <div class="bitmaster-xp-label" id="bitmasterXpLabel">0 / 200 XP</div>
               </div>
               <div class="bitmaster-xp-track">
                 <div class="bitmaster-xp-fill" id="bitmasterXpBarFill" style="width: 0%;"></div>
               </div>
+            </div>
+            <div class="rank-card-tap-arrow" title="View Rank Progression">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
             </div>
           </div>
 
@@ -359,6 +434,84 @@
             <div class="modal-dialog-actions">
               <button id="bitmasterModalKeepPlayingBtn" class="control-btn control-btn-primary">Keep Playing</button>
               <button id="bitmasterModalAbandonConfirmBtn" class="control-btn control-btn-danger">Exit to Levels</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- IN-ARENA MODAL: Rank Ladder & Reset Scores -->
+        <div id="bitmasterModalRank" class="bitmaster-modal-backdrop" style="display: none;">
+          <div class="bitmaster-modal-dialog rank-modal-dialog">
+            <div class="rank-modal-header">
+              <div class="rank-modal-title-group">
+                <div class="modal-dialog-icon">🎖️</div>
+                <div>
+                  <h3 class="modal-dialog-title">Architecture Rank</h3>
+                  <p class="modal-dialog-subtitle">Earn XP by solving challenges quickly and accurately</p>
+                </div>
+              </div>
+              <button id="bitmasterRankModalCloseBtn" class="rank-modal-close-btn" aria-label="Close">&times;</button>
+            </div>
+
+            <!-- Current Rank & Next Rank Preview -->
+            <div class="rank-preview-container">
+              <!-- Current Rank Box -->
+              <div class="rank-box current-rank-box">
+                <div class="rank-box-badge">CURRENT RANK</div>
+                <div class="rank-box-avatar" id="bitmasterModalCurrentAvatar">💡</div>
+                <div class="rank-box-title" id="bitmasterModalCurrentTitle">Logic Novice</div>
+                <div class="rank-box-xp" id="bitmasterModalCurrentXp">0 XP</div>
+              </div>
+
+              <div class="rank-arrow-indicator">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </div>
+
+              <!-- Next Rank Preview Box -->
+              <div class="rank-box next-rank-box">
+                <div class="rank-box-badge" id="bitmasterModalNextBadge">NEXT RANK</div>
+                <div class="rank-box-avatar" id="bitmasterModalNextAvatar">💾</div>
+                <div class="rank-box-title" id="bitmasterModalNextTitle">Nibble Operator</div>
+                <div class="rank-box-xp text-cyan" id="bitmasterModalNextReq">Need 200 more XP</div>
+              </div>
+            </div>
+
+            <!-- Next Rank Progress Meter -->
+            <div class="rank-meter-wrap" id="bitmasterModalMeterWrap">
+              <div class="rank-meter-labels">
+                <span id="bitmasterModalProgressLabel">Promotion Progress</span>
+                <span id="bitmasterModalProgressPct">0%</span>
+              </div>
+              <div class="bitmaster-xp-track">
+                <div class="bitmaster-xp-fill" id="bitmasterModalMeterFill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Full Rank Hierarchy Ladder -->
+            <div class="rank-ladder-section">
+              <div class="rank-ladder-heading">Rank Hierarchy (6 Tiers)</div>
+              <div class="rank-ladder-list" id="bitmasterRankLadderList"></div>
+            </div>
+
+            <!-- Danger Zone: Reset Scores -->
+            <div class="rank-modal-footer">
+              <button id="bitmasterResetScoresBtn" class="control-btn control-btn-danger">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <span>Reset Scores</span>
+              </button>
+              <button id="bitmasterRankModalDoneBtn" class="control-btn control-btn-primary">Done</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reset Confirmation Dialog Modal -->
+        <div id="bitmasterModalResetConfirm" class="bitmaster-modal-backdrop" style="display: none;">
+          <div class="bitmaster-modal-dialog">
+            <div class="modal-dialog-icon">⚠️</div>
+            <h3 class="modal-dialog-title">Reset All BitMaster Progress?</h3>
+            <p class="modal-dialog-body">All earned stars (84 max), XP points, and rank progression will be cleared to zero. This action cannot be undone.</p>
+            <div class="modal-dialog-actions">
+              <button id="bitmasterModalCancelResetBtn" class="control-btn control-btn-primary">Cancel</button>
+              <button id="bitmasterModalConfirmResetBtn" class="control-btn control-btn-danger">Yes, Reset to 0</button>
             </div>
           </div>
         </div>
