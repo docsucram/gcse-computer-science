@@ -392,6 +392,21 @@
               </button>
             </div>
           </div>
+
+          <!-- Interaction Zone E: Hex to Binary with Hex Digits above Flippable Nibbles -->
+          <div id="bitmasterHexNibblesZone" class="bitmaster-hex-nibbles-zone" style="display: none;">
+            <div id="bitmasterHexNibblesContainer" class="hex-nibbles-container">
+              <!-- Dynamically rendered 1 or 2 nibble cards with Hex digit above each -->
+            </div>
+            <div class="hex-nibbles-footer">
+              <div class="hex-assembled-binary">
+                Assembled Binary: <strong id="bitmasterHexAssembledBin">0000</strong>
+              </div>
+              <button id="bitmasterSubmitHexNibblesBtn" class="control-btn control-btn-primary">
+                Submit Binary &rarr;
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- SCREEN 4: SUMMARY & VICTORY -->
@@ -585,7 +600,7 @@
               ⚡ Direct Hex Input:
             </span>
             <div style="position: relative; display: flex; align-items: center;">
-              <span style="font-family: var(--font-mono); font-size: 18px; font-weight: 800; color: var(--text-muted); margin-right: 4px;">0x</span>
+              <span style="font-family: var(--font-mono); font-size: 12px; font-weight: 800; color: var(--text-muted); margin-right: 6px;">HEX</span>
               <input type="text" id="topLiveHexInput" maxlength="2" value="00" placeholder="1F" style="font-family: var(--font-mono); font-size: 20px; font-weight: 900; width: 68px; text-align: center; text-transform: uppercase; background: var(--bg-surface); border: 2px solid #6366f1; border-radius: var(--radius-sm); color: #6366f1; padding: 4px 6px;">
             </div>
             <div style="display: flex; flex-direction: column; gap: 2px;">
@@ -692,7 +707,7 @@
             <div class="summary-value" style="color: #6366f1;">
               <span id="summaryHex">00</span><span style="font-size: 13px; opacity: 0.7; font-weight: 600; margin-left: 3px;">₁₆</span>
             </div>
-            <div class="summary-subtext">Hex shorthand (in code: 0x00)</div>
+            <div class="summary-subtext">Hexadecimal Shorthand (Base 16)</div>
           </div>
 
           <div class="summary-card">
@@ -985,7 +1000,7 @@
                 <button type="button" class="converter-step-arrow" id="stepDownHex" title="Decrement (-1)">▼</button>
               </div>
             </div>
-            <span id="hexSubtextLabel" style="font-size: 11px; color: var(--ink-secondary);">Hex shorthand (in code: 0x0)</span>
+            <span id="hexSubtextLabel" style="font-size: 11px; color: var(--ink-secondary);">Hexadecimal (Base 16)</span>
           </div>
 
           <!-- Binary Card -->
@@ -1131,7 +1146,7 @@
               <span class="calc-input-label">Number A (0–255):</span>
               <div class="calc-input-wrapper">
                 <input type="number" id="calcAddInputA" min="0" max="255" value="45" class="calc-num-input">
-                <span class="calc-hex-tag" id="calcAddHexA">0x2D</span>
+                <span class="calc-hex-tag" id="calcAddHexA">2D</span>
               </div>
             </div>
             <span class="calc-op-symbol">+</span>
@@ -1139,7 +1154,7 @@
               <span class="calc-input-label">Number B (0–255):</span>
               <div class="calc-input-wrapper">
                 <input type="number" id="calcAddInputB" min="0" max="255" value="22" class="calc-num-input">
-                <span class="calc-hex-tag" id="calcAddHexB">0x16</span>
+                <span class="calc-hex-tag" id="calcAddHexB">16</span>
               </div>
             </div>
             <span class="calc-op-symbol">=</span>
@@ -1147,7 +1162,7 @@
               <span class="calc-input-label">Sum:</span>
               <div class="calc-result-box" id="calcAddResultBox">
                 <span id="calcAddResultNum">67</span>
-                <span class="calc-hex-tag" id="calcAddResultHex">0x43</span>
+                <span class="calc-hex-tag" id="calcAddResultHex">43</span>
               </div>
             </div>
           </div>
@@ -1261,7 +1276,7 @@
               <span class="calc-input-label">Number A (0–255):</span>
               <div class="calc-input-wrapper">
                 <input type="number" id="calcSubInputA" min="0" max="255" value="52" class="calc-num-input">
-                <span class="calc-hex-tag" id="calcSubHexA">0x34</span>
+                <span class="calc-hex-tag" id="calcSubHexA">34</span>
               </div>
             </div>
             <span class="calc-op-symbol">−</span>
@@ -1269,7 +1284,7 @@
               <span class="calc-input-label">Number B (0–255):</span>
               <div class="calc-input-wrapper">
                 <input type="number" id="calcSubInputB" min="0" max="255" value="19" class="calc-num-input">
-                <span class="calc-hex-tag" id="calcSubHexB">0x13</span>
+                <span class="calc-hex-tag" id="calcSubHexB">13</span>
               </div>
             </div>
             <span class="calc-op-symbol">=</span>
@@ -1277,7 +1292,7 @@
               <span class="calc-input-label">Difference:</span>
               <div class="calc-result-box" id="calcSubResultBox">
                 <span id="calcSubResultNum">33</span>
-                <span class="calc-hex-tag" id="calcSubResultHex">0x21</span>
+                <span class="calc-hex-tag" id="calcSubResultHex">21</span>
               </div>
             </div>
           </div>
@@ -1445,14 +1460,14 @@
               <span class="calc-input-label">Number A (0–255):</span>
               <div class="calc-input-wrapper">
                 <input type="number" id="calcLogicInputA" min="0" max="255" value="214" class="calc-num-input">
-                <span class="calc-hex-tag" id="calcLogicHexA">0xD6</span>
+                <span class="calc-hex-tag" id="calcLogicHexA">D6</span>
               </div>
             </div>
             <div class="calc-input-unit">
               <span class="calc-input-label">Number B / Mask (0–255):</span>
               <div class="calc-input-wrapper">
                 <input type="number" id="calcLogicInputB" min="0" max="255" value="15" class="calc-num-input">
-                <span class="calc-hex-tag" id="calcLogicHexB">0x0F</span>
+                <span class="calc-hex-tag" id="calcLogicHexB">0F</span>
               </div>
             </div>
             <span class="calc-op-symbol">=</span>
@@ -1460,7 +1475,7 @@
               <span class="calc-input-label">Result:</span>
               <div class="calc-result-box" id="calcLogicResultBox">
                 <span id="calcLogicResultNum">6</span>
-                <span class="calc-hex-tag" id="calcLogicResultHex">0x06</span>
+                <span class="calc-hex-tag" id="calcLogicResultHex">06</span>
               </div>
             </div>
           </div>
@@ -1579,7 +1594,7 @@
               <span class="calc-input-label">Custom Number (0–255):</span>
               <div class="calc-input-wrapper">
                 <input type="number" id="calcShiftInput" min="0" max="255" value="20" class="calc-num-input">
-                <span class="calc-hex-tag" id="calcShiftHex">0x14</span>
+                <span class="calc-hex-tag" id="calcShiftHex">14</span>
               </div>
             </div>
             <div class="calc-input-unit">

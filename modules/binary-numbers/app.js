@@ -1248,7 +1248,7 @@
         const expectedHex = targetState.targetNum.toString(16).toUpperCase().padStart(2, '0');
         if (val === targetState.targetNum) {
           if (DOM.gameHexFeedback) {
-            DOM.gameHexFeedback.textContent = `🎉 Correct! 0x${expectedHex}`;
+            DOM.gameHexFeedback.textContent = `🎉 Correct! Hex ${expectedHex}`;
             DOM.gameHexFeedback.style.color = '#10b981';
           }
           onChallengeSuccess();
@@ -1404,10 +1404,10 @@
     if (DOM.calcAddInputB && document.activeElement !== DOM.calcAddInputB) {
       DOM.calcAddInputB.value = denaryB;
     }
-    if (DOM.calcAddHexA) DOM.calcAddHexA.textContent = `0x${denaryA.toString(16).toUpperCase().padStart(2, '0')}`;
-    if (DOM.calcAddHexB) DOM.calcAddHexB.textContent = `0x${denaryB.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcAddHexA) DOM.calcAddHexA.textContent = `${denaryA.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcAddHexB) DOM.calcAddHexB.textContent = `${denaryB.toString(16).toUpperCase().padStart(2, '0')}`;
     if (DOM.calcAddResultNum) DOM.calcAddResultNum.textContent = hasOverflow ? `${totalMath} (Overflown to ${denarySum})` : totalMath;
-    if (DOM.calcAddResultHex) DOM.calcAddResultHex.textContent = `0x${denarySum.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcAddResultHex) DOM.calcAddResultHex.textContent = `${denarySum.toString(16).toUpperCase().padStart(2, '0')}`;
 
     // Overflow alert
     if (DOM.overflowAlert) {
@@ -1570,11 +1570,11 @@
     if (DOM.calcSubInputB && document.activeElement !== DOM.calcSubInputB) {
       DOM.calcSubInputB.value = denaryB;
     }
-    if (DOM.calcSubHexA) DOM.calcSubHexA.textContent = `0x${denaryA.toString(16).toUpperCase().padStart(2, '0')}`;
-    if (DOM.calcSubHexB) DOM.calcSubHexB.textContent = `0x${denaryB.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcSubHexA) DOM.calcSubHexA.textContent = `${denaryA.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcSubHexB) DOM.calcSubHexB.textContent = `${denaryB.toString(16).toUpperCase().padStart(2, '0')}`;
     if (DOM.calcSubResultNum) DOM.calcSubResultNum.textContent = resultMath;
     const unsignedRes = (resultMath + 256) & 0xFF;
-    if (DOM.calcSubResultHex) DOM.calcSubResultHex.textContent = `0x${unsignedRes.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcSubResultHex) DOM.calcSubResultHex.textContent = `${unsignedRes.toString(16).toUpperCase().padStart(2, '0')}`;
 
     // Carry note update
     if (DOM.subCarryRuleBox) {
@@ -1737,10 +1737,10 @@
       DOM.calcLogicInputB.disabled = (op === 'NOT');
       DOM.calcLogicInputB.style.opacity = (op === 'NOT') ? '0.3' : '1';
     }
-    if (DOM.calcLogicHexA) DOM.calcLogicHexA.textContent = `0x${denA.toString(16).toUpperCase().padStart(2, '0')}`;
-    if (DOM.calcLogicHexB) DOM.calcLogicHexB.textContent = op === 'NOT' ? '—' : `0x${denB.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcLogicHexA) DOM.calcLogicHexA.textContent = `${denA.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcLogicHexB) DOM.calcLogicHexB.textContent = op === 'NOT' ? '—' : `${denB.toString(16).toUpperCase().padStart(2, '0')}`;
     if (DOM.calcLogicResultNum) DOM.calcLogicResultNum.textContent = denRes;
-    if (DOM.calcLogicResultHex) DOM.calcLogicResultHex.textContent = `0x${denRes.toString(16).toUpperCase().padStart(2, '0')}`;
+    if (DOM.calcLogicResultHex) DOM.calcLogicResultHex.textContent = `${denRes.toString(16).toUpperCase().padStart(2, '0')}`;
 
     // Label and Explanations
     if (DOM.logicOpLabel) DOM.logicOpLabel.textContent = doc.label;
@@ -1849,7 +1849,7 @@
       DOM.calcShiftInput.value = val;
     }
     if (DOM.calcShiftHex) {
-      DOM.calcShiftHex.textContent = `0x${val.toString(16).toUpperCase().padStart(2, '0')}`;
+      DOM.calcShiftHex.textContent = `${val.toString(16).toUpperCase().padStart(2, '0')}`;
     }
   }
 
@@ -2104,9 +2104,9 @@
       svgIcon: BITMASTER_STAGE_ICONS[3],
       color: "#8b5cf6",
       levels: [
-        { id: 1, name: "Apprentice", mode: "mc_hex_nibble_to_den", desc: "Single Hex Digits → Denary (0x0 to 0xF)" },
-        { id: 2, name: "Operator", mode: "mc_hex_den_to_nibble", desc: "Denary → Hex Digits (e.g. 14 → 0xE)" },
-        { id: 3, name: "Tactician", mode: "mc_hex_byte", desc: "2-Digit Hex Bytes (0x00 to 0xFF)" },
+        { id: 1, name: "Apprentice", mode: "hex_nibble_flip", desc: "1-Digit Hex to 4-Bit Binary: Flip bits aligned below Hex digit" },
+        { id: 2, name: "Operator", mode: "hex_byte_flip", desc: "2-Digit Hex Byte to 8-Bit Binary: Two nibbles with Hex above flippable bits" },
+        { id: 3, name: "Tactician", mode: "mc_hex_rapid", desc: "Hex & Denary Conversions (0 to FF, no 0x)" },
         { id: 4, name: "Speed Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Rapid-fire Hexadecimal conversions!" }
       ]
     },
@@ -2359,6 +2359,7 @@
 
       const card = document.createElement('div');
       card.className = 'bitmaster-stage-card';
+      card.setAttribute('data-stage', stage.id);
       card.innerHTML = `
         <div class="stage-card-badge stage-badge-s${stage.id}">
           <span class="stage-card-icon">${stage.svgIcon}</span>
@@ -2406,6 +2407,7 @@
 
       const lvlCard = document.createElement('div');
       lvlCard.className = 'bitmaster-level-card';
+      lvlCard.setAttribute('data-level', lvl.id);
       lvlCard.innerHTML = `
         <div class="level-card-info">
           <div class="level-card-title-row">
@@ -2498,7 +2500,7 @@
         effectiveMode = Math.random() > 0.5 ? 'mc_byte_den2bin' : 'mc_byte_bin2den';
       } else if (stage.id === 3) {
         const r = Math.random();
-        effectiveMode = r < 0.4 ? 'mc_hex_nibble_to_den' : (r < 0.75 ? 'mc_hex_den_to_nibble' : 'mc_hex_byte');
+        effectiveMode = r < 0.4 ? 'hex_nibble_flip' : (r < 0.7 ? 'hex_byte_flip' : 'mc_hex_rapid');
       } else if (stage.id === 4) {
         effectiveMode = Math.random() > 0.5 ? 'math_add_simple' : 'math_add_carries';
       } else if (stage.id === 5) {
@@ -2602,62 +2604,87 @@
       };
     }
 
-    // STAGE 3: HEXADECIMAL SCRIBE
-    if (effectiveMode === 'mc_hex_nibble_to_den') {
+    // STAGE 3: HEXADECIMAL SCRIBE (HEX TO BINARY NIBBLE FLIPS & CONVERSIONS - NO 0x)
+    if (effectiveMode === 'hex_nibble_flip') {
       const val = Math.floor(Math.random() * 16);
       const hex = val.toString(16).toUpperCase();
-      const dists = generateDistractors(val, 0, 15, 'denary');
-      const options = shuffleArray([val, ...dists]);
+      const binStr = val.toString(2).padStart(4, '0');
       return {
-        type: 'mc',
-        prompt: `What is Hexadecimal 0x${hex} in Denary?`,
-        display: `0x${hex}`,
-        hint: "Remember: A=10, B=11, C=12, D=13, E=14, F=15",
-        correctAnswer: String(val),
-        options: options.map(String)
+        type: 'hex_nibbles',
+        nibblesCount: 1,
+        hexDigits: [hex],
+        hexDenaryValues: [val],
+        prompt: `Convert Hex ${hex} to a 4-Bit Binary Nibble:`,
+        display: `Hex: ${hex}`,
+        hint: `Place values: 8 • 4 • 2 • 1 (Hex ${hex} = ${val} in Denary)`,
+        correctBinary: binStr,
+        correctAnswer: binStr
       };
     }
 
-    if (effectiveMode === 'mc_hex_den_to_nibble') {
-      const val = Math.floor(Math.random() * 16);
-      const hex = `0x${val.toString(16).toUpperCase()}`;
-      const dists = generateDistractors(val.toString(16).toUpperCase(), 0, 15, 'hex').map(h => `0x${h}`);
-      const options = shuffleArray([hex, ...dists]);
+    if (effectiveMode === 'hex_byte_flip') {
+      const highVal = Math.floor(Math.random() * 16);
+      const lowVal = Math.floor(Math.random() * 16);
+      const highHex = highVal.toString(16).toUpperCase();
+      const lowHex = lowVal.toString(16).toUpperCase();
+      const fullHex = highHex + lowHex;
+      const fullBin = highVal.toString(2).padStart(4, '0') + lowVal.toString(2).padStart(4, '0');
       return {
-        type: 'mc',
-        prompt: `Convert Denary ${val} to Hexadecimal:`,
-        display: String(val),
-        hint: "Base 16: 0–9 then A, B, C, D, E, F",
-        correctAnswer: hex,
-        options: options.map(String)
+        type: 'hex_nibbles',
+        nibblesCount: 2,
+        hexDigits: [highHex, lowHex],
+        hexDenaryValues: [highVal, lowVal],
+        prompt: `Convert Hex ${fullHex} to 8-Bit Binary:`,
+        display: `Hex: ${fullHex}`,
+        hint: `Convert each Hex digit to its 4-bit nibble (8 • 4 • 2 • 1)`,
+        correctBinary: fullBin,
+        correctAnswer: fullBin
       };
     }
 
-    if (effectiveMode === 'mc_hex_byte') {
-      const val = Math.floor(Math.random() * 256);
-      const hex = val.toString(16).toUpperCase().padStart(2, '0');
-      const dists = generateDistractors(val, 0, 255, 'denary');
-      const options = shuffleArray([val, ...dists]);
-      return {
-        type: 'mc',
-        prompt: `Convert Hex 0x${hex} to Denary:`,
-        display: `0x${hex}`,
-        hint: `Left nibble × 16 + Right nibble`,
-        correctAnswer: String(val),
-        options: options.map(String)
-      };
-    }
-
-    if (effectiveMode === 'keypad_hex') {
-      const val = Math.floor(Math.random() * 256);
-      const hex = val.toString(16).toUpperCase().padStart(2, '0');
-      return {
-        type: 'keypad',
-        prompt: `Convert Denary ${val} to 2-Digit Hex:`,
-        display: String(val),
-        hint: "Enter 2 Hex digits using the keypad",
-        correctAnswer: hex
-      };
+    if (effectiveMode === 'mc_hex_rapid' || effectiveMode === 'mc_hex_nibble_to_den' || effectiveMode === 'mc_hex_den_to_nibble' || effectiveMode === 'mc_hex_byte') {
+      const isByte = Math.random() > 0.5;
+      if (!isByte) {
+        const toHex = Math.random() > 0.5;
+        const val = Math.floor(Math.random() * 16);
+        const hex = val.toString(16).toUpperCase();
+        if (toHex) {
+          const dists = generateDistractors(hex, 0, 15, 'hex');
+          const options = shuffleArray([hex, ...dists]);
+          return {
+            type: 'mc',
+            prompt: `Convert Denary ${val} to Hexadecimal:`,
+            display: String(val),
+            hint: "Base 16: 0–9, then A=10, B=11, C=12, D=13, E=14, F=15",
+            correctAnswer: hex,
+            options: options.map(String)
+          };
+        } else {
+          const dists = generateDistractors(val, 0, 15, 'denary');
+          const options = shuffleArray([val, ...dists]);
+          return {
+            type: 'mc',
+            prompt: `What is Hexadecimal ${hex} in Denary?`,
+            display: `Hex: ${hex}`,
+            hint: "Remember: A=10, B=11, C=12, D=13, E=14, F=15",
+            correctAnswer: String(val),
+            options: options.map(String)
+          };
+        }
+      } else {
+        const val = Math.floor(Math.random() * 256);
+        const hex = val.toString(16).toUpperCase().padStart(2, '0');
+        const dists = generateDistractors(val, 0, 255, 'denary');
+        const options = shuffleArray([val, ...dists]);
+        return {
+          type: 'mc',
+          prompt: `Convert Hex ${hex} to Denary:`,
+          display: `Hex: ${hex}`,
+          hint: "High nibble × 16 + Low nibble",
+          correctAnswer: String(val),
+          options: options.map(String)
+        };
+      }
     }
 
     // STAGE 4: BINARY ADDITION (Pixel-perfect lined up columns & bit flips)
@@ -2829,8 +2856,8 @@
         const dists = generateDistractors(val, 0, 255, 'denary');
         return {
           type: 'mc',
-          prompt: `Gauntlet Blitz: Convert Hex 0x${hex} to Denary:`,
-          display: `0x${hex}`,
+          prompt: `Gauntlet Blitz: Convert Hex ${hex} to Denary:`,
+          display: hex,
           hint: "Left nibble × 16 + Right nibble",
           correctAnswer: String(val),
           options: shuffleArray([val, ...dists]).map(String)
@@ -2993,12 +3020,14 @@
     const switchZone = document.getElementById('bitmasterSwitchboardZone');
     const keypadZone = document.getElementById('bitmasterKeypadZone');
     const mathZone = document.getElementById('bitmasterMathGridZone');
+    const hexZone = document.getElementById('bitmasterHexNibblesZone');
 
     if (bitmasterState.currentQuestion.type === 'mc') {
       if (tilesZone) tilesZone.style.display = 'grid';
       if (switchZone) switchZone.style.display = 'none';
       if (keypadZone) keypadZone.style.display = 'none';
       if (mathZone) mathZone.style.display = 'none';
+      if (hexZone) hexZone.style.display = 'none';
       renderBitmasterMCTiles(bitmasterState.currentQuestion.options);
     } else if (bitmasterState.currentQuestion.type === 'switches') {
       if (tilesZone) tilesZone.style.display = 'none';
@@ -3008,6 +3037,16 @@
       }
       if (keypadZone) keypadZone.style.display = 'none';
       if (mathZone) mathZone.style.display = 'none';
+      if (hexZone) hexZone.style.display = 'none';
+    } else if (bitmasterState.currentQuestion.type === 'hex_nibbles') {
+      if (tilesZone) tilesZone.style.display = 'none';
+      if (switchZone) switchZone.style.display = 'none';
+      if (keypadZone) keypadZone.style.display = 'none';
+      if (mathZone) mathZone.style.display = 'none';
+      if (hexZone) {
+        hexZone.style.display = 'flex';
+        renderBitmasterHexNibbles(bitmasterState.currentQuestion);
+      }
     } else if (bitmasterState.currentQuestion.type === 'keypad') {
       if (tilesZone) tilesZone.style.display = 'none';
       if (switchZone) switchZone.style.display = 'none';
@@ -3016,10 +3055,12 @@
         renderBitmasterKeypad();
       }
       if (mathZone) mathZone.style.display = 'none';
+      if (hexZone) hexZone.style.display = 'none';
     } else if (bitmasterState.currentQuestion.type === 'math_grid') {
       if (tilesZone) tilesZone.style.display = 'none';
       if (switchZone) switchZone.style.display = 'none';
       if (keypadZone) keypadZone.style.display = 'none';
+      if (hexZone) hexZone.style.display = 'none';
       if (mathZone) {
         mathZone.style.display = 'flex';
         renderBitmasterMathGrid(bitmasterState.currentQuestion);
@@ -3348,6 +3389,139 @@
         });
       } else {
         showBitmasterToast(`Not quite! The correct binary sum is ${bitmasterState.currentQuestion.correctAnswer}.`, '❌', 2000, () => {
+          loadNextBitmasterQuestion();
+        });
+      }
+    }
+  }
+
+  // =========================================================================
+  // INTERACTION ZONE E: HEX DIGITS WITH FLIPPABLE NIBBLE BITS
+  // =========================================================================
+
+  function renderBitmasterHexNibbles(question) {
+    const container = document.getElementById('bitmasterHexNibblesContainer');
+    const assembledEl = document.getElementById('bitmasterHexAssembledBin');
+    const submitBtn = document.getElementById('bitmasterSubmitHexNibblesBtn');
+    if (!container) return;
+
+    const nibbleCount = question.nibblesCount || 1;
+    // Each nibble has 4 bits [b3, b2, b1, b0] corresponding to weights [8, 4, 2, 1]
+    bitmasterState.hexNibbleBits = Array.from({ length: nibbleCount }, () => [0, 0, 0, 0]);
+
+    container.innerHTML = '';
+
+    for (let nIdx = 0; nIdx < nibbleCount; nIdx++) {
+      const hexChar = question.hexDigits[nIdx];
+      const denVal = question.hexDenaryValues[nIdx];
+      const card = document.createElement('div');
+      card.className = 'hex-nibble-card';
+
+      const header = document.createElement('div');
+      header.className = 'hex-nibble-card-header';
+      const label = nibbleCount === 1 ? 'Hex Digit' : (nIdx === 0 ? 'High Nibble' : 'Low Nibble');
+      header.innerHTML = `
+        <div class="hex-nibble-card-title-row">
+          <span class="hex-nibble-card-tag">${label}</span>
+          <span class="hex-nibble-denary-hint">= ${denVal}</span>
+        </div>
+        <div class="hex-digit-badge">${hexChar}</div>
+      `;
+      card.appendChild(header);
+
+      const bitsRow = document.createElement('div');
+      bitsRow.className = 'hex-nibble-bits-row';
+
+      const weights = [8, 4, 2, 1];
+      for (let bIdx = 0; bIdx < 4; bIdx++) {
+        const col = document.createElement('div');
+        col.className = 'hex-bit-col';
+
+        const weightLabel = document.createElement('span');
+        weightLabel.className = 'hex-bit-weight';
+        weightLabel.textContent = weights[bIdx];
+
+        const flipBtn = document.createElement('button');
+        flipBtn.type = 'button';
+        flipBtn.className = 'bitmaster-flip-btn';
+        flipBtn.textContent = '0';
+        flipBtn.setAttribute('data-nibble', nIdx);
+        flipBtn.setAttribute('data-bit', bIdx);
+        flipBtn.setAttribute('aria-label', `${label} weight ${weights[bIdx]} bit switch`);
+
+        flipBtn.addEventListener('click', () => {
+          const cur = bitmasterState.hexNibbleBits[nIdx][bIdx];
+          const next = cur === 1 ? 0 : 1;
+          bitmasterState.hexNibbleBits[nIdx][bIdx] = next;
+          flipBtn.textContent = String(next);
+          flipBtn.classList.toggle('active', next === 1);
+          playSynthSound('switch');
+          updateHexNibblesDisplay();
+        });
+
+        col.appendChild(weightLabel);
+        col.appendChild(flipBtn);
+        bitsRow.appendChild(col);
+      }
+
+      card.appendChild(bitsRow);
+      container.appendChild(card);
+    }
+
+    function updateHexNibblesDisplay() {
+      if (!assembledEl) return;
+      if (nibbleCount === 1) {
+        assembledEl.textContent = bitmasterState.hexNibbleBits[0].join('');
+      } else {
+        assembledEl.textContent = `${bitmasterState.hexNibbleBits[0].join('')} ${bitmasterState.hexNibbleBits[1].join('')}`;
+      }
+    }
+
+    updateHexNibblesDisplay();
+
+    if (submitBtn) {
+      submitBtn.onclick = () => {
+        handleBitmasterHexNibblesSubmit();
+      };
+    }
+  }
+
+  function handleBitmasterHexNibblesSubmit() {
+    const nibbleCount = bitmasterState.hexNibbleBits.length;
+    const userAns = nibbleCount === 1
+      ? bitmasterState.hexNibbleBits[0].join('')
+      : bitmasterState.hexNibbleBits[0].join('') + bitmasterState.hexNibbleBits[1].join('');
+
+    const isCorrect = userAns === bitmasterState.currentQuestion.correctBinary;
+
+    if (isCorrect) {
+      playSynthSound('correct');
+      bitmasterState.correctThisRound++;
+      bitmasterState.xp += 20;
+      updateBitmasterHUD();
+      if (bitmasterState.isSprint) {
+        const counterEl = document.getElementById('bitmasterQuestionCounter');
+        if (counterEl) counterEl.textContent = `⚡ Solved: ${bitmasterState.correctThisRound}`;
+        setTimeout(() => loadNextBitmasterQuestion(), 200);
+      } else {
+        setTimeout(() => loadNextBitmasterQuestion(), 400);
+      }
+    } else {
+      playSynthSound('wrong');
+      bitmasterState.mistakesThisRound++;
+      const expectedFormatted = nibbleCount === 2
+        ? `${bitmasterState.currentQuestion.correctBinary.slice(0, 4)} ${bitmasterState.currentQuestion.correctBinary.slice(4)}`
+        : bitmasterState.currentQuestion.correctBinary;
+      const userFormatted = nibbleCount === 2
+        ? `${userAns.slice(0, 4)} ${userAns.slice(4)}`
+        : userAns;
+
+      if (bitmasterState.isSprint) {
+        showBitmasterToast(`Incorrect! Expected: ${expectedFormatted}`, '❌', 850, () => {
+          loadNextBitmasterQuestion();
+        });
+      } else {
+        showBitmasterToast(`Not quite! For Hex ${bitmasterState.currentQuestion.hexDigits.join('')}, expected binary is ${expectedFormatted} (you entered ${userFormatted}).`, '❌', 2100, () => {
           loadNextBitmasterQuestion();
         });
       }
