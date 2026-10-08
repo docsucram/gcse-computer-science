@@ -2055,59 +2055,79 @@ html.dark .bitmaster-stage-card:hover {
 }
 
 .stage-card-badge {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   background: var(--paper-recessed);
   border: 1.5px solid var(--paper-border);
   flex-shrink: 0;
-}
-
-.stage-card-badge.stage-badge-gold {
-  background: linear-gradient(135deg, rgba(234, 179, 8, 0.2) 0%, rgba(234, 179, 8, 0.05) 100%);
-  border-color: #eab308;
-  color: #ca8a04;
-}
-
-.stage-card-badge.stage-badge-silver {
-  background: linear-gradient(135deg, rgba(148, 163, 184, 0.2) 0%, rgba(148, 163, 184, 0.05) 100%);
-  border-color: #94a3b8;
-  color: #475569;
-}
-
-.stage-card-badge.stage-badge-bronze {
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.15) 0%, rgba(249, 115, 22, 0.05) 100%);
-  border-color: #f97316;
-  color: #c2410c;
-}
-
-.stage-card-num {
-  font-size: 10px;
-  font-weight: 800;
-  font-family: var(--font-mono);
-  opacity: 0.7;
-  line-height: 1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 .stage-card-icon {
-  font-size: 18px;
-  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+.stage-card-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.stage-badge-s1 { background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(59, 130, 246, 0.05)); border-color: #3b82f6; color: #2563eb; }
+.stage-badge-s2 { background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(16, 185, 129, 0.05)); border-color: #10b981; color: #059669; }
+.stage-badge-s3 { background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(139, 92, 246, 0.05)); border-color: #8b5cf6; color: #7c3aed; }
+.stage-badge-s4 { background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(245, 158, 11, 0.05)); border-color: #f59e0b; color: #d97706; }
+.stage-badge-s5 { background: linear-gradient(135deg, rgba(6, 182, 212, 0.18), rgba(6, 182, 212, 0.05)); border-color: #06b6d4; color: #0891b2; }
+.stage-badge-s6 { background: linear-gradient(135deg, rgba(236, 72, 153, 0.18), rgba(236, 72, 153, 0.05)); border-color: #ec4899; color: #db2777; }
+.stage-badge-s7 { background: linear-gradient(135deg, rgba(234, 179, 8, 0.22), rgba(234, 179, 8, 0.06)); border-color: #eab308; color: #ca8a04; }
+
+html.dark .stage-badge-s1 { color: #60a5fa; }
+html.dark .stage-badge-s2 { color: #34d399; }
+html.dark .stage-badge-s3 { color: #a78bfa; }
+html.dark .stage-badge-s4 { color: #fbbf24; }
+html.dark .stage-badge-s5 { color: #22d3ee; }
+html.dark .stage-badge-s6 { color: #f472b6; }
+html.dark .stage-badge-s7 { color: #facc15; }
 
 .stage-card-info {
   flex: 1;
   min-width: 0;
 }
 
+.stage-card-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.stage-card-tag {
+  font-size: 10px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  letter-spacing: 0.6px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+}
+
 .stage-card-title {
-  font-size: 13.5px;
+  font-size: 14.5px;
   font-weight: 800;
   color: var(--ink-primary);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stage-card-subtitle {
+  font-size: 11.5px;
+  color: var(--ink-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2203,6 +2223,8 @@ html.dark .bitmaster-level-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-bottom: 8px;
 }
 
@@ -2792,9 +2814,218 @@ html.dark .bitmaster-feedback-toast {
   text-align: center;
 }
 
-html.dark .bitmaster-victory-tip {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.3);
-  color: #93c5fd;
+
+/* =========================================================================
+   BITMASTER INTERACTION ZONE D: LINED-UP CALCULATION & BIT-FLIP GRID
+   ========================================================================= */
+
+.bitmaster-math-grid-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
 }
+
+.bitmaster-math-card {
+  background: var(--paper-card, #ffffff);
+  border: 2px solid var(--paper-border-strong, #cbd5e1);
+  border-radius: 16px;
+  padding: 16px 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+html.dark .bitmaster-math-card {
+  background: #181d28;
+  border-color: #333d4e;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.math-grid-header-row,
+.math-grid-operand-row,
+.math-grid-result-row {
+  display: grid;
+  grid-template-columns: 28px repeat(var(--math-cols, 8), 1fr);
+  gap: 6px;
+  align-items: center;
+}
+
+@media (max-width: 500px) {
+  .bitmaster-math-card {
+    padding: 12px 8px;
+  }
+  .math-grid-header-row,
+  .math-grid-operand-row,
+  .math-grid-result-row {
+    grid-template-columns: 20px repeat(var(--math-cols, 8), 1fr);
+    gap: 3px;
+  }
+}
+
+.math-row-op {
+  font-family: var(--font-mono, monospace);
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--ink-secondary, #64748b);
+  text-align: center;
+  user-select: none;
+}
+
+.math-row-op.op-symbol {
+  color: var(--isaac-magenta, #c8006b);
+}
+
+html.dark .math-row-op.op-symbol {
+  color: #f472b6;
+}
+
+.math-pv-cell {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-secondary, #64748b);
+  text-align: center;
+  padding: 2px 0;
+  user-select: none;
+}
+
+@media (max-width: 500px) {
+  .math-pv-cell {
+    font-size: 9.5px;
+  }
+}
+
+.math-bit-cell {
+  font-family: var(--font-mono, monospace);
+  font-size: 17px;
+  font-weight: 900;
+  text-align: center;
+  padding: 8px 0;
+  background: var(--paper-recessed, #f1f5f9);
+  border: 1.5px solid var(--paper-border, #e2e8f0);
+  border-radius: 8px;
+  color: var(--ink-primary, #001736);
+  user-select: none;
+}
+
+html.dark .math-bit-cell {
+  background: #1e2430;
+  border-color: #2e3646;
+  color: #f3f4f6;
+}
+
+.math-bit-cell.bit-is-1 {
+  color: var(--ink-primary, #001736);
+  background: rgba(100, 116, 139, 0.12);
+  border-color: var(--paper-border-strong, #cbd5e1);
+}
+
+html.dark .math-bit-cell.bit-is-1 {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #3b4556;
+}
+
+.math-grid-divider {
+  height: 2px;
+  background: var(--paper-border-strong, #cbd5e1);
+  border-radius: 2px;
+  margin: 2px 0;
+}
+
+html.dark .math-grid-divider {
+  background: #333d4e;
+}
+
+.math-flip-cell {
+  font-family: var(--font-mono, monospace);
+  font-size: 19px;
+  font-weight: 900;
+  text-align: center;
+  padding: 10px 0;
+  background: var(--paper-card, #ffffff);
+  border: 2px solid var(--paper-border-strong, #cbd5e1);
+  border-radius: 8px;
+  color: var(--ink-secondary, #64748b);
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.12s ease;
+  box-shadow: 0 2px 0 var(--paper-border-strong, #cbd5e1);
+}
+
+html.dark .math-flip-cell {
+  background: #1e2430;
+  border-color: #333d4e;
+  color: #94a3b8;
+  box-shadow: 0 2px 0 #11151e;
+}
+
+.math-flip-cell:hover {
+  border-color: var(--isaac-magenta, #c8006b);
+  transform: translateY(-1px);
+}
+
+.math-flip-cell:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.math-flip-cell.active-1 {
+  background: var(--isaac-magenta, #c8006b) !important;
+  border-color: var(--isaac-magenta, #c8006b) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(200, 0, 107, 0.35) !important;
+}
+
+html.dark .math-flip-cell.active-1 {
+  background: #c8006b !important;
+  border-color: #f472b6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 14px rgba(244, 114, 182, 0.4) !important;
+}
+
+.math-grid-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.math-grid-hint-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-secondary, #64748b);
+  text-align: center;
+}
+
+/* 60s Sprint HUD animation */
+.game-timer.sprint-mode {
+  color: #f59e0b;
+  font-weight: 900;
+  animation: sprintPulse 1s infinite alternate;
+}
+
+.game-timer.sprint-low {
+  color: #ef4444;
+  animation: sprintRapidPulse 0.5s infinite alternate;
+}
+
+@keyframes sprintPulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }
+}
+
+@keyframes sprintRapidPulse {
+  from { transform: scale(1); opacity: 1; }
+  to { transform: scale(1.12); opacity: 0.85; }
+}
+
+.game-counter.sprint-counter {
+  color: #10b981;
+  font-weight: 800;
+  font-family: var(--font-mono, monospace);
+}
+
 

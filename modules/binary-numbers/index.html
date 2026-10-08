@@ -69,7 +69,7 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
-          <span>⚡ BitMaster Arcade</span>
+          <span>BitMaster Arcade</span>
         </button>
 
         <button class="view-tab-btn" data-tab="register">
@@ -135,7 +135,10 @@
     <div id="tab-arcade" class="tab-view active">
       <div class="view-banner" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
         <div>
-          <h2>⚡ BitMaster: Binary &amp; Hex Mental Arcade</h2>
+          <h2 style="display: flex; align-items: center; gap: 8px;">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--isaac-magenta); flex-shrink: 0;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <span>BitMaster: Binary &amp; Hex Mental Arcade</span>
+          </h2>
           <p>Sharpen binary, hex, and two's complement mental conversion speed, advance your Computing Architecture rank, and clear all 7 stages.</p>
         </div>
         <div style="display: flex; gap: 8px;">
@@ -162,14 +165,14 @@
             </button>
           </div>
           <div class="bitmaster-hud-title" id="bitmasterHudTitle">
-            ⚡ BitMaster Arena
+            BitMaster Arena
           </div>
           <div class="bitmaster-hud-stats">
             <span class="hud-stat-pill hud-stars">
               ⭐ <span id="bitmasterTotalStars">0</span>
             </span>
             <span class="hud-stat-pill hud-xp">
-              ⚡ <span id="bitmasterTotalXP">0</span> XP
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; vertical-align: middle; margin-right: 3px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><span id="bitmasterTotalXP">0</span> XP
             </span>
           </div>
         </div>
@@ -286,6 +289,29 @@
           <div id="bitmasterKeypadZone" class="bitmaster-keypad-zone" style="display: none;">
             <div class="keypad-input-display" id="bitmasterKeypadDisplay">_</div>
             <div class="keypad-grid" id="bitmasterKeypadGrid"></div>
+          </div>
+
+          <!-- Interaction Zone D: Lined-up Binary Calculation & Flip Grid (Stage 4 Addition / Subtraction / Logic) -->
+          <div id="bitmasterMathGridZone" class="bitmaster-math-grid-zone" style="display: none;">
+            <div class="bitmaster-math-card">
+              <!-- Column place values row: 128 64 32 16 8 4 2 1 -->
+              <div class="math-grid-header-row" id="bitmasterMathPlaceRow"></div>
+              <!-- Operand A row -->
+              <div class="math-grid-operand-row" id="bitmasterMathRowA"></div>
+              <!-- Operator & Operand B row -->
+              <div class="math-grid-operand-row" id="bitmasterMathRowB"></div>
+              <div class="math-grid-divider"></div>
+              <!-- User interactive flip answer row -->
+              <div class="math-grid-result-row" id="bitmasterMathResultRow"></div>
+            </div>
+            <div class="math-grid-footer">
+              <div class="math-grid-hint-label" id="bitmasterMathGridHint">
+                Click cells in the Result row to flip bits (0 ↔ 1)
+              </div>
+              <button id="bitmasterSubmitMathBtn" class="control-btn control-btn-primary">
+                Submit Calculation &rarr;
+              </button>
+            </div>
           </div>
         </div>
 
