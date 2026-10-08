@@ -52,6 +52,7 @@
 
     // Tab 1: Register
     btnModeBinary: document.getElementById('btnModeBinary'),
+    btnModeSignMag: document.getElementById('btnModeSignMag'),
     btnModeHex: document.getElementById('btnModeHex'),
     btnModeUnsigned: document.getElementById('btnModeUnsigned') || document.getElementById('btnModeBinary'),
     btnModeTwosComp: document.getElementById('btnModeTwosComp'),
@@ -70,8 +71,15 @@
     summaryAdditionBreakdown: document.getElementById('summaryAdditionBreakdown'),
     summaryHex: document.getElementById('summaryHex'),
     summaryBinary: document.getElementById('summaryBinary'),
+    signMagExplainer: document.getElementById('signMagExplainer'),
+    signMagLiveTrace: document.getElementById('signMagLiveTrace'),
+    btnTestNegZero: document.getElementById('btnTestNegZero'),
     twosComplementExplainer: document.getElementById('twosComplementExplainer'),
     twosStepTrace: document.getElementById('twosStepTrace'),
+    btnPresetPlus127: document.getElementById('btnPresetPlus127'),
+    btnTriggerSignedOverflow: document.getElementById('btnTriggerSignedOverflow'),
+    btnPresetMinus1: document.getElementById('btnPresetMinus1'),
+    btnPresetMinus128: document.getElementById('btnPresetMinus128'),
     btnDecrementBit: document.getElementById('btnDecrementBit'),
     btnIncrementBit: document.getElementById('btnIncrementBit'),
     btnResetBits: document.getElementById('btnResetBits'),
@@ -379,59 +387,122 @@
     if (DOM.highNibbleHexBadge) DOM.highNibbleHexBadge.textContent = `Hex: ${highHexChar} (${highVal})`;
     if (DOM.lowNibbleHexBadge) DOM.lowNibbleHexBadge.textContent = `Hex: ${lowHexChar} (${lowVal})`;
 
-    // 3. Denary Value
+    // 3. Denary Value & Format according to mode
     let denary = 0;
     const activePlaceValues = [];
-
-    for (let i = 0; i < 8; i++) {
-      if (state.bits[i] === 1) {
-        if (i === 7 && state.numberMode === 'twos') {
-          denary -= 128;
-          activePlaceValues.push('-128');
-        } else {
-          const pv = Math.pow(2, i);
-          denary += pv;
-          activePlaceValues.push(pv.toString());
-        }
-      }
-    }
-
-    if (DOM.summaryDenary) DOM.summaryDenary.textContent = denary;
-
-    // Hex display: No "0x" in primary exam display
-    if (DOM.summaryHex) DOM.summaryHex.textContent = `${highHexChar}${lowHexChar}`;
 
     const binStrHigh = `${state.bits[7]}${state.bits[6]}${state.bits[5]}${state.bits[4]}`;
     const binStrLow = `${state.bits[3]}${state.bits[2]}${state.bits[1]}${state.bits[0]}`;
     const rawBinary = `${binStrHigh}${binStrLow}`;
     if (DOM.summaryBinary) DOM.summaryBinary.textContent = `${binStrHigh} ${binStrLow}`;
 
-    // Addition breakdown string
-    if (DOM.summaryAdditionBreakdown) {
-      if (activePlaceValues.length === 0) {
-        DOM.summaryAdditionBreakdown.textContent = 'All bits are 0';
-      } else {
-        DOM.summaryAdditionBreakdown.textContent = `${activePlaceValues.join(' + ')} = ${denary}`;
-      }
-    }
+    // Hex display: No "0x" in primary exam display
+    if (DOM.summaryHex) DOM.summaryHex.textContent = `${highHexChar}${lowHexChar}`;
 
-    // Two's complement step-by-step trace
-    if (state.numberMode === 'twos') {
-      if (DOM.twosComplementExplainer) DOM.twosComplementExplainer.style.display = 'block';
-      if (DOM.twosStepTrace) {
-        if (state.bits[7] === 1) {
-          DOM.twosStepTrace.innerHTML = `
-            <strong>Sign:</strong> MSB is 1 &rarr; Negative number.<br>
-            <strong>Magnitude Check:</strong> Invert bits (${rawBinary} &rarr; ${invertString(rawBinary)}), then add 1 &rarr; ${Math.abs(denary)}. Result: <strong>${denary}</strong>.
+    if (state.numberMode === 'sign_mag') {
+      const isNeg = (state.bits[7] === 1);
+      let magnitude = 0;
+      const magComponents = [];
+      for (let i = 0; i < 7; i++) {
+        if (state.bits[i] === 1) {
+          const pv = Math.pow(2, i);
+          magnitude += pv;
+          magComponents.push(pv);
+        }
+      }
+
+      if (isNeg) {
+        if (magnitude === 0) {
+          if (DOM.summaryDenary) DOM.summaryDenary.textContent = '-0';
+          if (DOM.summaryAdditionBreakdown) {
+            DOM.summaryAdditionBreakdown.textContent = 'Sign: - (Negative) | Magnitude: 0 | Value: -0 (Redundant Zero!)';
+          }
+        } else {
+          if (DOM.summaryDenary) DOM.summaryDenary.textContent = `-${magnitude}`;
+          if (DOM.summaryAdditionBreakdown) {
+            DOM.summaryAdditionBreakdown.textContent = `Sign: - (Negative) | Magnitude: ${magComponents.join(' + ') || '0'} = ${magnitude} | Value: -${magnitude}`;
+          }
+        }
+      } else {
+        if (DOM.summaryDenary) DOM.summaryDenary.textContent = `+${magnitude}`;
+        if (DOM.summaryAdditionBreakdown) {
+          DOM.summaryAdditionBreakdown.textContent = `Sign: + (Positive) | Magnitude: ${magComponents.join(' + ') || '0'} = ${magnitude} | Value: +${magnitude}`;
+        }
+      }
+
+      if (DOM.signMagExplainer) DOM.signMagExplainer.style.display = 'block';
+      if (DOM.twosComplementExplainer) DOM.twosComplementExplainer.style.display = 'none';
+
+      if (DOM.signMagLiveTrace) {
+        const magBinaryStr = `${state.bits[6]}${state.bits[5]}${state.bits[4]} ${state.bits[3]}${state.bits[2]}${state.bits[1]}${state.bits[0]}`;
+        if (isNeg && magnitude === 0) {
+          DOM.signMagLiveTrace.innerHTML = `
+            <strong>Sign Bit (MSB, Bit 7):</strong> <code style="color: #dc2626;">1</code> &rarr; Negative (<code>−</code>)<br>
+            <strong>Magnitude (Bits 6..0):</strong> <code>${magBinaryStr}</code> &rarr; <code>0</code><br>
+            <strong>Evaluated Value:</strong> <strong style="color: #dc2626;">-0 (Negative Zero!)</strong><br>
+            <span style="color: #dc2626; font-size: 11.5px; display: block; margin-top: 4px;">⚠️ <strong>The Classic Trap:</strong> This exposes the primary flaw of Sign &amp; Magnitude: Zero has TWO distinct representations: +0 (00000000) and -0 (10000000). This wastes a state and forces the CPU to test for both!</span>
+          `;
+        } else if (isNeg) {
+          DOM.signMagLiveTrace.innerHTML = `
+            <strong>Sign Bit (MSB, Bit 7):</strong> <code style="color: #dc2626;">1</code> &rarr; Negative (<code>−</code>)<br>
+            <strong>Magnitude (Bits 6..0):</strong> <code>${magBinaryStr}</code> &rarr; <code>${magnitude}</code><br>
+            <strong>Evaluated Value:</strong> <strong style="color: #dc2626;">-${magnitude}</strong>
           `;
         } else {
-          DOM.twosStepTrace.innerHTML = `
-            <strong>Sign:</strong> MSB is 0 &rarr; Positive number. Evaluates normally as <strong>+${denary}</strong>.
+          DOM.signMagLiveTrace.innerHTML = `
+            <strong>Sign Bit (MSB, Bit 7):</strong> <code style="color: #059669;">0</code> &rarr; Positive (<code>+</code>)<br>
+            <strong>Magnitude (Bits 6..0):</strong> <code>${magBinaryStr}</code> &rarr; <code>${magnitude}</code><br>
+            <strong>Evaluated Value:</strong> <strong style="color: #059669;">+${magnitude}</strong>
           `;
         }
       }
     } else {
-      if (DOM.twosComplementExplainer) DOM.twosComplementExplainer.style.display = 'none';
+      // Unsigned or Two's Complement
+      if (DOM.signMagExplainer) DOM.signMagExplainer.style.display = 'none';
+
+      for (let i = 0; i < 8; i++) {
+        if (state.bits[i] === 1) {
+          if (i === 7 && state.numberMode === 'twos') {
+            denary -= 128;
+            activePlaceValues.push('-128');
+          } else {
+            const pv = Math.pow(2, i);
+            denary += pv;
+            activePlaceValues.push(pv.toString());
+          }
+        }
+      }
+
+      if (DOM.summaryDenary) DOM.summaryDenary.textContent = denary;
+
+      if (DOM.summaryAdditionBreakdown) {
+        if (activePlaceValues.length === 0) {
+          DOM.summaryAdditionBreakdown.textContent = 'All bits are 0';
+        } else {
+          DOM.summaryAdditionBreakdown.textContent = `${activePlaceValues.join(' + ')} = ${denary}`;
+        }
+      }
+
+      // Two's complement step-by-step trace
+      if (state.numberMode === 'twos') {
+        if (DOM.twosComplementExplainer) DOM.twosComplementExplainer.style.display = 'block';
+        if (DOM.twosStepTrace) {
+          if (state.bits[7] === 1) {
+            const positiveSum = denary + 128;
+            DOM.twosStepTrace.innerHTML = `
+              <strong>Sign (Bit 7 MSB):</strong> <code style="color: #0284c7;">1</code> &rarr; Negative (worth <strong>-128</strong>).<br>
+              <strong>Method 1 (Place Values):</strong> -128 + ${positiveSum} = <strong style="color: #0284c7;">${denary}</strong><br>
+              <strong>Method 2 (Algorithm Check):</strong> Invert bits (${rawBinary} &rarr; ${invertString(rawBinary)}), add 1 &rarr; magnitude ${Math.abs(denary)} &rarr; Result: <strong style="color: #0284c7;">${denary}</strong>.
+            `;
+          } else {
+            DOM.twosStepTrace.innerHTML = `
+              <strong>Sign (Bit 7 MSB):</strong> <code style="color: #059669;">0</code> &rarr; Positive (&ge; 0). Evaluates directly to <strong style="color: #059669;">+${denary}</strong>.
+            `;
+          }
+        }
+      } else {
+        if (DOM.twosComplementExplainer) DOM.twosComplementExplainer.style.display = 'none';
+      }
     }
 
     // Synchronize Direct Hex Input Bar at top (if not currently focused)
@@ -465,8 +536,9 @@
     const isBinary = mode === 'binary' || mode === 'unsigned';
     if (DOM.btnModeBinary) DOM.btnModeBinary.classList.toggle('active', isBinary);
     if (DOM.btnModeUnsigned) DOM.btnModeUnsigned.classList.toggle('active', isBinary);
-    if (DOM.btnModeHex) DOM.btnModeHex.classList.toggle('active', mode === 'hex');
+    if (DOM.btnModeSignMag) DOM.btnModeSignMag.classList.toggle('active', mode === 'sign_mag');
     if (DOM.btnModeTwosComp) DOM.btnModeTwosComp.classList.toggle('active', mode === 'twos');
+    if (DOM.btnModeHex) DOM.btnModeHex.classList.toggle('active', mode === 'hex');
 
     if (DOM.hexDirectInputBar) {
       DOM.hexDirectInputBar.style.display = mode === 'hex' ? 'flex' : 'none';
@@ -480,6 +552,9 @@
       if (mode === 'twos') {
         DOM.msbPlaceValueLabel.textContent = '-128';
         DOM.msbPlaceValueLabel.classList.add('msb-negative');
+      } else if (mode === 'sign_mag') {
+        DOM.msbPlaceValueLabel.textContent = 'Sign (+/-)';
+        DOM.msbPlaceValueLabel.classList.remove('msb-negative');
       } else {
         DOM.msbPlaceValueLabel.textContent = '128';
         DOM.msbPlaceValueLabel.classList.remove('msb-negative');
@@ -491,9 +566,52 @@
   function setupRegisterEvents() {
     // Mode toggles
     if (DOM.btnModeBinary) DOM.btnModeBinary.addEventListener('click', () => setNumberMode('binary'));
+    if (DOM.btnModeSignMag) DOM.btnModeSignMag.addEventListener('click', () => setNumberMode('sign_mag'));
     if (DOM.btnModeHex) DOM.btnModeHex.addEventListener('click', () => setNumberMode('hex'));
     if (DOM.btnModeUnsigned) DOM.btnModeUnsigned.addEventListener('click', () => setNumberMode('binary'));
     if (DOM.btnModeTwosComp) DOM.btnModeTwosComp.addEventListener('click', () => setNumberMode('twos'));
+
+    // Sign & Magnitude / Two's Complement quick interactive test buttons
+    if (DOM.btnTestNegZero) {
+      DOM.btnTestNegZero.addEventListener('click', () => {
+        playSynthSound('tap');
+        state.bits = [0, 0, 0, 0, 0, 0, 0, 1]; // MSB=1, bits 0..6=0 (10000000)
+        setNumberMode('sign_mag');
+      });
+    }
+
+    if (DOM.btnPresetPlus127) {
+      DOM.btnPresetPlus127.addEventListener('click', () => {
+        playSynthSound('tap');
+        state.bits = [1, 1, 1, 1, 1, 1, 1, 0]; // 01111111 (+127)
+        renderRegister();
+      });
+    }
+
+    if (DOM.btnTriggerSignedOverflow) {
+      DOM.btnTriggerSignedOverflow.addEventListener('click', () => {
+        playSynthSound('wrong');
+        // Adding 1 to +127 (01111111) flips to 10000000 (-128)
+        state.bits = [0, 0, 0, 0, 0, 0, 0, 1]; // 10000000 (-128)
+        renderRegister();
+      });
+    }
+
+    if (DOM.btnPresetMinus1) {
+      DOM.btnPresetMinus1.addEventListener('click', () => {
+        playSynthSound('tap');
+        state.bits = [1, 1, 1, 1, 1, 1, 1, 1]; // 11111111 (-1)
+        renderRegister();
+      });
+    }
+
+    if (DOM.btnPresetMinus128) {
+      DOM.btnPresetMinus128.addEventListener('click', () => {
+        playSynthSound('tap');
+        state.bits = [0, 0, 0, 0, 0, 0, 0, 1]; // 10000000 (-128)
+        renderRegister();
+      });
+    }
 
     // Direct Hex input events
     if (DOM.topLiveHexInput) {
@@ -2115,8 +2233,8 @@
     },
     {
       id: 4,
-      title: "Stage 4: Hexadecimal Scribe",
-      shortTitle: "Hexadecimal Scribe",
+      title: "Stage 4: Hexadecimal",
+      shortTitle: "Hexadecimal",
       subtitle: "Hex Digits, Nibbles & Byte Representations (with 0x)",
       svgIcon: BITMASTER_STAGE_ICONS[4],
       color: "#8b5cf6",
@@ -2129,8 +2247,8 @@
     },
     {
       id: 5,
-      title: "Stage 5: Hexadecimal Master",
-      shortTitle: "Hexadecimal Master",
+      title: "Stage 5: 3-Way Conversion",
+      shortTitle: "3-Way Conversion",
       subtitle: "Tri-Directional Conversion (Hex ↔ Binary ↔ Denary)",
       svgIcon: BITMASTER_STAGE_ICONS[5],
       color: "#a855f7",
@@ -4179,6 +4297,33 @@
         hideBitmasterAbandonModal();
         if (bitmasterState.timerInterval) clearInterval(bitmasterState.timerInterval);
         showBitmasterScreen('levels');
+      });
+    }
+
+    // Star Rating Criteria Modal
+    const starCriteriaBtn = document.getElementById('bitmasterStarCriteriaBtn');
+    const starCriteriaModal = document.getElementById('bitmasterModalStarCriteria');
+    const closeStarCriteriaBtn = document.getElementById('bitmasterModalCloseStarCriteriaBtn');
+
+    if (starCriteriaBtn && starCriteriaModal) {
+      starCriteriaBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        starCriteriaModal.style.display = 'flex';
+      });
+    }
+
+    if (closeStarCriteriaBtn && starCriteriaModal) {
+      closeStarCriteriaBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        starCriteriaModal.style.display = 'none';
+      });
+    }
+
+    if (starCriteriaModal) {
+      starCriteriaModal.addEventListener('click', (e) => {
+        if (e.target === starCriteriaModal) {
+          starCriteriaModal.style.display = 'none';
+        }
       });
     }
 

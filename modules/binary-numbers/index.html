@@ -272,23 +272,13 @@
             <p id="bitmasterStageHeaderDesc">4-Bit Binary &amp; Denary Mastery (0–15)</p>
           </div>
 
-          <!-- Star Rating Criteria Guide Banner -->
-          <div class="bitmaster-criteria-card">
-            <div class="criteria-card-header">
-              <span class="criteria-icon">⭐</span>
-              <span class="criteria-title">How to Earn High Star Ratings</span>
-            </div>
-            <div class="criteria-pills-row">
-              <div class="criteria-pill criteria-pill-gold">
-                <strong>⭐⭐⭐ 3 Stars:</strong> 10/10 Correct in &lt; 50s (0 mistakes)
-              </div>
-              <div class="criteria-pill criteria-pill-silver">
-                <strong>⭐⭐ 2 Stars:</strong> &ge; 8/10 Correct (&le; 2 mistakes)
-              </div>
-              <div class="criteria-pill criteria-pill-bronze">
-                <strong>⭐ 1 Star:</strong> &ge; 5/10 Correct
-              </div>
-            </div>
+          <!-- Compact Star Rating Info Trigger Button -->
+          <div class="bitmaster-criteria-trigger-row">
+            <button type="button" class="bitmaster-criteria-btn" id="bitmasterStarCriteriaBtn">
+              <span>⭐</span>
+              <span>How to Earn High Star Ratings</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </button>
           </div>
 
           <div class="bitmaster-levels-list" id="bitmasterLevelsList">
@@ -509,6 +499,39 @@
           </div>
         </div>
 
+        <!-- Star Rating Criteria Info Modal -->
+        <div id="bitmasterModalStarCriteria" class="bitmaster-modal-backdrop" style="display: none;">
+          <div class="bitmaster-modal-dialog" style="max-width: 440px;">
+            <div class="modal-dialog-icon">⭐</div>
+            <h3 class="modal-dialog-title">How to Earn High Star Ratings</h3>
+            <div class="criteria-modal-content" style="font-size: 13px; color: var(--text-secondary); text-align: left; margin: 14px 0; display: flex; flex-direction: column; gap: 10px;">
+              <div class="criteria-modal-section">
+                <div class="criteria-modal-section-title" style="color: #fbbf24;">
+                  <span>📋</span> Standard 10-Question Trials:
+                </div>
+                <div class="criteria-modal-list">
+                  <div>• <strong>⭐⭐⭐ 3 Stars:</strong> 10/10 Correct in &lt; 50s (0 mistakes)</div>
+                  <div>• <strong>⭐⭐ 2 Stars:</strong> &ge; 8/10 Correct (&le; 2 mistakes)</div>
+                  <div>• <strong>⭐ 1 Star:</strong> &ge; 5/10 Correct</div>
+                </div>
+              </div>
+              <div class="criteria-modal-section">
+                <div class="criteria-modal-section-title" style="color: #38bdf8;">
+                  <span>⚡</span> 60-Second Speed Sprints:
+                </div>
+                <div class="criteria-modal-list">
+                  <div>• <strong>⭐⭐⭐ 3 Stars:</strong> Solve &ge; 12 problems in 60s</div>
+                  <div>• <strong>⭐⭐ 2 Stars:</strong> Solve &ge; 8 problems in 60s</div>
+                  <div>• <strong>⭐ 1 Star:</strong> Solve &ge; 4 problems in 60s</div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-dialog-actions">
+              <button id="bitmasterModalCloseStarCriteriaBtn" class="control-btn control-btn-primary" style="width: 100%;">Understood &rarr;</button>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -556,9 +579,10 @@
           <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
             <span style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Number Mode:</span>
             <div class="btn-group" id="numberModeGroup">
-              <button type="button" class="control-btn active" id="btnModeBinary" data-mode="binary">Binary Switches</button>
-              <button type="button" class="control-btn" id="btnModeHex" data-mode="hex">Hexadecimal (e.g. 1F)</button>
+              <button type="button" class="control-btn active" id="btnModeBinary" data-mode="binary">Unsigned (0 to 255)</button>
+              <button type="button" class="control-btn" id="btnModeSignMag" data-mode="sign_mag">Sign &amp; Magnitude</button>
               <button type="button" class="control-btn" id="btnModeTwosComp" data-mode="twos">Two's Complement (-128 to +127)</button>
+              <button type="button" class="control-btn" id="btnModeHex" data-mode="hex">Hex Shorthand</button>
             </div>
           </div>
 
@@ -695,17 +719,107 @@
           </div>
         </div>
 
-        <!-- Two's complement step-by-step box (visible when mode is twos) -->
-        <div id="twosComplementExplainer" style="display: none; margin-top: 18px; padding: 14px 18px; background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: var(--radius-md);">
-          <div style="font-weight: 800; color: #ef4444; font-size: 13px; margin-bottom: 4px;">
-            Why Two's Complement? (Flip the Bits + Add 1)
+        <!-- Two's complement & Signed Numbers Interactive Suite -->
+        <!-- Panel A: Sign & Magnitude Dilemma (Visible when in sign_mag mode) -->
+        <div id="signMagExplainer" style="display: none; margin-top: 18px; padding: 16px 20px; background: rgba(245, 158, 11, 0.08); border: 1.5px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-md);">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+            <div style="font-weight: 800; color: #d97706; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+              <span>⚠️</span> Sign &amp; Magnitude: The "Naive" Hardware Dilemma (-127 to +127)
+            </div>
+            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #d97706; font-weight: 800; font-size: 11px;">AQA §3.3.1 Foundation</span>
           </div>
-          <p style="font-size: 12.5px; color: var(--text-secondary); margin: 0 0 8px 0; line-height: 1.5;">
-            <strong>Why do this?</strong> To make a negative number, flip the bits and add 1. It saves chip makers millions of pounds by letting computer processors use the exact same addition circuit for subtraction!
-            <br><strong>Step 1:</strong> Write positive binary &bull; <strong>Step 2:</strong> Invert bits (0&rarr;1, 1&rarr;0) &bull; <strong>Step 3:</strong> Add 1!
+
+          <p style="font-size: 12.5px; color: var(--text-secondary); margin: 0 0 12px 0; line-height: 1.55;">
+            <strong>The Problem:</strong> Computer chips have no physical minus sign (<code>−</code>) switch. The obvious first idea was: <em>reserve the Most Significant Bit (MSB, Bit 7) as a sign flag (0 = positive, 1 = negative)</em>, and use the remaining 7 bits (64..1) for the positive magnitude.
           </p>
-          <div id="twosStepTrace" style="font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); background: var(--bg-surface); padding: 8px 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            MSB is currently: 0 (Positive)
+
+          <!-- Current Live Register Breakdown in Sign & Mag -->
+          <div id="signMagLiveTrace" style="font-family: var(--font-mono); font-size: 12.5px; color: var(--text-primary); background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-bottom: 14px;">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- The Two Fatal Flaws Grid -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 10px;">
+            <div style="background: var(--bg-surface); border: 1.5px solid #fecaca; border-radius: 8px; padding: 12px 14px;">
+              <strong style="color: #dc2626; font-size: 12.5px; display: block; margin-bottom: 4px;">❌ Fatal Flaw 1: Two Zeros (+0 &amp; -0)</strong>
+              <p style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.45; margin: 0 0 8px 0;">
+                <code>00000000</code> is <strong>+0</strong>, but <code>10000000</code> is <strong>-0</strong>! Having two zeroes wastes a binary combination and forces processors to do double comparisons for every <code>if (x == 0)</code> check.
+              </p>
+              <button type="button" class="control-btn" id="btnTestNegZero" style="font-size: 11px; padding: 3px 8px;">
+                Inspect -0 Pattern (10000000) &rarr;
+              </button>
+            </div>
+
+            <div style="background: var(--bg-surface); border: 1.5px solid #fecaca; border-radius: 8px; padding: 12px 14px;">
+              <strong style="color: #dc2626; font-size: 12.5px; display: block; margin-bottom: 4px;">❌ Fatal Flaw 2: Normal Addition Fails!</strong>
+              <p style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.45; margin: 0 0 8px 0;">
+                Try adding (+5) and (-5):<br>
+                <code>&nbsp;00000101 (+5)</code><br>
+                <code>+10000101 (-5)</code><br>
+                <code>=10001010</code> &rarr; in Sign &amp; Mag, this is <strong>-10</strong>, NOT 0! The ALU cannot use its standard adder for subtraction.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel B: Two's Complement Master Solution (Visible when in twos mode) -->
+        <div id="twosComplementExplainer" style="display: none; margin-top: 18px; padding: 16px 20px; background: rgba(14, 165, 233, 0.08); border: 1.5px solid rgba(14, 165, 233, 0.3); border-radius: var(--radius-md);">
+          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+            <div style="font-weight: 800; color: #0284c7; font-size: 14px; display: flex; align-items: center; gap: 6px;">
+              <span>💡</span> Two's Complement: The Hardware Masterpiece (-128 to +127)
+            </div>
+            <span class="badge badge-accent" style="font-size: 11px; font-weight: 800;">AQA §3.3.1 Exam Core</span>
+          </div>
+
+          <p style="font-size: 12.5px; color: var(--text-secondary); margin: 0 0 12px 0; line-height: 1.55;">
+            <strong>The Genius Solution:</strong> Computer scientists made the MSB worth <strong>-128</strong> instead of +128.
+            This solves <em>both</em> flaws of Sign &amp; Magnitude: there is only <strong>one zero</strong> (<code>00000000</code>), and the processor can use its <strong>exact same addition circuit for subtraction</strong> with zero extra transistors!
+          </p>
+
+          <!-- Current Live Register Evaluation Trace -->
+          <div id="twosStepTrace" style="font-family: var(--font-mono); font-size: 12.5px; color: var(--text-primary); background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-bottom: 14px;">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <!-- Two Methods Tabs / Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 14px;">
+            <div style="background: var(--bg-surface); border: 1.5px solid rgba(14, 165, 233, 0.25); border-radius: 8px; padding: 12px 14px;">
+              <strong style="color: #0284c7; font-size: 12.5px; display: block; margin-bottom: 4px;">Method 1: Place-Value Evaluation (-128)</strong>
+              <div style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.45;">
+                Calculate directly: <code>MSB (-128) + Sum of active positive bits (64..1)</code>.<br>
+                <em>Example:</em> <code>11111111</code> = -128 + 64 + 32 + 16 + 8 + 4 + 2 + 1 = <strong>-1</strong>.
+              </div>
+            </div>
+
+            <div style="background: var(--bg-surface); border: 1.5px solid rgba(14, 165, 233, 0.25); border-radius: 8px; padding: 12px 14px;">
+              <strong style="color: #0284c7; font-size: 12.5px; display: block; margin-bottom: 4px;">Method 2: Inversion Algorithm (+V &rarr; -V)</strong>
+              <div style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.45;">
+                <strong>Step 1:</strong> Write positive binary (+V).<br>
+                <strong>Step 2:</strong> Invert all bits (0&harr;1, One's Complement).<br>
+                <strong>Step 3:</strong> Add 1! (Two's Complement).
+              </div>
+            </div>
+          </div>
+
+          <!-- Signed 8-Bit Rollover Wheel / Overflow Visualizer -->
+          <div style="background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 12px 14px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
+              <strong style="font-size: 12px; color: var(--text-primary); display: flex; align-items: center; gap: 5px;">
+                🔄 8-Bit Signed Rollover Continuum &amp; Overflow:
+              </strong>
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Range: -128 to +127</span>
+            </div>
+
+            <div style="font-family: var(--font-mono); font-size: 11.5px; background: rgba(0, 23, 54, 0.05); padding: 8px 12px; border-radius: 6px; overflow-x: auto; white-space: nowrap; margin-bottom: 10px; border: 1px dashed var(--border-color);">
+              ... | +125 | +126 | <span style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 3px; font-weight: 800; color: #059669;">+127 (01111111)</span> &rarr; <span style="background: rgba(239, 68, 68, 0.2); padding: 2px 6px; border-radius: 3px; font-weight: 800; color: #dc2626;">💥 OVERFLOW &rarr; -128 (10000000)</span> | -127 | ... | -1 (11111111) | 0 (00000000)
+            </div>
+
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button type="button" class="control-btn" id="btnPresetPlus127" style="font-size: 11px; padding: 3px 8px;">Load +127 (01111111)</button>
+              <button type="button" class="control-btn control-btn-danger" id="btnTriggerSignedOverflow" style="font-size: 11px; padding: 3px 8px;">Trigger +1 Overflow (&rarr; -128)</button>
+              <button type="button" class="control-btn" id="btnPresetMinus1" style="font-size: 11px; padding: 3px 8px;">Load -1 (11111111)</button>
+              <button type="button" class="control-btn" id="btnPresetMinus128" style="font-size: 11px; padding: 3px 8px;">Load -128 (10000000)</button>
+            </div>
           </div>
         </div>
       </div>
