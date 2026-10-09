@@ -1893,42 +1893,49 @@ html, body {
 }
 
 /* =============================================================================
-   LABELLED BOTTOM TOPIC NAVIGATION (NEXT / PREVIOUS GUIDED WALKTHROUGH)
+   LABELLED BOTTOM TOPIC NAVIGATION (SMALL BOTTOM ROW BUTTONS)
    ============================================================================= */
 .bottom-topic-nav {
   display: flex;
   justify-content: space-between;
-  align-items: stretch;
-  gap: 16px;
+  align-items: center;
+  gap: 12px;
   max-width: 1360px;
-  margin: 36px auto 24px auto;
+  margin: 28px auto 16px auto;
   padding: 0 20px;
   box-sizing: border-box;
   width: 100%;
 }
 
 .bottom-nav-btn {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 12px 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
   border-radius: var(--radius-md, 6px);
   border: 1px solid var(--paper-border-strong, #cbd5e1);
   background: var(--paper-card, #ffffff);
   color: var(--ink-primary, #001736);
   text-decoration: none;
   cursor: pointer;
-  min-width: 160px;
-  max-width: 480px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
   transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-  min-height: 52px;
   box-sizing: border-box;
+  max-width: 48%;
+  white-space: nowrap;
+}
+
+.bottom-nav-btn-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .bottom-nav-btn.prev-btn {
   text-align: left;
-  align-items: flex-start;
 }
 
 .bottom-nav-btn.prev-btn:hover {
@@ -1941,39 +1948,16 @@ html, body {
 .bottom-nav-btn.next-btn {
   margin-left: auto;
   text-align: right;
-  align-items: flex-end;
   border-color: rgba(200, 0, 107, 0.35);
   background: linear-gradient(135deg, rgba(200, 0, 107, 0.04) 0%, rgba(219, 39, 119, 0.08) 100%);
+  color: var(--isaac-magenta, #c8006b);
 }
 
 .bottom-nav-btn.next-btn:hover {
   border-color: var(--isaac-magenta, #c8006b);
-  background: linear-gradient(135deg, rgba(200, 0, 107, 0.09) 0%, rgba(219, 39, 119, 0.16) 100%);
+  background: linear-gradient(135deg, rgba(200, 0, 107, 0.12) 0%, rgba(219, 39, 119, 0.2) 100%);
   transform: translateY(-1px);
   box-shadow: 0 3px 8px rgba(200, 0, 107, 0.15);
-}
-
-.bottom-nav-title {
-  font-family: var(--font-sans);
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--ink-primary, #001736);
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  line-height: 1.3;
-}
-
-.bottom-nav-btn.next-btn .bottom-nav-title {
-  color: var(--isaac-magenta, #c8006b);
-}
-
-.bottom-nav-sub {
-  font-size: 11px;
-  color: var(--ink-secondary, #64748b);
-  margin-top: 3px;
-  font-weight: 500;
-  line-height: 1.2;
 }
 
 /* Dark Mode Bottom Nav */
@@ -1991,6 +1975,7 @@ html.dark .bottom-nav-btn.prev-btn:hover {
 html.dark .bottom-nav-btn.next-btn {
   background: linear-gradient(135deg, rgba(200, 0, 107, 0.16) 0%, rgba(219, 39, 119, 0.22) 100%);
   border-color: rgba(244, 114, 182, 0.4);
+  color: #f472b6;
 }
 
 html.dark .bottom-nav-btn.next-btn:hover {
@@ -1998,40 +1983,24 @@ html.dark .bottom-nav-btn.next-btn:hover {
   background: linear-gradient(135deg, rgba(200, 0, 107, 0.24) 0%, rgba(219, 39, 119, 0.32) 100%);
 }
 
-html.dark .bottom-nav-btn.next-btn .bottom-nav-title {
-  color: #f472b6;
-}
-
-html.dark .bottom-nav-sub {
-  color: #94a3b8;
-}
-
-/* Mobile Bottom Nav */
+/* Mobile Bottom Row */
 @media (max-width: 640px) {
   .bottom-topic-nav {
-    flex-direction: column-reverse;
-    gap: 10px;
-    margin: 28px auto 18px auto;
-    padding: 0 14px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin: 20px auto 14px auto;
+    padding: 0 12px;
   }
 
   .bottom-nav-btn {
-    width: 100%;
-    max-width: 100%;
-    min-height: 48px;
-    padding: 10px 14px;
-  }
-
-  .bottom-nav-btn.next-btn {
-    margin-left: 0;
-    text-align: left;
-    align-items: flex-start;
-  }
-
-  .bottom-nav-btn.next-btn .bottom-nav-title {
-    flex-direction: row-reverse;
-    justify-content: space-between;
-    width: 100%;
+    padding: 8px 10px;
+    font-size: 12px;
+    max-width: 49%;
+    flex: 1 1 0;
+    justify-content: center;
+    min-height: auto;
   }
 
   /* Universal button wrapping on mobile */

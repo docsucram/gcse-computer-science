@@ -68,7 +68,7 @@
             { id: 'maths', title: 'Binary Maths' },
             { id: 'units', title: 'Data Units' },
             { id: 'revision', title: 'Revision' },
-            { id: 'arcade', title: '⚡ BitMaster Arcade' }
+            { id: 'arcade', title: '⚡ BitMaster' }
           ]
         },
         {
@@ -276,8 +276,8 @@
         </svg>
         <span>Return to Revision Hub Dashboard</span>
       </a>
-      <a href="${hubPrefix}bitmaster.html" class="mobile-drawer-arcade-link" title="Launch BitMaster Arcade App">
-        <span>⚡ Arcade</span>
+      <a href="${hubPrefix}bitmaster.html" class="mobile-drawer-arcade-link" title="Launch Full-Screen BitMaster">
+        <span>⚡ BitMaster</span>
       </a>
     `;
 
@@ -513,10 +513,19 @@
     if (document.getElementById('bottomTopicNav')) return;
     if (!currentTabButtons || !currentTabButtons.length) return;
 
+    // Do not show on standalone BitMaster or bitmaster.html
+    if (
+      document.body.classList.contains('bitmaster-standalone-mode') ||
+      window.location.pathname.endsWith('bitmaster.html') ||
+      window.location.search.includes('standalone=1')
+    ) {
+      return;
+    }
+
     const navEl = document.createElement('nav');
     navEl.className = 'bottom-topic-nav';
     navEl.id = 'bottomTopicNav';
-    navEl.setAttribute('aria-label', 'Topic and module navigation');
+    navEl.setAttribute('aria-label', 'Topic navigation');
 
     // Insert just before footer, or into main / body
     const footer = document.querySelector('footer.site-footer, footer');
@@ -550,6 +559,17 @@
     function updateBottomNav() {
       const idx = getActiveIdx();
       const total = currentTabButtons.length;
+
+      // BitMaster should NOT have the prev/next topic buttons
+      const activeTab = currentTabButtons[idx];
+      const tabKey = activeTab ? (activeTab.getAttribute('data-tab') || activeTab.textContent || '').toLowerCase() : '';
+      if (tabKey.includes('arcade') || tabKey.includes('bitmaster')) {
+        navEl.style.display = 'none';
+        return;
+      } else {
+        navEl.style.display = 'flex';
+      }
+
       navEl.innerHTML = '';
 
       // --- 1. Previous Topic / Back to Hub Button ---
@@ -560,22 +580,16 @@
         prevBtn.href = hubPrefix + 'index.html';
         prevBtn.className += ' is-hub';
         prevBtn.innerHTML = `
-          <span class="bottom-nav-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-            <span>Back to Hub</span>
-          </span>
-          <span class="bottom-nav-sub">Revision Portal Dashboard</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <span class="bottom-nav-btn-text">Back to Hub</span>
         `;
       } else {
         prevBtn.href = '#';
         const targetTab = currentTabButtons[idx - 1];
         const title = getTabTitle(targetTab);
         prevBtn.innerHTML = `
-          <span class="bottom-nav-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-            <span>Previous: ${title}</span>
-          </span>
-          <span class="bottom-nav-sub">Topic ${idx} of ${total}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <span class="bottom-nav-btn-text">Prev: ${title}</span>
         `;
         prevBtn.addEventListener('click', (e) => {
           e.preventDefault();
@@ -593,11 +607,8 @@
         const targetTab = currentTabButtons[idx + 1];
         const title = getTabTitle(targetTab);
         nextBtn.innerHTML = `
-          <span class="bottom-nav-title">
-            <span>Next: ${title}</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-          </span>
-          <span class="bottom-nav-sub">Topic ${idx + 2} of ${total}</span>
+          <span class="bottom-nav-btn-text">Next: ${title}</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         `;
         nextBtn.addEventListener('click', (e) => {
           e.preventDefault();
@@ -614,20 +625,14 @@
           nextBtn.href = hubPrefix + nextMod.url;
           nextBtn.className += ' is-next-module';
           nextBtn.innerHTML = `
-            <span class="bottom-nav-title">
-              <span>Next Module: ${nextMod.title}</span>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-            </span>
-            <span class="bottom-nav-sub">${nextMod.code} • Ready to continue?</span>
+            <span class="bottom-nav-btn-text">Next Module: ${nextMod.title}</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
           `;
         } else {
           nextBtn.href = hubPrefix + 'index.html';
           nextBtn.className += ' is-complete';
           nextBtn.innerHTML = `
-            <span class="bottom-nav-title">
-              <span>Course Complete: Return to Hub ✓</span>
-            </span>
-            <span class="bottom-nav-sub">All Topics Reviewed!</span>
+            <span class="bottom-nav-btn-text">Course Complete ✓</span>
           `;
         }
       }

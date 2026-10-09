@@ -2851,17 +2851,18 @@
     // =========================================================================
     if (effectiveMode === 'place_val_nibble_which') {
       const weights = [8, 4, 2, 1];
-      const bitNames = ['Bit 3 (Weight 8)', 'Bit 2 (Weight 4)', 'Bit 1 (Weight 2)', 'Bit 0 (Weight 1)'];
+      const bitNames = ['Bit 3', 'Bit 2', 'Bit 1', 'Bit 0'];
       const chosenIdx = Math.floor(Math.random() * 4);
       const targetVal = weights[chosenIdx];
       const correctAns = bitNames[chosenIdx];
       return {
         type: 'mc',
-        prompt: `In a 4-bit nibble, which bit position represents place value ${targetVal}?`,
+        layout: 'bit_boxes',
+        prompt: `Which bit position represents place value ${targetVal}?`,
         display: `Place Value: ${targetVal}`,
-        hint: "Nibble bit columns (left-to-right): Bit 3 (8), Bit 2 (4), Bit 1 (2), Bit 0 (1)",
+        hint: "4-bit columns: Bit 3 (leftmost 8), Bit 2 (4), Bit 1 (2), Bit 0 (rightmost 1)",
         correctAnswer: correctAns,
-        options: shuffleArray(bitNames)
+        options: ['Bit 3', 'Bit 2', 'Bit 1', 'Bit 0']
       };
     }
 
@@ -2871,11 +2872,11 @@
       const targetVal = weights[chosenIdx];
       const displayNibble = [0, 0, 0, 0];
       displayNibble[chosenIdx] = 1;
-      const formatted = displayNibble.map((b, idx) => idx === chosenIdx ? `[ 1 ]` : `0`).join('   ');
+      const formatted = displayNibble.map((b, idx) => idx === chosenIdx ? `[1]` : `0`).join(' ');
       const dists = weights.filter(w => w !== targetVal);
       return {
         type: 'mc',
-        prompt: "What is the place value of the bracketed [ 1 ] bit in this nibble?",
+        prompt: "What is the place value of the bracketed [1] bit in this nibble?",
         display: formatted,
         hint: "Nibble place values from left to right: 8 • 4 • 2 • 1",
         correctAnswer: String(targetVal),
@@ -2884,24 +2885,19 @@
     }
 
     if (effectiveMode === 'place_val_byte_which') {
-      const byteWeights = [128, 64, 32, 16, 8, 4, 2, 1];
-      const upperIndices = [0, 1, 2, 3]; // 128, 64, 32, 16
-      const chosenIdx = upperIndices[Math.floor(Math.random() * upperIndices.length)];
+      const byteWeights = [128, 64, 32, 16];
+      const bitNames = ['Bit 7', 'Bit 6', 'Bit 5', 'Bit 4'];
+      const chosenIdx = Math.floor(Math.random() * 4);
       const targetVal = byteWeights[chosenIdx];
-      const bitNames = [
-        'Bit 7 (Weight 128)', 'Bit 6 (Weight 64)', 'Bit 5 (Weight 32)', 'Bit 4 (Weight 16)',
-        'Bit 3 (Weight 8)', 'Bit 2 (Weight 4)', 'Bit 1 (Weight 2)', 'Bit 0 (Weight 1)'
-      ];
       const correctAns = bitNames[chosenIdx];
-      const otherNames = bitNames.filter((_, idx) => idx !== chosenIdx);
-      const dists = shuffleArray(otherNames).slice(0, 3);
       return {
         type: 'mc',
-        prompt: `In an 8-bit byte, which bit represents place value ${targetVal}?`,
+        layout: 'bit_boxes',
+        prompt: `Which upper bit represents place value ${targetVal}?`,
         display: `Place Value: ${targetVal}`,
-        hint: "Byte column order: Bit 7 (128) down to Bit 0 (1)",
+        hint: "Upper nibble columns: Bit 7 (128) down to Bit 4 (16)",
         correctAnswer: correctAns,
-        options: shuffleArray([correctAns, ...dists])
+        options: ['Bit 7', 'Bit 6', 'Bit 5', 'Bit 4']
       };
     }
 
@@ -2909,12 +2905,12 @@
       const byteWeights = [128, 64, 32, 16, 8, 4, 2, 1];
       const chosenIdx = Math.floor(Math.random() * 8);
       const targetVal = byteWeights[chosenIdx];
-      const formatted = byteWeights.map((w, idx) => idx === chosenIdx ? `[ 1 ]` : `0`).join('  ');
+      const formatted = byteWeights.map((w, idx) => idx === chosenIdx ? `[1]` : `0`).join(' ');
       const otherWeights = byteWeights.filter(w => w !== targetVal);
       const dists = shuffleArray(otherWeights).slice(0, 3);
       return {
         type: 'mc',
-        prompt: "What is the place value of the bracketed [ 1 ] bit in this byte?",
+        prompt: "What is the place value of the bracketed [1] bit in this byte?",
         display: formatted,
         hint: "8-bit weights: 128 • 64 • 32 • 16 • 8 • 4 • 2 • 1",
         correctAnswer: String(targetVal),
@@ -4031,7 +4027,7 @@
 
     if (promptEl) promptEl.textContent = bitmasterState.currentQuestion.prompt;
     if (mainDispEl) {
-      mainDispEl.style.whiteSpace = 'pre-wrap';
+      mainDispEl.style.whiteSpace = 'nowrap';
       mainDispEl.textContent = bitmasterState.currentQuestion.display;
     }
     if (hintEl) hintEl.textContent = bitmasterState.currentQuestion.hint || '';
@@ -4048,7 +4044,7 @@
       if (keypadZone) keypadZone.style.display = 'none';
       if (mathZone) mathZone.style.display = 'none';
       if (hexZone) hexZone.style.display = 'none';
-      renderBitmasterMCTiles(bitmasterState.currentQuestion.options);
+      renderBitmasterMCTiles(bitmasterState.currentQuestion.options, bitmasterState.currentQuestion.layout);
     } else if (bitmasterState.currentQuestion.type === 'switches') {
       if (tilesZone) tilesZone.style.display = 'none';
       if (switchZone) {
@@ -4088,14 +4084,20 @@
     }
   }
 
-  function renderBitmasterMCTiles(options) {
+  function renderBitmasterMCTiles(options, layout) {
     const tilesZone = document.getElementById('bitmasterTilesZone');
     if (!tilesZone) return;
     tilesZone.innerHTML = '';
 
+    if (layout === 'bit_boxes') {
+      tilesZone.className = 'bitmaster-tiles-grid bitmaster-bit-boxes-row';
+    } else {
+      tilesZone.className = 'bitmaster-tiles-grid';
+    }
+
     options.forEach(opt => {
       const btn = document.createElement('button');
-      btn.className = 'bitmaster-tile-btn';
+      btn.className = 'bitmaster-tile-btn' + (layout === 'bit_boxes' ? ' bit-box-btn' : '');
       btn.textContent = opt;
 
       btn.addEventListener('click', () => {
