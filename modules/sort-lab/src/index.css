@@ -190,8 +190,36 @@
   background: var(--paper-card);
   border: 1px solid var(--paper-border-strong);
   padding: 2px;
-  border-radius: 2px;
-  gap: 2px;
+  border-radius: 4px;
+  gap: 3px;
+  max-width: 100%;
+}
+
+@media (max-width: 640px) {
+  .workbench-command-bar {
+    padding: 8px 10px;
+    gap: 10px;
+  }
+  .algo-selector-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 4px;
+    padding: 3px;
+  }
+  .algo-tab-btn {
+    padding: 7px 8px;
+    justify-content: center;
+    text-align: center;
+    font-size: 11.5px;
+    border-radius: 3px;
+  }
+  .workbench-tools-group {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
 }
 
 .algo-tab-btn {

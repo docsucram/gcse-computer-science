@@ -674,7 +674,8 @@
     DOM.pixelGrid.innerHTML = '';
     DOM.pixelGrid.style.gridTemplateColumns = `repeat(${state.gridSize}, 1fr)`;
 
-    const cellSize = state.gridSize === 8 ? '36px' : '22px';
+    const isMobile = window.innerWidth <= 640;
+    const cellSize = state.gridSize === 8 ? (isMobile ? '28px' : '36px') : (isMobile ? '16px' : '22px');
     const totalCells = state.gridSize * state.gridSize;
 
     for (let i = 0; i < totalCells; i++) {

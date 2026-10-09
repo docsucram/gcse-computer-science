@@ -4532,5 +4532,39 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   justify-content: center !important;
 }
 
+@media (max-width: 640px) {
+  .register-controls-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  .number-mode-selector-wrap {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+  }
+  .responsive-btn-group {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  .responsive-btn-group .control-btn {
+    width: 100% !important;
+    text-align: center !important;
+    border-radius: 4px !important;
+    margin-bottom: 2px !important;
+  }
+  .register-quick-actions {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    width: 100% !important;
+  }
+  .register-quick-actions .control-btn {
+    text-align: center !important;
+    justify-content: center !important;
+    padding: 8px 4px !important;
+  }
+}
+
 
 

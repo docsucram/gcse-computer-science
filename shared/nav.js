@@ -19,7 +19,10 @@
           url: 'modules/sort-lab/index.html',
           iconSvg: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>',
           sections: [
-            { id: '', title: 'Searching & Sorting Simulator' }
+            { id: 'visualizer', title: 'Sorting Algorithms' },
+            { id: 'race', title: 'Sorting Race Mode' },
+            { id: 'search', title: 'Searching Algorithms' },
+            { id: 'revision', title: 'Revision Summary' }
           ]
         },
         {
@@ -501,11 +504,173 @@
     currentTabButtons.forEach(b => {
       observer.observe(b, { attributes: true, attributeFilter: ['class', 'aria-selected'] });
     });
+
+    // 4. Initialize Labelled Previous / Next Bottom Topic Navigation
+    initBottomTopicNav(currentModId, currentTabButtons, hubPrefix);
+  }
+
+  function initBottomTopicNav(currentModId, currentTabButtons, hubPrefix) {
+    if (document.getElementById('bottomTopicNav')) return;
+    if (!currentTabButtons || !currentTabButtons.length) return;
+
+    const navEl = document.createElement('nav');
+    navEl.className = 'bottom-topic-nav';
+    navEl.id = 'bottomTopicNav';
+    navEl.setAttribute('aria-label', 'Topic and module navigation');
+
+    // Insert just before footer, or into main / body
+    const footer = document.querySelector('footer.site-footer, footer');
+    if (footer && footer.parentNode) {
+      footer.parentNode.insertBefore(navEl, footer);
+    } else {
+      const container = document.querySelector('main, .main-container, .editorial-container, #root');
+      if (container) {
+        container.appendChild(navEl);
+      } else {
+        document.body.appendChild(navEl);
+      }
+    }
+
+    function getActiveIdx() {
+      const idx = currentTabButtons.findIndex(b =>
+        b.classList.contains('active') ||
+        b.getAttribute('aria-selected') === 'true' ||
+        b.classList.contains('bg-[#c8006b]')
+      );
+      return idx >= 0 ? idx : 0;
+    }
+
+    function getTabTitle(btn) {
+      if (!btn) return '';
+      const span = btn.querySelector('span:not(.badge)');
+      if (span && span.textContent.trim()) return span.textContent.trim();
+      return btn.textContent.trim();
+    }
+
+    function updateBottomNav() {
+      const idx = getActiveIdx();
+      const total = currentTabButtons.length;
+      navEl.innerHTML = '';
+
+      // --- 1. Previous Topic / Back to Hub Button ---
+      const prevBtn = document.createElement('a');
+      prevBtn.className = 'bottom-nav-btn prev-btn';
+
+      if (idx === 0) {
+        prevBtn.href = hubPrefix + 'index.html';
+        prevBtn.className += ' is-hub';
+        prevBtn.innerHTML = `
+          <span class="bottom-nav-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span>Back to Hub</span>
+          </span>
+          <span class="bottom-nav-sub">Revision Portal Dashboard</span>
+        `;
+      } else {
+        prevBtn.href = '#';
+        const targetTab = currentTabButtons[idx - 1];
+        const title = getTabTitle(targetTab);
+        prevBtn.innerHTML = `
+          <span class="bottom-nav-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            <span>Previous: ${title}</span>
+          </span>
+          <span class="bottom-nav-sub">Topic ${idx} of ${total}</span>
+        `;
+        prevBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          targetTab.click();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+
+      // --- 2. Next Topic / Next Module Button ---
+      const nextBtn = document.createElement('a');
+      nextBtn.className = 'bottom-nav-btn next-btn';
+
+      if (idx < total - 1) {
+        nextBtn.href = '#';
+        const targetTab = currentTabButtons[idx + 1];
+        const title = getTabTitle(targetTab);
+        nextBtn.innerHTML = `
+          <span class="bottom-nav-title">
+            <span>Next: ${title}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          </span>
+          <span class="bottom-nav-sub">Topic ${idx + 2} of ${total}</span>
+        `;
+        nextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          targetTab.click();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      } else {
+        // Last topic of current module: link next module!
+        const allMods = COURSE_DATA.flatMap(g => g.modules);
+        const curModIdx = allMods.findIndex(m => m.id === currentModId);
+        const nextMod = (curModIdx >= 0 && curModIdx < allMods.length - 1) ? allMods[curModIdx + 1] : null;
+
+        if (nextMod) {
+          nextBtn.href = hubPrefix + nextMod.url;
+          nextBtn.className += ' is-next-module';
+          nextBtn.innerHTML = `
+            <span class="bottom-nav-title">
+              <span>Next Module: ${nextMod.title}</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </span>
+            <span class="bottom-nav-sub">${nextMod.code} • Ready to continue?</span>
+          `;
+        } else {
+          nextBtn.href = hubPrefix + 'index.html';
+          nextBtn.className += ' is-complete';
+          nextBtn.innerHTML = `
+            <span class="bottom-nav-title">
+              <span>Course Complete: Return to Hub ✓</span>
+            </span>
+            <span class="bottom-nav-sub">All Topics Reviewed!</span>
+          `;
+        }
+      }
+
+      navEl.appendChild(prevBtn);
+      navEl.appendChild(nextBtn);
+    }
+
+    updateBottomNav();
+
+    // Re-render when any tab button is clicked or changed
+    currentTabButtons.forEach(b => {
+      b.addEventListener('click', () => {
+        setTimeout(updateBottomNav, 70);
+      });
+    });
+
+    const observer = new MutationObserver(() => {
+      updateBottomNav();
+    });
+    currentTabButtons.forEach(b => {
+      observer.observe(b, { attributes: true, attributeFilter: ['class', 'aria-selected'] });
+    });
+  }
+
+  function startInit() {
+    initUniversalNav();
+    // In React or SPA apps (like sort-lab), the header and tabs may render after DOMContentLoaded
+    if (!document.getElementById('mobileSectionSwitcher')) {
+      let attempts = 0;
+      const interval = setInterval(() => {
+        attempts++;
+        initUniversalNav();
+        if (document.getElementById('mobileSectionSwitcher') || attempts > 25) {
+          clearInterval(interval);
+        }
+      }, 150);
+    }
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initUniversalNav);
+    document.addEventListener('DOMContentLoaded', startInit);
   } else {
-    initUniversalNav();
+    startInit();
   }
 })();

@@ -22,22 +22,22 @@ export default function Navbar({
   onOpenShortcuts = () => {},
 }) {
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-[#e2e8f0] dark:border-[#2e3646] border-t-[3px] border-t-[#001736] dark:border-t-[#38bdf8] bg-white dark:bg-[#181c24] shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-15 flex items-center justify-between gap-4">
+    <header className="module-header sticky top-0 z-40 w-full border-b border-[#e2e8f0] dark:border-[#2e3646] border-t-[3px] border-t-[#001736] dark:border-t-[#38bdf8] bg-white dark:bg-[#181c24] shadow-[0_1px_3px_rgba(0,0,0,0.03)]">
+      <div className="module-header-inner max-w-7xl mx-auto px-4 sm:px-6 h-15 flex items-center justify-between gap-4">
         {/* Navigation & Brand */}
-        <div className="flex items-center gap-3.5">
+        <div className="nav-brand-group flex items-center gap-3.5">
           <a
             href="../../index.html"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] border border-[#cbd5e1] dark:border-[#2e3646] bg-white dark:bg-[#202632] text-[#001736] dark:text-[#f3f4f6] text-xs font-semibold hover:bg-[#f1f5f9] dark:hover:bg-[#2a3242] hover:border-[#001736] dark:hover:border-[#3b82f6] transition-all whitespace-nowrap"
+            className="nav-back-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] border border-[#cbd5e1] dark:border-[#2e3646] bg-white dark:bg-[#202632] text-[#001736] dark:text-[#f3f4f6] text-xs font-semibold hover:bg-[#f1f5f9] dark:hover:bg-[#2a3242] hover:border-[#001736] dark:hover:border-[#3b82f6] transition-all whitespace-nowrap"
             title="Return to Revision Hub"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Hub</span>
+            <span className="nav-back-text">Back to Hub</span>
           </a>
 
-          <div className="flex items-center gap-2.5">
+          <div className="nav-brand flex items-center gap-2.5">
             <div
-              className="w-7 h-7 rounded-[4px] flex items-center justify-center text-white shrink-0 shadow-sm"
+              className="nav-brand-icon w-7 h-7 rounded-[4px] flex items-center justify-center text-white shrink-0 shadow-sm"
               style={{ background: 'linear-gradient(135deg, #c8006b 0%, #db2777 100%)' }}
             >
               {/* Bar chart icon matching front page */}
@@ -47,7 +47,7 @@ export default function Navbar({
                 <line x1="6" y1="20" x2="6" y2="14"></line>
               </svg>
             </div>
-            <h1 className="font-serif text-[17px] font-bold text-[#001736] dark:text-[#f3f4f6] leading-tight tracking-tight m-0">
+            <h1 className="nav-module-title font-serif text-[17px] font-bold text-[#001736] dark:text-[#f3f4f6] leading-tight tracking-tight m-0">
               Searching &amp; Sorting
             </h1>
             <span className="badge badge-topic font-mono text-[10.5px] font-bold text-[#1e3a5f] dark:text-[#7dd3fc] bg-[#edf3f9] dark:bg-[rgba(56,189,248,0.12)] border border-[#cbd5e1] dark:border-[rgba(56,189,248,0.25)] px-2 py-0.5 rounded-[4px] tracking-wide inline-flex items-center">
@@ -57,12 +57,13 @@ export default function Navbar({
         </div>
 
         {/* View Switcher Tabs (Sorting | Sorting Race | Searching | Revision) */}
-        <nav className="flex items-center p-1 rounded-[4px] border border-[#e2e8f0] dark:border-[#2e3646] bg-[#f1f5f9] dark:bg-[#202632] text-xs font-semibold gap-1">
+        <nav className="view-tabs flex items-center p-1 rounded-[4px] border border-[#e2e8f0] dark:border-[#2e3646] bg-[#f1f5f9] dark:bg-[#202632] text-xs font-semibold gap-1">
           <button
+            data-tab="visualizer"
             onClick={() => onViewChange('visualizer')}
-            className={`px-3 py-1.5 rounded-[3px] transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`view-tab-btn px-3 py-1.5 rounded-[3px] transition-all flex items-center gap-1.5 cursor-pointer ${
               activeView === 'visualizer'
-                ? 'bg-[#c8006b] text-white font-bold shadow-xs'
+                ? 'active bg-[#c8006b] text-white font-bold shadow-xs'
                 : 'text-[#475569] dark:text-[#9ca3af] hover:text-[#0f172a] dark:hover:text-[#f3f4f6] hover:bg-white/50 dark:hover:bg-white/10'
             }`}
           >
@@ -71,10 +72,11 @@ export default function Navbar({
           </button>
 
           <button
+            data-tab="race"
             onClick={() => onViewChange('race')}
-            className={`px-3 py-1.5 rounded-[3px] transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`view-tab-btn px-3 py-1.5 rounded-[3px] transition-all flex items-center gap-1.5 cursor-pointer ${
               activeView === 'race'
-                ? 'bg-[#c8006b] text-white font-bold shadow-xs'
+                ? 'active bg-[#c8006b] text-white font-bold shadow-xs'
                 : 'text-[#475569] dark:text-[#9ca3af] hover:text-[#0f172a] dark:hover:text-[#f3f4f6] hover:bg-white/50 dark:hover:bg-white/10'
             }`}
           >
@@ -83,10 +85,11 @@ export default function Navbar({
           </button>
 
           <button
+            data-tab="search"
             onClick={() => onViewChange('search')}
-            className={`px-3 py-1.5 rounded-[3px] transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`view-tab-btn px-3 py-1.5 rounded-[3px] transition-all flex items-center gap-1.5 cursor-pointer ${
               activeView === 'search'
-                ? 'bg-[#c8006b] text-white font-bold shadow-xs'
+                ? 'active bg-[#c8006b] text-white font-bold shadow-xs'
                 : 'text-[#475569] dark:text-[#9ca3af] hover:text-[#0f172a] dark:hover:text-[#f3f4f6] hover:bg-white/50 dark:hover:bg-white/10'
             }`}
           >
@@ -95,20 +98,21 @@ export default function Navbar({
           </button>
 
           <button
+            data-tab="revision"
             onClick={() => onViewChange('revision')}
-            className={`px-3 py-1.5 rounded-[3px] transition-all flex items-center gap-1.5 cursor-pointer ${
+            className={`view-tab-btn px-3 py-1.5 rounded-[3px] transition-all flex items-center gap-1.5 cursor-pointer ${
               activeView === 'revision'
-                ? 'bg-[#c8006b] text-white font-bold shadow-xs'
+                ? 'active bg-[#c8006b] text-white font-bold shadow-xs'
                 : 'text-[#475569] dark:text-[#9ca3af] hover:text-[#0f172a] dark:hover:text-[#f3f4f6] hover:bg-white/50 dark:hover:bg-white/10'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Revision</span>
+            <span>Revision</span>
           </button>
         </nav>
 
         {/* Right Tools: Sound Toggle, Keyboard Shortcuts, Theme Toggle */}
-        <div className="flex items-center gap-2">
+        <div className="header-theme-wrap flex items-center gap-2">
           {/* Sound Toggle */}
           <button
             onClick={onCycleAudio}
@@ -140,8 +144,9 @@ export default function Navbar({
           <button
             id="themeToggleBtn"
             onClick={onToggleTheme}
-            className="p-1.5 rounded-[3px] border border-[#cbd5e1] dark:border-[#3f495e] bg-white dark:bg-[#181c24] text-[#64748b] dark:text-[#9ca3af] hover:text-[#0f172a] dark:hover:text-[#f3f4f6] text-xs transition-colors flex items-center cursor-pointer"
+            className="theme-toggle p-1.5 rounded-[3px] border border-[#cbd5e1] dark:border-[#3f495e] bg-white dark:bg-[#181c24] text-[#64748b] dark:text-[#9ca3af] hover:text-[#0f172a] dark:hover:text-[#f3f4f6] text-xs transition-colors flex items-center cursor-pointer"
             title="Toggle Dark/Light Mode"
+            aria-label="Toggle Dark/Light Mode"
           >
             {isDarkMode ? (
               <Sun className="w-4 h-4 text-[#f5b700]" />

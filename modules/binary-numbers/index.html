@@ -586,17 +586,17 @@
         </div>
 
         <!-- Controls row -->
-        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <span style="font-size: 13px; font-weight: 700; color: var(--text-primary);">Number Mode:</span>
-            <div class="btn-group" id="numberModeGroup">
+        <div class="register-controls-row" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+          <div class="number-mode-selector-wrap" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; max-width: 100%;">
+            <span style="font-size: 13px; font-weight: 700; color: var(--text-primary); white-space: nowrap;">Number Mode:</span>
+            <div class="btn-group responsive-btn-group" id="numberModeGroup">
               <button type="button" class="control-btn active" id="btnModeBinary" data-mode="binary">Unsigned (0 to 255)</button>
               <button type="button" class="control-btn" id="btnModeSignMag" data-mode="sign_mag">Sign &amp; Magnitude</button>
-              <button type="button" class="control-btn" id="btnModeTwosComp" data-mode="twos">Two's Complement (-128 to +127)</button>
+              <button type="button" class="control-btn" id="btnModeTwosComp" data-mode="twos">Two's Comp (-128..+127)</button>
             </div>
           </div>
 
-          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <div class="register-quick-actions" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <button class="control-btn" id="btnResetBits">Reset</button>
             <button class="control-btn" id="btnInvertBits">Invert</button>
             <button class="control-btn" id="btnRandomBits">Random</button>
