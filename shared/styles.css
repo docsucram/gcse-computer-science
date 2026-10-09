@@ -1211,4 +1211,161 @@ html.dark details.explainer-card,
   display: none !important;
 }
 
+/* ==========================================================================
+   TIER 1: GLOBAL MOBILE NAVIGATION & RESPONSIVE LAYOUT
+   ========================================================================== */
+
+/* Universal fluid viewport & container normalization */
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  overflow-x: clip;
+}
+
+.container,
+.module-container,
+.main-container {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Fluid Typography with clamp() */
+h1.hero-title, .hero-title {
+  font-size: clamp(1.75rem, 5vw, 2.75rem) !important;
+  line-height: 1.15 !important;
+}
+
+.hero-subtitle {
+  font-size: clamp(0.875rem, 2.5vw, 1.05rem) !important;
+  line-height: 1.55 !important;
+}
+
+.view-banner h2, .standalone-stage-header h2, .banner-title {
+  font-size: clamp(1.2rem, 3.5vw, 1.5rem) !important;
+  line-height: 1.25 !important;
+}
+
+.view-banner p, .standalone-stage-header p, .banner-desc {
+  font-size: clamp(0.85rem, 2vw, 0.95rem) !important;
+  line-height: 1.5 !important;
+}
+
+/* Global Mobile Navigation: Header & Tab Bar (screens <= 768px) */
+@media (max-width: 768px) {
+  .site-header, .module-header, .site-nav {
+    height: auto !important;
+    min-height: 52px;
+    padding: 6px 0 8px 0 !important;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .header-container, .module-header-inner, .nav-container {
+    display: grid !important;
+    grid-template-columns: 1fr auto !important;
+    align-items: center !important;
+    padding: 0 12px !important;
+    gap: 6px 10px !important;
+    height: auto !important;
+  }
+
+  .header-brand-group {
+    grid-row: 1 !important;
+    grid-column: 1 / 2 !important;
+    display: flex !important;
+    align-items: center !important;
+    min-width: 0 !important;
+    gap: 8px !important;
+    overflow: hidden !important;
+  }
+
+  .nav-title-group, .brand-title-wrap {
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    overflow: hidden !important;
+  }
+
+  .nav-module-title, .brand-title {
+    font-size: 13.5px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .badge-topic, .nav-badge-spec, .spec-pill {
+    display: none !important;
+  }
+
+  .back-link, .nav-back-link {
+    padding: 5px 8px !important;
+    font-size: 11.5px !important;
+    gap: 4px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Right-hand controls stay on Row 1 */
+  .module-header-inner > div:last-child,
+  .header-container > div:last-child {
+    grid-row: 1 !important;
+    grid-column: 2 / 3 !important;
+    justify-self: end !important;
+  }
+
+  /* Smooth Horizontal Scrollable Pill Bar for Tabs on Row 2 */
+  .view-tabs {
+    grid-row: 2 !important;
+    grid-column: 1 / 3 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    padding: 4px !important;
+    gap: 4px !important;
+    justify-content: flex-start !important;
+    border-radius: 999px !important;
+    scroll-snap-type: x proximity !important;
+    background: var(--paper-recessed) !important;
+  }
+
+  .view-tabs::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .view-tab-btn {
+    flex-shrink: 0 !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+    scroll-snap-align: start !important;
+    white-space: nowrap !important;
+    border-radius: 999px !important;
+  }
+
+  .view-tab-btn svg {
+    width: 13px !important;
+    height: 13px !important;
+  }
+
+  .container {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .module-container {
+    padding: 12px 12px 36px 12px !important;
+  }
+
+  .view-banner {
+    padding: 14px 16px !important;
+    margin-bottom: 16px !important;
+  }
+}
+
+
 
