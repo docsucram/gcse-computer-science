@@ -991,6 +991,36 @@
           osc.start(startTime);
           osc.stop(startTime + dur);
         });
+      } else if (type === 'levelup') {
+        // Triumphant 6-note arpeggio with shimmer: C4 -> E4 -> G4 -> C5 -> E5 -> G5 -> C6
+        const freqs = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99, 1046.50];
+        freqs.forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = idx >= 4 ? 'triangle' : 'sine';
+          const startTime = now + idx * 0.08;
+          const dur = idx === freqs.length - 1 ? 0.85 : 0.35;
+          osc.frequency.setValueAtTime(freq, startTime);
+          gain.gain.setValueAtTime(0.18, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(startTime);
+          osc.stop(startTime + dur);
+        });
+      } else if (type === 'star') {
+        // Crisp sparkling bell chime
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1174.66, now); // D6
+        osc.frequency.exponentialRampToValueAtTime(1760.00, now + 0.12); // A6
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.35);
       }
     } catch (e) {}
   }
@@ -2596,6 +2626,17 @@
     const maxPossibleStars = BITMASTER_STAGES.reduce((acc, s) => acc + s.levels.length * 3, 0);
     if (titleStarsEl) titleStarsEl.textContent = `${totalStars} / ${maxPossibleStars} ⭐`;
     if (titleXpEl) titleXpEl.textContent = `${bitmasterState.xp} XP`;
+
+    // Check rank promotion / level-up event
+    const storedLastRank = Number(localStorage.getItem('bitmaster_last_notified_rank') || '1');
+    if (!bitmasterState.lastNotifiedRankId) {
+      bitmasterState.lastNotifiedRankId = storedLastRank;
+    }
+    if (rank.id > bitmasterState.lastNotifiedRankId) {
+      bitmasterState.lastNotifiedRankId = rank.id;
+      localStorage.setItem('bitmaster_last_notified_rank', String(rank.id));
+      showBitmasterLevelUpModal(rank);
+    }
   }
 
   function showBitmasterScreen(screenName) {
@@ -2738,7 +2779,7 @@
           <div class="level-card-desc">${lvl.desc}</div>
         </div>
         <button class="control-btn control-btn-primary level-play-btn">
-          Start &rarr;
+          START
         </button>
       `;
 
@@ -4897,10 +4938,42 @@
       if (accEl) accEl.textContent = `${accuracy}%`;
     }
 
+    // Sequentially animate victory stars with crisp chimes
+    if (starsEl) {
+      starsEl.textContent = '';
+      const starIcons = starsEarned === 3 ? ['⭐', '⭐', '⭐'] : (starsEarned === 2 ? ['⭐', '⭐', '☆'] : (starsEarned === 1 ? ['⭐', '☆', '☆'] : ['☆', '☆', '☆']));
+      starIcons.forEach((st, idx) => {
+        setTimeout(() => {
+          starsEl.textContent += st;
+          if (st === '⭐') playSynthSound('star');
+        }, (idx + 1) * 220);
+      });
+    }
+
+    if (starsEarned >= 1) {
+      fireConfetti();
+      if (starsEarned === 3) setTimeout(fireConfetti, 280);
+    }
+
     showBitmasterScreen('summary');
 
     const retryBtn = document.getElementById('bitmasterSummaryRetryBtn');
     const contBtn = document.getElementById('bitmasterSummaryContinueBtn');
+    const nextLvlBtn = document.getElementById('bitmasterSummaryNextLevelBtn');
+
+    if (nextLvlBtn) {
+      if (starsEarned >= 1 && bitmasterState.activeLevel < 4) {
+        nextLvlBtn.style.display = 'inline-flex';
+        nextLvlBtn.textContent = `Next Level (Level ${bitmasterState.activeLevel + 1}) \u2192`;
+        nextLvlBtn.onclick = () => {
+          bitmasterState.activeLevel++;
+          playSynthSound('tap');
+          startBitmasterRound();
+        };
+      } else {
+        nextLvlBtn.style.display = 'none';
+      }
+    }
 
     if (retryBtn) retryBtn.onclick = () => {
       playSynthSound('tap');
@@ -5045,6 +5118,20 @@
       });
     }
 
+    // Rank Promotion / Level Up Claim Button
+    const levelUpClaimBtn = document.getElementById('bitmasterModalLevelUpClaimBtn');
+    const levelUpModal = document.getElementById('bitmasterModalLevelUp');
+    if (levelUpClaimBtn) {
+      levelUpClaimBtn.addEventListener('click', () => {
+        hideBitmasterLevelUpModal();
+      });
+    }
+    if (levelUpModal) {
+      levelUpModal.addEventListener('click', (e) => {
+        if (e.target === levelUpModal) hideBitmasterLevelUpModal();
+      });
+    }
+
     // Reset Scores Flow
     const resetScoresBtn = document.getElementById('bitmasterResetScoresBtn');
     const resetConfirmModal = document.getElementById('bitmasterModalResetConfirm');
@@ -5177,6 +5264,36 @@
     const modal = document.getElementById('bitmasterModalRank');
     if (modal) modal.style.display = 'none';
   }
+
+  function showBitmasterLevelUpModal(newRank) {
+    const modal = document.getElementById('bitmasterModalLevelUp');
+    if (!modal) return;
+    const avatarEl = document.getElementById('bitmasterLevelUpAvatar');
+    const titleEl = document.getElementById('bitmasterLevelUpTitle');
+    const subEl = document.getElementById('bitmasterLevelUpSubtitle');
+    const descEl = document.getElementById('bitmasterLevelUpDesc');
+
+    if (avatarEl) avatarEl.innerHTML = newRank.svgIcon;
+    if (titleEl) titleEl.textContent = newRank.title;
+    if (subEl) subEl.textContent = `Architecture Tier ${newRank.id} of 12`;
+    if (descEl) descEl.textContent = `Outstanding work! You have earned enough Architecture XP to unlock the rank of ${newRank.title}. Keep conquering binary stages!`;
+
+    modal.style.display = 'flex';
+    playSynthSound('levelup');
+    fireConfetti();
+    setTimeout(fireConfetti, 280);
+  }
+
+  function hideBitmasterLevelUpModal() {
+    const modal = document.getElementById('bitmasterModalLevelUp');
+    if (modal) modal.style.display = 'none';
+    playSynthSound('tap');
+  }
+
+  window.showBitmasterRankModal = showBitmasterRankModal;
+  window.hideBitmasterRankModal = hideBitmasterRankModal;
+  window.showBitmasterLevelUpModal = showBitmasterLevelUpModal;
+  window.hideBitmasterLevelUpModal = hideBitmasterLevelUpModal;
 
   // =========================================================================
   // 9. INITIALIZATION

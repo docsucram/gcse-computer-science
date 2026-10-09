@@ -565,9 +565,11 @@
       const tabKey = activeTab ? (activeTab.getAttribute('data-tab') || activeTab.textContent || '').toLowerCase() : '';
       if (tabKey.includes('arcade') || tabKey.includes('bitmaster')) {
         navEl.style.display = 'none';
+        document.body.classList.remove('has-bottom-nav');
         return;
       } else {
         navEl.style.display = 'flex';
+        document.body.classList.add('has-bottom-nav');
       }
 
       navEl.innerHTML = '';

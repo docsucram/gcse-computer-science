@@ -242,9 +242,6 @@
             <div class="title-action-wrap">
               <button id="bitmasterStartBtn" class="bitmaster-big-start-btn">
                 <span>START GAME</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polygon points="5 3 19 12 5 21 5 3"/>
-                </svg>
               </button>
             </div>
           </div>
@@ -433,7 +430,8 @@
 
             <div class="victory-buttons">
               <button id="bitmasterSummaryRetryBtn" class="control-btn">Play Again</button>
-              <button id="bitmasterSummaryContinueBtn" class="control-btn control-btn-primary">Levels Menu &rarr;</button>
+              <button id="bitmasterSummaryNextLevelBtn" class="control-btn control-btn-primary" style="display: none;">Next Level &rarr;</button>
+              <button id="bitmasterSummaryContinueBtn" class="control-btn">Levels Menu &rarr;</button>
             </div>
           </div>
         </div>
@@ -525,6 +523,26 @@
             <div class="modal-dialog-actions">
               <button id="bitmasterModalCancelResetBtn" class="control-btn control-btn-primary">Cancel</button>
               <button id="bitmasterModalConfirmResetBtn" class="control-btn control-btn-danger">Yes, Reset to 0</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- IN-ARENA MODAL: Rank Promotion / Level Up Celebration -->
+        <div id="bitmasterModalLevelUp" class="bitmaster-modal-backdrop" style="display: none;">
+          <div class="bitmaster-modal-dialog levelup-modal-dialog">
+            <div class="levelup-badge-halo">
+              <div class="levelup-avatar-icon" id="bitmasterLevelUpAvatar">🏆</div>
+            </div>
+            <div class="levelup-kicker">RANK PROMOTION!</div>
+            <h3 class="modal-dialog-title levelup-title" id="bitmasterLevelUpTitle">Nibble Operator</h3>
+            <p class="modal-dialog-subtitle levelup-subtitle" id="bitmasterLevelUpSubtitle">Architecture Tier 2 of 12</p>
+            <p class="modal-dialog-body levelup-body" id="bitmasterLevelUpDesc">
+              Outstanding work! You have earned enough Architecture XP to advance your Computing rank!
+            </p>
+            <div class="modal-dialog-actions" style="margin-top: 18px;">
+              <button id="bitmasterModalLevelUpClaimBtn" class="control-btn control-btn-primary" style="width: 100%; padding: 12px; font-size: 15px;">
+                Claim Rank &amp; Continue &rarr;
+              </button>
             </div>
           </div>
         </div>

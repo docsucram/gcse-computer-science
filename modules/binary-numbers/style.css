@@ -3510,6 +3510,9 @@ html.dark .converter-preset-btn:hover,
   display: flex;
   gap: 12px;
   justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  margin-bottom: 24px;
 }
 
 /* Compact Star Rating Trigger Button */
@@ -3661,20 +3664,23 @@ html.dark .converter-preset-btn:hover,
   color: #fca5a5 !important;
 }
 
-/* In-Arena Modal Backdrop & Dialog */
+/* In-Arena Modal Backdrop & Dialog (Centered in Viewport) */
 .bitmaster-modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(9, 13, 22, 0.85);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  border-radius: 22px;
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(9, 13, 22, 0.88) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
-  z-index: 50;
+  z-index: 9999;
   animation: modalFadeIn 0.18s ease;
+  overflow-y: auto;
+}
+.bitmaster-modal-backdrop[style*="display: none"] {
+  display: none !important;
 }
 
 @keyframes modalFadeIn {
@@ -3692,15 +3698,89 @@ html.dark .converter-preset-btn:hover,
   text-align: center;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
   animation: modalScaleUp 0.18s ease;
+  margin: auto !important;
 }
 
-/* Rank Progression & Reset Modal Dialog */
+/* Rank Progression & Reset Modal Dialog (Centered & Contained) */
 .rank-modal-dialog {
   max-width: 500px !important;
   text-align: left !important;
-  max-height: 85vh;
-  overflow-y: auto;
+  max-height: 88vh !important;
+  overflow-y: auto !important;
   border-color: #29354d !important;
+  margin: auto !important;
+}
+
+/* Level Up / Rank Promoted Celebration Dialog */
+.levelup-modal-dialog {
+  max-width: 420px !important;
+  text-align: center !important;
+  border: 3px solid #f59e0b !important;
+  background: radial-gradient(circle at 50% 15%, rgba(245, 158, 11, 0.24) 0%, rgba(15, 23, 42, 0.98) 75%) !important;
+  box-shadow: 0 0 50px rgba(245, 158, 11, 0.45), 0 24px 60px rgba(0, 0, 0, 0.85) !important;
+  padding: 32px 22px 26px !important;
+  margin: auto !important;
+}
+
+.levelup-badge-halo {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 14px auto;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 30px rgba(251, 191, 36, 0.65), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  animation: levelupPulse 1.6s infinite alternate ease-in-out;
+}
+
+@keyframes levelupPulse {
+  0% { transform: scale(0.96); box-shadow: 0 0 20px rgba(251, 191, 36, 0.4); }
+  100% { transform: scale(1.06); box-shadow: 0 0 44px rgba(251, 191, 36, 0.8); }
+}
+
+.levelup-avatar-icon {
+  font-size: 38px;
+  line-height: 1;
+}
+
+.levelup-avatar-icon svg {
+  width: 42px;
+  height: 42px;
+  stroke: #ffffff;
+}
+
+.levelup-kicker {
+  font-size: 11px;
+  font-weight: 900;
+  color: #fbbf24;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.levelup-title {
+  font-size: 24px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  margin: 0 0 4px 0 !important;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.levelup-subtitle {
+  font-size: 13px !important;
+  color: #38bdf8 !important;
+  font-weight: 700 !important;
+  margin: 0 0 12px 0 !important;
+}
+
+.levelup-body {
+  font-size: 13px !important;
+  color: #cbd5e1 !important;
+  line-height: 1.55 !important;
+  margin: 0 auto 16px auto !important;
+  max-width: 320px;
 }
 
 .rank-modal-header {
