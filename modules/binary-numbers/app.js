@@ -2481,12 +2481,17 @@
 
   const BITMASTER_RANKS = [
     { minXp: 0, title: "Logic Novice", svgIcon: BITMASTER_STAGE_ICONS[1] },
-    { minXp: 250, title: "Nibble Operator", svgIcon: BITMASTER_STAGE_ICONS[2] },
-    { minXp: 750, title: "Byte Engineer", svgIcon: BITMASTER_STAGE_ICONS[4] },
-    { minXp: 1500, title: "Hex Architect", svgIcon: BITMASTER_STAGE_ICONS[5] },
-    { minXp: 2600, title: "Silicon Master", svgIcon: BITMASTER_STAGE_ICONS[8] },
-    { minXp: 4000, title: "Data Commander", svgIcon: BITMASTER_STAGE_ICONS[10] },
-    { minXp: 5500, title: "Grand BitMaster", svgIcon: BITMASTER_STAGE_ICONS[11] }
+    { minXp: 450, title: "Nibble Operator", svgIcon: BITMASTER_STAGE_ICONS[2] },
+    { minXp: 1000, title: "Binary Specialist", svgIcon: BITMASTER_STAGE_ICONS[3] },
+    { minXp: 1650, title: "Byte Engineer", svgIcon: BITMASTER_STAGE_ICONS[4] },
+    { minXp: 2350, title: "Hex Apprentice", svgIcon: BITMASTER_STAGE_ICONS[5] },
+    { minXp: 3100, title: "Hex Architect", svgIcon: BITMASTER_STAGE_ICONS[6] },
+    { minXp: 3900, title: "ALU Circuitist", svgIcon: BITMASTER_STAGE_ICONS[7] },
+    { minXp: 4750, title: "Two's Complement Master", svgIcon: BITMASTER_STAGE_ICONS[8] },
+    { minXp: 5650, title: "Silicon Shifter", svgIcon: BITMASTER_STAGE_ICONS[9] },
+    { minXp: 6600, title: "Data Architect", svgIcon: BITMASTER_STAGE_ICONS[10] },
+    { minXp: 7800, title: "Grand BitMaster", svgIcon: BITMASTER_STAGE_ICONS[11] },
+    { minXp: 9500, title: "Supreme Silicon Legend", svgIcon: BITMASTER_STAGE_ICONS[11] }
   ];
 
   const bitmasterState = {
@@ -2499,6 +2504,7 @@
     currentQuestion: null,
     mistakesThisRound: 0,
     correctThisRound: 0,
+    currentQuestionMistakes: 0,
     startTime: null,
     timerInterval: null,
     elapsedSeconds: 0,
@@ -3540,19 +3546,21 @@
       const resultVal = isLeft ? (initialVal << shiftAmount) & 255 : (initialVal >> shiftAmount);
       const resultStr = resultVal.toString(2).padStart(8, '0');
       const arrowSymbol = isLeft ? '⇦' : '⇨';
-      const bitsB = new Array(8).fill(arrowSymbol);
+      const boxArrows = arrowSymbol.repeat(shiftAmount);
+      const bitsB = new Array(8).fill(boxArrows);
       return {
         type: 'math_grid',
         numBits: 8,
         placeValues: [128, 64, 32, 16, 8, 4, 2, 1],
-        operator: arrowSymbol,
+        operator: boxArrows,
         valA: initialVal,
         valB: shiftAmount,
         bitsA: bitsA,
         bitsB: bitsB,
+        isShiftGrid: true,
         correctAnswer: resultStr,
         prompt: `Perform Logical Shift ${isLeft ? 'LEFT' : 'RIGHT'} by ${shiftAmount}:`,
-        display: `${initialVal} ${arrowSymbol} ${shiftAmount} bit${shiftAmount > 1 ? 's' : ''}`,
+        display: `${initialVal} ${boxArrows} ${shiftAmount} bit${shiftAmount > 1 ? 's' : ''}`,
         hint: isLeft 
           ? `Shift all bits LEFT by ${shiftAmount}. Pad 0s into the rightmost columns!` 
           : `Shift all bits RIGHT by ${shiftAmount}. Discard bits shifted past the 1s column!`
@@ -3916,6 +3924,7 @@
     bitmasterState.isSprint = isSprint;
     bitmasterState.currentQuestionIndex = 0;
     bitmasterState.mistakesThisRound = 0;
+    bitmasterState.currentQuestionMistakes = 0;
     bitmasterState.correctThisRound = 0;
     bitmasterState.startTime = Date.now();
     bitmasterState.elapsedSeconds = 0;
@@ -3925,7 +3934,12 @@
 
     const timerEl = document.getElementById('bitmasterTimerDisplay');
     const counterEl = document.getElementById('bitmasterQuestionCounter');
+    const mistakeEl = document.getElementById('bitmasterMistakeCounter');
     const barEl = document.getElementById('bitmasterProgressBar');
+
+    if (mistakeEl) {
+      mistakeEl.textContent = '⚠️ Mistakes: 0';
+    }
 
     if (timerEl) {
       timerEl.classList.toggle('sprint-mode', isSprint);
@@ -3979,6 +3993,13 @@
     loadNextBitmasterQuestion();
   }
 
+  function updateBitmasterMistakeCounter() {
+    const el = document.getElementById('bitmasterMistakeCounter');
+    if (el) {
+      el.textContent = `⚠️ Mistakes: ${bitmasterState.mistakesThisRound}`;
+    }
+  }
+
   function loadNextBitmasterQuestion() {
     if (!bitmasterState.isSprint && bitmasterState.currentQuestionIndex >= bitmasterState.totalQuestions) {
       finishBitmasterRound();
@@ -3989,6 +4010,7 @@
     bitmasterState.currentQuestion = createBitmasterQuestion();
     bitmasterState.switchBits = [0, 0, 0, 0, 0, 0, 0, 0];
     bitmasterState.keypadBuffer = "";
+    bitmasterState.currentQuestionMistakes = 0;
 
     const counterEl = document.getElementById('bitmasterQuestionCounter');
     const barEl = document.getElementById('bitmasterProgressBar');
@@ -4087,14 +4109,15 @@
 
   function handleBitmasterMCAnswer(chosenVal, clickedBtn) {
     const isCorrect = String(chosenVal).trim() === String(bitmasterState.currentQuestion.correctAnswer).trim();
-    const allButtons = document.querySelectorAll('.bitmaster-tile-btn');
-    allButtons.forEach(b => b.style.pointerEvents = 'none');
 
     if (isCorrect) {
+      const allButtons = document.querySelectorAll('.bitmaster-tile-btn');
+      allButtons.forEach(b => b.style.pointerEvents = 'none');
       clickedBtn.classList.add('correct');
       playSynthSound('correct');
       bitmasterState.correctThisRound++;
-      bitmasterState.xp += 15;
+      const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 15 : 5;
+      bitmasterState.xp += earnedXp;
       updateBitmasterHUD();
       if (bitmasterState.isSprint) {
         const counterEl = document.getElementById('bitmasterQuestionCounter');
@@ -4105,27 +4128,32 @@
       } else {
         setTimeout(() => {
           loadNextBitmasterQuestion();
-        }, 500);
+        }, 450);
       }
     } else {
-      clickedBtn.classList.add('wrong');
       playSynthSound('wrong');
       bitmasterState.mistakesThisRound++;
-
-      allButtons.forEach(b => {
-        if (b.textContent.trim() === String(bitmasterState.currentQuestion.correctAnswer).trim()) {
-          b.classList.add('correct');
-        }
-      });
+      bitmasterState.currentQuestionMistakes++;
+      updateBitmasterMistakeCounter();
 
       if (bitmasterState.isSprint) {
+        clickedBtn.classList.add('wrong');
+        const allButtons = document.querySelectorAll('.bitmaster-tile-btn');
+        allButtons.forEach(b => {
+          b.style.pointerEvents = 'none';
+          if (b.textContent.trim() === String(bitmasterState.currentQuestion.correctAnswer).trim()) {
+            b.classList.add('correct');
+          }
+        });
         setTimeout(() => {
           loadNextBitmasterQuestion();
         }, 350);
       } else {
-        setTimeout(() => {
-          loadNextBitmasterQuestion();
-        }, 1200);
+        clickedBtn.classList.add('wrong', 'shake-wrong');
+        clickedBtn.disabled = true;
+        clickedBtn.style.pointerEvents = 'none';
+        clickedBtn.style.opacity = '0.5';
+        showBitmasterToast('Not quite! Try another answer.', '❌', 1400);
       }
     }
   }
@@ -4215,22 +4243,36 @@
         if (isCorrect) {
           playSynthSound('correct');
           bitmasterState.correctThisRound++;
-          bitmasterState.xp += 20;
+          const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 20 : 8;
+          bitmasterState.xp += earnedXp;
           updateBitmasterHUD();
           loadNextBitmasterQuestion();
         } else {
           playSynthSound('wrong');
           bitmasterState.mistakesThisRound++;
-          if (q.targetBinary) {
-            const expectedFmt = bitsCount === 8 ? `${q.targetBinary.slice(0, 4)} ${q.targetBinary.slice(4)}` : q.targetBinary;
-            const currentFmt = bitsCount === 8 ? `${currentBin.slice(0, 4)} ${currentBin.slice(4)}` : currentBin;
-            showBitmasterToast(`Not quite! Target was ${q.display} (${expectedFmt}), but your switches made ${currentFmt} (${currentTotal}).`, '❌', 2400, () => {
-              loadNextBitmasterQuestion();
-            });
+          bitmasterState.currentQuestionMistakes++;
+          updateBitmasterMistakeCounter();
+          container.classList.add('shake-wrong');
+          setTimeout(() => container.classList.remove('shake-wrong'), 500);
+
+          if (bitmasterState.isSprint) {
+            if (q.targetBinary) {
+              const expectedFmt = bitsCount === 8 ? `${q.targetBinary.slice(0, 4)} ${q.targetBinary.slice(4)}` : q.targetBinary;
+              showBitmasterToast(`Target was ${expectedFmt}`, '❌', 850, () => {
+                loadNextBitmasterQuestion();
+              });
+            } else {
+              showBitmasterToast(`Target was ${q.correctAnswer}`, '❌', 850, () => {
+                loadNextBitmasterQuestion();
+              });
+            }
           } else {
-            showBitmasterToast(`Not quite! Target was ${q.correctAnswer}, but your switches made ${currentTotal}.`, '❌', 2000, () => {
-              loadNextBitmasterQuestion();
-            });
+            if (q.targetBinary) {
+              const currentFmt = bitsCount === 8 ? `${currentBin.slice(0, 4)} ${currentBin.slice(4)}` : currentBin;
+              showBitmasterToast(`Switches make ${currentFmt} (${currentTotal}). Adjust the bits and try again!`, '❌', 2200);
+            } else {
+              showBitmasterToast(`Switches sum to ${currentTotal}, target is ${q.correctAnswer}. Adjust bits and try again!`, '❌', 2000);
+            }
           }
         }
       };
@@ -4287,7 +4329,8 @@
     if (isCorrect) {
       playSynthSound('correct');
       bitmasterState.correctThisRound++;
-      bitmasterState.xp += 20;
+      const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 20 : 8;
+      bitmasterState.xp += earnedXp;
       updateBitmasterHUD();
       if (bitmasterState.isSprint) {
         const counterEl = document.getElementById('bitmasterQuestionCounter');
@@ -4299,14 +4342,22 @@
     } else {
       playSynthSound('wrong');
       bitmasterState.mistakesThisRound++;
+      bitmasterState.currentQuestionMistakes++;
+      updateBitmasterMistakeCounter();
+      const dispEl = document.getElementById('bitmasterKeypadDisplay');
+      if (dispEl) {
+        dispEl.classList.add('shake-wrong');
+        setTimeout(() => dispEl.classList.remove('shake-wrong'), 500);
+      }
+
       if (bitmasterState.isSprint) {
         showBitmasterToast(`Not quite! Expected ${bitmasterState.currentQuestion.correctAnswer}`, '❌', 850, () => {
           loadNextBitmasterQuestion();
         });
       } else {
-        showBitmasterToast(`Not quite! The correct answer was ${bitmasterState.currentQuestion.correctAnswer}.`, '❌', 1900, () => {
-          loadNextBitmasterQuestion();
-        });
+        bitmasterState.keypadBuffer = "";
+        if (dispEl) dispEl.textContent = '_';
+        showBitmasterToast(`Not quite! Re-enter your answer and press OK.`, '❌', 1800);
       }
     }
   }
@@ -4362,7 +4413,10 @@
       }
     } else {
       rowB.innerHTML = `<span class="math-row-op op-symbol">${question.operator || '+'}</span>` + 
-        question.bitsB.map(b => `<span class="math-bit-cell ${b === 1 ? 'bit-is-1' : ''}">${b}</span>`).join('');
+        question.bitsB.map(b => {
+          const isShift = typeof b === 'string' && (b.includes('⇦') || b.includes('⇨'));
+          return `<span class="math-bit-cell ${b === 1 ? 'bit-is-1' : ''} ${isShift ? 'shift-arrows' : ''}">${b}</span>`;
+        }).join('');
     }
 
     // 4. Result Interactive Flip Row
@@ -4400,13 +4454,21 @@
 
   function handleBitmasterMathSubmit() {
     const q = bitmasterState.currentQuestion;
+    const resultRow = document.getElementById('bitmasterMathResultRow');
+    const rowB = document.getElementById('bitmasterMathRowB');
 
     if (q.interactiveRowB) {
       const userRowB = bitmasterState.mathRowBBits.join('');
       if (userRowB !== q.correctRowB) {
         playSynthSound('wrong');
         bitmasterState.mistakesThisRound++;
-        showBitmasterToast(`Check Row B! Remember: invert +${q.valB} (0↔1) and add 1 to make −${q.valB} (expected: ${q.correctRowB}).`, '❌', 2400);
+        bitmasterState.currentQuestionMistakes++;
+        updateBitmasterMistakeCounter();
+        if (rowB) {
+          rowB.classList.add('shake-wrong');
+          setTimeout(() => rowB.classList.remove('shake-wrong'), 500);
+        }
+        showBitmasterToast(`Check Row B! Remember: invert +${q.valB} (0↔1) and add 1 to make −${q.valB}. Try again!`, '❌', 2400);
         return;
       }
     }
@@ -4417,7 +4479,8 @@
     if (isCorrect) {
       playSynthSound('correct');
       bitmasterState.correctThisRound++;
-      bitmasterState.xp += 20;
+      const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 20 : 8;
+      bitmasterState.xp += earnedXp;
       updateBitmasterHUD();
       if (bitmasterState.isSprint) {
         const counterEl = document.getElementById('bitmasterQuestionCounter');
@@ -4429,19 +4492,24 @@
     } else {
       playSynthSound('wrong');
       bitmasterState.mistakesThisRound++;
+      bitmasterState.currentQuestionMistakes++;
+      updateBitmasterMistakeCounter();
+      if (resultRow) {
+        resultRow.classList.add('shake-wrong');
+        setTimeout(() => resultRow.classList.remove('shake-wrong'), 500);
+      }
+
       if (bitmasterState.isSprint) {
         showBitmasterToast(`Incorrect! Expected: ${q.correctAnswer}`, '❌', 850, () => {
           loadNextBitmasterQuestion();
         });
       } else {
         if (q.interactiveRowB) {
-          showBitmasterToast(`Row B is correct (−${q.valB}), but check your addition in the Result row! (expected: ${q.correctAnswer}).`, '❌', 2400, () => {
-            loadNextBitmasterQuestion();
-          });
+          showBitmasterToast(`Row B is correct (−${q.valB}), but check your addition in the Result row! Try again.`, '❌', 2400);
+        } else if (q.isShiftGrid) {
+          showBitmasterToast(`Not quite! Shift all bits by ${q.valB} and check zeros. Try again!`, '❌', 2200);
         } else {
-          showBitmasterToast(`Not quite! The correct binary result is ${q.correctAnswer}.`, '❌', 2000, () => {
-            loadNextBitmasterQuestion();
-          });
+          showBitmasterToast(`Not quite! Check each binary addition column (1+1=0 carry 1) and try again.`, '❌', 2200);
         }
       }
     }
@@ -4539,6 +4607,7 @@
   }
 
   function handleBitmasterHexNibblesSubmit() {
+    const container = document.getElementById('bitmasterHexNibblesContainer');
     const nibbleCount = bitmasterState.hexNibbleBits.length;
     const userAns = nibbleCount === 1
       ? bitmasterState.hexNibbleBits[0].join('')
@@ -4549,7 +4618,8 @@
     if (isCorrect) {
       playSynthSound('correct');
       bitmasterState.correctThisRound++;
-      bitmasterState.xp += 20;
+      const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 20 : 8;
+      bitmasterState.xp += earnedXp;
       updateBitmasterHUD();
       if (bitmasterState.isSprint) {
         const counterEl = document.getElementById('bitmasterQuestionCounter');
@@ -4561,6 +4631,13 @@
     } else {
       playSynthSound('wrong');
       bitmasterState.mistakesThisRound++;
+      bitmasterState.currentQuestionMistakes++;
+      updateBitmasterMistakeCounter();
+      if (container) {
+        container.classList.add('shake-wrong');
+        setTimeout(() => container.classList.remove('shake-wrong'), 500);
+      }
+
       const expectedFormatted = nibbleCount === 2
         ? `${bitmasterState.currentQuestion.correctBinary.slice(0, 4)} ${bitmasterState.currentQuestion.correctBinary.slice(4)}`
         : bitmasterState.currentQuestion.correctBinary;
@@ -4573,9 +4650,7 @@
           loadNextBitmasterQuestion();
         });
       } else {
-        showBitmasterToast(`Not quite! For Hex ${bitmasterState.currentQuestion.hexDigits.join('')}, expected binary is ${expectedFormatted} (you entered ${userFormatted}).`, '❌', 2100, () => {
-          loadNextBitmasterQuestion();
-        });
+        showBitmasterToast(`Not quite! Each hex digit equals 4 bits (8 4 2 1). Flip bits and try again!`, '❌', 2200);
       }
     }
   }
@@ -4688,14 +4763,15 @@
       xpBonus = (bitmasterState.correctThisRound * 10) + (starsEarned === 3 ? 120 : (starsEarned === 2 ? 60 : (starsEarned === 1 ? 30 : 10)));
     } else {
       // Standard 10-Question Criteria:
-      // 3 Stars = 10/10 correct with 0 mistakes in <= 50s
-      // 2 Stars = >= 8/10 correct (<= 2 mistakes)
-      // 1 Star = >= 5/10 correct
-      if (bitmasterState.correctThisRound === 10 && bitmasterState.mistakesThisRound === 0 && bitmasterState.elapsedSeconds <= 50) {
+      // 3 Stars = All 10 solved with 0 mistakes in <= 60s
+      // 2 Stars = <= 2 mistakes
+      // 1 Star = <= 5 mistakes
+      // 0 Stars = > 5 mistakes
+      if (bitmasterState.mistakesThisRound === 0 && bitmasterState.elapsedSeconds <= 60) {
         starsEarned = 3;
-      } else if (bitmasterState.correctThisRound >= 8 && bitmasterState.mistakesThisRound <= 2) {
+      } else if (bitmasterState.mistakesThisRound <= 2) {
         starsEarned = 2;
-      } else if (bitmasterState.correctThisRound >= 5) {
+      } else if (bitmasterState.mistakesThisRound <= 5) {
         starsEarned = 1;
       } else {
         starsEarned = 0;
@@ -4719,7 +4795,12 @@
     const subtextEl = document.getElementById('bitmasterVictorySubtext');
     const xpEl = document.getElementById('bitmasterVictoryXp');
     const accEl = document.getElementById('bitmasterVictoryAccuracy');
+    const mistakesEl = document.getElementById('bitmasterVictoryMistakes');
     const tipEl = document.getElementById('bitmasterVictoryTip');
+
+    if (mistakesEl) {
+      mistakesEl.textContent = String(bitmasterState.mistakesThisRound);
+    }
 
     if (bitmasterState.isSprint) {
       const totalAttempted = bitmasterState.correctThisRound + bitmasterState.mistakesThisRound;
@@ -4755,11 +4836,12 @@
       if (xpEl) xpEl.textContent = `+${xpBonus} XP`;
       if (accEl) accEl.textContent = `${accuracy}%`;
     } else {
-      const accuracy = Math.round((bitmasterState.correctThisRound / bitmasterState.totalQuestions) * 100);
-      const isAllQuestionsCorrect = (bitmasterState.correctThisRound === bitmasterState.totalQuestions);
+      const totalAttempts = bitmasterState.correctThisRound + bitmasterState.mistakesThisRound;
+      const accuracy = totalAttempts > 0 ? Math.round((bitmasterState.correctThisRound / totalAttempts) * 100) : 0;
+      const isFlawlessZeroMistakes = (bitmasterState.mistakesThisRound === 0);
 
-      // Trigger celebratory confetti and fanfare whenever the player answers ALL questions correctly
-      if (isAllQuestionsCorrect || starsEarned === 3) {
+      // Trigger celebratory fanfare whenever the player achieves 3 stars or 0 mistakes
+      if (starsEarned === 3 || isFlawlessZeroMistakes) {
         fireConfetti();
         setTimeout(fireConfetti, 280);
         playSynthSound('perfect10');
@@ -4767,18 +4849,18 @@
 
       if (starsEarned === 3) {
         if (badgeEl) badgeEl.textContent = '👑';
-        if (titleEl) titleEl.textContent = 'Grandmaster Precision!';
+        if (titleEl) titleEl.textContent = 'Flawless Precision!';
         if (starsEl) starsEl.textContent = '⭐⭐⭐';
         if (tipEl) {
           tipEl.innerHTML = `🏆 <strong>Flawless 10/10 Mastery!</strong> Cleared in ${bitmasterState.elapsedSeconds}s with 0 mistakes. Maximum 3-Star Grandmaster achieved!`;
         }
       } else if (starsEarned === 2) {
-        if (isAllQuestionsCorrect) {
+        if (isFlawlessZeroMistakes) {
           if (badgeEl) badgeEl.textContent = '🌟';
-          if (titleEl) titleEl.textContent = 'Flawless 10/10!';
+          if (titleEl) titleEl.textContent = 'Flawless Accuracy!';
           if (starsEl) starsEl.textContent = '⭐⭐☆';
           if (tipEl) {
-            tipEl.innerHTML = `🎉 <strong>All 10 Questions Correct!</strong> Perfect accuracy! To earn the 3rd Star, complete all 10 in &lt; 50s (you took ${bitmasterState.elapsedSeconds}s).`;
+            tipEl.innerHTML = `🎉 <strong>0 Mistakes!</strong> Flawless accuracy! To earn the 3rd Star, complete the round in &le; 60s (you took ${bitmasterState.elapsedSeconds}s). Speed it up just a bit!`;
           }
         } else {
           if (badgeEl) badgeEl.textContent = '⚡';
@@ -4786,10 +4868,7 @@
           if (starsEl) starsEl.textContent = '⭐⭐☆';
           playSynthSound('victory');
           if (tipEl) {
-            const timeDiff = bitmasterState.elapsedSeconds > 50 ? `${bitmasterState.elapsedSeconds - 50}s faster` : '';
-            const mistakeMsg = bitmasterState.mistakesThisRound > 0 ? `eliminate ${bitmasterState.mistakesThisRound} mistake(s)` : '';
-            const reqs = [mistakeMsg, timeDiff].filter(Boolean).join(' and ');
-            tipEl.innerHTML = `💡 <strong>To earn 3 Stars:</strong> Score 10/10 in &lt; 50s with 0 mistakes. Try again to ${reqs || 'beat the 50s clock'}!`;
+            tipEl.innerHTML = `💡 <strong>To earn 3 Stars:</strong> Complete all 10 with 0 mistakes in &le; 60s (you made ${bitmasterState.mistakesThisRound} mistake${bitmasterState.mistakesThisRound > 1 ? 's' : ''}).`;
           }
         }
       } else if (starsEarned === 1) {
@@ -4798,7 +4877,7 @@
         if (starsEl) starsEl.textContent = '⭐☆☆';
         playSynthSound('victory');
         if (tipEl) {
-          tipEl.innerHTML = `💡 <strong>To earn 2 Stars:</strong> Score at least 8/10 correct (&le; 2 mistakes). You scored ${bitmasterState.correctThisRound}/10!`;
+          tipEl.innerHTML = `💡 <strong>To earn 2 Stars:</strong> Complete with &le; 2 mistakes (you made ${bitmasterState.mistakesThisRound} mistakes). Take your time!`;
         }
       } else {
         if (badgeEl) badgeEl.textContent = '🔄';
@@ -4806,11 +4885,11 @@
         if (starsEl) starsEl.textContent = '☆☆☆';
         playSynthSound('wrong');
         if (tipEl) {
-          tipEl.innerHTML = `💡 <strong>To pass this level:</strong> Score at least 5/10 correct. Review binary place values and retry!`;
+          tipEl.innerHTML = `💡 <strong>To pass this level:</strong> Complete with &le; 5 mistakes (you made ${bitmasterState.mistakesThisRound} mistakes). Review place values and retry!`;
         }
       }
       if (subtextEl) {
-        subtextEl.textContent = `${bitmasterState.correctThisRound}/${bitmasterState.totalQuestions} Correct • ${bitmasterState.mistakesThisRound} mistakes • ${bitmasterState.elapsedSeconds}s`;
+        subtextEl.textContent = `All 10 Solved • ${bitmasterState.mistakesThisRound} mistake${bitmasterState.mistakesThisRound === 1 ? '' : 's'} • ${bitmasterState.elapsedSeconds}s`;
       }
       if (xpEl) xpEl.textContent = `+${xpBonus} XP`;
       if (accEl) accEl.textContent = `${accuracy}%`;
@@ -4831,6 +4910,11 @@
     };
   }
   window.finishBitmasterRound = finishBitmasterRound;
+  window.startBitmasterRound = startBitmasterRound;
+  window.loadNextBitmasterQuestion = loadNextBitmasterQuestion;
+  window.createBitmasterQuestion = createBitmasterQuestion;
+  window.showBitmasterScreen = showBitmasterScreen;
+  window.showBitmasterRankModal = showBitmasterRankModal;
 
   // =========================================================================
   function setupBitMaster() {

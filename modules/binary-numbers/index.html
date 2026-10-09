@@ -317,6 +317,7 @@
             <span id="bitmasterActiveStageBadge" class="badge badge-paper1">Stage 1 &bull; Level 1</span>
             <div class="game-hud-metrics">
               <span id="bitmasterTimerDisplay" class="game-timer">⏱️ 0:00</span>
+              <span id="bitmasterMistakeCounter" class="game-counter" style="color: #f87171; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25);">⚠️ 0 Mistakes</span>
               <span id="bitmasterQuestionCounter" class="game-counter">Q 1/10</span>
             </div>
           </div>
@@ -421,6 +422,10 @@
                 <div class="stat-label">Accuracy</div>
                 <div class="stat-value text-blue" id="bitmasterVictoryAccuracy">100%</div>
               </div>
+              <div class="stat-card">
+                <div class="stat-label">Mistakes</div>
+                <div class="stat-value text-amber" id="bitmasterVictoryMistakes">0</div>
+              </div>
             </div>
 
             <!-- Personalized Rating & Improvement Tip -->
@@ -496,7 +501,7 @@
 
             <!-- Full Rank Hierarchy Ladder -->
             <div class="rank-ladder-section">
-              <div class="rank-ladder-heading">Rank Hierarchy (6 Tiers)</div>
+              <div class="rank-ladder-heading">Rank Hierarchy (12 Tiers)</div>
               <div class="rank-ladder-list" id="bitmasterRankLadderList"></div>
             </div>
 
@@ -535,9 +540,9 @@
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg> Standard 10-Question Trials:
                 </div>
                 <div class="criteria-modal-list">
-                  <div>• <strong>⭐⭐⭐ 3 Stars:</strong> 10/10 Correct in &lt; 50s (0 mistakes)</div>
-                  <div>• <strong>⭐⭐ 2 Stars:</strong> &ge; 8/10 Correct (&le; 2 mistakes)</div>
-                  <div>• <strong>⭐ 1 Star:</strong> &ge; 5/10 Correct</div>
+                  <div>• <strong>⭐⭐⭐ 3 Stars:</strong> All 10 Solved with 0 Mistakes in &le; 60s</div>
+                  <div>• <strong>⭐⭐ 2 Stars:</strong> All 10 Solved with &le; 2 Mistakes</div>
+                  <div>• <strong>⭐ 1 Star:</strong> All 10 Solved with &le; 5 Mistakes</div>
                 </div>
               </div>
               <div class="criteria-modal-section">

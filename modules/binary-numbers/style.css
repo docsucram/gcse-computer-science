@@ -4513,5 +4513,24 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
+/* Tactile Shake & Multi-Arrow Shift Enhancements */
+@keyframes shakeWrong {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-7px); }
+  40%, 80% { transform: translateX(7px); }
+}
+
+.shake-wrong {
+  animation: shakeWrong 0.35s ease-in-out !important;
+}
+
+.math-bit-cell.shift-arrows {
+  font-size: 14px !important;
+  letter-spacing: -1.5px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
 
 
