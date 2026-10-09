@@ -2930,10 +2930,11 @@ html.dark .converter-preset-btn:hover,
 .stage-badge-s4 { background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(139, 92, 246, 0.1)); border-color: #8b5cf6; color: #a78bfa; }
 .stage-badge-s5 { background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(168, 85, 247, 0.1)); border-color: #a855f7; color: #c084fc; }
 .stage-badge-s6 { background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(245, 158, 11, 0.1)); border-color: #f59e0b; color: #fbbf24; }
-.stage-badge-s7 { background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.1)); border-color: #ef4444; color: #f87171; }
-.stage-badge-s8 { background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(236, 72, 153, 0.1)); border-color: #ec4899; color: #f472b6; }
-.stage-badge-s9 { background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(6, 182, 212, 0.1)); border-color: #06b6d4; color: #22d3ee; }
-.stage-badge-s10 { background: linear-gradient(135deg, rgba(234, 179, 8, 0.35), rgba(234, 179, 8, 0.1)); border-color: #eab308; color: #facc15; }
+.stage-badge-s7 { background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(6, 182, 212, 0.1)); border-color: #06b6d4; color: #22d3ee; }
+.stage-badge-s8 { background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.1)); border-color: #ef4444; color: #f87171; }
+.stage-badge-s9 { background: linear-gradient(135deg, rgba(236, 72, 153, 0.3), rgba(236, 72, 153, 0.1)); border-color: #ec4899; color: #f472b6; }
+.stage-badge-s10 { background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(16, 185, 129, 0.1)); border-color: #10b981; color: #34d399; }
+.stage-badge-s11 { background: linear-gradient(135deg, rgba(234, 179, 8, 0.35), rgba(234, 179, 8, 0.1)); border-color: #eab308; color: #facc15; }
 
 .stage-card-info {
   flex: 1;

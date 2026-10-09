@@ -2308,10 +2308,11 @@
     4: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
     5: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
     6: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="7" x2="12" y2="17"/><line x1="7" y1="12" x2="17" y2="12"/></svg>`,
-    7: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="7" y1="12" x2="17" y2="12"/></svg>`,
-    8: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>`,
-    9: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="12" y1="5" x2="12" y2="13"/><line x1="7" y1="18" x2="17" y2="18"/></svg>`,
-    10: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`
+    7: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="12" y1="5" x2="12" y2="13"/><line x1="7" y1="18" x2="17" y2="18"/></svg>`,
+    8: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="7" y1="12" x2="17" y2="12"/></svg>`,
+    9: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>`,
+    10: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`,
+    11: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`
   };
 
   const BITMASTER_STAGES = [
@@ -2401,24 +2402,38 @@
     },
     {
       id: 7,
-      title: "Stage 7: Binary Subtraction",
-      shortTitle: "Binary Subtraction",
-      subtitle: "Two's Complement Subtraction: A − B = A + (−B)",
+      title: "Stage 7: Two's Complement",
+      shortTitle: "Two's Complement",
+      subtitle: "Signed Binary & Negative Values (−128 / −8 MSB)",
       svgIcon: BITMASTER_STAGE_ICONS[7],
-      color: "#ef4444",
+      color: "#06b6d4",
       levels: [
-        { id: 1, name: "Invert & Add 1", mode: "mc_twos_comp_convert", desc: "Two's Complement Negation: Invert B and add 1 (+B → −B)" },
-        { id: 2, name: "4-Bit Subtraction Grid", mode: "math_sub_4bit", desc: "4-Bit Subtraction Grid: Flip result bits for A − B" },
-        { id: 3, name: "8-Bit Subtraction Grid", mode: "math_sub_8bit", desc: "Full 8-Bit Subtraction: Final 9th carry discarded" },
-        { id: 4, name: "Speed Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Fast binary subtraction under pressure!" }
+        { id: 1, name: "Sign Bit & Foundations", mode: "mc_twos_comp_sign", desc: "Sign Identification & Most Significant Bit (−128 / −8 place values)" },
+        { id: 2, name: "Invert & Add 1", mode: "twos_comp_invert_add_1", desc: "Two's Complement Negation: Convert +V to −V with flippable bits & submit" },
+        { id: 3, name: "4-Bit Nibbles", mode: "twos_comp_nibbles", desc: "4-Bit Two's Comp: Flip bits for negative numbers and evaluate nibbles in denary" },
+        { id: 4, name: "8-Bit Mastery", mode: "twos_comp_byte_mastery", desc: "Full 8-Bit Two's Complement: Convert & interpret signed bytes (−128 to +127)" }
       ]
     },
     {
       id: 8,
-      title: "Stage 8: Logical Shifts",
+      title: "Stage 8: Binary Subtraction",
+      shortTitle: "Binary Subtraction",
+      subtitle: "Two's Complement Subtraction: A − B = A + (−B)",
+      svgIcon: BITMASTER_STAGE_ICONS[8],
+      color: "#ef4444",
+      levels: [
+        { id: 1, name: "4-Bit Subtraction Grid", mode: "math_sub_4bit", desc: "4-Bit Column Subtraction Grid (A − B): Flip result bits & submit" },
+        { id: 2, name: "8-Bit Subtraction Grid", mode: "math_sub_8bit", desc: "Full 8-Bit Subtraction Grid: Calculate differences across full byte" },
+        { id: 3, name: "Hardware Subtraction", mode: "math_sub_twos_comp", desc: "Two's Complement Addition: Flip Row B to (−B), then calculate A + (−B)" },
+        { id: 4, name: "Subtraction Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Fast binary subtraction under pressure!" }
+      ]
+    },
+    {
+      id: 9,
+      title: "Stage 9: Logical Shifts",
       shortTitle: "Logical Shifts",
       subtitle: "Binary Shifting & Arithmetic Effects (×2, ÷2)",
-      svgIcon: BITMASTER_STAGE_ICONS[8],
+      svgIcon: BITMASTER_STAGE_ICONS[9],
       color: "#ec4899",
       levels: [
         { id: 1, name: "Interactive Shift Flip", mode: "math_shift_flip", desc: "Flip the shifted bits underneath in the result row & submit!" },
@@ -2428,30 +2443,30 @@
       ]
     },
     {
-      id: 9,
-      title: "Stage 9: Two's Complement",
-      shortTitle: "Two's Complement",
-      subtitle: "Signed Binary & Negative Values (−128 MSB)",
-      svgIcon: BITMASTER_STAGE_ICONS[9],
-      color: "#06b6d4",
+      id: 10,
+      title: "Stage 10: Units of Data",
+      shortTitle: "Units of Data",
+      subtitle: "Bits, Bytes, Storage Capacity & Network Transmission",
+      svgIcon: BITMASTER_STAGE_ICONS[10],
+      color: "#10b981",
       levels: [
-        { id: 1, name: "Sign Bit Identification", mode: "mc_twos_comp_sign", desc: "Sign Identification: MSB 1 = Negative, MSB 0 = Positive" },
-        { id: 2, name: "Invert & Add 1", mode: "mc_twos_comp_convert", desc: "Two's Complement Negation (+V to −V Conversion)" },
-        { id: 3, name: "Signed Binary Evaluation", mode: "mc_twos_comp_eval", desc: "Signed Binary → Denary with −128 Most Significant Bit" },
-        { id: 4, name: "Speed Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Rapid Signed Binary interpretation!" }
+        { id: 1, name: "Bits, Nibbles & Bytes", mode: "units_fundamental", desc: "Fundamental units of storage: bits in byte, bytes in KB, and sizes" },
+        { id: 2, name: "Unit Conversions", mode: "units_conversions", desc: "Convert between KB, MB, GB, and TB using standard decimal prefixes" },
+        { id: 3, name: "Storage Capacity & Files", mode: "units_capacity", desc: "Calculate file fitting: How many files can store in a given capacity" },
+        { id: 4, name: "Transmission & Mixed Units", mode: "units_transmission", desc: "Bits vs Bytes (MB vs Mb), Mbps transfer speeds, and download times" }
       ]
     },
     {
-      id: 10,
-      title: "Stage 10: The Master Gauntlet",
+      id: 11,
+      title: "Stage 11: The Master Gauntlet",
       shortTitle: "The Master Gauntlet",
-      subtitle: "Championship Blitz (All Topics Mixed)",
-      svgIcon: BITMASTER_STAGE_ICONS[10],
+      subtitle: "Championship Blitz (All 10 Core Topics Mixed)",
+      svgIcon: BITMASTER_STAGE_ICONS[11],
       color: "#eab308",
       levels: [
         { id: 1, name: "Conversions Circuit", mode: "blitz_conversions", desc: "Conversions Blitz (Binary, Hex with 0x, Denary)" },
-        { id: 2, name: "Arithmetic Circuit", mode: "blitz_maths", desc: "Binary Arithmetic & Shifts Blitz" },
-        { id: 3, name: "Advanced Circuit", mode: "blitz_signed_hex", desc: "Two's Complement & Byte Hex Advanced Blitz" },
+        { id: 2, name: "Arithmetic Circuit", mode: "blitz_maths", desc: "Binary Arithmetic, Subtraction & Shifts Blitz" },
+        { id: 3, name: "Advanced Circuit", mode: "blitz_signed_hex", desc: "Two's Complement & Units of Data Advanced Blitz" },
         { id: 4, name: "Grandmaster Sprint", mode: "sprint_60s", desc: "60s Grandmaster Championship Gauntlet Sprint!" }
       ]
     }
@@ -2463,7 +2478,8 @@
     { minXp: 750, title: "Byte Engineer", svgIcon: BITMASTER_STAGE_ICONS[4] },
     { minXp: 1500, title: "Hex Architect", svgIcon: BITMASTER_STAGE_ICONS[5] },
     { minXp: 2600, title: "Silicon Master", svgIcon: BITMASTER_STAGE_ICONS[8] },
-    { minXp: 4000, title: "Grand BitMaster", svgIcon: BITMASTER_STAGE_ICONS[10] }
+    { minXp: 4000, title: "Data Commander", svgIcon: BITMASTER_STAGE_ICONS[10] },
+    { minXp: 5500, title: "Grand BitMaster", svgIcon: BITMASTER_STAGE_ICONS[11] }
   ];
 
   const bitmasterState = {
@@ -2564,7 +2580,8 @@
     const titleStarsEl = document.getElementById('bitmasterTitleStarsCount');
     const titleXpEl = document.getElementById('bitmasterTitleXpCount');
     if (titleRankEl) titleRankEl.textContent = rank.title;
-    if (titleStarsEl) titleStarsEl.textContent = `${totalStars} / 120 ⭐`;
+    const maxPossibleStars = BITMASTER_STAGES.reduce((acc, s) => acc + s.levels.length * 3, 0);
+    if (titleStarsEl) titleStarsEl.textContent = `${totalStars} / ${maxPossibleStars} ⭐`;
     if (titleXpEl) titleXpEl.textContent = `${bitmasterState.xp} XP`;
   }
 
@@ -2656,7 +2673,7 @@
         </div>
         <div class="stage-card-info">
           <div class="stage-card-header-row">
-            <span class="stage-card-tag">STAGE 0${stage.id}</span>
+            <span class="stage-card-tag">STAGE ${String(stage.id).padStart(2, '0')}</span>
             <span class="stage-card-stars">${stageStars}/${maxStars} ⭐</span>
           </div>
           <div class="stage-card-title">${stage.shortTitle}</div>
@@ -2798,16 +2815,19 @@
       } else if (stage.id === 6) {
         effectiveMode = Math.random() > 0.5 ? 'math_add_simple' : 'math_add_8bit';
       } else if (stage.id === 7) {
-        effectiveMode = Math.random() > 0.5 ? 'math_sub_4bit' : 'math_sub_8bit';
-      } else if (stage.id === 8) {
         const r = Math.random();
-        effectiveMode = r < 0.33 ? 'math_shift_flip' : (r < 0.66 ? 'mc_shift_left' : 'mc_shift_right');
+        effectiveMode = r < 0.33 ? 'mc_twos_comp_sign' : (r < 0.66 ? 'twos_comp_nibbles' : 'twos_comp_byte_mastery');
+      } else if (stage.id === 8) {
+        effectiveMode = Math.random() > 0.5 ? 'math_sub_4bit' : 'math_sub_twos_comp';
       } else if (stage.id === 9) {
         const r = Math.random();
-        effectiveMode = r < 0.33 ? 'mc_twos_comp_sign' : (r < 0.66 ? 'mc_twos_comp_convert' : 'mc_twos_comp_eval');
+        effectiveMode = r < 0.33 ? 'math_shift_flip' : (r < 0.66 ? 'mc_shift_left' : 'mc_shift_right');
       } else if (stage.id === 10) {
         const r = Math.random();
-        effectiveMode = r < 0.33 ? 'blitz_conversions' : (r < 0.66 ? 'blitz_maths' : 'blitz_signed_hex');
+        effectiveMode = r < 0.33 ? 'units_fundamental' : (r < 0.66 ? 'units_conversions' : 'units_capacity');
+      } else if (stage.id === 11) {
+        const r = Math.random();
+        effectiveMode = r < 0.33 ? 'blitz_conversions' : (r < 0.66 ? 'blitz_maths' : 'units_transmission');
       }
     }
 
@@ -3252,11 +3272,187 @@
     }
 
     // =========================================================================
-    // STAGE 7: BINARY SUBTRACTION (TWO'S COMPLEMENT MECHANISM & GRID)
+    // STAGE 7: TWO'S COMPLEMENT (FOUNDATIONS, INVERT & ADD 1, NIBBLES, BYTE)
+    // =========================================================================
+    if (effectiveMode === 'mc_twos_comp_sign') {
+      const qPool = [
+        {
+          prompt: "In an 8-bit Two's Complement byte, what is the place value of the leftmost bit (MSB, Bit 7)?",
+          display: "Bit 7 (MSB)",
+          hint: "The leftmost bit is always negative in Two's Complement",
+          correctAnswer: "-128",
+          options: ["-128", "+128", "+127", "-127"]
+        },
+        {
+          prompt: "In a 4-bit Two's Complement nibble, what is the place value of the leftmost bit (Bit 3)?",
+          display: "Bit 3 (MSB)",
+          hint: "Nibble weights from left to right: −8 • 4 • 2 • 1",
+          correctAnswer: "-8",
+          options: ["-8", "+8", "-7", "-1"]
+        },
+        {
+          prompt: "In Two's Complement, what does a Most Significant Bit (MSB) of 1 indicate?",
+          display: "MSB = 1",
+          hint: "1 at the left means the negative weight is active",
+          correctAnswer: "Negative number (< 0)",
+          options: ["Negative number (< 0)", "Positive number (≥ 0)", "Overflow Error", "Even number"]
+        },
+        {
+          prompt: "In Two's Complement, what does a Most Significant Bit (MSB) of 0 indicate?",
+          display: "MSB = 0",
+          hint: "0 at the left means no negative weight is applied",
+          correctAnswer: "Positive number (≥ 0)",
+          options: ["Positive number (≥ 0)", "Negative number (< 0)", "Odd number", "Fractional number"]
+        },
+        {
+          prompt: "What is the full range of integer values that can be stored in an 8-bit Two's Complement register?",
+          display: "8-Bit Range",
+          hint: "From −2⁷ up to +2⁷ − 1",
+          correctAnswer: "-128 to +127",
+          options: ["-128 to +127", "-127 to +127", "0 to 255", "-256 to +255"]
+        },
+        {
+          prompt: "What is the full range of integer values for a 4-bit Two's Complement nibble?",
+          display: "4-Bit Range",
+          hint: "From −2³ up to +2³ − 1",
+          correctAnswer: "-8 to +7",
+          options: ["-8 to +7", "-7 to +7", "0 to 15", "-16 to +15"]
+        },
+        {
+          prompt: "Is the 8-bit Two's Complement binary pattern 1001 0110 positive or negative?",
+          display: "1001 0110",
+          hint: "Check Bit 7 (MSB): 1 = negative, 0 = positive",
+          correctAnswer: "Negative (MSB = 1)",
+          options: ["Negative (MSB = 1)", "Positive (MSB = 0)", "Undefined Value", "Overflow Trap"]
+        },
+        {
+          prompt: "Is the 8-bit Two's Complement binary pattern 0111 0011 positive or negative?",
+          display: "0111 0011",
+          hint: "Check Bit 7 (MSB): 1 = negative, 0 = positive",
+          correctAnswer: "Positive (MSB = 0)",
+          options: ["Positive (MSB = 0)", "Negative (MSB = 1)", "Negative Zero", "Syntax Error"]
+        },
+        {
+          prompt: "How many distinct representations of zero exist in Two's Complement?",
+          display: "0000 0000",
+          hint: "Two's Complement solves the two-zero dilemma of Sign & Magnitude",
+          correctAnswer: "Only 1 (00000000)",
+          options: ["Only 1 (00000000)", "Two (+0 and -0)", "Eight", "None"]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      return {
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
+      };
+    }
+
+    // Level 2: Invert & Add 1 (+ve to -ve Conversion with Flippable Bits)
+    if (effectiveMode === 'twos_comp_invert_add_1') {
+      const candidates = [3, 5, 7, 9, 11, 14, 18, 25, 42, 60];
+      const posVal = candidates[Math.floor(Math.random() * candidates.length)];
+      const negVal = -posVal;
+      const posBin = posVal.toString(2).padStart(8, '0');
+      const posBinFmt = `${posBin.slice(0, 4)} ${posBin.slice(4)}`;
+      const twosComp = (256 + negVal).toString(2).padStart(8, '0');
+
+      return {
+        type: 'switches',
+        bitsCount: 8,
+        isTwosComp: true,
+        prompt: `Convert +${posVal} (${posBinFmt}) to −${posVal} in Two's Complement:`,
+        display: `+${posVal} (${posBinFmt})  ➔  −${posVal}`,
+        hint: `Step 1: Invert all bits (0 ↔ 1) • Step 2: Add 1 (+1). Switch columns: −128 • 64 • 32 • 16 • 8 • 4 • 2 • 1`,
+        correctAnswer: negVal,
+        targetBinary: twosComp
+      };
+    }
+
+    // Level 3: 4-Bit Nibbles (Flippable Bits for -6 & MC for 1101 in denary)
+    if (effectiveMode === 'twos_comp_nibbles') {
+      const isSwitch = Math.random() > 0.5;
+      if (isSwitch) {
+        // Write number like -6 in 4-bit Two's Complement
+        const negCandidates = [-1, -2, -3, -4, -5, -6, -7, -8];
+        const negVal = negCandidates[Math.floor(Math.random() * negCandidates.length)];
+        const targetBin = (16 + negVal).toString(2).padStart(4, '0');
+        return {
+          type: 'switches',
+          bitsCount: 4,
+          isTwosComp: true,
+          prompt: `Write ${negVal} in 4-bit Two's Complement:`,
+          display: `Target: ${negVal}`,
+          hint: `4-bit Two's Complement columns: −8 • 4 • 2 • 1. Flip switches to equal ${negVal}!`,
+          correctAnswer: negVal,
+          targetBinary: targetBin
+        };
+      } else {
+        // Multiple choice: what's 4-bit Two's Complement 1101 in denary?
+        const patterns = ['1101', '1010', '1110', '1011', '1100', '1001', '1111', '1000'];
+        const pat = patterns[Math.floor(Math.random() * patterns.length)];
+        const b = pat.split('').map(Number);
+        const evalVal = (-8 * b[0]) + (4 * b[1]) + (2 * b[2]) + (1 * b[3]);
+        const unsignedVal = (8 * b[0]) + (4 * b[1]) + (2 * b[2]) + (1 * b[3]);
+        const dists = [
+          String(evalVal),
+          String(unsignedVal),
+          String(evalVal - 2),
+          String(Math.abs(evalVal))
+        ];
+        return {
+          type: 'mc',
+          prompt: `What is the 4-bit Two's Complement number ${pat} in Denary?`,
+          display: pat.split('').join(' '),
+          hint: "Place values from left to right: −8 • 4 • 2 • 1",
+          correctAnswer: String(evalVal),
+          options: shuffleArray(dists)
+        };
+      }
+    }
+
+    // Level 4: 8-Bit Mastery
+    if (effectiveMode === 'twos_comp_byte_mastery') {
+      const isSwitch = Math.random() > 0.5;
+      if (isSwitch) {
+        const candidates = [-12, -25, -35, -42, -55, -64, -75, -88, -100, -128];
+        const negVal = candidates[Math.floor(Math.random() * candidates.length)];
+        const targetBin = (256 + negVal).toString(2).padStart(8, '0');
+        return {
+          type: 'switches',
+          bitsCount: 8,
+          isTwosComp: true,
+          prompt: `Construct ${negVal} in 8-bit Two's Complement:`,
+          display: `Target: ${negVal}`,
+          hint: "MSB switch is worth −128! Add positive weights (64..1) to reach target",
+          correctAnswer: negVal,
+          targetBinary: targetBin
+        };
+      } else {
+        const negVal = -(Math.floor(Math.random() * 120) + 1);
+        const twosComp = (256 + negVal).toString(2).padStart(8, '0');
+        const dists = generateDistractors(negVal, -128, -1, 'denary');
+        const options = shuffleArray([negVal, ...dists]);
+        return {
+          type: 'mc',
+          prompt: "Interpret 8-Bit Two's Complement in Denary (MSB is −128):",
+          display: `${twosComp.slice(0, 4)} ${twosComp.slice(4)}`,
+          hint: "MSB is −128 + sum of active positive bits",
+          correctAnswer: String(negVal),
+          options: options.map(String)
+        };
+      }
+    }
+
+    // =========================================================================
+    // STAGE 8: BINARY SUBTRACTION (4-BIT GRID, 8-BIT GRID, TWO'S COMP ADDITION)
     // =========================================================================
     if (effectiveMode === 'math_sub_4bit') {
-      const a = Math.floor(Math.random() * 11) + 5; // 5 to 15
-      const b = Math.floor(Math.random() * (a + 1)); // 0 to a
+      const a = Math.floor(Math.random() * 9) + 7; // 7 to 15
+      const b = Math.floor(Math.random() * (a - 1)) + 1; // 1 to a - 1
       const diff = a - b;
       const bitsA = a.toString(2).padStart(4, '0').split('').map(Number);
       const bitsB = b.toString(2).padStart(4, '0').split('').map(Number);
@@ -3278,8 +3474,8 @@
     }
 
     if (effectiveMode === 'math_sub_8bit') {
-      const a = Math.floor(Math.random() * 180) + 40; // 40 to 220
-      const b = Math.floor(Math.random() * (a - 5)) + 1; // 1 to a - 5
+      const a = Math.floor(Math.random() * 160) + 50; // 50 to 210
+      const b = Math.floor(Math.random() * (a - 10)) + 5;
       const diff = a - b;
       const bitsA = a.toString(2).padStart(8, '0').split('').map(Number);
       const bitsB = b.toString(2).padStart(8, '0').split('').map(Number);
@@ -3296,12 +3492,38 @@
         correctAnswer: diffStr,
         prompt: `Subtract 8-Bit Binary Columns (${a} − ${b}):`,
         display: `${a} − ${b} = ${diff}`,
-        hint: `Binary Subtraction: A − B = A + (−B). Flip the Result bits to match ${diff}!`
+        hint: `Binary Subtraction: Flip the Result bits to match difference ${diff}!`
+      };
+    }
+
+    // Hardware Subtraction: Flip Row B to (-B) Two's Complement, then add A + (-B)
+    if (effectiveMode === 'math_sub_twos_comp') {
+      const a = Math.floor(Math.random() * 7) + 8; // 8 to 14
+      const b = Math.floor(Math.random() * 5) + 2; // 2 to 6
+      const diff = a - b;
+      const bitsA = a.toString(2).padStart(4, '0').split('').map(Number);
+      const twosCompB = (16 - b).toString(2).padStart(4, '0');
+      const diffBin = diff.toString(2).padStart(4, '0');
+
+      return {
+        type: 'math_grid',
+        interactiveRowB: true,
+        numBits: 4,
+        placeValues: [8, 4, 2, 1],
+        operator: '+',
+        valA: a,
+        valB: b,
+        bitsA: bitsA,
+        correctRowB: twosCompB,
+        correctAnswer: diffBin,
+        prompt: `Hardware Subtraction: Convert +${b} to Two's Complement (−${b}) in Row B, then add Row A + Row B:`,
+        display: `${a} − ${b} = ${diff}  ➔  ${a} + (−${b})`,
+        hint: `1. Flip Row B cells to make −${b} (invert +${b} and add 1) • 2. Add Row A + Row B into Result!`
       };
     }
 
     // =========================================================================
-    // STAGE 8: LOGICAL SHIFTS (INTERACTIVE FLIP & MC)
+    // STAGE 9: LOGICAL SHIFTS (INTERACTIVE FLIP & MC)
     // =========================================================================
     if (effectiveMode === 'math_shift_flip') {
       const isLeft = Math.random() > 0.5;
@@ -3350,72 +3572,262 @@
     }
 
     // =========================================================================
-    // STAGE 9: TWO'S COMPLEMENT
+    // STAGE 10: UNITS OF DATA (FUNDAMENTALS, CONVERSIONS, CAPACITY, TRANSMISSION)
     // =========================================================================
-    if (effectiveMode === 'mc_twos_comp_sign') {
-      const isNeg = Math.random() > 0.5;
-      const val = isNeg ? -(Math.floor(Math.random() * 127) + 1) : (Math.floor(Math.random() * 127) + 1);
-      const binStr = (isNeg ? (256 + val) : val).toString(2).padStart(8, '0');
-      const correctOpt = isNeg ? "Negative (< 0, MSB = 1)" : "Positive (≥ 0, MSB = 0)";
-      const wrongOpt = isNeg ? "Positive (≥ 0, MSB = 0)" : "Negative (< 0, MSB = 1)";
+    if (effectiveMode === 'units_fundamental') {
+      const qPool = [
+        {
+          prompt: "How many bits are in 1 Byte?",
+          display: "1 Byte",
+          hint: "The foundational grouping in computer memory",
+          correctAnswer: "8 bits",
+          options: ["8 bits", "4 bits", "16 bits", "2 bits"]
+        },
+        {
+          prompt: "How many bits are in a Nibble?",
+          display: "1 Nibble",
+          hint: "Half of an 8-bit byte (represents 1 hex digit)",
+          correctAnswer: "4 bits",
+          options: ["4 bits", "8 bits", "2 bits", "16 bits"]
+        },
+        {
+          prompt: "How many bytes are in a Kilobyte (KB) using standard AQA decimal prefixes?",
+          display: "1 Kilobyte (KB)",
+          hint: "Kilo = 10³ = 1,000",
+          correctAnswer: "1,000 bytes",
+          options: ["1,000 bytes", "1,024 bytes", "100 bytes", "10,000 bytes"]
+        },
+        {
+          prompt: "How many nibbles are in 3 bytes?",
+          display: "3 Bytes",
+          hint: "Each byte contains exactly 2 nibbles (3 × 2)",
+          correctAnswer: "6 nibbles",
+          options: ["6 nibbles", "3 nibbles", "12 nibbles", "24 nibbles"]
+        },
+        {
+          prompt: "How many bits are in 4 bytes?",
+          display: "4 Bytes",
+          hint: "Each byte contains 8 bits (4 × 8)",
+          correctAnswer: "32 bits",
+          options: ["32 bits", "16 bits", "64 bits", "24 bits"]
+        },
+        {
+          prompt: "Which is the smallest individual unit of storage in computing?",
+          display: "Data Hierarchy",
+          hint: "Stores a single 0 or 1 transistor state",
+          correctAnswer: "Bit (Binary Digit)",
+          options: ["Bit (Binary Digit)", "Byte", "Nibble", "Character"]
+        },
+        {
+          prompt: "Which list displays data units in correct order from SMALLEST to LARGEST?",
+          display: "Unit Ordering",
+          hint: "Bit < Nibble < Byte < Kilobyte < Megabyte",
+          correctAnswer: "Bit < Nibble < Byte < KB",
+          options: ["Bit < Nibble < Byte < KB", "Bit < Byte < Nibble < KB", "Nibble < Bit < Byte < KB", "Byte < Nibble < Bit < KB"]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
       return {
         type: 'mc',
-        prompt: "In Two's Complement, is this value Positive or Negative?",
-        display: binStr,
-        hint: "Inspect the Most Significant Bit (MSB, bit 7)",
-        correctAnswer: correctOpt,
-        options: shuffleArray([correctOpt, wrongOpt, "Overflow Error", "Invalid Pattern"])
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
       };
     }
 
-    if (effectiveMode === 'mc_twos_comp_convert') {
-      const posVal = Math.floor(Math.random() * 60) + 1;
-      const negVal = -posVal;
-      const twosComp = (256 + negVal).toString(2).padStart(8, '0');
-      const dists = generateDistractors(twosComp, 0, 255, 'binary');
-      const options = shuffleArray([twosComp, ...dists]);
+    if (effectiveMode === 'units_conversions') {
+      const qPool = [
+        {
+          prompt: "How many Kilobytes (KB) are in 2.3 Megabytes (MB)?",
+          display: "2.3 MB ➔ KB",
+          hint: "Multiply by 1,000 to move from MB to KB (2.3 × 1,000)",
+          correctAnswer: "2,300 KB",
+          options: ["2,300 KB", "230 KB", "23,000 KB", "235 KB"]
+        },
+        {
+          prompt: "How many Megabytes (MB) are in 4 Gigabytes (GB)?",
+          display: "4 GB ➔ MB",
+          hint: "Multiply by 1,000 to convert GB to MB (4 × 1,000)",
+          correctAnswer: "4,000 MB",
+          options: ["4,000 MB", "400 MB", "40,000 MB", "4 MB"]
+        },
+        {
+          prompt: "How many bytes are in 3.5 Kilobytes (KB)?",
+          display: "3.5 KB ➔ bytes",
+          hint: "Multiply by 1,000 (3.5 × 1,000)",
+          correctAnswer: "3,500 bytes",
+          options: ["3,500 bytes", "350 bytes", "35,000 bytes", "35 bytes"]
+        },
+        {
+          prompt: "Convert 5,000 Megabytes (MB) into Gigabytes (GB):",
+          display: "5,000 MB ➔ GB",
+          hint: "Divide by 1,000 to step up from MB to GB (5,000 ÷ 1,000)",
+          correctAnswer: "5 GB",
+          options: ["5 GB", "50 GB", "0.5 GB", "500 GB"]
+        },
+        {
+          prompt: "How many bytes are in 1 Megabyte (MB)?",
+          display: "1 MB ➔ bytes",
+          hint: "1,000 KB × 1,000 bytes = 10⁶ bytes",
+          correctAnswer: "1,000,000 bytes",
+          options: ["1,000,000 bytes", "1,000 bytes", "10,000,000 bytes", "100,000 bytes"]
+        },
+        {
+          prompt: "How many Gigabytes (GB) are in 2 Terabytes (TB)?",
+          display: "2 TB ➔ GB",
+          hint: "Multiply by 1,000 (2 × 1,000)",
+          correctAnswer: "2,000 GB",
+          options: ["2,000 GB", "200 GB", "20,000 GB", "20 GB"]
+        },
+        {
+          prompt: "Convert 750 Kilobytes (KB) to Megabytes (MB):",
+          display: "750 KB ➔ MB",
+          hint: "Divide by 1,000 (750 ÷ 1,000)",
+          correctAnswer: "0.75 MB",
+          options: ["0.75 MB", "7.5 MB", "0.075 MB", "75 MB"]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
       return {
         type: 'mc',
-        prompt: `Convert Denary ${negVal} to Two's Complement (+${posVal} → ${negVal}):`,
-        display: String(negVal),
-        hint: `Invert all bits of +${posVal} (0↔1) and add 1`,
-        correctAnswer: twosComp,
-        options: options.map(String)
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
       };
     }
 
-    if (effectiveMode === 'mc_twos_comp_eval') {
-      const negVal = -(Math.floor(Math.random() * 120) + 1);
-      const twosComp = (256 + negVal).toString(2).padStart(8, '0');
-      const dists = generateDistractors(negVal, -128, -1, 'denary');
-      const options = shuffleArray([negVal, ...dists]);
+    if (effectiveMode === 'units_capacity') {
+      const qPool = [
+        {
+          prompt: "How many 500 KB image files can fit into a 2 MB USB partition?",
+          display: "2 MB ÷ 500 KB",
+          hint: "Convert 2 MB to 2,000 KB, then divide: 2,000 ÷ 500",
+          correctAnswer: "4 files",
+          options: ["4 files", "2 files", "8 files", "10 files"]
+        },
+        {
+          prompt: "How many 250 MB video clips can fit on a 4 GB memory card?",
+          display: "4 GB ÷ 250 MB",
+          hint: "Convert 4 GB to 4,000 MB, then divide: 4,000 ÷ 250",
+          correctAnswer: "16 videos",
+          options: ["16 videos", "8 videos", "12 videos", "20 videos"]
+        },
+        {
+          prompt: "A text file is 100 KB. How many can fit into 1 MB of cache?",
+          display: "1 MB ÷ 100 KB",
+          hint: "Convert 1 MB to 1,000 KB, then divide: 1,000 ÷ 100",
+          correctAnswer: "10 files",
+          options: ["10 files", "5 files", "100 files", "1 file"]
+        },
+        {
+          prompt: "A music track is 4 MB. How many tracks can be stored on a 16 GB phone drive?",
+          display: "16 GB ÷ 4 MB",
+          hint: "Convert 16 GB to 16,000 MB, then divide: 16,000 ÷ 4",
+          correctAnswer: "4,000 songs",
+          options: ["4,000 songs", "400 songs", "40,000 songs", "2,000 songs"]
+        },
+        {
+          prompt: "How many 200 KB document scans can fit into 3 MB of free drive space?",
+          display: "3 MB ÷ 200 KB",
+          hint: "Convert 3 MB to 3,000 KB, then divide: 3,000 ÷ 200",
+          correctAnswer: "15 scans",
+          options: ["15 scans", "12 scans", "18 scans", "30 scans"]
+        },
+        {
+          prompt: "A high-res photo is 5 MB. How many photos can fit on an 8 GB flash drive?",
+          display: "8 GB ÷ 5 MB",
+          hint: "Convert 8 GB to 8,000 MB, then divide: 8,000 ÷ 5",
+          correctAnswer: "1,600 photos",
+          options: ["1,600 photos", "160 photos", "16,000 photos", "800 photos"]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
       return {
         type: 'mc',
-        prompt: "Interpret Two's Complement (MSB is -128):",
-        display: twosComp,
-        hint: "MSB is -128 + sum of remaining positive bits",
-        correctAnswer: String(negVal),
-        options: options.map(String)
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
       };
     }
 
-    if (effectiveMode === 'switches_twos_comp') {
-      const negVal = -(Math.floor(Math.random() * 120) + 1);
+    if (effectiveMode === 'units_transmission') {
+      const qPool = [
+        {
+          prompt: "50 Megabytes (MB) is equal to how many Megabits (Mb)?",
+          display: "50 MB ➔ Mb",
+          hint: "Multiply by 8 (8 bits per byte: 50 × 8)",
+          correctAnswer: "400 Mb",
+          options: ["400 Mb", "50 Mb", "25 Mb", "800 Mb"]
+        },
+        {
+          prompt: "A broadband connection downloads at 40 Mbps. What is the download speed in Megabytes per second (MB/s)?",
+          display: "40 Mbps ➔ MB/s",
+          hint: "Divide by 8 (8 bits per byte: 40 ÷ 8)",
+          correctAnswer: "5 MB/s",
+          options: ["5 MB/s", "4 MB/s", "8 MB/s", "10 MB/s"]
+        },
+        {
+          prompt: "How long will it take to download a 300 MB file over a 30 Mbps broadband connection?",
+          display: "300 MB @ 30 Mbps",
+          hint: "File size in bits = 300 × 8 = 2,400 Mb. Time = 2,400 ÷ 30 Mbps",
+          correctAnswer: "80 seconds",
+          options: ["80 seconds", "10 seconds", "40 seconds", "100 seconds"]
+        },
+        {
+          prompt: "How long will it take to download a 100 MB file over a 40 Mbps connection?",
+          display: "100 MB @ 40 Mbps",
+          hint: "File size in bits = 100 × 8 = 800 Mb. Time = 800 ÷ 40 Mbps",
+          correctAnswer: "20 seconds",
+          options: ["20 seconds", "2.5 seconds", "40 seconds", "80 seconds"]
+        },
+        {
+          prompt: "How long will it take to download an 80 MB file over a 16 Mbps connection?",
+          display: "80 MB @ 16 Mbps",
+          hint: "File in bits = 80 × 8 = 640 Mb. Time = 640 ÷ 16 Mbps",
+          correctAnswer: "40 seconds",
+          options: ["40 seconds", "5 seconds", "20 seconds", "80 seconds"]
+        },
+        {
+          prompt: "A network payload is 240 Megabits (Mb). How many Megabytes (MB) is this?",
+          display: "240 Mb ➔ MB",
+          hint: "Divide by 8 (240 ÷ 8)",
+          correctAnswer: "30 MB",
+          options: ["30 MB", "1,920 MB", "60 MB", "15 MB"]
+        },
+        {
+          prompt: "What is the vital distinction between capital 'B' and lowercase 'b' in computing specifications?",
+          display: "B vs b",
+          hint: "Storage is specified in Bytes, transfer rates in bits",
+          correctAnswer: "B = Byte (8 bits), b = bit (1 binary digit)",
+          options: [
+            "B = Byte (8 bits), b = bit (1 binary digit)",
+            "B = bit (1 binary digit), b = Byte (8 bits)",
+            "B = Base 10, b = Base 2",
+            "B = Broadband, b = Buffer"
+          ]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
       return {
-        type: 'switches',
-        bitsCount: 8,
-        isTwosComp: true,
-        prompt: `Construct ${negVal} in Two's Complement:`,
-        display: String(negVal),
-        hint: "MSB switch is worth -128! Add positive bits to reach target",
-        correctAnswer: negVal
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
       };
     }
 
     // =========================================================================
-    // STAGE 10: THE MASTER GAUNTLET
+    // STAGE 11: THE MASTER GAUNTLET (CHAMPIONSHIP BLITZ)
     // =========================================================================
-    if (effectiveMode === 'blitz_conversions' || effectiveMode === 'blitz_maths' || effectiveMode === 'blitz_signed_hex' || effectiveMode === 'blitz_grandmaster') {
+    if (effectiveMode === 'blitz_conversions' || effectiveMode === 'blitz_maths' || effectiveMode === 'blitz_signed_hex') {
       const rnd = Math.random();
       if (rnd < 0.33) {
         const val = Math.floor(Math.random() * 256);
@@ -3437,7 +3849,7 @@
           type: 'mc',
           prompt: `Gauntlet Blitz: Convert Hex ${hex} to Denary:`,
           display: hex,
-          hint: "Left nibble × 16 + Right nibble",
+          hint: "High nibble × 16 + Low nibble",
           correctAnswer: String(val),
           options: shuffleArray([val, ...dists]).map(String)
         };
@@ -3460,7 +3872,7 @@
           correctAnswer: binSum,
           prompt: `Gauntlet Blitz: Calculate Binary Sum (${a} + ${b}):`,
           display: `${a} + ${b} = ${sum}`,
-          hint: "Align columns and flip the result bits"
+          hint: "Flip the result bits to equal the sum"
         };
       }
     }
@@ -3742,17 +4154,19 @@
     const container = document.getElementById('bitmasterSwitchBitsContainer');
     if (!container) return;
     container.innerHTML = '';
+    bitmasterState.switchBits = new Array(bitsCount).fill(0);
 
     const weights = bitsCount === 4 ? [8, 4, 2, 1] : [128, 64, 32, 16, 8, 4, 2, 1];
-    if (isTwosComp && bitsCount === 8) {
-      weights[0] = -128;
+    if (isTwosComp) {
+      weights[0] = bitsCount === 4 ? -8 : -128;
     }
 
     weights.forEach((w, idx) => {
       const bitBtn = document.createElement('div');
       bitBtn.className = 'bitmaster-switch-cell';
+      const label = isBlind ? '?' : (w < 0 ? String(w) : (isTwosComp ? '+' + w : String(w)));
       bitBtn.innerHTML = `
-        <span class="switch-cell-pv">${isBlind ? '?' : (w > 0 ? w : '-128')}</span>
+        <span class="switch-cell-pv">${label}</span>
         <span class="switch-cell-val">0</span>
       `;
 
@@ -3785,8 +4199,12 @@
         weights.forEach((w, idx) => {
           if (bitmasterState.switchBits[idx] === 1) currentTotal += w;
         });
+        const currentBin = bitmasterState.switchBits.join('');
+        const q = bitmasterState.currentQuestion;
 
-        const isCorrect = currentTotal === bitmasterState.currentQuestion.correctAnswer;
+        const isCorrect = (q.targetBinary && currentBin === q.targetBinary) ||
+                          (currentTotal === q.correctAnswer);
+
         if (isCorrect) {
           playSynthSound('correct');
           bitmasterState.correctThisRound++;
@@ -3796,9 +4214,17 @@
         } else {
           playSynthSound('wrong');
           bitmasterState.mistakesThisRound++;
-          showBitmasterToast(`Not quite! Target was ${bitmasterState.currentQuestion.correctAnswer}, but your switches made ${currentTotal}.`, '❌', 1900, () => {
-            loadNextBitmasterQuestion();
-          });
+          if (q.targetBinary) {
+            const expectedFmt = bitsCount === 8 ? `${q.targetBinary.slice(0, 4)} ${q.targetBinary.slice(4)}` : q.targetBinary;
+            const currentFmt = bitsCount === 8 ? `${currentBin.slice(0, 4)} ${currentBin.slice(4)}` : currentBin;
+            showBitmasterToast(`Not quite! Target was ${q.display} (${expectedFmt}), but your switches made ${currentFmt} (${currentTotal}).`, '❌', 2400, () => {
+              loadNextBitmasterQuestion();
+            });
+          } else {
+            showBitmasterToast(`Not quite! Target was ${q.correctAnswer}, but your switches made ${currentTotal}.`, '❌', 2000, () => {
+              loadNextBitmasterQuestion();
+            });
+          }
         }
       };
     }
@@ -3894,6 +4320,7 @@
 
     const numBits = question.numBits || 8;
     bitmasterState.mathResultBits = new Array(numBits).fill(0);
+    bitmasterState.mathRowBBits = new Array(numBits).fill(0);
 
     const rows = [placeRow, rowA, rowB, resultRow];
     rows.forEach(r => r.style.setProperty('--math-cols', numBits));
@@ -3907,8 +4334,29 @@
       question.bitsA.map(b => `<span class="math-bit-cell ${b === 1 ? 'bit-is-1' : ''}">${b}</span>`).join('');
 
     // 3. Operand Row B with Operator
-    rowB.innerHTML = `<span class="math-row-op op-symbol">${question.operator || '+'}</span>` + 
-      question.bitsB.map(b => `<span class="math-bit-cell ${b === 1 ? 'bit-is-1' : ''}">${b}</span>`).join('');
+    if (question.interactiveRowB) {
+      rowB.innerHTML = `<span class="math-row-op op-symbol" title="Two's Complement Addition: A + (-B)">${question.operator || '+'}</span>`;
+      for (let i = 0; i < numBits; i++) {
+        const flipBtnB = document.createElement('button');
+        flipBtnB.type = 'button';
+        flipBtnB.className = 'math-flip-cell';
+        flipBtnB.textContent = '0';
+        flipBtnB.setAttribute('data-idx', i);
+        flipBtnB.setAttribute('aria-label', `Row B bit for column ${question.placeValues[i]}`);
+        flipBtnB.addEventListener('click', () => {
+          const cur = bitmasterState.mathRowBBits[i] || 0;
+          const next = cur === 1 ? 0 : 1;
+          bitmasterState.mathRowBBits[i] = next;
+          flipBtnB.textContent = String(next);
+          flipBtnB.classList.toggle('active-1', next === 1);
+          playSynthSound('switch');
+        });
+        rowB.appendChild(flipBtnB);
+      }
+    } else {
+      rowB.innerHTML = `<span class="math-row-op op-symbol">${question.operator || '+'}</span>` + 
+        question.bitsB.map(b => `<span class="math-bit-cell ${b === 1 ? 'bit-is-1' : ''}">${b}</span>`).join('');
+    }
 
     // 4. Result Interactive Flip Row
     resultRow.innerHTML = `<span class="math-row-op">=</span>`;
@@ -3944,8 +4392,20 @@
   }
 
   function handleBitmasterMathSubmit() {
+    const q = bitmasterState.currentQuestion;
+
+    if (q.interactiveRowB) {
+      const userRowB = bitmasterState.mathRowBBits.join('');
+      if (userRowB !== q.correctRowB) {
+        playSynthSound('wrong');
+        bitmasterState.mistakesThisRound++;
+        showBitmasterToast(`Check Row B! Remember: invert +${q.valB} (0↔1) and add 1 to make −${q.valB} (expected: ${q.correctRowB}).`, '❌', 2400);
+        return;
+      }
+    }
+
     const userAns = bitmasterState.mathResultBits.join('');
-    const isCorrect = userAns === bitmasterState.currentQuestion.correctAnswer;
+    const isCorrect = userAns === q.correctAnswer;
 
     if (isCorrect) {
       playSynthSound('correct');
@@ -3963,13 +4423,19 @@
       playSynthSound('wrong');
       bitmasterState.mistakesThisRound++;
       if (bitmasterState.isSprint) {
-        showBitmasterToast(`Incorrect! Expected: ${bitmasterState.currentQuestion.correctAnswer}`, '❌', 850, () => {
+        showBitmasterToast(`Incorrect! Expected: ${q.correctAnswer}`, '❌', 850, () => {
           loadNextBitmasterQuestion();
         });
       } else {
-        showBitmasterToast(`Not quite! The correct binary result is ${bitmasterState.currentQuestion.correctAnswer}.`, '❌', 2000, () => {
-          loadNextBitmasterQuestion();
-        });
+        if (q.interactiveRowB) {
+          showBitmasterToast(`Row B is correct (−${q.valB}), but check your addition in the Result row! (expected: ${q.correctAnswer}).`, '❌', 2400, () => {
+            loadNextBitmasterQuestion();
+          });
+        } else {
+          showBitmasterToast(`Not quite! The correct binary result is ${q.correctAnswer}.`, '❌', 2000, () => {
+            loadNextBitmasterQuestion();
+          });
+        }
       }
     }
   }
