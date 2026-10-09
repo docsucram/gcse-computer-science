@@ -1416,6 +1416,483 @@
 
     // Initial load: Example circuit
     loadPreset('exam1');
+
+    // Initialize Bitwise Logic Studio
+    initBitwiseStudio();
+  }
+
+  // =========================================================================
+  // 11. BITWISE LOGIC & BITMASKS STUDIO
+  // =========================================================================
+
+  const bitwiseState = {
+    regA: [1, 1, 0, 0, 1, 0, 1, 0], // Bits 7..0: 202 (0xCA)
+    regB: [0, 0, 0, 0, 1, 1, 1, 1], // Bits 7..0: 15 (0x0F)
+    op: 'AND',
+    missions: [
+      {
+        id: 1,
+        title: 'Mission 1: Extract Low Nibble',
+        inputA: [1, 1, 0, 1, 1, 0, 1, 0], // 218 (0xDA)
+        target: [0, 0, 0, 0, 1, 0, 1, 0], // 10 (0x0A)
+        desc: 'Given input 1101 1010 (218), erase the high 4 bits while keeping the low 4 bits untouched.',
+        userOp: 'AND',
+        userMask: [0, 0, 0, 0, 0, 0, 0, 0],
+        requiredOp: 'AND',
+        requiredMask: [0, 0, 0, 0, 1, 1, 1, 1],
+        hint: 'Use AND with 0s to clear bits and 1s to preserve bits. Mask: 0000 1111.'
+      },
+      {
+        id: 2,
+        title: 'Mission 2: Turn ON Flag Bit 5',
+        inputA: [1, 0, 0, 0, 0, 0, 1, 1], // 131
+        target: [1, 0, 1, 0, 0, 0, 1, 1], // 163 (Bit 5 weight 32 turned ON)
+        desc: 'Given status byte 1000 0011, force Bit 5 (weight 32) ON without modifying any other flags.',
+        userOp: 'OR',
+        userMask: [0, 0, 0, 0, 0, 0, 0, 0],
+        requiredOp: 'OR',
+        requiredMask: [0, 0, 1, 0, 0, 0, 0, 0],
+        hint: 'Use OR with a 1 at Bit 5 and 0s elsewhere. Mask: 0010 0000.'
+      },
+      {
+        id: 3,
+        title: 'Mission 3: Invert High Nibble',
+        inputA: [1, 0, 1, 1, 0, 1, 0, 1], // 181
+        target: [0, 1, 0, 0, 0, 1, 0, 1], // 69 (Bits 7..4 flipped, Bits 3..0 untouched)
+        desc: 'Given byte 1011 0101, flip the upper 4 bits while preserving the lower 4 bits.',
+        userOp: 'XOR',
+        userMask: [0, 0, 0, 0, 0, 0, 0, 0],
+        requiredOp: 'XOR',
+        requiredMask: [1, 1, 1, 1, 0, 0, 0, 0],
+        hint: 'XOR with 1 inverts a bit, while XOR with 0 preserves it. Mask: 1111 0000.'
+      },
+      {
+        id: 4,
+        title: 'Mission 4: Test Even / Odd (Parity)',
+        inputA: [0, 1, 1, 0, 0, 1, 0, 1], // 101 (Odd)
+        target: [0, 0, 0, 0, 0, 0, 0, 1], // 1
+        desc: 'Test whether number 101 is odd by isolating its Least Significant Bit (LSB / Bit 0).',
+        userOp: 'AND',
+        userMask: [0, 0, 0, 0, 0, 0, 0, 0],
+        requiredOp: 'AND',
+        requiredMask: [0, 0, 0, 0, 0, 0, 0, 1],
+        hint: 'Use AND with mask 0000 0001. If the result is 1, the number is odd!'
+      }
+    ]
+  };
+
+  const BIT_WEIGHTS = [128, 64, 32, 16, 8, 4, 2, 1];
+
+  function bitsToDec(bits) {
+    return bits.reduce((acc, bit, idx) => acc + (bit ? BIT_WEIGHTS[idx] : 0), 0);
+  }
+
+  function bitsToHex(bits) {
+    const dec = bitsToDec(bits);
+    return '0x' + dec.toString(16).toUpperCase().padStart(2, '0');
+  }
+
+  function computeBitwise(bitA, bitB, op) {
+    if (op === 'AND') return (bitA === 1 && bitB === 1) ? 1 : 0;
+    if (op === 'OR') return (bitA === 1 || bitB === 1) ? 1 : 0;
+    if (op === 'XOR') return (bitA !== bitB) ? 1 : 0;
+    if (op === 'NOT') return bitA === 1 ? 0 : 1;
+    return 0;
+  }
+
+  function updateBitwiseStudio() {
+    const decA = bitsToDec(bitwiseState.regA);
+    const hexA = bitsToHex(bitwiseState.regA);
+    const decB = bitsToDec(bitwiseState.regB);
+    const hexB = bitsToHex(bitwiseState.regB);
+
+    const resultBits = bitwiseState.regA.map((bitA, idx) => {
+      const bitB = bitwiseState.regB[idx];
+      return computeBitwise(bitA, bitB, bitwiseState.op);
+    });
+
+    const decRes = bitsToDec(resultBits);
+    const hexRes = bitsToHex(resultBits);
+
+    // Update Metrics
+    const aDecEl = document.getElementById('bitwiseADec');
+    const aHexEl = document.getElementById('bitwiseAHex');
+    const bDecEl = document.getElementById('bitwiseBDec');
+    const bHexEl = document.getElementById('bitwiseBHex');
+    const resDecEl = document.getElementById('bitwiseResDec');
+    const resHexEl = document.getElementById('bitwiseResHex');
+
+    if (aDecEl) aDecEl.textContent = decA;
+    if (aHexEl) aHexEl.textContent = hexA;
+    if (bDecEl) bDecEl.textContent = decB;
+    if (bHexEl) bHexEl.textContent = hexB;
+    if (resDecEl) resDecEl.textContent = decRes;
+    if (resHexEl) resHexEl.textContent = hexRes;
+
+    // Operation symbol badge
+    const opBadgeSymbol = document.getElementById('bitwiseOpSymbol');
+    const opBadgeSubtext = document.getElementById('bitwiseOpSubtext');
+    const rowB = document.getElementById('bitwiseRowB');
+
+    if (opBadgeSymbol) opBadgeSymbol.textContent = bitwiseState.op;
+    if (opBadgeSubtext) {
+      if (bitwiseState.op === 'NOT') {
+        opBadgeSubtext.textContent = '(Unary: ~A)';
+      } else {
+        opBadgeSubtext.textContent = `(A ${bitwiseState.op} Mask)`;
+      }
+    }
+
+    if (rowB) {
+      rowB.style.display = bitwiseState.op === 'NOT' ? 'none' : 'flex';
+    }
+
+    // Render Register A bits
+    const bitsAContainer = document.getElementById('bitwiseBitsA');
+    if (bitsAContainer) {
+      bitsAContainer.innerHTML = '';
+      bitwiseState.regA.forEach((bit, idx) => {
+        const cell = document.createElement('div');
+        cell.className = 'bitwise-bit-cell';
+
+        const weight = document.createElement('span');
+        weight.className = 'bitwise-bit-weight';
+        weight.textContent = BIT_WEIGHTS[idx];
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `bitwise-bit-btn ${bit ? 'active' : ''}`;
+        btn.textContent = bit;
+        btn.title = `Bit ${7 - idx} (Value ${BIT_WEIGHTS[idx]}) - Click to flip`;
+        btn.addEventListener('click', () => {
+          bitwiseState.regA[idx] = bitwiseState.regA[idx] ? 0 : 1;
+          updateBitwiseStudio();
+        });
+
+        cell.appendChild(weight);
+        cell.appendChild(btn);
+        bitsAContainer.appendChild(cell);
+      });
+    }
+
+    // Render Register B bits
+    const bitsBContainer = document.getElementById('bitwiseBitsB');
+    if (bitsBContainer) {
+      bitsBContainer.innerHTML = '';
+      bitwiseState.regB.forEach((bit, idx) => {
+        const cell = document.createElement('div');
+        cell.className = 'bitwise-bit-cell';
+
+        const weight = document.createElement('span');
+        weight.className = 'bitwise-bit-weight';
+        weight.textContent = BIT_WEIGHTS[idx];
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `bitwise-bit-btn ${bit ? 'mask-active' : ''}`;
+        btn.textContent = bit;
+        btn.title = `Mask Bit ${7 - idx} (Value ${BIT_WEIGHTS[idx]}) - Click to flip`;
+        btn.addEventListener('click', () => {
+          bitwiseState.regB[idx] = bitwiseState.regB[idx] ? 0 : 1;
+          updateBitwiseStudio();
+        });
+
+        cell.appendChild(weight);
+        cell.appendChild(btn);
+        bitsBContainer.appendChild(cell);
+      });
+    }
+
+    // Render Result Register bits
+    const bitsResContainer = document.getElementById('bitwiseBitsResult');
+    if (bitsResContainer) {
+      bitsResContainer.innerHTML = '';
+      resultBits.forEach((bit, idx) => {
+        const cell = document.createElement('div');
+        cell.className = 'bitwise-bit-cell';
+
+        const weight = document.createElement('span');
+        weight.className = 'bitwise-bit-weight';
+        weight.textContent = BIT_WEIGHTS[idx];
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `bitwise-bit-btn result-cell ${bit ? 'active' : ''}`;
+        btn.textContent = bit;
+        btn.title = `Result Bit ${7 - idx} = ${bit}`;
+
+        cell.appendChild(weight);
+        cell.appendChild(btn);
+        bitsResContainer.appendChild(cell);
+      });
+    }
+
+    // Render Column-by-Column Evaluation
+    const colStrip = document.getElementById('bitwiseColumnsStrip');
+    if (colStrip) {
+      colStrip.innerHTML = '';
+      bitwiseState.regA.forEach((bitA, idx) => {
+        const bitB = bitwiseState.regB[idx];
+        const resBit = resultBits[idx];
+        const col = document.createElement('div');
+        col.className = 'bitwise-col-calc';
+
+        const idxSpan = document.createElement('span');
+        idxSpan.className = 'col-idx';
+        idxSpan.textContent = `b${7 - idx}`;
+
+        const exprSpan = document.createElement('span');
+        exprSpan.className = 'col-expr';
+        if (bitwiseState.op === 'NOT') {
+          exprSpan.textContent = `~${bitA}`;
+        } else {
+          exprSpan.textContent = `${bitA}${bitwiseState.op === 'AND' ? '&' : bitwiseState.op === 'OR' ? '|' : '^'}${bitB}`;
+        }
+
+        const outSpan = document.createElement('span');
+        outSpan.className = 'col-out';
+        outSpan.textContent = `=${resBit}`;
+
+        col.appendChild(idxSpan);
+        col.appendChild(exprSpan);
+        col.appendChild(outSpan);
+        colStrip.appendChild(col);
+      });
+    }
+  }
+
+  function initBitwiseMissions() {
+    const container = document.getElementById('bitwiseMissionsGrid');
+    const scoreBadge = document.getElementById('bitwiseMissionsScore');
+    if (!container) return;
+
+    function renderMissions() {
+      container.innerHTML = '';
+      let solvedCount = 0;
+
+      bitwiseState.missions.forEach((m, mIdx) => {
+        const isSolved = m.isSolved || false;
+        if (isSolved) solvedCount++;
+
+        const card = document.createElement('div');
+        card.className = `bitwise-mission-card ${isSolved ? 'solved' : ''}`;
+
+        const top = document.createElement('div');
+        top.className = 'bitwise-mission-top';
+        top.innerHTML = `
+          <h4 class="bitwise-mission-title">${m.title}</h4>
+          <span class="bitwise-mission-status ${isSolved ? 'pass' : ''}">${isSolved ? 'SOLVED ✓' : 'UNSOLVED'}</span>
+        `;
+
+        const prompt = document.createElement('div');
+        prompt.className = 'bitwise-mission-prompt';
+        const inStr = m.inputA.join('');
+        const inDec = bitsToDec(m.inputA);
+        const tgtStr = m.target.join('');
+        const tgtDec = bitsToDec(m.target);
+        prompt.innerHTML = `
+          <strong>Input A:</strong> <code>${inStr}</code> (${inDec})<br>
+          <strong>Target Result:</strong> <code>${tgtStr}</code> (${tgtDec})<br>
+          <span style="display: block; margin-top: 4px;">${m.desc}</span>
+        `;
+
+        const controls = document.createElement('div');
+        controls.className = 'bitwise-mission-controls';
+
+        // Operator selector
+        const opRow = document.createElement('div');
+        opRow.style.display = 'flex';
+        opRow.style.alignItems = 'center';
+        opRow.style.gap = '8px';
+        opRow.innerHTML = `<span style="font-size: 11px; font-weight: 700;">Operation:</span>`;
+
+        const opSelect = document.createElement('select');
+        opSelect.style.padding = '4px 8px';
+        opSelect.style.fontSize = '12px';
+        opSelect.style.fontFamily = 'var(--font-mono)';
+        opSelect.style.borderRadius = '4px';
+        ['AND', 'OR', 'XOR'].forEach(op => {
+          const opt = document.createElement('option');
+          opt.value = op;
+          opt.textContent = op;
+          if (m.userOp === op) opt.selected = true;
+          opSelect.appendChild(opt);
+        });
+        opSelect.addEventListener('change', (e) => {
+          m.userOp = e.target.value;
+        });
+        opRow.appendChild(opSelect);
+
+        // Mask flip bits
+        const maskRow = document.createElement('div');
+        maskRow.style.display = 'flex';
+        maskRow.style.flexDirection = 'column';
+        maskRow.style.gap = '4px';
+        maskRow.innerHTML = `<span style="font-size: 11px; font-weight: 700;">Bitmask (Flip bits):</span>`;
+
+        const maskStrip = document.createElement('div');
+        maskStrip.style.display = 'grid';
+        maskStrip.style.gridTemplateColumns = 'repeat(8, 1fr)';
+        maskStrip.style.gap = '4px';
+
+        m.userMask.forEach((bit, bIdx) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.style.padding = '6px 0';
+          btn.style.fontFamily = 'var(--font-mono)';
+          btn.style.fontWeight = '800';
+          btn.style.fontSize = '13px';
+          btn.style.borderRadius = '3px';
+          btn.style.border = '1px solid var(--paper-border)';
+          btn.style.background = bit ? '#8b5cf6' : 'var(--paper-card)';
+          btn.style.color = bit ? '#ffffff' : 'var(--ink-primary)';
+          btn.style.cursor = 'pointer';
+          btn.textContent = bit;
+          btn.addEventListener('click', () => {
+            m.userMask[bIdx] = m.userMask[bIdx] ? 0 : 1;
+            renderMissions();
+          });
+          maskStrip.appendChild(btn);
+        });
+        maskRow.appendChild(maskStrip);
+
+        controls.appendChild(opRow);
+        controls.appendChild(maskRow);
+
+        // Feedback
+        const feedback = document.createElement('div');
+        feedback.className = `bitwise-mission-feedback ${m.lastFeedback ? m.lastFeedback.type : ''}`;
+        feedback.style.display = m.lastFeedback ? 'block' : 'none';
+        if (m.lastFeedback) {
+          feedback.textContent = m.lastFeedback.text;
+        }
+
+        // Test button
+        const testBtn = document.createElement('button');
+        testBtn.type = 'button';
+        testBtn.className = 'bitwise-mission-btn';
+        testBtn.textContent = 'Test Solution →';
+        testBtn.addEventListener('click', () => {
+          const userRes = m.inputA.map((bitA, idx) => computeBitwise(bitA, m.userMask[idx], m.userOp));
+          const matchesTarget = userRes.every((val, idx) => val === m.target[idx]);
+          const matchesReqOp = m.userOp === m.requiredOp;
+
+          if (matchesTarget && matchesReqOp) {
+            m.isSolved = true;
+            m.lastFeedback = {
+              type: 'pass',
+              text: `Correct! Result matches ${tgtStr}. Excellent bitmask application.`
+            };
+            if (typeof confetti === 'function') {
+              confetti({ particleCount: 35, spread: 50, origin: { y: 0.7 } });
+            }
+          } else if (matchesTarget && !matchesReqOp) {
+            m.lastFeedback = {
+              type: 'fail',
+              text: `Result matched by coincidence, but GCSE syllabus specifies using ${m.requiredOp} for this operation!`
+            };
+          } else {
+            const userStr = userRes.join('');
+            m.lastFeedback = {
+              type: 'fail',
+              text: `Your result was ${userStr} (expected ${tgtStr}). Hint: ${m.hint}`
+            };
+          }
+          renderMissions();
+        });
+
+        card.appendChild(top);
+        card.appendChild(prompt);
+        card.appendChild(controls);
+        card.appendChild(testBtn);
+        card.appendChild(feedback);
+        container.appendChild(card);
+      });
+
+      if (scoreBadge) {
+        scoreBadge.textContent = `${solvedCount} / ${bitwiseState.missions.length} Missions Solved ⭐`;
+      }
+    }
+
+    renderMissions();
+  }
+
+  function initBitwiseStudio() {
+    // Operation Buttons
+    const opBtns = document.querySelectorAll('.bitwise-op-btn');
+    opBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        opBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        bitwiseState.op = btn.getAttribute('data-op');
+        updateBitwiseStudio();
+      });
+    });
+
+    // Preset Chips
+    const presetChips = document.querySelectorAll('.bitwise-chip-btn');
+    presetChips.forEach(chip => {
+      chip.addEventListener('click', () => {
+        const preset = chip.getAttribute('data-preset');
+        if (preset === 'extract-low') {
+          bitwiseState.op = 'AND';
+          bitwiseState.regB = [0, 0, 0, 0, 1, 1, 1, 1];
+        } else if (preset === 'extract-high') {
+          bitwiseState.op = 'AND';
+          bitwiseState.regB = [1, 1, 1, 1, 0, 0, 0, 0];
+        } else if (preset === 'set-bit-3') {
+          bitwiseState.op = 'OR';
+          bitwiseState.regB = [0, 0, 0, 0, 1, 0, 0, 0];
+        } else if (preset === 'toggle-all') {
+          bitwiseState.op = 'XOR';
+          bitwiseState.regB = [1, 1, 1, 1, 1, 1, 1, 1];
+        } else if (preset === 'test-odd') {
+          bitwiseState.op = 'AND';
+          bitwiseState.regB = [0, 0, 0, 0, 0, 0, 0, 1];
+        } else if (preset === 'clear-msb') {
+          bitwiseState.op = 'AND';
+          bitwiseState.regB = [0, 1, 1, 1, 1, 1, 1, 1];
+        }
+
+        // Sync operation pills
+        opBtns.forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-op') === bitwiseState.op);
+        });
+
+        updateBitwiseStudio();
+      });
+    });
+
+    // Quick Actions
+    const btnReset = document.getElementById('btnBitwiseReset');
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        bitwiseState.regA = [0, 0, 0, 0, 0, 0, 0, 0];
+        bitwiseState.regB = [0, 0, 0, 0, 0, 0, 0, 0];
+        updateBitwiseStudio();
+      });
+    }
+
+    const btnInvertA = document.getElementById('btnBitwiseInvertA');
+    if (btnInvertA) {
+      btnInvertA.addEventListener('click', () => {
+        bitwiseState.regA = bitwiseState.regA.map(b => b ? 0 : 1);
+        updateBitwiseStudio();
+      });
+    }
+
+    const btnRandom = document.getElementById('btnBitwiseRandom');
+    if (btnRandom) {
+      btnRandom.addEventListener('click', () => {
+        bitwiseState.regA = Array.from({ length: 8 }, () => Math.random() > 0.5 ? 1 : 0);
+        bitwiseState.regB = Array.from({ length: 8 }, () => Math.random() > 0.5 ? 1 : 0);
+        updateBitwiseStudio();
+      });
+    }
+
+    // Initial render
+    updateBitwiseStudio();
+    initBitwiseMissions();
   }
 
   if (document.readyState === 'loading') {

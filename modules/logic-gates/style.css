@@ -743,3 +743,480 @@ html.dark .truth-table-view tr.active-row,
   stroke-dasharray: 6 4;
   animation: wirePulse 0.8s linear infinite;
 }
+
+/* ==========================================================================
+   BITWISE LOGIC & BITMASKS STUDIO
+   ========================================================================== */
+
+.bitwise-studio-card {
+  background: var(--paper-card);
+  border: 1px solid var(--paper-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.bitwise-studio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--paper-border);
+}
+
+.bitwise-quick-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bitwise-op-selector-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.bitwise-op-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bitwise-op-btn {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 14px;
+  background: var(--paper-recessed);
+  border: 1px solid var(--paper-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bitwise-op-btn .op-name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink-primary);
+}
+
+.bitwise-op-btn .op-desc {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.bitwise-op-btn:hover {
+  border-color: var(--gate-accent);
+  background: rgba(200, 0, 107, 0.04);
+}
+
+.bitwise-op-btn.active {
+  background: var(--gate-accent);
+  border-color: var(--gate-accent);
+  box-shadow: 0 2px 8px rgba(200, 0, 107, 0.25);
+}
+
+.bitwise-op-btn.active .op-name,
+.bitwise-op-btn.active .op-desc {
+  color: #ffffff !important;
+}
+
+.bitwise-presets-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  background: var(--paper-recessed);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--paper-border);
+  flex-wrap: wrap;
+}
+
+.bitwise-preset-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.bitwise-chip-btn {
+  background: var(--paper-card);
+  border: 1px solid var(--paper-border);
+  color: var(--ink-secondary);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bitwise-chip-btn:hover {
+  border-color: #0284c7;
+  color: #0284c7;
+  background: rgba(2, 132, 199, 0.06);
+}
+
+.bitwise-registers-chassis {
+  background: var(--board-bg);
+  border: 1px solid var(--paper-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bitwise-reg-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.bitwise-row-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 170px;
+}
+
+.bitwise-reg-name {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--ink-primary);
+  letter-spacing: -0.01em;
+}
+
+.bitwise-reg-name.result {
+  color: #10b981;
+}
+
+.bitwise-reg-metrics {
+  display: flex;
+  gap: 6px;
+}
+
+.metric-pill {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--paper-card);
+  border: 1px solid var(--paper-border);
+  padding: 2px 6px;
+  border-radius: 3px;
+  color: var(--ink-secondary);
+}
+
+.metric-pill.highlight {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #059669;
+}
+
+.bitwise-bits-strip {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 8px;
+  flex: 1;
+  max-width: 620px;
+}
+
+.bitwise-bit-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.bitwise-bit-weight {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.bitwise-bit-btn {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: 48px;
+  background: var(--paper-card);
+  border: 2px solid var(--paper-border);
+  border-radius: var(--radius-sm);
+  color: var(--ink-primary);
+  font-family: var(--font-mono);
+  font-size: 17px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s ease;
+  user-select: none;
+}
+
+.bitwise-bit-btn:hover {
+  border-color: var(--gate-accent);
+  transform: translateY(-1px);
+}
+
+.bitwise-bit-btn.active {
+  background: #0284c7;
+  border-color: #0284c7;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(2, 132, 199, 0.35);
+}
+
+.bitwise-bit-btn.mask-active {
+  background: #8b5cf6;
+  border-color: #8b5cf6;
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(139, 92, 246, 0.35);
+}
+
+.bitwise-bit-btn.result-cell {
+  background: var(--paper-recessed);
+  border: 2px solid var(--paper-border);
+  cursor: default;
+}
+
+.bitwise-bit-btn.result-cell.active {
+  background: #10b981;
+  border-color: #10b981;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
+}
+
+.bitwise-operator-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 2px 0;
+}
+
+.bitwise-op-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--gate-accent);
+  color: #ffffff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  box-shadow: 0 2px 6px rgba(200, 0, 107, 0.25);
+}
+
+.bitwise-divider-line {
+  flex: 1;
+  height: 1px;
+  background: var(--paper-border);
+}
+
+.bitwise-divider-solid {
+  height: 2px;
+  background: var(--paper-border);
+  margin: 4px 0;
+}
+
+.bitwise-breakdown-card {
+  margin-top: 14px;
+  background: var(--paper-card);
+  border: 1px solid var(--paper-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.bitwise-breakdown-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--ink-primary);
+  margin-bottom: 8px;
+}
+
+.bitwise-columns-strip {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 6px;
+  text-align: center;
+}
+
+.bitwise-col-calc {
+  background: var(--paper-recessed);
+  border-radius: 4px;
+  padding: 6px 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.bitwise-col-calc .col-idx {
+  color: var(--text-muted);
+  font-weight: 700;
+}
+
+.bitwise-col-calc .col-expr {
+  color: var(--ink-secondary);
+}
+
+.bitwise-col-calc .col-out {
+  font-weight: 800;
+  color: #10b981;
+}
+
+/* Bitwise Missions */
+.bitwise-missions-card {
+  background: var(--paper-card);
+  border: 1px solid var(--paper-border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.bitwise-missions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--paper-border);
+}
+
+.bitwise-missions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.bitwise-mission-card {
+  background: var(--paper-recessed);
+  border: 1px solid var(--paper-border);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: all 0.15s ease;
+}
+
+.bitwise-mission-card.solved {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.bitwise-mission-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bitwise-mission-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--ink-primary);
+}
+
+.bitwise-mission-status {
+  font-size: 11px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--paper-card);
+  border: 1px solid var(--paper-border);
+  color: var(--text-muted);
+}
+
+.bitwise-mission-status.pass {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+.bitwise-mission-prompt {
+  font-size: 12.5px;
+  color: var(--ink-secondary);
+  line-height: 1.45;
+}
+
+.bitwise-mission-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--paper-card);
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid var(--paper-border);
+}
+
+.bitwise-mission-btn {
+  align-self: flex-start;
+  padding: 6px 14px;
+  background: var(--gate-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.bitwise-mission-btn:hover {
+  opacity: 0.9;
+}
+
+.bitwise-mission-feedback {
+  font-size: 11.5px;
+  line-height: 1.4;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+
+.bitwise-mission-feedback.pass {
+  background: rgba(16, 185, 129, 0.1);
+  color: #065f46;
+  border-left: 3px solid #10b981;
+}
+
+.bitwise-mission-feedback.fail {
+  background: rgba(220, 38, 38, 0.08);
+  color: #991b1b;
+  border-left: 3px solid #dc2626;
+}
+
+@media (max-width: 640px) {
+  .bitwise-reg-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .bitwise-bits-strip {
+    max-width: 100%;
+    gap: 4px;
+  }
+  .bitwise-bit-btn {
+    font-size: 14px;
+  }
+  .bitwise-columns-strip {
+    gap: 3px;
+  }
+  .bitwise-col-calc {
+    font-size: 8.5px;
+    padding: 4px 1px;
+  }
+}

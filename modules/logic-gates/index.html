@@ -74,6 +74,14 @@
           <span>Logic Breadboard</span>
         </button>
 
+        <button class="view-tab-btn" data-tab="bitwise">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+          <span>Bitwise Logic &amp; Masks</span>
+        </button>
+
         <button class="view-tab-btn" data-tab="revision">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
@@ -257,7 +265,238 @@
     </div>
 
     <!-- ================================================================= -->
-    <!-- TAB 2: REVISION & EXAM TRAPS                                      -->
+    <!-- TAB 2: BITWISE LOGIC & BITMASKS (AND, OR, XOR, NOT)               -->
+    <!-- ================================================================= -->
+    <div id="tab-bitwise" class="tab-view">
+      <!-- View Banner -->
+      <div class="view-banner">
+        <h2>Bitwise Logic Operations &amp; Bitmasks</h2>
+        <p>While circuit breadboards wire single 1-bit wires, CPUs contain 8-bit registers that process entire bytes simultaneously. <strong>Bitwise logic</strong> applies Boolean rules (AND, OR, XOR, NOT) to every bit position in parallel. This is how computer systems perform <strong>bitmasking</strong>, check hardware status flags, route network packets with subnet masks, and perform encryption.</p>
+      </div>
+
+      <!-- Interactive 8-Bit Bitwise Studio Chassis -->
+      <div class="bitwise-studio-card">
+        <div class="bitwise-studio-header">
+          <div>
+            <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; color: var(--ink-primary); display: flex; align-items: center; gap: 8px;">
+              <span class="badge badge-paper1" style="font-weight: 800; font-size: 11px;">INTERACTIVE STUDIO</span>
+              8-Bit Parallel Logic &amp; Masking Register
+            </h3>
+            <p style="font-size: 12.5px; color: var(--text-secondary); margin: 0;">
+              Flip bits in Register A and Register B / Mask, then toggle the operation to see the bitwise result and column-by-column breakdown.
+            </p>
+          </div>
+          <div class="bitwise-quick-actions">
+            <button type="button" class="gate-palette-btn" id="btnBitwiseReset" title="Reset both registers to zero">Reset All (00)</button>
+            <button type="button" class="gate-palette-btn" id="btnBitwiseInvertA" title="Invert Register A">Invert A</button>
+            <button type="button" class="gate-palette-btn" id="btnBitwiseRandom" title="Randomize registers">Random Pattern</button>
+          </div>
+        </div>
+
+        <!-- Operation Selector Pills -->
+        <div class="bitwise-op-selector-bar">
+          <span class="tool-label" style="font-weight: 700;">Operation:</span>
+          <div class="bitwise-op-pills" id="bitwiseOpPills">
+            <button type="button" class="bitwise-op-btn active" data-op="AND">
+              <span class="op-name">AND</span>
+              <span class="op-desc">Mask / Clear Bits</span>
+            </button>
+            <button type="button" class="bitwise-op-btn" data-op="OR">
+              <span class="op-name">OR</span>
+              <span class="op-desc">Set / Force Flags ON</span>
+            </button>
+            <button type="button" class="bitwise-op-btn" data-op="XOR">
+              <span class="op-name">XOR</span>
+              <span class="op-desc">Toggle / Invert Bits</span>
+            </button>
+            <button type="button" class="bitwise-op-btn" data-op="NOT">
+              <span class="op-name">NOT</span>
+              <span class="op-desc">Invert Reg A (Unary)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Preset Bitmasks -->
+        <div class="bitwise-presets-bar">
+          <span class="tool-label" style="font-size: 11.5px;">Popular Bitmasks:</span>
+          <div class="bitwise-preset-chips" id="bitwisePresetChips">
+            <button type="button" class="bitwise-chip-btn" data-preset="extract-low" title="Keep only lowest 4 bits">Extract Low Nibble (0000 1111 + AND)</button>
+            <button type="button" class="bitwise-chip-btn" data-preset="extract-high" title="Keep only highest 4 bits">Extract High Nibble (1111 0000 + AND)</button>
+            <button type="button" class="bitwise-chip-btn" data-preset="set-bit-3" title="Force bit index 3 ON">Set Bit 3 Flag (0000 1000 + OR)</button>
+            <button type="button" class="bitwise-chip-btn" data-preset="toggle-all" title="Flip every bit with XOR">Toggle All Bits (1111 1111 + XOR)</button>
+            <button type="button" class="bitwise-chip-btn" data-preset="test-odd" title="Test LSB to see if odd">Test Odd/Even LSB (0000 0001 + AND)</button>
+            <button type="button" class="bitwise-chip-btn" data-preset="clear-msb" title="Clear sign bit">Clear MSB Bit 7 (0111 1111 + AND)</button>
+          </div>
+        </div>
+
+        <!-- The 8-Bit Interactive Register Grid -->
+        <div class="bitwise-registers-chassis">
+          
+          <!-- Register A -->
+          <div class="bitwise-reg-row" id="bitwiseRowA">
+            <div class="bitwise-row-label">
+              <span class="bitwise-reg-name">Register A</span>
+              <div class="bitwise-reg-metrics">
+                <span class="metric-pill">Dec: <strong id="bitwiseADec">0</strong></span>
+                <span class="metric-pill">Hex: <strong id="bitwiseAHex">0x00</strong></span>
+              </div>
+            </div>
+            <div class="bitwise-bits-strip" id="bitwiseBitsA">
+              <!-- 8 switch cells generated by JS -->
+            </div>
+          </div>
+
+          <!-- Operation Indicator Row -->
+          <div class="bitwise-operator-divider">
+            <div class="bitwise-op-badge" id="bitwiseOpSymbolBadge">
+              <span id="bitwiseOpSymbol">AND</span>
+              <span id="bitwiseOpSubtext">(A &amp; Mask)</span>
+            </div>
+            <div class="bitwise-divider-line"></div>
+          </div>
+
+          <!-- Register B / Mask -->
+          <div class="bitwise-reg-row" id="bitwiseRowB">
+            <div class="bitwise-row-label">
+              <span class="bitwise-reg-name" id="bitwiseRowBName">Register B (Bitmask)</span>
+              <div class="bitwise-reg-metrics" id="bitwiseBMetrics">
+                <span class="metric-pill">Dec: <strong id="bitwiseBDec">0</strong></span>
+                <span class="metric-pill">Hex: <strong id="bitwiseBHex">0x00</strong></span>
+              </div>
+            </div>
+            <div class="bitwise-bits-strip" id="bitwiseBitsB">
+              <!-- 8 switch cells generated by JS -->
+            </div>
+          </div>
+
+          <div class="bitwise-divider-solid"></div>
+
+          <!-- Result Register -->
+          <div class="bitwise-reg-row bitwise-result-row" id="bitwiseRowResult">
+            <div class="bitwise-row-label">
+              <span class="bitwise-reg-name result">Result Register</span>
+              <div class="bitwise-reg-metrics">
+                <span class="metric-pill highlight">Dec: <strong id="bitwiseResDec">0</strong></span>
+                <span class="metric-pill highlight">Hex: <strong id="bitwiseResHex">0x00</strong></span>
+              </div>
+            </div>
+            <div class="bitwise-bits-strip" id="bitwiseBitsResult">
+              <!-- 8 result cells generated by JS -->
+            </div>
+          </div>
+
+          <!-- Column-by-Column Evaluation Ribbon -->
+          <div class="bitwise-breakdown-card">
+            <div class="bitwise-breakdown-title">
+              <span>Bitwise Column Evaluation (Bit 7 &rarr; Bit 0)</span>
+              <span style="font-weight: 500; font-size: 11px; color: var(--text-muted);">Calculated bit by bit in parallel</span>
+            </div>
+            <div class="bitwise-columns-strip" id="bitwiseColumnsStrip">
+              <!-- 8 breakdown columns generated by JS -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Core Concept Explainers Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin: 24px 0;">
+        
+        <!-- Concept 1: AND Masking -->
+        <div class="trap-card" style="padding: 18px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-paper1" style="font-weight: 800; font-size: 11px;">PATTERN 1: MASKING &amp; FILTERING</span>
+            <span style="font-size: 11px; font-weight: 700; color: #0284c7;">Bitwise AND (&amp;)</span>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 800; margin: 0 0 8px 0; color: var(--ink-primary);">Clearing Bits with AND</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+            • <strong>Truth Rule:</strong> <code>1 AND 1 = 1</code>, while anything AND <code>0 = 0</code>.<br>
+            • <strong>How Masking Works:</strong> To isolate or extract specific bits, place <strong>1s</strong> in the mask where you want to keep data, and <strong>0s</strong> where you want to erase data.<br>
+            • <strong>Real-World Example (Networking):</strong> A <strong>Subnet Mask</strong> (e.g. <code>255.255.255.0</code> / <code>11111111.11111111.11111111.00000000</code>) is bitwise ANDed with an IP address to instantly separate the <em>Network ID</em> from the <em>Host ID</em>!
+          </p>
+          <div style="background: rgba(2, 132, 199, 0.08); border-left: 3px solid #0284c7; padding: 6px 10px; font-size: 11.5px; color: var(--ink-primary); border-radius: 2px;">
+            <strong>Mental Shortcut:</strong> <code>X AND 1 = X</code> (preserves bit), but <code>X AND 0 = 0</code> (clears bit).
+          </div>
+        </div>
+
+        <!-- Concept 2: OR Setting Flags -->
+        <div class="trap-card" style="padding: 18px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-paper1" style="font-weight: 800; font-size: 11px;">PATTERN 2: ENABLING FLAGS</span>
+            <span style="font-size: 11px; font-weight: 700; color: #10b981;">Bitwise OR (|)</span>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 800; margin: 0 0 8px 0; color: var(--ink-primary);">Setting Bits with OR</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+            • <strong>Truth Rule:</strong> Anything OR <code>1 = 1</code>, while <code>X OR 0 = X</code>.<br>
+            • <strong>How Setting Flags Works:</strong> To force a specific bit ON without disturbing other bits in the register, bitwise OR with a mask that has a <strong>1</strong> only at that position.<br>
+            • <strong>Real-World Example (OS Permissions):</strong> File systems store permissions (Read, Write, Execute) as single bits. Running <code>chmod +w</code> ORs the Write flag bit into the permission register.
+          </p>
+          <div style="background: rgba(16, 185, 129, 0.08); border-left: 3px solid #10b981; padding: 6px 10px; font-size: 11.5px; color: var(--ink-primary); border-radius: 2px;">
+            <strong>Mental Shortcut:</strong> <code>X OR 1 = 1</code> (forces bit ON), while <code>X OR 0 = X</code> (leaves bit unchanged).
+          </div>
+        </div>
+
+        <!-- Concept 3: XOR Toggling & Ciphers -->
+        <div class="trap-card" style="padding: 18px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-paper1" style="font-weight: 800; font-size: 11px;">PATTERN 3: TOGGLING &amp; CIPHERS</span>
+            <span style="font-size: 11px; font-weight: 700; color: #c8006b;">Bitwise XOR (^)</span>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 800; margin: 0 0 8px 0; color: var(--ink-primary);">Flipping Bits &amp; The XOR Cipher</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+            • <strong>Truth Rule:</strong> <code>X XOR 1 = NOT X</code> (inverts the bit), while <code>X XOR 0 = X</code> (leaves it alone).<br>
+            • <strong>Symmetric Encryption:</strong> If you XOR a secret message with a key: <code>Cipher = Message XOR Key</code>. Applying the exact same key again recovers the original message: <code>Cipher XOR Key = Message</code>!<br>
+            • <strong>Graphics &amp; Game Cursors:</strong> Old video game consoles used XOR to draw mouse cursors over pixels without needing to save the background in memory—drawing it a second time perfectly erased it.
+          </p>
+          <div style="background: rgba(200, 0, 107, 0.08); border-left: 3px solid #c8006b; padding: 6px 10px; font-size: 11.5px; color: var(--ink-primary); border-radius: 2px;">
+            <strong>Mental Shortcut:</strong> <code>A XOR A = 0</code>, and <code>(A XOR B) XOR B = A</code> (self-reversing).
+          </div>
+        </div>
+
+        <!-- Concept 4: NOT Inversion -->
+        <div class="trap-card" style="padding: 18px 20px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+            <span class="badge badge-paper1" style="font-weight: 800; font-size: 11px;">PATTERN 4: ONES' COMPLEMENT</span>
+            <span style="font-size: 11px; font-weight: 700; color: #d97706;">Bitwise NOT (~)</span>
+          </div>
+          <h3 style="font-size: 15px; font-weight: 800; margin: 0 0 8px 0; color: var(--ink-primary);">Inverting Every Bit (Unary)</h3>
+          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+            • <strong>Truth Rule:</strong> NOT only takes <strong>one input</strong> (Unary). Every 0 becomes 1, and every 1 becomes 0.<br>
+            • <strong>Hardware Connection:</strong> Bitwise NOT is the exact first step when calculating <strong>Two's Complement</strong> to store negative numbers in an ALU: <code>-X = (~X) + 1</code>.<br>
+            • <strong>Exam Technique:</strong> Ensure you flip <em>every single bit</em> in the full 8-bit register, including all leading zeroes!
+          </p>
+          <div style="background: rgba(217, 119, 6, 0.08); border-left: 3px solid #d97706; padding: 6px 10px; font-size: 11.5px; color: var(--ink-primary); border-radius: 2px;">
+            <strong>Example:</strong> <code>~ (0000 0111) = 1111 1000</code>. Adding 1 gives <code>1111 1001</code> (−7).
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Interactive Bitmask Missions Arena -->
+      <div class="bitwise-missions-card">
+        <div class="bitwise-missions-header">
+          <div>
+            <h3 style="font-size: 16px; font-weight: 800; margin: 0 0 4px 0; color: var(--ink-primary);">
+              Bitmask Mastery Missions
+            </h3>
+            <p style="font-size: 12.5px; color: var(--text-secondary); margin: 0;">
+              Apply the correct operation and bitmask to solve real-world CPU hardware challenges.
+            </p>
+          </div>
+          <div class="bitwise-mission-progress">
+            <span id="bitwiseMissionsScore" class="hud-stat-pill hud-stars">0 / 4 Missions Solved ⭐</span>
+          </div>
+        </div>
+
+        <div class="bitwise-missions-grid" id="bitwiseMissionsGrid">
+          <!-- 4 interactive mission challenge cards -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================================================================= -->
+    <!-- TAB 3: REVISION & EXAM TRAPS                                      -->
     <!-- ================================================================= -->
     <div id="tab-revision" class="tab-view">
       <!-- View Banner -->

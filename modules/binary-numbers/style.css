@@ -4425,5 +4425,93 @@ html.dark .converter-preset-btn:hover,
   letter-spacing: 2px;
 }
 
+/* ==========================================================================
+   BITMASTER STANDALONE APP MODE
+   ========================================================================== */
+
+.standalone-nav-bar {
+  background: #0f131a;
+  border-bottom: 1px solid #1e293b;
+  border-top: 3px solid var(--isaac-magenta);
+  padding: 10px 20px;
+  width: 100%;
+}
+
+.standalone-nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+.standalone-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.standalone-back-link:hover {
+  color: #38bdf8;
+}
+
+.standalone-study-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-sm);
+  color: #e2e8f0;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.standalone-study-btn:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+body.bitmaster-standalone-mode {
+  background: #090d16 !important;
+  color: #f8fafc !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  min-height: 100vh;
+}
+
+body.bitmaster-standalone-mode .module-header,
+body.bitmaster-standalone-mode .view-banner,
+body.bitmaster-standalone-mode .site-footer {
+  display: none !important;
+}
+
+body.bitmaster-standalone-mode #standaloneNavBar {
+  display: flex !important;
+}
+
+body.bitmaster-standalone-mode .module-container {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 12px 16px 36px 16px !important;
+  margin: 0 auto !important;
+}
+
+body.bitmaster-standalone-mode .bitmaster-arena {
+  max-width: 960px !important;
+  margin: 0 auto !important;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
 
 

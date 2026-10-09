@@ -342,10 +342,17 @@
 
     // Deep-linking support for tab query param or hash
     const urlParams = new URLSearchParams(window.location.search);
-    const initialTab = urlParams.get('tab') || window.location.hash.replace('#', '').replace('tab-', '');
-    if (initialTab) {
-      const matchBtn = Array.from(DOM.tabButtons).find(b => b.getAttribute('data-tab') === initialTab);
-      if (matchBtn) matchBtn.click();
+    const isStandalone = urlParams.has('standalone') || urlParams.has('play') || urlParams.has('game') || urlParams.has('arcade_only');
+    if (isStandalone) {
+      document.body.classList.add('bitmaster-standalone-mode');
+      const arcadeBtn = Array.from(DOM.tabButtons).find(b => b.getAttribute('data-tab') === 'arcade');
+      if (arcadeBtn) arcadeBtn.click();
+    } else {
+      const initialTab = urlParams.get('tab') || window.location.hash.replace('#', '').replace('tab-', '');
+      if (initialTab) {
+        const matchBtn = Array.from(DOM.tabButtons).find(b => b.getAttribute('data-tab') === initialTab);
+        if (matchBtn) matchBtn.click();
+      }
     }
   }
 
