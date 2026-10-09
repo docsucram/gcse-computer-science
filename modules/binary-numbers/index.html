@@ -711,25 +711,6 @@
             <div class="summary-subtext">1 Byte (8 bits)</div>
           </div>
         </div>
-
-        <!-- Dynamic Live Register Breakdown Traces (Visible when in signed modes) -->
-        <div id="signMagExplainer" style="display: none; margin-top: 18px; padding: 14px 18px; background: rgba(245, 158, 11, 0.08); border: 1.5px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-md);">
-          <div style="font-weight: 800; color: #d97706; font-size: 13.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-            <span class="rule-badge" style="background: rgba(245, 158, 11, 0.2); color: #d97706;">Live Register</span> Sign &amp; Magnitude Evaluation
-          </div>
-          <div id="signMagLiveTrace" style="font-family: var(--font-mono); font-size: 12.5px; color: var(--text-primary); background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <!-- Rendered dynamically -->
-          </div>
-        </div>
-
-        <div id="twosComplementExplainer" style="display: none; margin-top: 18px; padding: 14px 18px; background: rgba(14, 165, 233, 0.08); border: 1.5px solid rgba(14, 165, 233, 0.3); border-radius: var(--radius-md);">
-          <div style="font-weight: 800; color: #0284c7; font-size: 13.5px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
-            <span class="rule-badge" style="background: rgba(14, 165, 233, 0.2); color: #0284c7;">Live Register</span> Two's Complement Evaluation
-          </div>
-          <div id="twosStepTrace" style="font-family: var(--font-mono); font-size: 12.5px; color: var(--text-primary); background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <!-- Rendered dynamically -->
-          </div>
-        </div>
       </div>
 
       <!-- ============================================================= -->
@@ -969,63 +950,58 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: #6366f1;"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>
             <span>Hexadecimal Numbers (Base 16)</span>
           </div>
-          <span class="badge badge-paper1">Base 16: 0-9 &amp; A-F</span>
-        </div>
-          <span class="badge badge-paper1">Base 16: 0-9 &amp; A-F</span>
+          <span class="badge badge-paper1">Base 16</span>
         </div>
         <p class="edu-explainer-p">
-          Binary strings like <code>11011010</code> are long and prone to human typing errors. Computer scientists use <strong>Hexadecimal (Base 16)</strong> as human-friendly shorthand for binary. Because $16 = 2^4$, <strong>each hexadecimal digit represents exactly 4 binary bits (1 nibble)</strong>!
+          Long binary strings like <code>11011010</code> are difficult to read and error-prone for humans. Computer scientists use <strong>Hexadecimal (Base 16)</strong> as a compact, human-friendly shorthand. Because 16 = 2⁴, <strong>each hexadecimal digit represents exactly 4 binary bits (1 nibble)</strong>.
         </p>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 16px;">
-          <!-- Hex Notation Formats -->
-          <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1.5px solid var(--border-color); border-radius: 6px; padding: 14px 16px;">
-            <strong style="color: var(--text-primary); font-size: 13px; display: block; margin-bottom: 6px;">How Hexadecimal is Written:</strong>
-            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.55;">
-              <div>• <strong>0x Prefix:</strong> Standard in programming languages (e.g. <code>0x2A</code> or <code>0xFF</code> in Python, C, JavaScript).</div>
-              <div style="margin-top: 4px;">• <strong># Symbol:</strong> Used in web design and graphics (e.g. <code>#FF5733</code> for RGB colour codes).</div>
-              <div style="margin-top: 4px;">• <strong>Plain Hex / Subscript:</strong> Used in textbooks and exams (e.g. <code>2A</code> or <code>2A₁₆</code>).</div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 14px;">
+          <!-- Common Notations -->
+          <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1px solid var(--border-color); border-radius: 6px; padding: 14px 16px;">
+            <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: var(--text-primary);">Common Notations</h4>
+            <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;">
+              <div><strong style="color: var(--text-primary);">0x Prefix:</strong> Standard in programming (e.g. <code>0x2A</code>, <code>0xFF</code>)</div>
+              <div><strong style="color: var(--text-primary);"># Hash:</strong> Used in web design &amp; colours (e.g. <code>#FF5733</code>)</div>
+              <div><strong style="color: var(--text-primary);">Subscript 16:</strong> Standard in exams (e.g. <code>2A₁₆</code>)</div>
             </div>
           </div>
 
-          <!-- How to convert to denary -->
-          <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1.5px solid var(--border-color); border-radius: 6px; padding: 14px 16px;">
-            <strong style="color: var(--text-primary); font-size: 13px; display: block; margin-bottom: 6px;">How to Convert 2-Digit Hex to Denary:</strong>
-            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.55;">
-              <div>Multiply the <strong>High Digit by 16</strong>, then add the <strong>Low Digit</strong>:</div>
-              <div style="margin-top: 6px; font-family: var(--font-mono); font-size: 12.5px; color: var(--accent-primary); background: var(--bg-surface); padding: 6px 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+          <!-- Converting Hex to Denary -->
+          <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1px solid var(--border-color); border-radius: 6px; padding: 14px 16px;">
+            <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: var(--text-primary);">Converting Hex to Denary</h4>
+            <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;">
+              <div>Multiply the <strong>high digit by 16</strong>, then add the <strong>low digit</strong>:</div>
+              <div style="margin-top: 8px; font-family: var(--font-mono); font-size: 13px; color: var(--accent-primary); background: var(--bg-surface); padding: 6px 10px; border-radius: 4px; border: 1px solid var(--border-color);">
                 3F₁₆ = (3 &times; 16) + 15 = 48 + 15 = <strong>63</strong>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- The "10 is not 10" Trap Notice -->
-        <div style="background: rgba(239, 68, 68, 0.08); border: 1.5px solid rgba(239, 68, 68, 0.3); border-radius: 6px; padding: 12px 16px; font-size: 12.5px; color: var(--text-primary); line-height: 1.5;">
-          <strong style="color: #dc2626; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
-            <span class="rule-badge" style="background: rgba(239, 68, 68, 0.15); color: #dc2626;">GCSE Trap</span> "10" is NOT always ten!
-          </strong>
-          <div>• <strong>10 in Denary (Base 10)</strong> = <strong>10</strong> (ten fingers)</div>
-          <div>• <strong>10 in Hexadecimal (Base 16)</strong> = <strong>16</strong> (one group of 16, zero units)</div>
-          <div>• <strong>10 in Binary (Base 2)</strong> = <strong>2</strong> (one group of 2, zero units)</div>
-          <div style="margin-top: 4px; font-size: 11.5px; color: var(--text-secondary); font-style: italic;">
-            Never confuse the written digits "10" with the quantity "ten"! The base determines its true magnitude.
+          <!-- The Base 10 Trap -->
+          <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1px solid var(--border-color); border-left: 3px solid #dc2626; border-radius: 6px; padding: 14px 16px;">
+            <h4 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 700; color: #dc2626;">The "10" Trap</h4>
+            <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.6;">
+              <div>• <strong>10₁₀ (Denary):</strong> Ten (1 ten + 0 units)</div>
+              <div>• <strong>10₁₆ (Hexadecimal):</strong> Sixteen (1 sixteen + 0 units)</div>
+              <div>• <strong>10₂ (Binary):</strong> Two (1 two + 0 units)</div>
+              <div style="margin-top: 4px; font-size: 11px; color: var(--text-muted); font-style: italic;">The written digits "10" always equal the base value itself.</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Real World Example: Hex RGB Colour Playground -->
+      <!-- Real World Example: Hex RGB Colour Picker -->
       <div class="panel" style="margin-top: 20px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <span class="badge badge-paper1">Real World Application</span>
-            <h3 class="panel-title">Hex RGB Colour Picker</h3>
+            <h3 class="panel-title">Real World Application: Hex RGB Colour Picker</h3>
           </div>
-          <span style="font-size: 11px; color: var(--text-muted);">3 bytes = 16.7 Million colours</span>
+          <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;">3 bytes = 16.7M colours (24-bit)</span>
         </div>
 
         <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 16px 0; line-height: 1.5;">
-          Computer screens mix <strong>Red</strong>, <strong>Green</strong>, and <strong>Blue</strong> light. Each colour channel gets <strong>1 byte (0 to 255)</strong>, which is written as <strong>exactly 2 hex digits</strong>! That is why web colours like <code>#FF5733</code> are 6 hex digits long.
+          Computer screens mix <strong>Red</strong>, <strong>Green</strong>, and <strong>Blue</strong> light. Each colour channel gets <strong>1 byte (0 to 255)</strong>, represented by <strong>2 hex digits (00 to FF)</strong>. Combining the three channels produces a 6-digit hex code such as <code>#FF8733</code>.
         </p>
 
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; align-items: center;">
@@ -1067,8 +1043,8 @@
               </span>
             </div>
 
-            <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;">
-              <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; align-self: center; margin-right: 4px;">Presets:</span>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; align-items: center;">
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-right: 4px;">Presets:</span>
               <button type="button" class="preset-pill-btn color-preset-btn" data-r="91" data-g="140" data-b="50">Minecraft Grass</button>
               <button type="button" class="preset-pill-btn color-preset-btn" data-r="0" data-g="255" data-b="204">Neon Cyan</button>
               <button type="button" class="preset-pill-btn color-preset-btn" data-r="255" data-g="87" data-b="51">Sunset</button>
@@ -1078,26 +1054,26 @@
         </div>
       </div>
 
-      <!-- 3-Way Synchronized Interactive Converter (Calculator Style) -->
+      <!-- 3-Way Synchronized Interactive Converter -->
       <div class="panel converter-panel-band" id="converterPanel" style="margin-top: 24px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <h3 class="panel-title">3-Way Number Converter (Calculator)</h3>
+            <h3 class="panel-title">3-Way Number Converter</h3>
             <span id="convBitSizeBadge" class="bit-width-badge">8 bits (1 Byte)</span>
           </div>
           <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-            <span style="font-size: 11px; color: var(--ink-secondary); font-weight: 700;">Presets:</span>
+            <span style="font-size: 11px; color: var(--ink-secondary); font-weight: 600;">Presets:</span>
             <button type="button" class="converter-preset-btn" data-val="255">255 (8-bit Byte)</button>
             <button type="button" class="converter-preset-btn" data-val="65535">65,535 (16-bit)</button>
-            <button type="button" class="converter-preset-btn" data-val="16777215">16.7M (24-bit RGB)</button>
-            <button type="button" class="converter-preset-btn" data-val="4294967295">4.29B (32-bit IPv4)</button>
+            <button type="button" class="converter-preset-btn" data-val="16777215">16.7M (RGB)</button>
+            <button type="button" class="converter-preset-btn" data-val="4294967295">4.29B (IPv4)</button>
             <button type="button" class="converter-preset-btn" data-val="1099511627775">1 TiB (40-bit)</button>
             <button type="button" class="converter-preset-btn" data-val="0" style="color: var(--cardinal-red);">Clear (0)</button>
           </div>
         </div>
 
         <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 14px 0;">
-          Type in Denary, Hex, or Binary to instantly synchronize all three representations. Supports numbers up to 2⁴⁰ (1,099,511,627,775).
+          Type in Denary, Hexadecimal, or Binary to instantly synchronize all three representations. Supports numbers up to 2⁴⁰ (1,099,511,627,775).
         </p>
 
         <div class="converter-grid">
@@ -1152,7 +1128,7 @@
       </div>
     </div>
 
-    <!-- ================================================================= -->
+<!-- ================================================================= -->
     <!-- TAB 2: BINARY MATHS & SHIFTS                                      -->
     <!-- ================================================================= -->
     <div id="tab-maths" class="tab-view">
