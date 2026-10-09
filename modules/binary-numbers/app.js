@@ -33,7 +33,8 @@
     logicOp: 'AND', // 'AND' | 'OR' | 'XOR' | 'NOT'
 
     // Tab 2: Shifts
-    shiftValue: 20, // 00010100 in 8-bit
+    shiftOriginalValue: 20, // 00010100 in 8-bit
+    shiftAmount: 0, // positive = left, negative = right
   };
 
   // =========================================================================
@@ -175,11 +176,19 @@
     shiftDenaryDisplay: document.getElementById('shiftDenaryDisplay'),
     btnShiftLeft1: document.getElementById('btnShiftLeft1'),
     btnShiftLeft2: document.getElementById('btnShiftLeft2'),
+    btnShiftLeft3: document.getElementById('btnShiftLeft3'),
     btnShiftRight1: document.getElementById('btnShiftRight1'),
     btnShiftRight2: document.getElementById('btnShiftRight2'),
+    btnShiftRight3: document.getElementById('btnShiftRight3'),
     btnResetShift: document.getElementById('btnResetShift'),
     calcShiftInput: document.getElementById('calcShiftInput'),
     calcShiftHex: document.getElementById('calcShiftHex'),
+    shiftOrigGrid: document.getElementById('shiftOrigGrid'),
+    shiftResultGrid: document.getElementById('shiftResultGrid'),
+    shiftResultHex: document.getElementById('shiftResultHex'),
+    shiftMathFormula: document.getElementById('shiftMathFormula'),
+    shiftLossBadge: document.getElementById('shiftLossBadge'),
+    currentShiftStatusLabel: document.getElementById('currentShiftStatusLabel'),
 
     // Tab 3: Units
     scaleUnitButtons: document.querySelectorAll('.scale-unit-btn'),
@@ -1248,6 +1257,7 @@
   }
 
   function setupTargetPracticeEvents() {
+    if (!document.getElementById('targetPracticePanel')) return;
     // Sound toggle
     if (DOM.btnToggleAudio) {
       DOM.btnToggleAudio.addEventListener('click', () => {
@@ -1959,15 +1969,132 @@
 
   // --- SUB-MODE 4: LOGICAL BINARY SHIFTS ---
   function renderShifts() {
-    const val = state.shiftValue & 0xFF;
-    const binStr = val.toString(2).padStart(8, '0');
-    if (DOM.shiftBitsDisplay) DOM.shiftBitsDisplay.textContent = binStr;
-    if (DOM.shiftDenaryDisplay) DOM.shiftDenaryDisplay.textContent = val;
+    const origVal = Math.max(0, Math.min(255, state.shiftOriginalValue !== undefined ? state.shiftOriginalValue : 20));
+    const k = state.shiftAmount || 0; // positive = left, negative = right, 0 = unshifted
+
+    // 1. Calculate shifted value & track data loss
+    let shiftedVal = origVal;
+    let overflow = false;
+    let truncated = false;
+    let mathText = '';
+
+    if (k > 0) {
+      // Left shift: multiplication by 2^k
+      const multiplier = Math.pow(2, k);
+      const trueResult = origVal * multiplier;
+      shiftedVal = (origVal << k) & 0xFF;
+      mathText = `${origVal} × ${multiplier} = ${trueResult}`;
+      // Check if any 1 bit in origVal was shifted out past bit 7 (MSB)
+      for (let i = 8 - k; i < 8; i++) {
+        if ((origVal >> i) & 1) {
+          overflow = true;
+          break;
+        }
+      }
+      if (overflow) {
+        mathText += ` (Truncated to 8-bit: ${shiftedVal})`;
+      }
+    } else if (k < 0) {
+      // Right shift: integer division by 2^|k|
+      const divisor = Math.pow(2, Math.abs(k));
+      shiftedVal = origVal >> Math.abs(k);
+      const remainder = origVal % divisor;
+      mathText = `${origVal} ÷ ${divisor} = ${shiftedVal}`;
+      if (remainder > 0) {
+        truncated = true;
+        mathText += ` (Remainder ${remainder} dropped)`;
+      }
+    } else {
+      mathText = `${origVal} (No shift applied)`;
+    }
+
+    // 2. Render Original Byte Grid (Bit 7 MSB down to Bit 0 LSB)
+    if (DOM.shiftOrigGrid) {
+      DOM.shiftOrigGrid.innerHTML = '';
+      for (let bitIdx = 7; bitIdx >= 0; bitIdx--) {
+        const pv = Math.pow(2, bitIdx);
+        const bitVal = (origVal >> bitIdx) & 1;
+        const cell = document.createElement('div');
+        cell.className = `shift-cell ${bitVal === 1 ? 'active' : ''}`;
+        cell.style.cursor = 'pointer';
+        cell.title = `Click to toggle Bit ${bitIdx} (${pv})`;
+        cell.innerHTML = `
+          <span class="cell-pv">${pv}</span>
+          <span class="cell-bit">${bitVal}</span>
+        `;
+        cell.addEventListener('click', () => {
+          playSynthSound('click');
+          state.shiftOriginalValue = origVal ^ (1 << bitIdx);
+          renderShifts();
+        });
+        DOM.shiftOrigGrid.appendChild(cell);
+      }
+    }
+
+    // 3. Render Shifted Result Grid
+    if (DOM.shiftResultGrid) {
+      DOM.shiftResultGrid.innerHTML = '';
+      for (let bitIdx = 7; bitIdx >= 0; bitIdx--) {
+        const pv = Math.pow(2, bitIdx);
+        const bitVal = (shiftedVal >> bitIdx) & 1;
+        // Determine if this bit position is newly padded with 0
+        let isIncomingZero = false;
+        if (k > 0 && bitIdx < k) {
+          isIncomingZero = true; // lower k bits padded with 0 on left shift
+        } else if (k < 0 && bitIdx >= 8 + k) {
+          isIncomingZero = true; // upper |k| bits padded with 0 on right shift
+        }
+
+        const cell = document.createElement('div');
+        cell.className = `shift-cell ${bitVal === 1 ? 'active' : ''} ${isIncomingZero ? 'is-incoming-zero' : ''}`;
+        cell.innerHTML = `
+          <span class="cell-pv">${pv}</span>
+          <span class="cell-bit">${bitVal}</span>
+        `;
+        DOM.shiftResultGrid.appendChild(cell);
+      }
+    }
+
+    // 4. Update Inputs and Displays
     if (DOM.calcShiftInput && document.activeElement !== DOM.calcShiftInput) {
-      DOM.calcShiftInput.value = val;
+      DOM.calcShiftInput.value = origVal;
     }
     if (DOM.calcShiftHex) {
-      DOM.calcShiftHex.textContent = `${val.toString(16).toUpperCase().padStart(2, '0')}`;
+      DOM.calcShiftHex.textContent = `${origVal.toString(16).toUpperCase().padStart(2, '0')}₁₆`;
+    }
+    if (DOM.shiftDenaryDisplay) {
+      DOM.shiftDenaryDisplay.textContent = shiftedVal;
+    }
+    if (DOM.shiftResultHex) {
+      DOM.shiftResultHex.textContent = `${shiftedVal.toString(16).toUpperCase().padStart(2, '0')}₁₆`;
+    }
+    if (DOM.shiftMathFormula) {
+      DOM.shiftMathFormula.textContent = mathText;
+    }
+
+    // Status label and loss badges
+    if (DOM.currentShiftStatusLabel) {
+      if (k > 0) {
+        DOM.currentShiftStatusLabel.textContent = `Shifted Left by ${k} bit${k > 1 ? 's' : ''} (× ${Math.pow(2, k)})`;
+      } else if (k < 0) {
+        const absK = Math.abs(k);
+        DOM.currentShiftStatusLabel.textContent = `Shifted Right by ${absK} bit${absK > 1 ? 's' : ''} (÷ ${Math.pow(2, absK)})`;
+      } else {
+        DOM.currentShiftStatusLabel.textContent = 'Current: No shift applied';
+      }
+    }
+
+    if (DOM.shiftLossBadge) {
+      if (overflow) {
+        DOM.shiftLossBadge.className = 'shift-loss-badge warning';
+        DOM.shiftLossBadge.innerHTML = '<span>⚠️</span> Overflow Error: 1-bits lost past MSB!';
+      } else if (truncated) {
+        DOM.shiftLossBadge.className = 'shift-loss-badge info';
+        DOM.shiftLossBadge.innerHTML = '<span>ℹ️</span> Truncation: Fractional remainder dropped';
+      } else {
+        DOM.shiftLossBadge.className = 'shift-loss-badge none';
+        DOM.shiftLossBadge.innerHTML = '<span>✓</span> No data loss';
+      }
     }
   }
 
@@ -1976,41 +2103,24 @@
       DOM.calcShiftInput.addEventListener('input', (e) => {
         let val = parseInt(e.target.value, 10);
         if (isNaN(val)) val = 0;
-        state.shiftValue = Math.max(0, Math.min(255, val));
+        state.shiftOriginalValue = Math.max(0, Math.min(255, val));
         renderShifts();
       });
     }
 
-    if (DOM.btnShiftLeft1) {
-      DOM.btnShiftLeft1.addEventListener('click', () => {
-        state.shiftValue = (state.shiftValue << 1) & 0xFF;
-        renderShifts();
-      });
-    }
-    if (DOM.btnShiftLeft2) {
-      DOM.btnShiftLeft2.addEventListener('click', () => {
-        state.shiftValue = (state.shiftValue << 2) & 0xFF;
-        renderShifts();
-      });
-    }
-    if (DOM.btnShiftRight1) {
-      DOM.btnShiftRight1.addEventListener('click', () => {
-        state.shiftValue = (state.shiftValue >> 1) & 0xFF;
-        renderShifts();
-      });
-    }
-    if (DOM.btnShiftRight2) {
-      DOM.btnShiftRight2.addEventListener('click', () => {
-        state.shiftValue = (state.shiftValue >> 2) & 0xFF;
-        renderShifts();
-      });
-    }
-    if (DOM.btnResetShift) {
-      DOM.btnResetShift.addEventListener('click', () => {
-        state.shiftValue = 20;
-        renderShifts();
-      });
-    }
+    const setShift = (amt) => {
+      playSynthSound('click');
+      state.shiftAmount = amt;
+      renderShifts();
+    };
+
+    if (DOM.btnShiftLeft1) DOM.btnShiftLeft1.addEventListener('click', () => setShift(1));
+    if (DOM.btnShiftLeft2) DOM.btnShiftLeft2.addEventListener('click', () => setShift(2));
+    if (DOM.btnShiftLeft3) DOM.btnShiftLeft3.addEventListener('click', () => setShift(3));
+    if (DOM.btnShiftRight1) DOM.btnShiftRight1.addEventListener('click', () => setShift(-1));
+    if (DOM.btnShiftRight2) DOM.btnShiftRight2.addEventListener('click', () => setShift(-2));
+    if (DOM.btnShiftRight3) DOM.btnShiftRight3.addEventListener('click', () => setShift(-3));
+    if (DOM.btnResetShift) DOM.btnResetShift.addEventListener('click', () => setShift(0));
   }
 
   // =========================================================================

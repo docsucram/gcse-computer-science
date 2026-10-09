@@ -287,6 +287,82 @@ html.dark .register-container {
   background: var(--bg-surface);
 }
 
+.register-stage-layout {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.register-stage-layout .nibbles-wrapper {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.register-side-stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+  min-width: 68px;
+}
+
+.register-stepper-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 10px 8px;
+  background: var(--bg-surface-elevated, #f8fafc);
+  border: 1.5px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+  font-weight: 800;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.register-stepper-btn:hover {
+  background: var(--isaac-magenta);
+  color: #ffffff;
+  border-color: var(--isaac-magenta);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(200, 0, 107, 0.25);
+}
+
+.register-stepper-btn:active {
+  transform: translateY(0);
+}
+
+.register-stepper-btn .stepper-icon {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.register-stepper-btn .stepper-text {
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 768px) {
+  .register-stage-layout {
+    flex-direction: column;
+  }
+  .register-side-stepper {
+    flex-direction: row;
+    min-width: unset;
+  }
+  .register-stepper-btn {
+    flex-direction: row;
+    padding: 9px 18px;
+    gap: 8px;
+  }
+}
+
 .nibbles-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -541,6 +617,340 @@ html.dark .bit-card {
   color: var(--text-secondary);
   font-weight: 500;
   margin-top: 2px;
+}
+
+/* Educational Explainer Cards */
+.edu-explainer-card {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px 22px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+html.dark .edu-explainer-card {
+  background: var(--bg-surface);
+}
+
+.edu-explainer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.edu-explainer-title {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edu-explainer-p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0 0 14px 0;
+}
+
+.bit-diagram-strip {
+  display: flex;
+  gap: 4px;
+  align-items: stretch;
+  background: var(--bg-surface-elevated, #f8fafc);
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 14px;
+  overflow-x: auto;
+}
+
+.bit-diagram-col {
+  flex: 1;
+  min-width: 48px;
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: 4px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+}
+
+html.dark .bit-diagram-col {
+  background: var(--bg-surface);
+}
+
+.bit-diagram-col.msb-col {
+  background: rgba(220, 38, 38, 0.08);
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.bit-diagram-pv {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.bit-diagram-col.msb-col .bit-diagram-pv {
+  color: #dc2626;
+  font-weight: 800;
+}
+
+.bit-diagram-role {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.math-working-box {
+  background: var(--bg-surface-elevated, #f8fafc);
+  border: 1.5px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 1.6;
+  margin: 10px 0;
+  overflow-x: auto;
+}
+
+.flaws-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.flaw-card {
+  background: var(--bg-surface);
+  border: 1.5px solid #fecaca;
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+
+html.dark .flaw-card {
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.flaw-title {
+  color: #dc2626;
+  font-weight: 800;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+/* Dual Register Shift Calculator */
+.shifts-calc-container {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+html.dark .shifts-calc-container {
+  background: var(--bg-surface);
+}
+
+.shifts-byte-row-wrap {
+  background: var(--bg-surface-elevated, #f8fafc);
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+.shifts-byte-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.shifts-byte-title {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+
+.shifts-byte-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+}
+
+.shift-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border-color);
+  background: #ffffff;
+  font-family: var(--font-mono);
+  transition: all var(--transition-fast);
+}
+
+html.dark .shift-cell {
+  background: var(--bg-surface);
+}
+
+.shift-cell.active {
+  border-color: var(--isaac-magenta);
+  background: rgba(200, 0, 107, 0.08);
+}
+
+.shift-cell.is-incoming-zero {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.shift-cell .cell-pv {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.shift-cell .cell-bit {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-top: 2px;
+}
+
+.shift-cell.active .cell-bit {
+  color: var(--isaac-magenta);
+}
+
+.shift-cell.is-incoming-zero .cell-bit {
+  color: #10b981;
+}
+
+.shifts-console-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0;
+  padding: 14px;
+  border-radius: 8px;
+  background: rgba(99, 102, 241, 0.05);
+  border: 1.5px dashed rgba(99, 102, 241, 0.3);
+}
+
+.shifts-btn-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.shift-op-btn {
+  flex: 1;
+  min-width: 140px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 800;
+  font-family: var(--font-sans);
+  border-radius: 6px;
+  border: 1.5px solid var(--border-color);
+  background: #ffffff;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+html.dark .shift-op-btn {
+  background: var(--bg-surface);
+}
+
+.shift-op-btn:hover {
+  background: #4f46e5;
+  color: #ffffff;
+  border-color: #4f46e5;
+  transform: translateY(-1px);
+}
+
+.shift-op-btn.left-btn:hover {
+  background: #4f46e5;
+  border-color: #4f46e5;
+}
+
+.shift-op-btn.right-btn:hover {
+  background: #0284c7;
+  border-color: #0284c7;
+}
+
+.shift-math-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 18px;
+  background: #ffffff;
+  border: 1.5px solid var(--border-color);
+  border-radius: 6px;
+  margin-top: 14px;
+}
+
+html.dark .shift-math-banner {
+  background: var(--bg-surface);
+}
+
+.shift-math-expression {
+  font-family: var(--font-mono);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--isaac-magenta);
+}
+
+.shift-loss-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.shift-loss-badge.warning {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.shift-loss-badge.info {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.shift-loss-badge.none {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 /* Interactive Binary Addition Grid */

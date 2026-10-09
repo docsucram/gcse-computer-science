@@ -77,7 +77,7 @@
             <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
             <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
           </svg>
-          <span>Binary &amp; Hex</span>
+          <span>Binary &amp; Hexadecimal Numbers</span>
         </button>
 
         <button class="view-tab-btn" data-tab="maths">
@@ -541,36 +541,9 @@
     <div id="tab-register" class="tab-view">
       <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
-        <h2>8-Bit Binary &amp; Hex Register</h2>
-        <p>Computers represent all data using switches called transistors, which can only be ON (1) or OFF (0). Hexadecimal is used as shorthand because every hex digit represents exactly 4 binary bits.</p>
+        <h2>Binary and Hexadecimal Numbers.</h2>
+        <p>Computers represent all data using binary transistor switches (0 and 1). Hexadecimal is used as compact shorthand where every hex digit represents exactly 4 binary bits (1 nibble).</p>
       </div>
-
-      <!-- Binary Explainer Card -->
-      <details class="explainer-card">
-        <summary>
-          <div class="summary-left">
-            <span>⚡</span>
-            <span>Why Computers Use Binary</span>
-          </div>
-          <span class="summary-toggle-pill"></span>
-        </summary>
-        <div class="explainer-content">
-          <p style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
-            A computer processor contains billions of microscopic electronic switches called <strong>transistors</strong>. A switch can only be <strong>ON (1)</strong> or <strong>OFF (0)</strong>. Because of this physical reality, all computer data—from games to streaming video—is stored as binary 1s and 0s!
-          </p>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; font-size: 12px;">
-            <div style="background: #ffffff; padding: 10px 14px; border-radius: 4px; border: 1.5px solid #e2e8f0;">
-              <strong style="color: #001736;">Binary (Base 2):</strong> Uses only 0 and 1. Place values double: 128, 64, 32, 16, 8, 4, 2, 1.
-            </div>
-            <div style="background: #ffffff; padding: 10px 14px; border-radius: 4px; border: 1.5px solid #e2e8f0;">
-              <strong style="color: #001736;">Hexadecimal (Base 16):</strong> Uses 0-9 and A-F. Shorthand for humans because 1 hex digit = 4 bits (1 nibble).
-            </div>
-            <div style="background: #ffffff; padding: 10px 14px; border-radius: 4px; border: 1.5px solid #e2e8f0;">
-              <strong style="color: #001736;">Two's Complement:</strong> How computers store negative numbers. Flip the bits and add 1!
-            </div>
-          </div>
-        </div>
-      </details>
 
       <!-- Register Container -->
       <div class="register-container">
@@ -582,20 +555,17 @@
               <button type="button" class="control-btn active" id="btnModeBinary" data-mode="binary">Unsigned (0 to 255)</button>
               <button type="button" class="control-btn" id="btnModeSignMag" data-mode="sign_mag">Sign &amp; Magnitude</button>
               <button type="button" class="control-btn" id="btnModeTwosComp" data-mode="twos">Two's Complement (-128 to +127)</button>
-              <button type="button" class="control-btn" id="btnModeHex" data-mode="hex">Hex Shorthand</button>
             </div>
           </div>
 
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <button class="stepper-btn" id="btnDecrementBit" title="Subtract 1 from register">▼ -1</button>
-            <button class="stepper-btn" id="btnIncrementBit" title="Add 1 to register">▲ +1</button>
-            <button class="control-btn" id="btnResetBits">Reset to 0</button>
-            <button class="control-btn" id="btnInvertBits">Invert (NOT)</button>
+            <button class="control-btn" id="btnResetBits">Reset</button>
+            <button class="control-btn" id="btnInvertBits">Invert</button>
             <button class="control-btn" id="btnRandomBits">Random</button>
           </div>
         </div>
 
-        <!-- Direct Hex Input Bar (Visible when in Hex Mode) -->
+        <!-- Direct Hex Input Bar (Visible when in Hex Mode or toggled) -->
         <div id="hexDirectInputBar" style="display: none; background: rgba(99, 102, 241, 0.08); border: 2px solid #6366f1; border-radius: var(--radius-md); padding: 12px 18px; margin-bottom: 18px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
           <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
             <span style="font-size: 13px; font-weight: 800; color: #6366f1; display: flex; align-items: center; gap: 6px;">
@@ -625,74 +595,88 @@
           </div>
         </div>
 
-        <!-- 8-Bit Cards split into 2 Nibbles -->
-        <div class="nibbles-wrapper">
-          <!-- High Nibble (Bits 7..4) -->
-          <div class="nibble-box nibble-high">
-            <div class="nibble-header">
-              <span class="nibble-title">High Nibble (Bits 7 - 4)</span>
-              <span class="nibble-hex-badge" id="highNibbleHexBadge">Hex: 0</span>
+        <!-- 8-Bit Cards with Ergonomic Side Stepper -->
+        <div class="register-stage-layout">
+          <div class="nibbles-wrapper">
+            <!-- High Nibble (Bits 7..4) -->
+            <div class="nibble-box nibble-high">
+              <div class="nibble-header">
+                <span class="nibble-title">High Nibble (Bits 7 - 4)</span>
+                <span class="nibble-hex-badge" id="highNibbleHexBadge">Hex: 0</span>
+              </div>
+              <div class="nibble-bits-grid">
+                <!-- Bit 7 (MSB) -->
+                <div class="bit-card msb-card" data-bit="7">
+                  <span class="bit-place-value" id="msbPlaceValueLabel">128</span>
+                  <div class="bit-state-bulb" id="bulb-7">0</div>
+                  <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px; font-weight: 600;">MSB</span>
+                </div>
+                <!-- Bit 6 -->
+                <div class="bit-card" data-bit="6">
+                  <span class="bit-place-value">64</span>
+                  <div class="bit-state-bulb" id="bulb-6">0</div>
+                  <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Bit 6</span>
+                </div>
+                <!-- Bit 5 -->
+                <div class="bit-card" data-bit="5">
+                  <span class="bit-place-value">32</span>
+                  <div class="bit-state-bulb" id="bulb-5">0</div>
+                  <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Bit 5</span>
+                </div>
+                <!-- Bit 4 -->
+                <div class="bit-card" data-bit="4">
+                  <span class="bit-place-value">16</span>
+                  <div class="bit-state-bulb" id="bulb-4">0</div>
+                  <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Bit 4</span>
+                </div>
+              </div>
             </div>
-            <div class="nibble-bits-grid">
-              <!-- Bit 7 (MSB) -->
-              <div class="bit-card msb-card" data-bit="7">
-                <span class="bit-place-value" id="msbPlaceValueLabel">128</span>
-                <div class="bit-state-bulb" id="bulb-7">0</div>
-                <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px; font-weight: 600;">MSB</span>
+
+            <!-- Low Nibble (Bits 3..0) -->
+            <div class="nibble-box nibble-low">
+              <div class="nibble-header">
+                <span class="nibble-title">Low Nibble (Bits 3 - 0)</span>
+                <span class="nibble-hex-badge" id="lowNibbleHexBadge">Hex: 0</span>
               </div>
-              <!-- Bit 6 -->
-              <div class="bit-card" data-bit="6">
-                <span class="bit-place-value">64</span>
-                <div class="bit-state-bulb" id="bulb-6">0</div>
-                <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Bit 6</span>
-              </div>
-              <!-- Bit 5 -->
-              <div class="bit-card" data-bit="5">
-                <span class="bit-place-value">32</span>
-                <div class="bit-state-bulb" id="bulb-5">0</div>
-                <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Bit 5</span>
-              </div>
-              <!-- Bit 4 -->
-              <div class="bit-card" data-bit="4">
-                <span class="bit-place-value">16</span>
-                <div class="bit-state-bulb" id="bulb-4">0</div>
-                <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Bit 4</span>
+              <div class="nibble-bits-grid">
+                <!-- Bit 3 -->
+                <div class="bit-card" data-bit="3">
+                  <span class="bit-place-value">8</span>
+                  <div class="bit-state-bulb" id="bulb-3">0</div>
+                  <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Bit 3</span>
+                </div>
+                <!-- Bit 2 -->
+                <div class="bit-card" data-bit="2">
+                  <span class="bit-place-value">4</span>
+                  <div class="bit-state-bulb" id="bulb-2">0</div>
+                  <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Bit 2</span>
+                </div>
+                <!-- Bit 1 -->
+                <div class="bit-card" data-bit="1">
+                  <span class="bit-place-value">2</span>
+                  <div class="bit-state-bulb" id="bulb-1">0</div>
+                  <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Bit 1</span>
+                </div>
+                <!-- Bit 0 (LSB) -->
+                <div class="bit-card" data-bit="0">
+                  <span class="bit-place-value">1</span>
+                  <div class="bit-state-bulb" id="bulb-0">0</div>
+                  <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px; font-weight: 600;">LSB</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Low Nibble (Bits 3..0) -->
-          <div class="nibble-box nibble-low">
-            <div class="nibble-header">
-              <span class="nibble-title">Low Nibble (Bits 3 - 0)</span>
-              <span class="nibble-hex-badge" id="lowNibbleHexBadge">Hex: 0</span>
-            </div>
-            <div class="nibble-bits-grid">
-              <!-- Bit 3 -->
-              <div class="bit-card" data-bit="3">
-                <span class="bit-place-value">8</span>
-                <div class="bit-state-bulb" id="bulb-3">0</div>
-                <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Bit 3</span>
-              </div>
-              <!-- Bit 2 -->
-              <div class="bit-card" data-bit="2">
-                <span class="bit-place-value">4</span>
-                <div class="bit-state-bulb" id="bulb-2">0</div>
-                <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Bit 2</span>
-              </div>
-              <!-- Bit 1 -->
-              <div class="bit-card" data-bit="1">
-                <span class="bit-place-value">2</span>
-                <div class="bit-state-bulb" id="bulb-1">0</div>
-                <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px;">Bit 1</span>
-              </div>
-              <!-- Bit 0 (LSB) -->
-              <div class="bit-card" data-bit="0">
-                <span class="bit-place-value">1</span>
-                <div class="bit-state-bulb" id="bulb-0">0</div>
-                <span style="font-size: 10px; color: var(--text-muted); margin-top: 4px; font-weight: 600;">LSB</span>
-              </div>
-            </div>
+          <!-- Tactile Stepper Controls beside the Register -->
+          <div class="register-side-stepper">
+            <button class="register-stepper-btn" id="btnIncrementBit" title="Add 1 to register (+1)">
+              <span class="stepper-icon">▲</span>
+              <span class="stepper-text">+1</span>
+            </button>
+            <button class="register-stepper-btn" id="btnDecrementBit" title="Subtract 1 from register (-1)">
+              <span class="stepper-icon">▼</span>
+              <span class="stepper-text">-1</span>
+            </button>
           </div>
         </div>
 
@@ -719,332 +703,375 @@
           </div>
         </div>
 
-        <!-- Two's complement & Signed Numbers Interactive Suite -->
-        <!-- Panel A: Sign & Magnitude Dilemma (Visible when in sign_mag mode) -->
-        <div id="signMagExplainer" style="display: none; margin-top: 18px; padding: 16px 20px; background: rgba(245, 158, 11, 0.08); border: 1.5px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-md);">
-          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
-            <div style="font-weight: 800; color: #d97706; font-size: 14px; display: flex; align-items: center; gap: 6px;">
-              <span>⚠️</span> Sign &amp; Magnitude: The "Naive" Hardware Dilemma (-127 to +127)
-            </div>
-            <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #d97706; font-weight: 800; font-size: 11px;">AQA §3.3.1 Foundation</span>
+        <!-- Dynamic Live Register Breakdown Traces (Visible when in signed modes) -->
+        <div id="signMagExplainer" style="display: none; margin-top: 18px; padding: 14px 18px; background: rgba(245, 158, 11, 0.08); border: 1.5px solid rgba(245, 158, 11, 0.3); border-radius: var(--radius-md);">
+          <div style="font-weight: 800; color: #d97706; font-size: 13.5px; margin-bottom: 8px;">
+            ⚠️ Live Register: Sign &amp; Magnitude Evaluation
           </div>
-
-          <p style="font-size: 12.5px; color: var(--text-secondary); margin: 0 0 12px 0; line-height: 1.55;">
-            <strong>The Problem:</strong> Computer chips have no physical minus sign (<code>−</code>) switch. The obvious first idea was: <em>reserve the Most Significant Bit (MSB, Bit 7) as a sign flag (0 = positive, 1 = negative)</em>, and use the remaining 7 bits (64..1) for the positive magnitude.
-          </p>
-
-          <!-- Current Live Register Breakdown in Sign & Mag -->
-          <div id="signMagLiveTrace" style="font-family: var(--font-mono); font-size: 12.5px; color: var(--text-primary); background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-bottom: 14px;">
+          <div id="signMagLiveTrace" style="font-family: var(--font-mono); font-size: 12.5px; color: var(--text-primary); background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
             <!-- Rendered dynamically -->
-          </div>
-
-          <!-- The Two Fatal Flaws Grid -->
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 10px;">
-            <div style="background: var(--bg-surface); border: 1.5px solid #fecaca; border-radius: 8px; padding: 12px 14px;">
-              <strong style="color: #dc2626; font-size: 12.5px; display: block; margin-bottom: 4px;">❌ Fatal Flaw 1: Two Zeros (+0 &amp; -0)</strong>
-              <p style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.45; margin: 0 0 8px 0;">
-                <code>00000000</code> is <strong>+0</strong>, but <code>10000000</code> is <strong>-0</strong>! Having two zeroes wastes a binary combination and forces processors to do double comparisons for every <code>if (x == 0)</code> check.
-              </p>
-              <button type="button" class="control-btn" id="btnTestNegZero" style="font-size: 11px; padding: 3px 8px;">
-                Inspect -0 Pattern (10000000) &rarr;
-              </button>
-            </div>
-
-            <div style="background: var(--bg-surface); border: 1.5px solid #fecaca; border-radius: 8px; padding: 12px 14px;">
-              <strong style="color: #dc2626; font-size: 12.5px; display: block; margin-bottom: 4px;">❌ Fatal Flaw 2: Normal Addition Fails!</strong>
-              <p style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.45; margin: 0 0 8px 0;">
-                Try adding (+5) and (-5):<br>
-                <code>&nbsp;00000101 (+5)</code><br>
-                <code>+10000101 (-5)</code><br>
-                <code>=10001010</code> &rarr; in Sign &amp; Mag, this is <strong>-10</strong>, NOT 0! The ALU cannot use its standard adder for subtraction.
-              </p>
-            </div>
           </div>
         </div>
 
-        <!-- Panel B: Two's Complement Master Solution (Visible when in twos mode) -->
-        <div id="twosComplementExplainer" style="display: none; margin-top: 18px; padding: 16px 20px; background: rgba(14, 165, 233, 0.08); border: 1.5px solid rgba(14, 165, 233, 0.3); border-radius: var(--radius-md);">
-          <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
-            <div style="font-weight: 800; color: #0284c7; font-size: 14px; display: flex; align-items: center; gap: 6px;">
-              <span>💡</span> Two's Complement: The Hardware Masterpiece (-128 to +127)
-            </div>
-            <span class="badge badge-accent" style="font-size: 11px; font-weight: 800;">AQA §3.3.1 Exam Core</span>
+        <div id="twosComplementExplainer" style="display: none; margin-top: 18px; padding: 14px 18px; background: rgba(14, 165, 233, 0.08); border: 1.5px solid rgba(14, 165, 233, 0.3); border-radius: var(--radius-md);">
+          <div style="font-weight: 800; color: #0284c7; font-size: 13.5px; margin-bottom: 8px;">
+            💡 Live Register: Two's Complement Evaluation
           </div>
-
-          <p style="font-size: 12.5px; color: var(--text-secondary); margin: 0 0 12px 0; line-height: 1.55;">
-            <strong>The Genius Solution:</strong> Computer scientists made the MSB worth <strong>-128</strong> instead of +128.
-            This solves <em>both</em> flaws of Sign &amp; Magnitude: there is only <strong>one zero</strong> (<code>00000000</code>), and the processor can use its <strong>exact same addition circuit for subtraction</strong> with zero extra transistors!
-          </p>
-
-          <!-- Current Live Register Evaluation Trace -->
-          <div id="twosStepTrace" style="font-family: var(--font-mono); font-size: 12.5px; color: var(--text-primary); background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-bottom: 14px;">
+          <div id="twosStepTrace" style="font-family: var(--font-mono); font-size: 12.5px; color: var(--text-primary); background: var(--bg-surface); padding: 10px 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
             <!-- Rendered dynamically -->
-          </div>
-
-          <!-- Two Methods Tabs / Cards -->
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 14px;">
-            <div style="background: var(--bg-surface); border: 1.5px solid rgba(14, 165, 233, 0.25); border-radius: 8px; padding: 12px 14px;">
-              <strong style="color: #0284c7; font-size: 12.5px; display: block; margin-bottom: 4px;">Method 1: Place-Value Evaluation (-128)</strong>
-              <div style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.45;">
-                Calculate directly: <code>MSB (-128) + Sum of active positive bits (64..1)</code>.<br>
-                <em>Example:</em> <code>11111111</code> = -128 + 64 + 32 + 16 + 8 + 4 + 2 + 1 = <strong>-1</strong>.
-              </div>
-            </div>
-
-            <div style="background: var(--bg-surface); border: 1.5px solid rgba(14, 165, 233, 0.25); border-radius: 8px; padding: 12px 14px;">
-              <strong style="color: #0284c7; font-size: 12.5px; display: block; margin-bottom: 4px;">Method 2: Inversion Algorithm (+V &rarr; -V)</strong>
-              <div style="font-size: 11.5px; color: var(--text-secondary); line-height: 1.45;">
-                <strong>Step 1:</strong> Write positive binary (+V).<br>
-                <strong>Step 2:</strong> Invert all bits (0&harr;1, One's Complement).<br>
-                <strong>Step 3:</strong> Add 1! (Two's Complement).
-              </div>
-            </div>
-          </div>
-
-          <!-- Signed 8-Bit Rollover Wheel / Overflow Visualizer -->
-          <div style="background: var(--bg-surface); border: 1.5px solid var(--border-color); border-radius: 8px; padding: 12px 14px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px;">
-              <strong style="font-size: 12px; color: var(--text-primary); display: flex; align-items: center; gap: 5px;">
-                🔄 8-Bit Signed Rollover Continuum &amp; Overflow:
-              </strong>
-              <span style="font-size: 11px; color: var(--text-muted); font-weight: 700;">Range: -128 to +127</span>
-            </div>
-
-            <div style="font-family: var(--font-mono); font-size: 11.5px; background: rgba(0, 23, 54, 0.05); padding: 8px 12px; border-radius: 6px; overflow-x: auto; white-space: nowrap; margin-bottom: 10px; border: 1px dashed var(--border-color);">
-              ... | +125 | +126 | <span style="background: rgba(16, 185, 129, 0.2); padding: 2px 6px; border-radius: 3px; font-weight: 800; color: #059669;">+127 (01111111)</span> &rarr; <span style="background: rgba(239, 68, 68, 0.2); padding: 2px 6px; border-radius: 3px; font-weight: 800; color: #dc2626;">💥 OVERFLOW &rarr; -128 (10000000)</span> | -127 | ... | -1 (11111111) | 0 (00000000)
-            </div>
-
-            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-              <button type="button" class="control-btn" id="btnPresetPlus127" style="font-size: 11px; padding: 3px 8px;">Load +127 (01111111)</button>
-              <button type="button" class="control-btn control-btn-danger" id="btnTriggerSignedOverflow" style="font-size: 11px; padding: 3px 8px;">Trigger +1 Overflow (&rarr; -128)</button>
-              <button type="button" class="control-btn" id="btnPresetMinus1" style="font-size: 11px; padding: 3px 8px;">Load -1 (11111111)</button>
-              <button type="button" class="control-btn" id="btnPresetMinus128" style="font-size: 11px; padding: 3px 8px;">Load -128 (10000000)</button>
-            </div>
           </div>
         </div>
       </div>
 
-      <!-- Target Number Practice Challenge -->
-      <div class="panel" style="margin-top: 24px;" id="targetPracticePanel">
-        <div class="panel-title-bar">
-          <div class="panel-title-group">
-            <span class="badge" style="background: rgba(200, 0, 107, 0.15); color: var(--isaac-magenta); font-weight: 800;">ARCADE LAB</span>
-            <h3 class="panel-title">Binary Target Challenge</h3>
+      <!-- ============================================================= -->
+      <!-- CORE EXPLAINER 1: UNSIGNED BINARY                             -->
+      <!-- ============================================================= -->
+      <div class="edu-explainer-card">
+        <div class="edu-explainer-header">
+          <div class="edu-explainer-title">
+            <span>⚡</span>
+            <span>Unsigned Binary Numbers (0 to 255)</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button type="button" class="control-btn" id="btnToggleAudio" title="Toggle Sound Effects" style="font-size: 11.5px; padding: 4px 10px;">🔊 Sound: ON</button>
-          </div>
+          <span class="badge badge-paper1">Base 2</span>
         </div>
-
-        <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 16px 0;">
-          Test your conversion speed! Use the interactive challenge controls below to hit the target value before time runs out.
+        <p class="edu-explainer-p">
+          In unsigned binary, every bit represents a positive power of 2. The place values start at <strong>1</strong> on the far right (Least Significant Bit, LSB) and <strong>double</strong> with each step moving left: <strong>1, 2, 4, 8, 16, 32, 64, 128</strong>.
         </p>
 
-        <!-- Mode Selectors & Stats Bar -->
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
-          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <!-- Game Mode: Bit Flipper vs Bin->Dec vs Bin->Hex vs Mixed -->
-            <div class="btn-group" id="targetModeGroup">
-              <button type="button" class="control-btn active" id="btnModeFlipper" title="Target given -> flip 8-bit switches">Bit Flipper</button>
-              <button type="button" class="control-btn" id="btnModeBinToDec" title="Binary pattern given -> enter Denary value">Bin ➔ Denary</button>
-              <button type="button" class="control-btn" id="btnModeBinToHex" title="Binary pattern given -> enter Hex value">Bin ➔ Hex</button>
-              <button type="button" class="control-btn" id="btnModeMixed" title="Mix of all three challenge types!">Mixed Blitz</button>
-            </div>
-
-            <!-- Practice Style: Sprint (Default) vs Relaxed -->
-            <div class="btn-group" id="targetStyleGroup">
-              <button type="button" class="control-btn active" id="btnPracticeSprint">60s Speed Sprint</button>
-              <button type="button" class="control-btn" id="btnPracticeRelaxed">Relaxed Practice</button>
-            </div>
+        <!-- Place value diagram -->
+        <div class="bit-diagram-strip">
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">128</div>
+            <div class="bit-diagram-role">2⁷</div>
           </div>
-
-          <div style="display: flex; align-items: center; gap: 10px; font-family: var(--font-mono); font-size: 13px;">
-            <div id="streakBadge" style="background: var(--isaac-yellow); padding: 5px 14px; border-radius: 4px; border: none; color: #001736; font-weight: 800; display: flex; align-items: center; gap: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-              <span>🔥</span> Streak: <span id="currentStreakVal">0</span>
-            </div>
-            <div id="sprintTimerBox" style="display: block; background: rgba(200, 0, 107, 0.1); border: 1.5px solid var(--isaac-magenta); padding: 5px 14px; border-radius: 4px; color: var(--isaac-magenta); font-weight: 900; font-size: 14px;">
-              ⏱ <span id="sprintTimerVal">60</span>s
-            </div>
-            <div id="sprintScoreBox" style="display: block; background: rgba(99, 102, 241, 0.1); border: 1.5px solid #6366f1; padding: 5px 12px; border-radius: 4px; color: #6366f1; font-weight: 800;">
-              Score: <span id="sprintScoreVal">0</span>
-            </div>
-            <div id="sprintBestBox" style="display: block; background: var(--paper-recessed); padding: 5px 12px; border-radius: 4px; border: 1px solid var(--paper-border-strong); color: var(--ink-primary); font-weight: 800;">
-              Best: <span id="sprintBestVal">0</span>
-            </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">64</div>
+            <div class="bit-diagram-role">2⁶</div>
           </div>
-        </div>
-
-        <!-- Prominent Big Sprint Countdown Bar (Visible during active sprint) -->
-        <div id="sprintActiveTimerBanner" style="display: none; background: var(--paper-card); border: 2px solid var(--isaac-magenta); border-radius: 6px; padding: 10px 18px; margin-bottom: 16px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-            <span style="font-weight: 800; color: var(--isaac-magenta); font-size: 13px;">
-              SPRINT TIME REMAINING:
-            </span>
-            <span id="sprintBigCountdown" style="font-family: var(--font-mono); font-size: 24px; font-weight: 900; color: var(--isaac-magenta);">60s</span>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">32</div>
+            <div class="bit-diagram-role">2⁵</div>
           </div>
-          <div style="width: 100%; height: 8px; background: rgba(0, 0, 0, 0.1); border-radius: 4px; overflow: hidden;">
-            <div id="sprintTimerProgress" style="height: 100%; width: 100%; background: var(--isaac-magenta); border-radius: 4px; transition: width 1s linear;"></div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">16</div>
+            <div class="bit-diagram-role">2⁴</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">8</div>
+            <div class="bit-diagram-role">2³</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">4</div>
+            <div class="bit-diagram-role">2²</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">2</div>
+            <div class="bit-diagram-role">2¹</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">1</div>
+            <div class="bit-diagram-role">2⁰ (LSB)</div>
           </div>
         </div>
 
-        <!-- Sprint Launcher Screen (Shown before pressing Start) -->
-        <div id="sprintStartLauncherCard" style="background: var(--paper-card); border: 2px dashed var(--paper-border-strong); border-radius: 6px; padding: 32px 24px; text-align: center;">
-          <div style="margin-bottom: 8px;">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--isaac-magenta);"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+        <div style="background: var(--bg-surface-elevated, #f8fafc); border-left: 4px solid var(--accent-primary); padding: 12px 16px; border-radius: 4px; font-size: 13px; line-height: 1.55; color: var(--text-secondary);">
+          <strong style="color: var(--text-primary); display: block; margin-bottom: 4px;">How to easily convert Binary to Denary (Decimal):</strong>
+          <div><strong>1.</strong> Write down the 8 place value headers: <code>128, 64, 32, 16, 8, 4, 2, 1</code>.</div>
+          <div><strong>2.</strong> Place your binary bits directly beneath each header column.</div>
+          <div><strong>3.</strong> Add up only the numbers where the bit is a <strong>1</strong> (ignore columns with 0).</div>
+          <div style="margin-top: 6px; font-family: var(--font-mono); font-size: 12.5px; color: var(--text-primary);">
+            <em>Example:</em> <code>00101010</code> &rarr; 32 + 8 + 2 = <strong>42</strong> in denary.
           </div>
-          <h3 style="font-size: 20px; font-weight: 900; color: var(--ink-primary); margin: 0 0 8px 0;">
-            60-Second Speed Sprint
-          </h3>
-          <p style="font-size: 13.5px; color: var(--ink-secondary); max-width: 500px; margin: 0 auto 16px auto; line-height: 1.55;">
-            The target is hidden! Press Start to launch the 60-second timer. Solve each challenge as quickly as possible to rack up combos and beat your high score!
-          </p>
-          <div style="font-size: 13px; font-weight: 700; color: var(--ink-primary); margin-bottom: 16px;">
-            Personal Best: <span id="sprintLauncherBestVal" style="font-family: var(--font-mono); font-size: 17px; color: var(--isaac-magenta);">0</span> solved
-          </div>
-          <button type="button" class="btn btn-primary" id="btnStartSprint" style="padding: 11px 36px; font-size: 14px; font-weight: 800; background: var(--isaac-magenta); border-color: var(--isaac-magenta); border-radius: 6px;">
-            ⚡ Start 60s Speed Sprint
-          </button>
-        </div>
-
-        <!-- Sprint Game Over Screen -->
-        <div id="sprintGameOverCard" style="display: none; background: var(--paper-card); border: 2px solid var(--paper-border-strong); border-radius: 6px; padding: 32px 24px; text-align: center;">
-          <div style="margin-bottom: 6px;">
-            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--isaac-magenta);"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-          </div>
-          <h3 style="font-size: 22px; font-weight: 900; color: var(--ink-primary); margin: 0 0 8px 0;">
-            TIME'S UP!
-          </h3>
-          <p style="font-size: 14px; color: var(--ink-secondary); margin: 0 0 12px 0;">
-            You converted <strong id="sprintFinalScoreVal" style="font-family: var(--font-mono); font-size: 24px; color: var(--isaac-magenta);">0</strong> targets in 60 seconds!
-          </p>
-          <div id="sprintRankBadge" style="font-size: 12.5px; font-weight: 800; background: rgba(99, 102, 241, 0.15); color: #4338ca; padding: 4px 14px; border-radius: 20px; width: fit-content; margin: 0 auto 12px auto;">
-            Rank: Byte Apprentice
-          </div>
-          <div id="sprintNewRecordBadge" style="display: none; font-size: 12px; font-weight: 800; color: #001736; background: var(--isaac-yellow); padding: 4px 12px; border-radius: 4px; width: fit-content; margin: 0 auto 16px auto;">
-            🎉 NEW HIGH SCORE!
-          </div>
-          <div style="display: flex; justify-content: center; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
-            <button type="button" class="btn btn-primary" id="btnPlayAgainSprint" style="padding: 10px 26px; font-size: 13.5px; background: var(--isaac-magenta); border-color: var(--isaac-magenta); border-radius: 6px;">
-              Play Again (60s)
-            </button>
-            <button type="button" class="control-btn" id="btnBackToRelaxed" style="font-size: 13px;">
-              Back to Relaxed
-            </button>
-          </div>
-        </div>
-
-        <!-- Target Game Arena Card (Active during sprint or relaxed) -->
-        <div id="targetCardContainer" style="display: none; background: var(--paper-card); border: 2px solid var(--paper-border); border-radius: 6px; padding: 22px 24px; text-align: center; transition: all 0.25s ease;">
-          
-          <!-- Mode Label / Question Prompt -->
-          <div style="display: flex; justify-content: center; align-items: center; gap: 8px; margin-bottom: 6px;">
-            <span id="targetModeBadge" class="badge" style="background: rgba(99, 102, 241, 0.15); color: #4338ca; font-weight: 800; font-size: 11px;">
-              BIT FLIPPER
-            </span>
-            <span id="targetBaseLabel" style="font-size: 12px; color: var(--ink-secondary); font-weight: 700; text-transform: uppercase;">
-              Target Number (Denary):
-            </span>
-          </div>
-
-          <!-- Prominent Target Value Display -->
-          <div style="margin: 4px 0 14px;">
-            <span id="targetNumberDisplay" class="game-target-number">42</span>
-          </div>
-
-          <!-- 1. Dedicated Bit Flipper Switches (When in Bit Flipper mode) -->
-          <div id="gameFlipperControls" class="game-bits-container">
-            <div class="game-bits-wrapper">
-              <!-- High Nibble -->
-              <div class="game-nibble-group">
-                <span class="game-nibble-label">High Nibble (Bits 7..4)</span>
-                <div class="game-nibble-bits">
-                  <button type="button" class="game-bit-btn" data-bit="7">
-                    <span class="game-bit-pv">128</span>
-                    <span class="game-bit-val" id="gbit-7">0</span>
-                  </button>
-                  <button type="button" class="game-bit-btn" data-bit="6">
-                    <span class="game-bit-pv">64</span>
-                    <span class="game-bit-val" id="gbit-6">0</span>
-                  </button>
-                  <button type="button" class="game-bit-btn" data-bit="5">
-                    <span class="game-bit-pv">32</span>
-                    <span class="game-bit-val" id="gbit-5">0</span>
-                  </button>
-                  <button type="button" class="game-bit-btn" data-bit="4">
-                    <span class="game-bit-pv">16</span>
-                    <span class="game-bit-val" id="gbit-4">0</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Low Nibble -->
-              <div class="game-nibble-group">
-                <span class="game-nibble-label">Low Nibble (Bits 3..0)</span>
-                <div class="game-nibble-bits">
-                  <button type="button" class="game-bit-btn" data-bit="3">
-                    <span class="game-bit-pv">8</span>
-                    <span class="game-bit-val" id="gbit-3">0</span>
-                  </button>
-                  <button type="button" class="game-bit-btn" data-bit="2">
-                    <span class="game-bit-pv">4</span>
-                    <span class="game-bit-val" id="gbit-2">0</span>
-                  </button>
-                  <button type="button" class="game-bit-btn" data-bit="1">
-                    <span class="game-bit-pv">2</span>
-                    <span class="game-bit-val" id="gbit-1">0</span>
-                  </button>
-                  <button type="button" class="game-bit-btn" data-bit="0">
-                    <span class="game-bit-pv">1</span>
-                    <span class="game-bit-val" id="gbit-0">0</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Flipper Status & Controls -->
-            <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 14px; font-family: var(--font-mono); font-size: 13px; flex-wrap: wrap;">
-              <span style="color: var(--ink-secondary);">Your Value:</span>
-              <span id="targetCurrentVal" style="font-weight: 800; font-size: 16px; color: var(--ink-primary);">0</span>
-              <span id="targetDiffBadge" style="font-size: 12px; padding: 3px 10px; border-radius: 4px; background: rgba(200, 0, 107, 0.1); color: var(--isaac-magenta); border: 1.5px solid var(--isaac-magenta); font-weight: 800;">Needs +42</span>
-              <button type="button" class="control-btn" id="btnGameClearBits" style="font-size: 11px; padding: 4px 10px;">Clear Bits</button>
-              <button type="button" class="control-btn" id="btnSkipTarget" style="font-size: 11px; padding: 4px 10px;">Skip →</button>
-            </div>
-          </div>
-
-          <!-- 2. Text Input for Binary -> Denary Mode -->
-          <div id="gameBinToDecControls" style="display: none; margin: 16px 0;">
-            <div style="font-size: 12px; color: var(--ink-secondary); margin-bottom: 8px;">
-              Place values: <code>128 &bull; 64 &bull; 32 &bull; 16 &bull; 8 &bull; 4 &bull; 2 &bull; 1</code>
-            </div>
-            <form id="formBinToDec" style="display: flex; justify-content: center; gap: 8px; align-items: center; flex-wrap: wrap;">
-              <input type="number" id="gameDecInput" class="game-text-input" placeholder="Denary (0-255)" min="0" max="255" autocomplete="off">
-              <button type="submit" class="btn-game-submit">✓ Submit Answer</button>
-              <button type="button" class="control-btn" id="btnSkipBinToDec" style="font-size: 12px; padding: 9px 14px;">Skip →</button>
-            </form>
-            <div id="gameDecFeedback" style="font-size: 12.5px; font-weight: 700; margin-top: 10px; min-height: 20px;"></div>
-          </div>
-
-          <!-- 3. Text Input for Binary -> Hex Mode -->
-          <div id="gameBinToHexControls" style="display: none; margin: 16px 0;">
-            <div style="font-size: 12px; color: var(--ink-secondary); margin-bottom: 8px;">
-              Enter 2 Hex digits (0–9, A–F for high &amp; low nibbles):
-            </div>
-            <form id="formBinToHex" style="display: flex; justify-content: center; gap: 8px; align-items: center; flex-wrap: wrap;">
-              <input type="text" id="gameHexInput" class="game-text-input" placeholder="Hex (e.g. 2A)" maxlength="2" style="text-transform: uppercase;" autocomplete="off">
-              <button type="submit" class="btn-game-submit">✓ Submit Answer</button>
-              <button type="button" class="control-btn" id="btnSkipBinToHex" style="font-size: 12px; padding: 9px 14px;">Skip →</button>
-            </form>
-            <div id="gameHexFeedback" style="font-size: 12.5px; font-weight: 700; margin-top: 10px; min-height: 20px;"></div>
-          </div>
-
         </div>
       </div>
 
-      <!-- 3-Way Synchronized Interactive Converter (Up to 40-Bit) -->
+      <!-- ============================================================= -->
+      <!-- CORE EXPLAINER 2: SIGN & MAGNITUDE                            -->
+      <!-- ============================================================= -->
+      <div class="edu-explainer-card">
+        <div class="edu-explainer-header">
+          <div class="edu-explainer-title">
+            <span>⚠️</span>
+            <span>Negative Numbers: Sign &amp; Magnitude (-127 to +127)</span>
+          </div>
+          <span class="badge" style="background: rgba(245, 158, 11, 0.15); color: #d97706; font-weight: 800;">Hardware Dilemma</span>
+        </div>
+        <p class="edu-explainer-p">
+          Computer chips have no physical minus sign (<code>−</code>) switch, so negative numbers need to be stored in binary just like any other number. The obvious first idea was: <strong>reserve the Most Significant Bit (MSB) as the 'sign' bit</strong> (<code>0 = positive, 1 = negative</code>), while the remaining 7 bits represent the positive <strong>magnitude</strong>.
+        </p>
+
+        <!-- Diagram of Sign & Magnitude -->
+        <div class="bit-diagram-strip">
+          <div class="bit-diagram-col msb-col">
+            <div class="bit-diagram-pv">Bit 7 (MSB)</div>
+            <div class="bit-diagram-role" style="color: #dc2626;">Sign (0 = +, 1 = -)</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">64</div>
+            <div class="bit-diagram-role">Magnitude</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">32</div>
+            <div class="bit-diagram-role">Magnitude</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">16</div>
+            <div class="bit-diagram-role">Magnitude</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">8</div>
+            <div class="bit-diagram-role">Magnitude</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">4</div>
+            <div class="bit-diagram-role">Magnitude</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">2</div>
+            <div class="bit-diagram-role">Magnitude</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">1</div>
+            <div class="bit-diagram-role">Magnitude</div>
+          </div>
+        </div>
+
+        <p class="edu-explainer-p" style="margin-bottom: 8px;">
+          While this is a simple and intuitive solution, it introduces two fatal hardware problems:
+        </p>
+
+        <!-- The Two Fatal Flaws -->
+        <div class="flaws-grid">
+          <div class="flaw-card">
+            <div class="flaw-title">❌ Fatal Flaw 1: Two Zeros (+0 &amp; -0)</div>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 10px 0;">
+              <code>00000000</code> is <strong>+0</strong>, but <code>10000000</code> is <strong>-0</strong>! Having two zeroes wastes a unique binary pattern and forces processors to do double comparisons for every <code>if (x == 0)</code> check in hardware.
+            </p>
+            <button type="button" class="control-btn" id="btnTestNegZero" style="font-size: 11px; padding: 4px 10px;">
+              Inspect -0 Pattern (10000000) &rarr;
+            </button>
+          </div>
+
+          <div class="flaw-card">
+            <div class="flaw-title">❌ Fatal Flaw 2: Normal Addition Fails!</div>
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.5; margin: 0 0 8px 0;">
+              If the computer tries to calculate <strong>7 + (-3)</strong>, normal binary addition gives the completely wrong answer:
+            </p>
+            <div class="math-working-box" style="margin: 0; font-size: 12px; padding: 10px 12px;">
+              &nbsp;&nbsp;00000111 (+7)<br>
+              + 10000011 (-3 in Sign &amp; Mag)<br>
+              ------------------------<br>
+              &nbsp;&nbsp;10001010 (= <strong>-10</strong> in Sign &amp; Mag!)
+            </div>
+            <p style="font-size: 11.5px; color: #dc2626; line-height: 1.4; margin: 8px 0 0 0; font-weight: 600;">
+              Instead of +4, normal addition outputs -10! The processor cannot use its standard addition circuit for negative numbers.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================= -->
+      <!-- CORE EXPLAINER 3: TWO'S COMPLEMENT                            -->
+      <!-- ============================================================= -->
+      <div class="edu-explainer-card">
+        <div class="edu-explainer-header">
+          <div class="edu-explainer-title">
+            <span>💡</span>
+            <span>Negative Numbers: Two's Complement (-128 to +127)</span>
+          </div>
+          <span class="badge badge-accent">The Genius Solution</span>
+        </div>
+        <p class="edu-explainer-p">
+          <strong>The Genius Solution:</strong> To solve the problems of Sign &amp; Magnitude, computer scientists made the Most Significant Bit (MSB) worth <strong>-128</strong> instead of +128. This solves both flaws: there is only <strong>one zero</strong> (<code>00000000</code>), and the processor can use its <strong>exact same addition circuit</strong> for subtraction with zero extra hardware!
+        </p>
+
+        <!-- Place value diagram in Two's comp -->
+        <div class="bit-diagram-strip">
+          <div class="bit-diagram-col msb-col">
+            <div class="bit-diagram-pv" style="font-size: 13px; font-weight: 900;">-128</div>
+            <div class="bit-diagram-role" style="color: #dc2626;">Negative MSB</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">64</div>
+            <div class="bit-diagram-role">+64</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">32</div>
+            <div class="bit-diagram-role">+32</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">16</div>
+            <div class="bit-diagram-role">+16</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">8</div>
+            <div class="bit-diagram-role">+8</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">4</div>
+            <div class="bit-diagram-role">+4</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">2</div>
+            <div class="bit-diagram-role">+2</div>
+          </div>
+          <div class="bit-diagram-col">
+            <div class="bit-diagram-pv">1</div>
+            <div class="bit-diagram-role">+1</div>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 14px; margin-top: 14px;">
+          <!-- Conversion steps -->
+          <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1.5px solid var(--border-color); border-radius: 6px; padding: 14px 16px;">
+            <strong style="color: var(--accent-primary); font-size: 13px; display: block; margin-bottom: 6px;">To convert a positive number to Two's Complement:</strong>
+            <div style="font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;">
+              <div><strong>Step 1:</strong> Write the positive number in standard binary.<br><em>e.g. +3 = <code>00000011</code></em></div>
+              <div style="margin-top: 4px;"><strong>Step 2:</strong> Invert all the bits (0 &harr; 1, One's Complement).<br><em>&rarr; <code>11111100</code></em></div>
+              <div style="margin-top: 4px;"><strong>Step 3:</strong> Add 1! (Two's Complement).<br><em>11111100 + 1 = <code>11111101</code> (= -3)</em></div>
+            </div>
+          </div>
+
+          <!-- Addition solved -->
+          <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1.5px solid #a7f3d0; border-radius: 6px; padding: 14px 16px;">
+            <strong style="color: #059669; font-size: 13px; display: block; margin-bottom: 6px;">Addition is Solved: 7 + (-3) Works!</strong>
+            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 6px;">
+              If the computer now calculates <strong>7 + (-3)</strong> using Two's Complement:
+            </div>
+            <div class="math-working-box" style="margin: 0; font-size: 12px; padding: 10px 12px;">
+              &nbsp;&nbsp;00000111 (+7)<br>
+              + 11111101 (-3 in Two's Comp)<br>
+              ------------------------<br>
+              (1)00000100 (= <strong>+4!</strong>)
+            </div>
+            <p style="font-size: 11.5px; color: #059669; line-height: 1.4; margin: 8px 0 0 0; font-weight: 600;">
+              The 9th carry bit (1) spills past the 8 bits and is discarded by the CPU. The remaining 8 bits equal exactly <strong>+4</strong>! Standard addition handles subtraction with zero extra circuits.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================================= -->
+      <!-- CORE EXPLAINER 4: HEXADECIMAL NUMBERS                         -->
+      <!-- ============================================================= -->
+      <div class="edu-explainer-card">
+        <div class="edu-explainer-header">
+          <div class="edu-explainer-title">
+            <span>🔢</span>
+            <span>Hexadecimal Numbers (Base 16)</span>
+          </div>
+          <span class="badge badge-paper1">Base 16: 0-9 &amp; A-F</span>
+        </div>
+        <p class="edu-explainer-p">
+          Binary strings like <code>11011010</code> are long and prone to human typing errors. Computer scientists use <strong>Hexadecimal (Base 16)</strong> as human-friendly shorthand for binary. Because $16 = 2^4$, <strong>each hexadecimal digit represents exactly 4 binary bits (1 nibble)</strong>!
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 16px;">
+          <!-- Hex Notation Formats -->
+          <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1.5px solid var(--border-color); border-radius: 6px; padding: 14px 16px;">
+            <strong style="color: var(--text-primary); font-size: 13px; display: block; margin-bottom: 6px;">How Hexadecimal is Written:</strong>
+            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.55;">
+              <div>• <strong>0x Prefix:</strong> Standard in programming languages (e.g. <code>0x2A</code> or <code>0xFF</code> in Python, C, JavaScript).</div>
+              <div style="margin-top: 4px;">• <strong># Symbol:</strong> Used in web design and graphics (e.g. <code>#FF5733</code> for RGB colour codes).</div>
+              <div style="margin-top: 4px;">• <strong>Plain Hex / Subscript:</strong> Used in textbooks and exams (e.g. <code>2A</code> or <code>2A₁₆</code>).</div>
+            </div>
+          </div>
+
+          <!-- How to convert to denary -->
+          <div style="background: var(--bg-surface-elevated, #f8fafc); border: 1.5px solid var(--border-color); border-radius: 6px; padding: 14px 16px;">
+            <strong style="color: var(--text-primary); font-size: 13px; display: block; margin-bottom: 6px;">How to Convert 2-Digit Hex to Denary:</strong>
+            <div style="font-size: 12px; color: var(--text-secondary); line-height: 1.55;">
+              <div>Multiply the <strong>High Digit by 16</strong>, then add the <strong>Low Digit</strong>:</div>
+              <div style="margin-top: 6px; font-family: var(--font-mono); font-size: 12.5px; color: var(--accent-primary); background: var(--bg-surface); padding: 6px 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+                3F₁₆ = (3 &times; 16) + 15 = 48 + 15 = <strong>63</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- The "10 is not 10" Trap Notice -->
+        <div style="background: rgba(239, 68, 68, 0.08); border: 1.5px solid rgba(239, 68, 68, 0.3); border-radius: 6px; padding: 12px 16px; font-size: 12.5px; color: var(--text-primary); line-height: 1.5;">
+          <strong style="color: #dc2626; display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+            <span>⚠️</span> The Classic GCSE Trap: "10" is NOT always ten!
+          </strong>
+          <div>• <strong>10 in Denary (Base 10)</strong> = <strong>10</strong> (ten fingers)</div>
+          <div>• <strong>10 in Hexadecimal (Base 16)</strong> = <strong>16</strong> (one group of 16, zero units)</div>
+          <div>• <strong>10 in Binary (Base 2)</strong> = <strong>2</strong> (one group of 2, zero units)</div>
+          <div style="margin-top: 4px; font-size: 11.5px; color: var(--text-secondary); font-style: italic;">
+            Never confuse the written digits "10" with the quantity "ten"! The base determines its true magnitude.
+          </div>
+        </div>
+      </div>
+
+      <!-- Real World Example: Hex RGB Colour Playground -->
+      <div class="panel" style="margin-top: 20px;">
+        <div class="panel-title-bar">
+          <div class="panel-title-group">
+            <span class="badge badge-paper1">Real World Application</span>
+            <h3 class="panel-title">Hex RGB Colour Picker</h3>
+          </div>
+          <span style="font-size: 11px; color: var(--text-muted);">3 bytes = 16.7 Million colours</span>
+        </div>
+
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 16px 0; line-height: 1.5;">
+          Computer screens mix <strong>Red</strong>, <strong>Green</strong>, and <strong>Blue</strong> light. Each colour channel gets <strong>1 byte (0 to 255)</strong>, which is written as <strong>exactly 2 hex digits</strong>! That is why web colours like <code>#FF5733</code> are 6 hex digits long.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; align-items: center;">
+          <!-- Sliders -->
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Red -->
+            <div style="background: var(--bg-surface-elevated); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); border-left: 4px solid #ef4444;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span style="font-size: 12px; font-weight: 800; color: #ef4444;">Red Byte</span>
+                <span style="font-family: var(--font-mono); font-size: 12.5px; font-weight: 800;" id="hexRLabel">FF (255)</span>
+              </div>
+              <input type="range" id="sliderHexR" min="0" max="255" value="255" style="width: 100%; accent-color: #ef4444; cursor: pointer;">
+            </div>
+
+            <!-- Green -->
+            <div style="background: var(--bg-surface-elevated); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); border-left: 4px solid #10b981;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span style="font-size: 12px; font-weight: 800; color: #10b981;">Green Byte</span>
+                <span style="font-family: var(--font-mono); font-size: 12.5px; font-weight: 800;" id="hexGLabel">87 (135)</span>
+              </div>
+              <input type="range" id="sliderHexG" min="0" max="255" value="135" style="width: 100%; accent-color: #10b981; cursor: pointer;">
+            </div>
+
+            <!-- Blue -->
+            <div style="background: var(--bg-surface-elevated); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); border-left: 4px solid #3b82f6;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span style="font-size: 12px; font-weight: 800; color: #3b82f6;">Blue Byte</span>
+                <span style="font-family: var(--font-mono); font-size: 12.5px; font-weight: 800;" id="hexBLabel">33 (51)</span>
+              </div>
+              <input type="range" id="sliderHexB" min="0" max="255" value="51" style="width: 100%; accent-color: #3b82f6; cursor: pointer;">
+            </div>
+          </div>
+
+          <!-- Live Swatch & Preset Buttons -->
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
+            <div id="hexColorSwatch" style="width: 100%; height: 130px; border-radius: var(--radius-lg); background: #FF8733; border: 2px solid var(--border-color); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; transition: background-color 0.1s ease;">
+              <span id="hexSwatchText" style="font-family: var(--font-mono); font-size: 26px; font-weight: 900; color: #ffffff; text-shadow: 0 2px 8px rgba(0,0,0,0.6); letter-spacing: 2px;">
+                #FF8733
+              </span>
+            </div>
+
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;">
+              <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; align-self: center; margin-right: 4px;">Presets:</span>
+              <button type="button" class="preset-pill-btn color-preset-btn" data-r="91" data-g="140" data-b="50">Minecraft Grass</button>
+              <button type="button" class="preset-pill-btn color-preset-btn" data-r="0" data-g="255" data-b="204">Neon Cyan</button>
+              <button type="button" class="preset-pill-btn color-preset-btn" data-r="255" data-g="87" data-b="51">Sunset</button>
+              <button type="button" class="preset-pill-btn color-preset-btn" data-r="88" data-g="101" data-b="242">Discord</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-Way Synchronized Interactive Converter (Calculator Style) -->
       <div class="panel converter-panel-band" id="converterPanel" style="margin-top: 24px;">
         <div class="panel-title-bar">
           <div class="panel-title-group">
-            <h3 class="panel-title">3-Way Number Converter (Up to 40-Bit)</h3>
+            <h3 class="panel-title">3-Way Number Converter (Calculator)</h3>
             <span id="convBitSizeBadge" class="bit-width-badge">8 bits (1 Byte)</span>
           </div>
           <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
@@ -1059,7 +1086,7 @@
         </div>
 
         <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 14px 0;">
-          Type in Denary, Hex, or Binary to instantly see the conversion across all three representations. Supports numbers up to 2⁴⁰ (1,099,511,627,775).
+          Type in Denary, Hex, or Binary to instantly synchronize all three representations. Supports numbers up to 2⁴⁰ (1,099,511,627,775).
         </p>
 
         <div class="converter-grid">
@@ -1112,70 +1139,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Hex RGB Colour Playground -->
-      <div class="panel" style="margin-top: 20px;">
-        <div class="panel-title-bar">
-          <div class="panel-title-group">
-            <span class="badge badge-paper1">Why We Use Hex</span>
-            <h3 class="panel-title">Hex RGB Colour Playground</h3>
-          </div>
-          <span style="font-size: 11px; color: var(--text-muted);">3 bytes = 16.7 Million colours</span>
-        </div>
-
-        <p style="font-size: 13px; color: var(--text-secondary); margin: 0 0 16px 0; line-height: 1.5;">
-          Ever wonder why hex codes like <code>#FF5733</code> are used everywhere in web design, Discord, and games? Computer displays mix <strong>Red</strong>, <strong>Green</strong>, and <strong>Blue</strong>. Each colour channel gets <strong>1 byte (0 to 255)</strong>, which is written as <strong>exactly 2 hex digits</strong>!
-        </p>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; align-items: center;">
-          <!-- Sliders -->
-          <div style="display: flex; flex-direction: column; gap: 12px;">
-            <!-- Red -->
-            <div style="background: var(--bg-surface-elevated); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); border-left: 4px solid #ef4444;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <span style="font-size: 12px; font-weight: 800; color: #ef4444;">Red Byte</span>
-                <span style="font-family: var(--font-mono); font-size: 12.5px; font-weight: 800;" id="hexRLabel">FF (255)</span>
-              </div>
-              <input type="range" id="sliderHexR" min="0" max="255" value="255" style="width: 100%; accent-color: #ef4444; cursor: pointer;">
-            </div>
-
-            <!-- Green -->
-            <div style="background: var(--bg-surface-elevated); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); border-left: 4px solid #10b981;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <span style="font-size: 12px; font-weight: 800; color: #10b981;">Green Byte</span>
-                <span style="font-family: var(--font-mono); font-size: 12.5px; font-weight: 800;" id="hexGLabel">87 (135)</span>
-              </div>
-              <input type="range" id="sliderHexG" min="0" max="255" value="135" style="width: 100%; accent-color: #10b981; cursor: pointer;">
-            </div>
-
-            <!-- Blue -->
-            <div style="background: var(--bg-surface-elevated); padding: 10px 14px; border-radius: var(--radius-md); border: 1px solid var(--border-color); border-left: 4px solid #3b82f6;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <span style="font-size: 12px; font-weight: 800; color: #3b82f6;">Blue Byte</span>
-                <span style="font-family: var(--font-mono); font-size: 12.5px; font-weight: 800;" id="hexBLabel">33 (51)</span>
-              </div>
-              <input type="range" id="sliderHexB" min="0" max="255" value="51" style="width: 100%; accent-color: #3b82f6; cursor: pointer;">
-            </div>
-          </div>
-
-          <!-- Live Swatch & Preset Buttons -->
-          <div style="display: flex; flex-direction: column; align-items: center; gap: 14px;">
-            <div id="hexColorSwatch" style="width: 100%; height: 130px; border-radius: var(--radius-lg); background: #FF8733; border: 2px solid var(--border-color); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; transition: background-color 0.1s ease;">
-              <span id="hexSwatchText" style="font-family: var(--font-mono); font-size: 26px; font-weight: 900; color: #ffffff; text-shadow: 0 2px 8px rgba(0,0,0,0.6); letter-spacing: 2px;">
-                #FF8733
-              </span>
-            </div>
-
-            <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;">
-              <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; align-self: center; margin-right: 4px;">Presets:</span>
-              <button type="button" class="preset-pill-btn color-preset-btn" data-r="91" data-g="140" data-b="50">Minecraft Grass</button>
-              <button type="button" class="preset-pill-btn color-preset-btn" data-r="0" data-g="255" data-b="204">Neon Cyan</button>
-              <button type="button" class="preset-pill-btn color-preset-btn" data-r="255" data-g="87" data-b="51">Sunset</button>
-              <button type="button" class="preset-pill-btn color-preset-btn" data-r="88" data-g="101" data-b="242">Discord</button>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- ================================================================= -->
@@ -1184,15 +1147,14 @@
     <div id="tab-maths" class="tab-view">
       <!-- View Banner (Clean Unboxed Page Header) -->
       <div class="view-banner">
-        <h2>Binary Maths &amp; Logic Operations</h2>
-        <p>Computers add binary numbers column-by-column using simple carry rules. When a calculation exceeds the available bit width, an overflow error occurs because there is no physical memory slot for the final carry.</p>
+        <h2>Binary Maths</h2>
+        <p>Computers carry out calculations using binary arithmetic. Subtraction is performed by adding negative numbers in Two's Complement, and multiplication and division are performed using logical bit shifts.</p>
       </div>
 
       <!-- Maths Mode Switcher -->
       <div class="maths-mode-selector">
         <button type="button" class="maths-mode-btn active" data-maths-section="addition">Addition &amp; Overflow</button>
         <button type="button" class="maths-mode-btn" data-maths-section="subtraction">Subtraction (Two's Comp)</button>
-        <button type="button" class="maths-mode-btn" data-maths-section="logic">Bitwise Logic (AND/OR/XOR)</button>
         <button type="button" class="maths-mode-btn" data-maths-section="shifts">Logical Shifts (×2 / ÷2)</button>
       </div>
 
@@ -1673,54 +1635,103 @@
             <div class="panel-title-group">
               <h3 class="panel-title">Logical Binary Shifts</h3>
             </div>
-            <span style="font-size: 11px; color: var(--text-muted);">AQA §3.3.1: Multiplication &amp; Division by Powers of 2</span>
+            <span style="font-size: 11px; color: var(--text-muted);">Multiplication &amp; Division by Powers of 2</span>
           </div>
 
-          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">
-            Moving bits to the left multiplies by 2 for each position shifted. Moving bits to the right divides by 2 (integer division, discarding the remainder).
+          <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+            In computer architecture, a <strong>Logical Shift</strong> moves all bits inside a register to the left or right. Vacated positions are always padded with <strong>0</strong>. Shifting left multiplies the number by 2 for each position shifted ($2^1 = 2, 2^2 = 4, 2^3 = 8$), while shifting right performs integer division by 2.
           </p>
 
-          <!-- Custom Number Input Bar for Shifts -->
-          <div class="calc-calculator-bar">
-            <div class="calc-input-unit">
-              <span class="calc-input-label">Custom Number (0–255):</span>
-              <div class="calc-input-wrapper">
-                <input type="number" id="calcShiftInput" min="0" max="255" value="20" class="calc-num-input">
-                <span class="calc-hex-tag" id="calcShiftHex">14</span>
-              </div>
-            </div>
-            <div class="calc-input-unit">
-              <span class="calc-input-label">Shift Operations:</span>
-              <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                <button type="button" class="control-btn" id="btnShiftLeft1" style="font-weight: 700;">Shift Left 1 bit (× 2)</button>
-                <button type="button" class="control-btn" id="btnShiftLeft2" style="font-weight: 700;">Shift Left 2 bits (× 4)</button>
-                <button type="button" class="control-btn" id="btnShiftRight1" style="font-weight: 700;">Shift Right 1 bit (÷ 2)</button>
-                <button type="button" class="control-btn" id="btnShiftRight2" style="font-weight: 700;">Shift Right 2 bits (÷ 4)</button>
-                <button type="button" class="control-btn" id="btnResetShift">Reset</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Current Shift Value Display -->
-          <div style="background: var(--bg-surface-elevated); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 14px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-              <div>
-                <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Register Bits:</span>
-                <div id="shiftBitsDisplay" style="font-family: var(--font-mono); font-size: 24px; font-weight: 900; letter-spacing: 4px; color: var(--text-primary); margin-top: 4px;">
-                  00010100
+          <!-- Dual-Register Tactile Shift Calculator -->
+          <div class="shifts-calc-container">
+            
+            <!-- ROW 1: ORIGINAL BYTE -->
+            <div class="shifts-byte-row-wrap">
+              <div class="shifts-byte-header">
+                <span class="shifts-byte-title">1️⃣ Original Byte (Input)</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">Denary:</span>
+                  <input type="number" id="calcShiftInput" min="0" max="255" value="20" class="calc-num-input" style="width: 72px; padding: 4px 8px; font-size: 14px;">
+                  <span class="calc-hex-tag" id="calcShiftHex">14₁₆</span>
                 </div>
               </div>
-              <div>
-                <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Denary:</span>
-                <div id="shiftDenaryDisplay" style="font-family: var(--font-mono); font-size: 24px; font-weight: 900; color: var(--accent-primary); margin-top: 4px;">
-                  20
-                </div>
+              <div class="shifts-byte-grid" id="shiftOrigGrid">
+                <!-- Rendered dynamically -->
               </div>
             </div>
-          </div>
 
-          <div id="shiftNote" style="font-size: 12px; color: var(--text-muted); font-style: italic; margin-top: 10px;">
-            Tip: Shifting left when the MSB is 1 drops the bit off the edge, causing data loss (overflow).
+            <!-- MIDDLE CONSOLE: SHIFT CONTROLS -->
+            <div class="shifts-console-panel">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                <span style="font-size: 12px; font-weight: 800; color: var(--text-primary); text-transform: uppercase;">
+                  Shift Controls (Multipliers &amp; Divisors):
+                </span>
+                <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 600;" id="currentShiftStatusLabel">
+                  Current: No shift applied
+                </span>
+              </div>
+
+              <!-- Left Multipliers -->
+              <div class="shifts-btn-row">
+                <button type="button" class="shift-op-btn left-btn" id="btnShiftLeft1" title="Shift Left 1 bit (× 2)">
+                  <span>&laquo;</span> Left 1 Bit (<strong>&times; 2</strong>)
+                </button>
+                <button type="button" class="shift-op-btn left-btn" id="btnShiftLeft2" title="Shift Left 2 bits (× 4)">
+                  <span>&laquo;</span> Left 2 Bits (<strong>&times; 4</strong>)
+                </button>
+                <button type="button" class="shift-op-btn left-btn" id="btnShiftLeft3" title="Shift Left 3 bits (× 8)">
+                  <span>&laquo;</span> Left 3 Bits (<strong>&times; 8</strong>)
+                </button>
+              </div>
+
+              <!-- Right Divisors -->
+              <div class="shifts-btn-row">
+                <button type="button" class="shift-op-btn right-btn" id="btnShiftRight1" title="Shift Right 1 bit (÷ 2)">
+                  Right 1 Bit (<strong>&divide; 2</strong>) <span>&raquo;</span>
+                </button>
+                <button type="button" class="shift-op-btn right-btn" id="btnShiftRight2" title="Shift Right 2 bits (÷ 4)">
+                  Right 2 Bits (<strong>&divide; 4</strong>) <span>&raquo;</span>
+                </button>
+                <button type="button" class="shift-op-btn right-btn" id="btnShiftRight3" title="Shift Right 3 bits (÷ 8)">
+                  Right 3 Bits (<strong>&divide; 8</strong>) <span>&raquo;</span>
+                </button>
+                <button type="button" class="shift-op-btn" id="btnResetShift" style="flex: 0 0 auto; min-width: 90px; color: var(--text-secondary);" title="Reset to original">
+                  ↺ Reset
+                </button>
+              </div>
+            </div>
+
+            <!-- ROW 2: SHIFTED BYTE -->
+            <div class="shifts-byte-row-wrap" style="margin-bottom: 0;">
+              <div class="shifts-byte-header">
+                <span class="shifts-byte-title">2️⃣ Shifted Result (Output)</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 11.5px; color: var(--text-muted); font-weight: 700;">New Denary:</span>
+                  <span id="shiftDenaryDisplay" style="font-family: var(--font-mono); font-size: 16px; font-weight: 900; color: var(--isaac-magenta);">20</span>
+                  <span class="calc-hex-tag" id="shiftResultHex">14₁₆</span>
+                </div>
+              </div>
+              <div class="shifts-byte-grid" id="shiftResultGrid">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- DYNAMIC CALCULATION BREAKDOWN & DATA LOSS BANNER -->
+            <div class="shift-math-banner">
+              <div>
+                <span style="font-size: 11px; text-transform: uppercase; font-weight: 800; color: var(--text-muted); display: block; margin-bottom: 2px;">Arithmetic Operation:</span>
+                <div id="shiftMathFormula" class="shift-math-expression">20 &times; 1 = 20 (Unshifted)</div>
+              </div>
+              <div id="shiftLossBadge" class="shift-loss-badge none">
+                <span>✓</span> No data loss
+              </div>
+            </div>
+
+            <!-- Pedagogical Rule Note -->
+            <div id="shiftNoteCard" style="margin-top: 12px; font-size: 12px; line-height: 1.5; color: var(--text-secondary); background: var(--bg-surface-elevated, #f8fafc); padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border-color);">
+              <strong>💡 Hardware Rule:</strong> Vacated bit positions are always padded with <strong>0</strong> in logical shifts. When shifting left, if a <code>1</code> falls off past bit 7 (128), an <strong>overflow error</strong> occurs. When shifting right, if a <code>1</code> falls off past bit 0 (1), <strong>fractional precision is truncated/lost</strong>.
+            </div>
+
           </div>
         </div>
       </div>
