@@ -174,12 +174,8 @@
     // Tab 2: Logical Shifts
     shiftBitsDisplay: document.getElementById('shiftBitsDisplay'),
     shiftDenaryDisplay: document.getElementById('shiftDenaryDisplay'),
-    btnShiftLeft1: document.getElementById('btnShiftLeft1'),
-    btnShiftLeft2: document.getElementById('btnShiftLeft2'),
-    btnShiftLeft3: document.getElementById('btnShiftLeft3'),
-    btnShiftRight1: document.getElementById('btnShiftRight1'),
-    btnShiftRight2: document.getElementById('btnShiftRight2'),
-    btnShiftRight3: document.getElementById('btnShiftRight3'),
+    btnShiftStepLeft: document.getElementById('btnShiftStepLeft'),
+    btnShiftStepRight: document.getElementById('btnShiftStepRight'),
     btnResetShift: document.getElementById('btnResetShift'),
     calcShiftInput: document.getElementById('calcShiftInput'),
     calcShiftHex: document.getElementById('calcShiftHex'),
@@ -569,6 +565,16 @@
         DOM.msbPlaceValueLabel.classList.remove('msb-negative');
       }
     }
+
+    // Pedagogical Explainers visibility: Show only the active representation explainer
+    const explainerUnsigned = document.getElementById('explainerUnsigned');
+    const explainerSignMag = document.getElementById('explainerSignMag');
+    const explainerTwos = document.getElementById('explainerTwos');
+
+    if (explainerUnsigned) explainerUnsigned.style.display = isBinary ? 'block' : 'none';
+    if (explainerSignMag) explainerSignMag.style.display = mode === 'sign_mag' ? 'block' : 'none';
+    if (explainerTwos) explainerTwos.style.display = mode === 'twos' ? 'block' : 'none';
+
     renderRegister();
   }
 
@@ -2075,12 +2081,12 @@
     // Status label and loss badges
     if (DOM.currentShiftStatusLabel) {
       if (k > 0) {
-        DOM.currentShiftStatusLabel.textContent = `Shifted Left by ${k} bit${k > 1 ? 's' : ''} (× ${Math.pow(2, k)})`;
+        DOM.currentShiftStatusLabel.textContent = `« Left ${k} bit${k > 1 ? 's' : ''} (× ${Math.pow(2, k)})`;
       } else if (k < 0) {
         const absK = Math.abs(k);
-        DOM.currentShiftStatusLabel.textContent = `Shifted Right by ${absK} bit${absK > 1 ? 's' : ''} (÷ ${Math.pow(2, absK)})`;
+        DOM.currentShiftStatusLabel.textContent = `Right ${absK} bit${absK > 1 ? 's' : ''} (÷ ${Math.pow(2, absK)}) »`;
       } else {
-        DOM.currentShiftStatusLabel.textContent = 'Current: No shift applied';
+        DOM.currentShiftStatusLabel.textContent = '0 shifts (Original)';
       }
     }
 
@@ -2108,19 +2114,29 @@
       });
     }
 
-    const setShift = (amt) => {
-      playSynthSound('click');
-      state.shiftAmount = amt;
-      renderShifts();
-    };
+    if (DOM.btnShiftStepLeft) {
+      DOM.btnShiftStepLeft.addEventListener('click', () => {
+        playSynthSound('click');
+        state.shiftAmount = Math.min(8, (state.shiftAmount || 0) + 1);
+        renderShifts();
+      });
+    }
 
-    if (DOM.btnShiftLeft1) DOM.btnShiftLeft1.addEventListener('click', () => setShift(1));
-    if (DOM.btnShiftLeft2) DOM.btnShiftLeft2.addEventListener('click', () => setShift(2));
-    if (DOM.btnShiftLeft3) DOM.btnShiftLeft3.addEventListener('click', () => setShift(3));
-    if (DOM.btnShiftRight1) DOM.btnShiftRight1.addEventListener('click', () => setShift(-1));
-    if (DOM.btnShiftRight2) DOM.btnShiftRight2.addEventListener('click', () => setShift(-2));
-    if (DOM.btnShiftRight3) DOM.btnShiftRight3.addEventListener('click', () => setShift(-3));
-    if (DOM.btnResetShift) DOM.btnResetShift.addEventListener('click', () => setShift(0));
+    if (DOM.btnShiftStepRight) {
+      DOM.btnShiftStepRight.addEventListener('click', () => {
+        playSynthSound('click');
+        state.shiftAmount = Math.max(-8, (state.shiftAmount || 0) - 1);
+        renderShifts();
+      });
+    }
+
+    if (DOM.btnResetShift) {
+      DOM.btnResetShift.addEventListener('click', () => {
+        playSynthSound('click');
+        state.shiftAmount = 0;
+        renderShifts();
+      });
+    }
   }
 
   // =========================================================================
