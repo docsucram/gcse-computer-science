@@ -2510,19 +2510,152 @@
   ];
 
   const BITMASTER_RANKS = [
-    { minXp: 0, title: "Logic Novice", svgIcon: BITMASTER_STAGE_ICONS[1] },
-    { minXp: 450, title: "Nibble Operator", svgIcon: BITMASTER_STAGE_ICONS[2] },
-    { minXp: 1000, title: "Binary Specialist", svgIcon: BITMASTER_STAGE_ICONS[3] },
-    { minXp: 1650, title: "Byte Engineer", svgIcon: BITMASTER_STAGE_ICONS[4] },
-    { minXp: 2350, title: "Hex Apprentice", svgIcon: BITMASTER_STAGE_ICONS[5] },
-    { minXp: 3100, title: "Hex Architect", svgIcon: BITMASTER_STAGE_ICONS[6] },
-    { minXp: 3900, title: "ALU Circuitist", svgIcon: BITMASTER_STAGE_ICONS[7] },
-    { minXp: 4750, title: "Two's Complement Master", svgIcon: BITMASTER_STAGE_ICONS[8] },
-    { minXp: 5650, title: "Silicon Shifter", svgIcon: BITMASTER_STAGE_ICONS[9] },
-    { minXp: 6600, title: "Data Architect", svgIcon: BITMASTER_STAGE_ICONS[10] },
-    { minXp: 7800, title: "Grand BitMaster", svgIcon: BITMASTER_STAGE_ICONS[11] },
-    { minXp: 9500, title: "Supreme Silicon Legend", svgIcon: BITMASTER_STAGE_ICONS[11] }
+    { minXp: 0, title: "Logic Novice", svgIcon: BITMASTER_STAGE_ICONS[1], avatarKey: "avatar_tier01_logic_novice" },
+    { minXp: 450, title: "Nibble Operator", svgIcon: BITMASTER_STAGE_ICONS[2], avatarKey: "avatar_tier02_nibble_operator" },
+    { minXp: 1000, title: "Binary Specialist", svgIcon: BITMASTER_STAGE_ICONS[3], avatarKey: "avatar_tier03_binary_specialist" },
+    { minXp: 1650, title: "Byte Engineer", svgIcon: BITMASTER_STAGE_ICONS[4], avatarKey: "avatar_tier04_byte_engineer" },
+    { minXp: 2350, title: "Signed Sentinel", svgIcon: BITMASTER_STAGE_ICONS[7], avatarKey: "avatar_tier05_signed_sentinel" },
+    { minXp: 3100, title: "Silicon Shifter", svgIcon: BITMASTER_STAGE_ICONS[9], avatarKey: "avatar_tier06_silicon_shifter" },
+    { minXp: 3900, title: "ALU Vanguard", svgIcon: BITMASTER_STAGE_ICONS[8], avatarKey: "avatar_tier07_alu_vanguard" },
+    { minXp: 4750, title: "Hex Sorcerer", svgIcon: BITMASTER_STAGE_ICONS[5], avatarKey: "avatar_tier08_hex_sorcerer" },
+    { minXp: 5650, title: "Hex Archon", svgIcon: BITMASTER_STAGE_ICONS[6], avatarKey: "avatar_tier09_hex_archon" },
+    { minXp: 6600, title: "Data Architect", svgIcon: BITMASTER_STAGE_ICONS[10], avatarKey: "avatar_tier10_data_architect" },
+    { minXp: 7800, title: "Grand BitMaster", svgIcon: BITMASTER_STAGE_ICONS[11], avatarKey: "avatar_tier11_grand_bitmaster" },
+    { minXp: 9500, title: "Supreme Silicon Legend", svgIcon: BITMASTER_STAGE_ICONS[11], avatarKey: "avatar_tier12_supreme_silicon_legend" }
   ];
+
+  window.BITMASTER_AVATAR_CACHE = window.BITMASTER_AVATAR_CACHE || {};
+
+  window.handleBitmasterAvatarLoad = function(img) {
+    if (!img) return;
+    img.style.display = 'block';
+    const media = img.closest('.bitmaster-avatar-media');
+    if (media) {
+      const fallback = media.querySelector('.bitmaster-avatar-fallback');
+      if (fallback) fallback.style.display = 'none';
+    }
+    const resolvedSrc = img.currentSrc || img.src;
+    if (img.dataset.avatarKey && resolvedSrc) {
+      window.BITMASTER_AVATAR_CACHE[img.dataset.avatarKey] = resolvedSrc;
+    }
+  };
+
+  window.handleBitmasterAvatarError = function(img) {
+    if (!img) return;
+    const candidates = (img.dataset.candidates || '').split('|');
+    let idx = parseInt(img.dataset.candIdx || '0', 10) + 1;
+    if (idx < candidates.length && candidates[idx]) {
+      img.dataset.candIdx = String(idx);
+      img.src = candidates[idx];
+    } else {
+      img.style.display = 'none';
+      const media = img.closest('.bitmaster-avatar-media');
+      if (media) {
+        const fallback = media.querySelector('.bitmaster-avatar-fallback');
+        if (fallback) fallback.style.display = 'flex';
+      }
+      if (img.dataset.avatarKey) {
+        window.BITMASTER_AVATAR_CACHE[img.dataset.avatarKey] = false;
+      }
+    }
+  };
+
+  const AVATAR_KEY_ALIASES = {
+    avatar_tier07_alu_vanguard: ['avatar_tier07_alu_vanguard', 'avatar_tier07_alu_striker', 'avatar_tier07_alu_circuitist', 'avatar_tier07_logic_vanguard'],
+    avatar_tier07_alu_circuitist: ['avatar_tier07_alu_vanguard', 'avatar_tier07_alu_striker', 'avatar_tier07_alu_circuitist', 'avatar_tier07_logic_vanguard'],
+    avatar_tier08_signed_sentinel: ['avatar_tier08_signed_sentinel', 'avatar_tier08_complement_sentinel', 'avatar_tier08_polarity_phantom', 'avatar_tier08_twos_complement_master'],
+    avatar_tier08_twos_complement_master: ['avatar_tier08_signed_sentinel', 'avatar_tier08_complement_sentinel', 'avatar_tier08_polarity_phantom', 'avatar_tier08_twos_complement_master']
+  };
+
+  function getBitmasterAvatarHTML(rank, extraClass = '') {
+    if (!rank) return '';
+    window.BITMASTER_AVATAR_CACHE = window.BITMASTER_AVATAR_CACHE || {};
+    const key = rank.avatarKey || `avatar_tier${String(rank.id || 1).padStart(2, '0')}`;
+
+    if (window.BITMASTER_AVATAR_CACHE[key] === false) {
+      return `<div class="bitmaster-avatar-media ${extraClass}"><div class="bitmaster-avatar-fallback">${rank.svgIcon}</div></div>`;
+    }
+
+    const cachedSrc = window.BITMASTER_AVATAR_CACHE[key];
+    const initialSrc = cachedSrc || `assets/avatars/${key}.png`;
+
+    const exts = [
+      '.png',
+      '.jpeg',
+      '.jpg',
+      ' (Custom).jpeg',
+      ' (Custom).png',
+      ' (Custom).jpg',
+      'a.jpeg',
+      'a.png',
+      '.webp'
+    ];
+
+    const keysToTry = AVATAR_KEY_ALIASES[key] || [key];
+    const candidates = [];
+    keysToTry.forEach(k => {
+      exts.forEach(ext => {
+        candidates.push(`assets/avatars/${k}${ext}`);
+        candidates.push(`modules/binary-numbers/assets/avatars/${k}${ext}`);
+      });
+    });
+
+    const candidatesAttr = candidates.join('|');
+
+    return `
+      <div class="bitmaster-avatar-media ${extraClass}">
+        <img src="${initialSrc}"
+             alt="${rank.title}"
+             class="bitmaster-avatar-img"
+             data-avatar-key="${key}"
+             data-candidates="${candidatesAttr}"
+             data-cand-idx="0"
+             onload="window.handleBitmasterAvatarLoad(this)"
+             onerror="window.handleBitmasterAvatarError(this)"
+             style="${cachedSrc ? 'display:block;' : 'display:none;'}" />
+        <div class="bitmaster-avatar-fallback" style="${cachedSrc ? 'display:none;' : 'display:flex;'}">
+          ${rank.svgIcon}
+        </div>
+      </div>
+    `;
+  }
+
+  function probeBitmasterAvatars() {
+    BITMASTER_RANKS.forEach(rank => {
+      const key = rank.avatarKey;
+      if (!key) return;
+      const exts = ['.png', '.jpeg', '.jpg', ' (Custom).jpeg', 'a.jpeg', '.webp'];
+      const keysToTry = AVATAR_KEY_ALIASES[key] || [key];
+      const pathsToTry = [];
+      keysToTry.forEach(k => {
+        exts.forEach(ext => {
+          pathsToTry.push(`assets/avatars/${k}${ext}`);
+        });
+      });
+
+      let idx = 0;
+      function tryNext() {
+        if (idx >= pathsToTry.length) {
+          window.BITMASTER_AVATAR_CACHE[key] = false;
+          return;
+        }
+        const src = pathsToTry[idx];
+        idx++;
+        const testImg = new Image();
+        testImg.onload = () => {
+          window.BITMASTER_AVATAR_CACHE[key] = src;
+          const currentRank = getCurrentBitmasterRank();
+          if (currentRank && (currentRank.avatarKey === key || currentRank.title === rank.title)) {
+            const avatarEl = document.getElementById('bitmasterAvatarIcon');
+            if (avatarEl) avatarEl.innerHTML = getBitmasterAvatarHTML(currentRank, 'hud-avatar');
+          }
+        };
+        testImg.onerror = tryNext;
+        testImg.src = src;
+      }
+      tryNext();
+    });
+  }
 
   const bitmasterState = {
     xp: 0,
@@ -2614,7 +2747,7 @@
 
     if (starEl) starEl.textContent = totalStars;
     if (xpEl) xpEl.textContent = bitmasterState.xp;
-    if (avatarEl) avatarEl.innerHTML = rank.svgIcon;
+    if (avatarEl) avatarEl.innerHTML = getBitmasterAvatarHTML(rank, 'hud-avatar');
     if (rankTitleEl) rankTitleEl.textContent = rank.title;
 
     if (nextRank) {
@@ -2629,9 +2762,11 @@
     }
 
     // Update Title Screen preview stats if present
+    const titleHeroChip = document.getElementById('bitmasterTitleHeroChip');
     const titleRankEl = document.getElementById('bitmasterTitleRankName');
     const titleStarsEl = document.getElementById('bitmasterTitleStarsCount');
     const titleXpEl = document.getElementById('bitmasterTitleXpCount');
+    if (titleHeroChip) titleHeroChip.innerHTML = getBitmasterAvatarHTML(rank, 'title-hero-avatar');
     if (titleRankEl) titleRankEl.textContent = rank.title;
     const maxPossibleStars = BITMASTER_STAGES.reduce((acc, s) => acc + s.levels.length * 3, 0);
     if (titleStarsEl) titleStarsEl.textContent = `${totalStars} / ${maxPossibleStars} ⭐`;
@@ -5007,7 +5142,7 @@
 
     if (summaryCardEl) {
       summaryCardEl.classList.remove('rank-up-flash');
-      if (summaryRankAvatar) summaryRankAvatar.innerHTML = oldRank.svgIcon;
+      if (summaryRankAvatar) summaryRankAvatar.innerHTML = getBitmasterAvatarHTML(oldRank, 'summary-avatar');
       if (summaryRankTier) summaryRankTier.textContent = `ARCHITECTURE TIER ${oldRank.id} OF 12`;
       if (summaryRankTitle) {
         summaryRankTitle.textContent = oldRank.title;
@@ -5038,7 +5173,7 @@
           setTimeout(() => {
             // Flash celebration on summary card
             if (summaryCardEl) summaryCardEl.classList.add('rank-up-flash');
-            if (summaryRankAvatar) summaryRankAvatar.innerHTML = newRank.svgIcon;
+            if (summaryRankAvatar) summaryRankAvatar.innerHTML = getBitmasterAvatarHTML(newRank, 'summary-avatar');
             if (summaryRankTier) summaryRankTier.textContent = `PROMOTED! TIER ${newRank.id} OF 12`;
             if (summaryRankTitle) {
               summaryRankTitle.textContent = newRank.title;
@@ -5124,6 +5259,7 @@
   function setupBitMaster() {
     loadBitmasterSave();
     updateBitmasterHUD();
+    probeBitmasterAvatars();
 
     // Setup native Fullscreen button & top-right HUD symbol toggle
     const fsBtn = document.getElementById('bitmasterFullscreenBtn');
@@ -5336,13 +5472,13 @@
     const progressPct = document.getElementById('bitmasterModalProgressPct');
     const ladderList = document.getElementById('bitmasterRankLadderList');
 
-    if (curAvatar) curAvatar.innerHTML = currentRank.svgIcon;
+    if (curAvatar) curAvatar.innerHTML = getBitmasterAvatarHTML(currentRank, 'modal-avatar');
     if (curTitle) curTitle.textContent = currentRank.title;
     if (curXp) curXp.textContent = `${bitmasterState.xp} XP`;
 
     if (nextRank) {
       if (nextBadge) nextBadge.textContent = 'NEXT RANK';
-      if (nextAvatar) nextAvatar.innerHTML = nextRank.svgIcon;
+      if (nextAvatar) nextAvatar.innerHTML = getBitmasterAvatarHTML(nextRank, 'modal-avatar');
       if (nextTitle) nextTitle.textContent = nextRank.title;
       const diff = Math.max(0, nextRank.minXp - bitmasterState.xp);
       if (nextReq) nextReq.textContent = `Need ${diff} more XP`;
@@ -5354,8 +5490,8 @@
       if (progressPct) progressPct.textContent = `${pct}%`;
     } else {
       if (nextBadge) nextBadge.textContent = 'MAX RANK';
-      if (nextAvatar) nextAvatar.innerHTML = currentRank.svgIcon;
-      if (nextTitle) nextTitle.textContent = 'Grand BitMaster';
+      if (nextAvatar) nextAvatar.innerHTML = getBitmasterAvatarHTML(currentRank, 'modal-avatar');
+      if (nextTitle) nextTitle.textContent = currentRank.title;
       if (nextReq) nextReq.textContent = 'Highest Rank Attained! 👑';
       if (meterWrap) meterWrap.style.display = 'none';
     }
@@ -5366,7 +5502,7 @@
         const isUnlocked = bitmasterState.xp >= r.minXp;
         return `
           <div class="rank-ladder-row ${isCurrent ? 'current-tier' : ''} ${isUnlocked ? 'unlocked' : 'locked'}">
-            <div class="ladder-rank-avatar">${r.svgIcon}</div>
+            <div class="ladder-rank-avatar">${getBitmasterAvatarHTML(r, 'ladder-avatar')}</div>
             <div class="ladder-rank-info">
               <div class="ladder-rank-name">
                 <span>${r.title}</span>
@@ -5402,7 +5538,7 @@
     const subEl = document.getElementById('bitmasterLevelUpSubtitle');
     const descEl = document.getElementById('bitmasterLevelUpDesc');
 
-    if (avatarEl) avatarEl.innerHTML = newRank.svgIcon;
+    if (avatarEl) avatarEl.innerHTML = getBitmasterAvatarHTML(newRank, 'levelup-avatar');
     if (titleEl) titleEl.textContent = newRank.title;
     if (subEl) subEl.textContent = `Architecture Tier ${newRank.id} of 12`;
     if (descEl) descEl.textContent = `Outstanding work! You have earned enough Architecture XP to unlock the rank of ${newRank.title}. Keep conquering binary stages!`;

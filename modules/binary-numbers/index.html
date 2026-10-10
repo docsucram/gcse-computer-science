@@ -210,7 +210,7 @@
         <div id="bitmasterScreenTitle" class="bitmaster-screen active">
           <div class="bitmaster-title-hero">
             <div class="title-hero-badge-wrap">
-              <div class="title-hero-chip">
+              <div class="title-hero-chip" id="bitmasterTitleHeroChip">
                 <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="4" y="4" width="16" height="16" rx="2"/>
                   <rect x="9" y="9" width="6" height="6"/>
@@ -257,7 +257,21 @@
 
           <!-- Rank Profile Panel (Clickable to view next rank and reset scores) -->
           <div class="bitmaster-rank-card" id="bitmasterRankCard" title="Click to view rank progression &amp; reset scores">
-            <div class="bitmaster-rank-avatar" id="bitmasterAvatarIcon">💡</div>
+            <div class="bitmaster-rank-avatar" id="bitmasterAvatarIcon">
+              <div class="bitmaster-avatar-media hud-avatar">
+                <img src="assets/avatars/avatar_tier01_logic_novice.png"
+                     alt="Logic Novice"
+                     class="bitmaster-avatar-img"
+                     data-avatar-key="avatar_tier01_logic_novice"
+                     data-candidates="assets/avatars/avatar_tier01_logic_novice.png|assets/avatars/avatar_tier01_logic_novice.jpeg|assets/avatars/avatar_tier01_logic_novice.jpg|assets/avatars/avatar_tier01_logic_novice (Custom).jpeg|modules/binary-numbers/assets/avatars/avatar_tier01_logic_novice.png|modules/binary-numbers/assets/avatars/avatar_tier01_logic_novice.jpeg"
+                     data-cand-idx="0"
+                     onload="window.handleBitmasterAvatarLoad(this)"
+                     onerror="window.handleBitmasterAvatarError(this)" />
+                <div class="bitmaster-avatar-fallback" style="display:none;">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M15 9h.01"/><path d="M9 15h6"/></svg>
+                </div>
+              </div>
+            </div>
             <div class="bitmaster-rank-details">
               <div class="bitmaster-rank-header">
                 <div>

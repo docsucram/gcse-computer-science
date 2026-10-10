@@ -11,3 +11,6 @@ Thumbs.db
 # Editor directories
 .vscode/
 .idea/
+
+# Raw/uncompressed media originals
+**/originals/

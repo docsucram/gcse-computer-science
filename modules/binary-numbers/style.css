@@ -2582,6 +2582,8 @@ html.dark .converter-preset-btn:hover,
   border: 3px solid rgba(255, 255, 255, 0.25);
   box-shadow: 0 8px 24px rgba(236, 72, 153, 0.5), inset 0 2px 0 rgba(255, 255, 255, 0.3);
   animation: pulseChip 3s ease-in-out infinite alternate;
+  overflow: hidden;
+  position: relative;
 }
 
 @keyframes pulseChip {
@@ -2793,6 +2795,36 @@ html.dark .converter-preset-btn:hover,
   box-shadow: 0 4px 14px rgba(200, 0, 107, 0.4);
   flex-shrink: 0;
   color: #ffffff;
+  overflow: hidden;
+  position: relative;
+}
+
+.bitmaster-avatar-media {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.bitmaster-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+  display: block;
+}
+
+.bitmaster-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
 }
 
 .bitmaster-rank-avatar svg {
@@ -3714,7 +3746,7 @@ html.dark .converter-preset-btn:hover,
 
 /* Rank Progression & Reset Modal Dialog (Centered & Contained) */
 .rank-modal-dialog {
-  max-width: 500px !important;
+  max-width: 535px !important;
   text-align: left !important;
   max-height: 88vh !important;
   overflow-y: auto !important;
@@ -3752,6 +3784,13 @@ html.dark .converter-preset-btn:hover,
 }
 
 .levelup-avatar-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 38px;
   line-height: 1;
 }
@@ -3843,18 +3882,21 @@ html.dark .converter-preset-btn:hover,
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 14px;
+  margin-bottom: 18px;
 }
 
 .rank-box {
   flex: 1;
   background: #131b2e;
   border: 2px solid #23314a;
-  border-radius: 14px;
-  padding: 14px 10px;
+  border-radius: 18px;
+  padding: 12px 10px 14px;
   text-align: center;
-  box-shadow: 0 4px 0 #080d17;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .rank-box.current-rank-box {
@@ -3870,35 +3912,68 @@ html.dark .converter-preset-btn:hover,
 .rank-box-badge {
   font-size: 9px;
   font-weight: 900;
-  letter-spacing: 0.8px;
-  color: #94a3b8;
+  letter-spacing: 0.9px;
   text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   margin-bottom: 8px;
+  display: inline-block;
+}
+
+.current-rank-box .rank-box-badge {
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(2, 132, 199, 0.18);
+}
+
+.next-rank-box .rank-box-badge {
+  color: #f472b6;
+  border-color: rgba(236, 72, 153, 0.4);
+  background: rgba(236, 72, 153, 0.18);
 }
 
 .rank-box-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 124px;
+  height: 124px;
+  border-radius: 24px;
   margin: 0 auto 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #1e293b;
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  background: #0f172a;
+  border: 2.5px solid rgba(255, 255, 255, 0.18);
   color: #ffffff;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.55);
+  flex-shrink: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.current-rank-box .rank-box-avatar {
+  border-color: #38bdf8;
+  box-shadow: 0 8px 30px rgba(56, 189, 248, 0.45);
+}
+
+.next-rank-box .rank-box-avatar {
+  border-color: #ec4899;
+  box-shadow: 0 8px 30px rgba(236, 72, 153, 0.45);
 }
 
 .rank-box-avatar svg {
-  width: 24px;
-  height: 24px;
+  width: 58px;
+  height: 58px;
 }
 
 .rank-box-title {
-  font-size: 13.5px;
+  font-size: 15px;
   font-weight: 900;
   color: #ffffff;
+  margin-top: 4px;
   margin-bottom: 3px;
+  letter-spacing: -0.2px;
 }
 
 .rank-box-xp {
@@ -3906,6 +3981,9 @@ html.dark .converter-preset-btn:hover,
   font-weight: 800;
   font-family: var(--font-mono);
   color: #94a3b8;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .rank-arrow-indicator {
@@ -3961,18 +4039,33 @@ html.dark .converter-preset-btn:hover,
 }
 
 .ladder-rank-avatar {
-  width: 28px;
-  height: 28px;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #38bdf8;
   flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 .ladder-rank-avatar svg {
   width: 18px;
   height: 18px;
+}
+
+.rank-ladder-row.locked .ladder-rank-avatar {
+  opacity: 0.45;
+  filter: grayscale(80%);
+}
+
+.rank-ladder-row.current-tier .ladder-rank-avatar {
+  border-color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
 }
 
 .ladder-rank-info {
@@ -4155,6 +4248,8 @@ html.dark .converter-preset-btn:hover,
   font-size: 20px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 .summary-rank-avatar svg {
@@ -4869,6 +4964,27 @@ body.bitmaster-standalone-mode .bitmaster-arena {
     text-align: center !important;
     justify-content: center !important;
     padding: 8px 4px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .rank-preview-container {
+    gap: 8px;
+  }
+  .rank-box {
+    padding: 12px 6px;
+  }
+  .rank-box-avatar {
+    width: 96px;
+    height: 96px;
+    border-radius: 18px;
+  }
+  .rank-box-avatar svg {
+    width: 44px;
+    height: 44px;
+  }
+  .rank-box-title {
+    font-size: 13px;
   }
 }
 
