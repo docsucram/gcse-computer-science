@@ -3199,9 +3199,16 @@ html.dark .converter-preset-btn:hover,
   letter-spacing: 2px;
   line-height: 1.3;
   text-shadow: 0 0 24px rgba(56, 189, 248, 0.45);
-  white-space: nowrap !important;
+  white-space: nowrap;
   overflow-x: auto;
   max-width: 100%;
+}
+
+.challenge-display.has-strip {
+  white-space: normal !important;
+  overflow: visible !important;
+  text-shadow: none !important;
+  letter-spacing: normal !important;
 }
 
 .challenge-hint {
@@ -3209,6 +3216,160 @@ html.dark .converter-preset-btn:hover,
   color: #64748b;
   margin-top: 8px;
   font-weight: 600;
+}
+
+/* BitMaster Question Display Bit Strip */
+.bm-bit-strip {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 5px;
+  width: 100%;
+  max-width: 100%;
+  margin: 6px auto 2px;
+  box-sizing: border-box;
+  flex-wrap: nowrap !important;
+}
+
+.bm-bit-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 58px;
+}
+
+.bm-strip-4 .bm-bit-col {
+  max-width: 76px;
+}
+
+.bm-bit-weight-label {
+  font-family: var(--font-mono, monospace);
+  font-size: clamp(8.5px, 2.2vw, 13px);
+  font-weight: 800;
+  color: #38bdf8;
+  margin-bottom: 5px;
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+}
+
+.bm-bit-weight-label.is-target {
+  color: #f472b6;
+  font-weight: 900;
+}
+
+.bm-bit-weight-label.is-twos-neg {
+  color: #22d3ee;
+}
+
+.bm-bit-rect {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: clamp(38px, 9vw, 54px);
+  background: linear-gradient(180deg, #131b2e 0%, #0b1120 100%);
+  border: 2px solid #23304a;
+  border-radius: 10px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 3px 6px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-mono, monospace);
+  font-size: clamp(14px, 4vw, 22px);
+  font-weight: 900;
+  color: #64748b;
+  user-select: none;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.bm-strip-4 .bm-bit-rect {
+  height: clamp(44px, 11vw, 60px);
+  font-size: clamp(16px, 5vw, 24px);
+}
+
+/* Active 1 Bit */
+.bm-bit-rect.bit-1 {
+  background: linear-gradient(180deg, #172554 0%, #0f172a 100%);
+  border-color: #38bdf8;
+  color: #38bdf8;
+  text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+  box-shadow: inset 0 1px 3px rgba(56, 189, 248, 0.3), 0 0 12px rgba(56, 189, 248, 0.25);
+}
+
+/* Dim 0 Bit */
+.bm-bit-rect.bit-0 {
+  color: #475569;
+}
+
+/* Target Question Bit (e.g. "?" or the place value being queried) */
+.bm-bit-rect.is-target {
+  background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
+  border-color: #a855f7;
+  color: #f472b6;
+  border-width: 2.5px;
+  text-shadow: 0 0 14px rgba(244, 114, 182, 0.7);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.4), inset 0 0 10px rgba(244, 114, 182, 0.2);
+  animation: bm-pulse-rect 1.4s infinite ease-in-out;
+}
+
+/* Blue Two's Complement Highlight */
+.bm-bit-rect.twos-msb {
+  border-color: #06b6d4;
+  color: #22d3ee;
+  background: linear-gradient(180deg, #0e3047 0%, #091a27 100%);
+  box-shadow: 0 0 14px rgba(6, 182, 212, 0.35);
+}
+
+.bm-bit-rect.twos-msb.is-target {
+  border-color: #38bdf8;
+  color: #38bdf8;
+  animation: bm-pulse-twos 1.4s infinite ease-in-out;
+}
+
+@keyframes bm-pulse-rect {
+  0%, 100% {
+    border-color: #a855f7;
+    box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+  }
+  50% {
+    border-color: #ec4899;
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.65);
+  }
+}
+
+@keyframes bm-pulse-twos {
+  0%, 100% {
+    border-color: #06b6d4;
+    box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+  }
+  50% {
+    border-color: #38bdf8;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.7);
+  }
+}
+
+@media (max-width: 480px) {
+  .bitmaster-challenge-card {
+    padding: 16px 8px;
+  }
+  .bm-bit-strip {
+    gap: 3px;
+  }
+  .bm-bit-rect {
+    height: 38px;
+    border-radius: 7px;
+    border-width: 1.5px;
+    font-size: 13px;
+  }
+  .bm-strip-4 .bm-bit-rect {
+    height: 44px;
+    font-size: 17px;
+  }
+  .bm-bit-weight-label {
+    font-size: 8px;
+    margin-bottom: 3px;
+  }
 }
 
 /* Chunky Bevelled 2x2 Answer Tiles */
@@ -3299,48 +3460,62 @@ html.dark .converter-preset-btn:hover,
 .switch-bits-flex {
   display: flex;
   justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 4px;
+  flex-wrap: nowrap !important;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.switch-bits-flex.bits-4 .bitmaster-switch-cell {
+  max-width: 76px;
 }
 
 .bitmaster-switch-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 54px;
-  padding: 10px 4px;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
+  padding: 8px 2px;
   background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-  border: 2.5px solid #475569;
-  border-radius: 14px;
+  border: 2px solid #475569;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.12s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
-  box-shadow: 0 5px 0 #090e18, 0 6px 14px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 0 #090e18, 0 5px 12px rgba(0, 0, 0, 0.4);
+  box-sizing: border-box;
 }
 
 .bitmaster-switch-cell:hover {
   border-color: #38bdf8;
   transform: translateY(-2px);
-  box-shadow: 0 7px 0 #090e18;
+  box-shadow: 0 6px 0 #090e18;
 }
 
 .bitmaster-switch-cell:active {
-  transform: translateY(3px);
+  transform: translateY(2px);
   box-shadow: 0 2px 0 #090e18;
 }
 
 .bitmaster-switch-cell.active {
   background: linear-gradient(180deg, #ec4899 0%, #be185d 100%) !important;
   border-color: #f472b6 !important;
-  box-shadow: 0 5px 0 #831843, 0 8px 18px rgba(236, 72, 153, 0.5) !important;
+  box-shadow: 0 4px 0 #831843, 0 6px 16px rgba(236, 72, 153, 0.5) !important;
 }
 
 .switch-cell-pv {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: clamp(8.5px, 2.3vw, 12px);
   font-weight: 900;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
   color: #94a3b8;
+  white-space: nowrap;
+  letter-spacing: -0.2px;
 }
 
 .bitmaster-switch-cell.active .switch-cell-pv {
@@ -3349,13 +3524,34 @@ html.dark .converter-preset-btn:hover,
 
 .switch-cell-val {
   font-family: var(--font-mono);
-  font-size: 19px;
+  font-size: clamp(14px, 3.8vw, 20px);
   font-weight: 900;
   color: #f1f5f9;
+  line-height: 1.1;
 }
 
 .bitmaster-switch-cell.active .switch-cell-val {
   color: #ffffff;
+}
+
+@media (max-width: 480px) {
+  .switch-bits-flex {
+    gap: 3px;
+  }
+  .bitmaster-switch-cell {
+    padding: 6px 1px;
+    border-radius: 8px;
+    border-width: 1.5px;
+  }
+  .switch-cell-pv {
+    font-size: 8px;
+  }
+  .switch-cell-val {
+    font-size: 13px;
+  }
+  .switchboard-footer {
+    padding: 8px 10px;
+  }
 }
 
 .switchboard-footer {

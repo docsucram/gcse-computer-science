@@ -2361,10 +2361,11 @@
       svgIcon: BITMASTER_STAGE_ICONS[1],
       color: "#3b82f6",
       levels: [
-        { id: 1, name: "Nibble Weights", mode: "place_val_nibble_which", desc: "Which bit position represents place value 1, 2, 4, or 8?" },
-        { id: 2, name: "Nibble Values", mode: "place_val_nibble_what", desc: "What place value does this highlighted bit represent?" },
-        { id: 3, name: "Byte Weights", mode: "place_val_byte_which", desc: "Which bit position represents value 16, 32, 64, or 128?" },
-        { id: 4, name: "Byte Mastery", mode: "place_val_byte_what", desc: "Identify place values across all 8 positions (128 to 1)" }
+        { id: 1, name: "Nibble Weights", mode: "place_val_nibble_what", desc: "Identify place values for 4-bit nibbles (8, 4, 2, 1) in visual bit boxes" },
+        { id: 2, name: "Nibble Missing (?)", mode: "place_val_nibble_missing", desc: "Find the missing place value marked with '?' (e.g. 8, ?, 2, 1)" },
+        { id: 3, name: "Byte Weights", mode: "place_val_byte_what", desc: "Identify place values across 8-bit positions (128 down to 1)" },
+        { id: 4, name: "Byte Missing (?)", mode: "place_val_byte_missing", desc: "Find the missing place value marked with '?' in an 8-bit byte" },
+        { id: 5, name: "Unassisted Positions", mode: "place_val_byte_unassisted", desc: "Identify place values with all scaffolding removed (Bit 7 down to Bit 0)" }
       ]
     },
     {
@@ -2375,9 +2376,9 @@
       svgIcon: BITMASTER_STAGE_ICONS[2],
       color: "#10b981",
       levels: [
-        { id: 1, name: "4-Bit Nibble", mode: "mc_nibble_bin2den", desc: "4-Bit Binary to Denary (values 0 to 15)" },
-        { id: 2, name: "8-Bit Lower Byte", mode: "mc_byte_bin2den_simple", desc: "8-Bit Binary to Denary (values up to 63)" },
-        { id: 3, name: "Full 8-Bit Byte", mode: "mc_byte_bin2den", desc: "Full 8-Bit Binary to Denary (values 0 to 255)" },
+        { id: 1, name: "4-Bit Nibble (Assisted)", mode: "mc_nibble_bin2den_assisted", desc: "4-Bit Binary to Denary with place values (8 • 4 • 2 • 1) shown above bits" },
+        { id: 2, name: "8-Bit Byte (Assisted)", mode: "mc_byte_bin2den_assisted", desc: "8-Bit Binary to Denary with place values (128..1) shown above bits" },
+        { id: 3, name: "8-Bit Byte (Unassisted)", mode: "mc_byte_bin2den_unassisted", desc: "Full 8-Bit Binary to Denary with place values removed (Mental conversion)" },
         { id: 4, name: "Speed Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Rapid Binary to Denary conversions!" }
       ]
     },
@@ -2445,10 +2446,12 @@
       svgIcon: BITMASTER_STAGE_ICONS[7],
       color: "#06b6d4",
       levels: [
-        { id: 1, name: "Sign Bit & Foundations", mode: "mc_twos_comp_sign", desc: "Sign Identification & Most Significant Bit (−128 / −8 place values)" },
-        { id: 2, name: "Invert & Add 1", mode: "twos_comp_invert_add_1", desc: "Two's Complement Negation: Convert +V to −V with flippable bits & submit" },
-        { id: 3, name: "4-Bit Nibbles", mode: "twos_comp_nibbles", desc: "4-Bit Two's Comp: Flip bits for negative numbers and evaluate nibbles in denary" },
-        { id: 4, name: "8-Bit Mastery", mode: "twos_comp_byte_mastery", desc: "Full 8-Bit Two's Complement: Convert & interpret signed bytes (−128 to +127)" }
+        { id: 1, name: "Sign & MSB Rectangles", mode: "mc_twos_comp_sign", desc: "Identify the negative MSB (−8 / −128) and sign bit in visual bit boxes" },
+        { id: 2, name: "Nibble Missing (?)", mode: "twos_comp_nibble_missing", desc: "Find the missing place value in 4-bit Two's Comp (e.g. −8, ?, 2, 1)" },
+        { id: 3, name: "Byte Missing (?)", mode: "twos_comp_byte_missing", desc: "Find the missing place value in 8-bit Two's Comp (e.g. ?, 64, 32, ...)" },
+        { id: 4, name: "Invert & Add 1", mode: "twos_comp_invert_add_1", desc: "Two's Complement Negation: Convert +V to −V with flippable switches" },
+        { id: 5, name: "4-Bit Nibbles", mode: "twos_comp_nibbles", desc: "4-Bit Two's Comp: Flip bits & evaluate nibbles in denary" },
+        { id: 6, name: "8-Bit Mastery", mode: "twos_comp_byte_mastery", desc: "Full 8-Bit Two's Complement conversions (−128 to +127) & switches" }
       ]
     },
     {
@@ -2939,6 +2942,76 @@
   }
 
   // =========================================================================
+  // BITMASTER QUESTION BIT STRIP COMPONENT BUILDER
+  // =========================================================================
+
+  function renderBitStripHTML({
+    bits = null,
+    weights = null,
+    showWeights = true,
+    targetIdx = -1,
+    valuesAsWeights = false,
+    targetChar = '?',
+    variant = 'cyan'
+  }) {
+    const count = bits ? bits.length : (weights ? weights.length : 8);
+    const isFour = count === 4;
+    let html = `<div class="bm-bit-strip ${isFour ? 'bm-strip-4' : 'bm-strip-8'} bm-variant-${variant}">`;
+
+    for (let i = 0; i < count; i++) {
+      const isTarget = (i === targetIdx);
+      const weightVal = weights ? weights[i] : null;
+      const bitVal = bits ? bits[i] : null;
+
+      let displayBoxVal = '';
+      let boxClasses = ['bm-bit-rect'];
+
+      if (valuesAsWeights) {
+        if (isTarget) {
+          displayBoxVal = targetChar;
+          boxClasses.push('is-target');
+        } else {
+          displayBoxVal = weightVal !== null && weightVal !== undefined ? String(weightVal) : '';
+        }
+        if (variant === 'twos' && i === 0) {
+          boxClasses.push('twos-msb');
+        }
+      } else {
+        if (isTarget) {
+          boxClasses.push('is-target');
+          displayBoxVal = targetChar !== '?' ? targetChar : (bitVal !== null ? String(bitVal) : '?');
+        } else {
+          displayBoxVal = bitVal !== null ? String(bitVal) : '0';
+          if (displayBoxVal === '1') {
+            boxClasses.push('bit-1');
+          } else if (displayBoxVal === '0') {
+            boxClasses.push('bit-0');
+          }
+        }
+        if (variant === 'twos' && i === 0) {
+          boxClasses.push('twos-msb');
+        }
+      }
+
+      html += `<div class="bm-bit-col">`;
+      if (showWeights && weights && !valuesAsWeights) {
+        const isWeightTarget = isTarget;
+        const isTwosNeg = (variant === 'twos' && i === 0);
+        const wLabel = String(weightVal);
+        html += `<div class="bm-bit-weight-label ${isWeightTarget ? 'is-target' : ''} ${isTwosNeg ? 'is-twos-neg' : ''}">${wLabel}</div>`;
+      } else if (valuesAsWeights && showWeights) {
+        const posName = `Bit ${count - 1 - i}`;
+        html += `<div class="bm-bit-weight-label ${isTarget ? 'is-target' : ''}">${posName}</div>`;
+      }
+      html += `<div class="${boxClasses.join(' ')}">${displayBoxVal}</div>`;
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+    return html;
+  }
+
+  // =========================================================================
   // QUESTION GENERATOR WITH SMART GCSE DISTRACTORS
   // =========================================================================
 
@@ -3001,9 +3074,9 @@
     let effectiveMode = mode;
     if (mode === 'sprint_60s') {
       if (stage.id === 1) {
-        effectiveMode = Math.random() > 0.5 ? 'place_val_nibble_what' : 'place_val_byte_what';
+        effectiveMode = Math.random() > 0.5 ? 'place_val_nibble_missing' : 'place_val_byte_missing';
       } else if (stage.id === 2) {
-        effectiveMode = Math.random() > 0.5 ? 'mc_nibble_bin2den' : 'mc_byte_bin2den';
+        effectiveMode = Math.random() > 0.5 ? 'mc_nibble_bin2den_assisted' : 'mc_byte_bin2den_unassisted';
       } else if (stage.id === 3) {
         effectiveMode = Math.random() > 0.5 ? 'switches_nibble' : 'mixed_bin_den';
       } else if (stage.id === 4) {
@@ -3015,7 +3088,7 @@
         effectiveMode = Math.random() > 0.5 ? 'math_add_simple' : 'math_add_8bit';
       } else if (stage.id === 7) {
         const r = Math.random();
-        effectiveMode = r < 0.33 ? 'mc_twos_comp_sign' : (r < 0.66 ? 'twos_comp_nibbles' : 'twos_comp_byte_mastery');
+        effectiveMode = r < 0.25 ? 'mc_twos_comp_sign' : (r < 0.5 ? 'twos_comp_nibble_missing' : (r < 0.75 ? 'twos_comp_nibbles' : 'twos_comp_byte_mastery'));
       } else if (stage.id === 8) {
         effectiveMode = Math.random() > 0.5 ? 'math_sub_4bit' : 'math_sub_twos_comp';
       } else if (stage.id === 9) {
@@ -3033,122 +3106,185 @@
     const fmtBin = (val, len) => val.toString(2).padStart(len, '0').split('').join(' ');
 
     // =========================================================================
-    // STAGE 1: BINARY PLACE VALUES
+    // STAGE 1: BINARY PLACE VALUES (SCAFFOLDED WITH BIT RECTANGLES)
     // =========================================================================
-    if (effectiveMode === 'place_val_nibble_which') {
+    if (effectiveMode === 'place_val_nibble_what' || effectiveMode === 'place_val_nibble_which') {
       const weights = [8, 4, 2, 1];
+      const chosenIdx = Math.floor(Math.random() * 4);
+      const targetVal = weights[chosenIdx];
       const bitNames = ['Bit 3', 'Bit 2', 'Bit 1', 'Bit 0'];
-      const chosenIdx = Math.floor(Math.random() * 4);
-      const targetVal = weights[chosenIdx];
-      const correctAns = bitNames[chosenIdx];
-      return {
-        type: 'mc',
-        layout: 'bit_boxes',
-        prompt: `Which bit position represents place value ${targetVal}?`,
-        display: `Place Value: ${targetVal}`,
-        hint: "4-bit columns: Bit 3 (leftmost 8), Bit 2 (4), Bit 1 (2), Bit 0 (rightmost 1)",
-        correctAnswer: correctAns,
-        options: ['Bit 3', 'Bit 2', 'Bit 1', 'Bit 0']
-      };
-    }
-
-    if (effectiveMode === 'place_val_nibble_what') {
-      const weights = [8, 4, 2, 1];
-      const chosenIdx = Math.floor(Math.random() * 4);
-      const targetVal = weights[chosenIdx];
-      const displayNibble = [0, 0, 0, 0];
-      displayNibble[chosenIdx] = 1;
-      const formatted = displayNibble.map((b, idx) => idx === chosenIdx ? `[1]` : `0`).join(' ');
+      const displayHTML = renderBitStripHTML({
+        weights: weights,
+        valuesAsWeights: true,
+        targetIdx: chosenIdx,
+        targetChar: String(targetVal),
+        showWeights: true
+      });
       const dists = weights.filter(w => w !== targetVal);
       return {
         type: 'mc',
-        prompt: "What is the place value of the bracketed [1] bit in this nibble?",
-        display: formatted,
-        hint: "Nibble place values from left to right: 8 • 4 • 2 • 1",
+        prompt: `What is the place value of the highlighted bit (${bitNames[chosenIdx]})?`,
+        display: `[${weights.map((w, idx) => idx === chosenIdx ? w : '.').join(' ')}]`,
+        displayHTML: displayHTML,
+        hint: "4-bit nibble columns: Bit 3 (8), Bit 2 (4), Bit 1 (2), Bit 0 (1)",
         correctAnswer: String(targetVal),
         options: shuffleArray([targetVal, ...dists]).map(String)
       };
     }
 
-    if (effectiveMode === 'place_val_byte_which') {
-      const byteWeights = [128, 64, 32, 16];
-      const bitNames = ['Bit 7', 'Bit 6', 'Bit 5', 'Bit 4'];
+    if (effectiveMode === 'place_val_nibble_missing') {
+      const weights = [8, 4, 2, 1];
       const chosenIdx = Math.floor(Math.random() * 4);
-      const targetVal = byteWeights[chosenIdx];
-      const correctAns = bitNames[chosenIdx];
+      const targetVal = weights[chosenIdx];
+      const displayHTML = renderBitStripHTML({
+        weights: weights,
+        valuesAsWeights: true,
+        targetIdx: chosenIdx,
+        targetChar: '?',
+        showWeights: true
+      });
+      const dists = [16, 8, 4, 2, 1].filter(w => w !== targetVal).slice(0, 3);
       return {
         type: 'mc',
-        layout: 'bit_boxes',
-        prompt: `Which upper bit represents place value ${targetVal}?`,
-        display: `Place Value: ${targetVal}`,
-        hint: "Upper nibble columns: Bit 7 (128) down to Bit 4 (16)",
-        correctAnswer: correctAns,
-        options: ['Bit 7', 'Bit 6', 'Bit 5', 'Bit 4']
+        prompt: "What is the missing place value marked with '?'?",
+        display: weights.map((w, idx) => idx === chosenIdx ? '?' : w).join(' '),
+        displayHTML: displayHTML,
+        hint: "Place values double from right to left (1, 2, 4, 8)",
+        correctAnswer: String(targetVal),
+        options: shuffleArray([targetVal, ...dists]).map(String)
       };
     }
 
-    if (effectiveMode === 'place_val_byte_what') {
+    if (effectiveMode === 'place_val_byte_which' || effectiveMode === 'place_val_byte_what') {
       const byteWeights = [128, 64, 32, 16, 8, 4, 2, 1];
       const chosenIdx = Math.floor(Math.random() * 8);
       const targetVal = byteWeights[chosenIdx];
-      const formatted = byteWeights.map((w, idx) => idx === chosenIdx ? `[1]` : `0`).join(' ');
+      const displayHTML = renderBitStripHTML({
+        weights: byteWeights,
+        valuesAsWeights: true,
+        targetIdx: chosenIdx,
+        targetChar: String(targetVal),
+        showWeights: true
+      });
       const otherWeights = byteWeights.filter(w => w !== targetVal);
       const dists = shuffleArray(otherWeights).slice(0, 3);
       return {
         type: 'mc',
-        prompt: "What is the place value of the bracketed [1] bit in this byte?",
-        display: formatted,
+        prompt: `What is the place value of Bit ${7 - chosenIdx}?`,
+        display: `Bit ${7 - chosenIdx}`,
+        displayHTML: displayHTML,
         hint: "8-bit weights: 128 • 64 • 32 • 16 • 8 • 4 • 2 • 1",
         correctAnswer: String(targetVal),
         options: shuffleArray([targetVal, ...dists]).map(String)
       };
     }
 
+    if (effectiveMode === 'place_val_byte_missing') {
+      const byteWeights = [128, 64, 32, 16, 8, 4, 2, 1];
+      const chosenIdx = Math.floor(Math.random() * 8);
+      const targetVal = byteWeights[chosenIdx];
+      const displayHTML = renderBitStripHTML({
+        weights: byteWeights,
+        valuesAsWeights: true,
+        targetIdx: chosenIdx,
+        targetChar: '?',
+        showWeights: true
+      });
+      const otherWeights = [256, 128, 64, 32, 16, 8, 4, 2, 1].filter(w => w !== targetVal);
+      const dists = shuffleArray(otherWeights).slice(0, 3);
+      return {
+        type: 'mc',
+        prompt: "What is the missing place value marked with '?' in this byte?",
+        display: byteWeights.map((w, idx) => idx === chosenIdx ? '?' : w).join(' '),
+        displayHTML: displayHTML,
+        hint: "Each position doubles: 1, 2, 4, 8, 16, 32, 64, 128",
+        correctAnswer: String(targetVal),
+        options: shuffleArray([targetVal, ...dists]).map(String)
+      };
+    }
+
+    if (effectiveMode === 'place_val_byte_unassisted') {
+      const byteWeights = [128, 64, 32, 16, 8, 4, 2, 1];
+      const bitLabels = ['Bit 7', 'Bit 6', 'Bit 5', 'Bit 4', 'Bit 3', 'Bit 2', 'Bit 1', 'Bit 0'];
+      const chosenIdx = Math.floor(Math.random() * 8);
+      const targetVal = byteWeights[chosenIdx];
+      const displayHTML = renderBitStripHTML({
+        bits: bitLabels,
+        showWeights: false,
+        targetIdx: chosenIdx
+      });
+      const otherWeights = byteWeights.filter(w => w !== targetVal);
+      const dists = shuffleArray(otherWeights).slice(0, 3);
+      return {
+        type: 'mc',
+        prompt: `Identify the place value of highlighted Bit ${7 - chosenIdx} (Unassisted):`,
+        display: `Bit ${7 - chosenIdx}`,
+        displayHTML: displayHTML,
+        hint: "Recall powers of 2 from right to left (2⁰=1 up to 2⁷=128)",
+        correctAnswer: String(targetVal),
+        options: shuffleArray([targetVal, ...dists]).map(String)
+      };
+    }
+
     // =========================================================================
-    // STAGE 2: BINARY TO DENARY
+    // STAGE 2: BINARY TO DENARY (ASSISTED & UNASSISTED SCAFFOLDING)
     // =========================================================================
-    if (effectiveMode === 'mc_nibble_bin2den') {
+    if (effectiveMode === 'mc_nibble_bin2den_assisted' || effectiveMode === 'mc_nibble_bin2den') {
       const val = Math.floor(Math.random() * 16);
-      const binStr = fmtBin(val, 4);
+      const binBits = val.toString(2).padStart(4, '0').split('').map(Number);
       const dists = generateDistractors(val, 0, 15, 'denary');
-      const options = shuffleArray([val, ...dists]);
+      const displayHTML = renderBitStripHTML({
+        bits: binBits,
+        weights: [8, 4, 2, 1],
+        showWeights: true
+      });
       return {
         type: 'mc',
         prompt: "Convert 4-Bit Binary to Denary:",
-        display: binStr,
-        hint: "Place values: 8 • 4 • 2 • 1",
+        display: binBits.join(' '),
+        displayHTML: displayHTML,
+        hint: "Add active weights where the bit is 1",
         correctAnswer: String(val),
-        options: options.map(String)
+        options: shuffleArray([val, ...dists]).map(String)
       };
     }
 
-    if (effectiveMode === 'mc_byte_bin2den_simple') {
-      const val = Math.floor(Math.random() * 64);
-      const binStr = fmtBin(val, 8);
-      const dists = generateDistractors(val, 0, 63, 'denary');
-      const options = shuffleArray([val, ...dists]);
-      return {
-        type: 'mc',
-        prompt: "Convert 8-Bit Binary to Denary (values 0–63):",
-        display: binStr,
-        hint: "Place values: 128(0) • 64(0) • 32 • 16 • 8 • 4 • 2 • 1",
-        correctAnswer: String(val),
-        options: options.map(String)
-      };
-    }
-
-    if (effectiveMode === 'mc_byte_bin2den') {
-      const val = Math.floor(Math.random() * 256);
-      const binStr = fmtBin(val, 8);
+    if (effectiveMode === 'mc_byte_bin2den_assisted' || effectiveMode === 'mc_byte_bin2den_simple') {
+      const val = Math.floor(Math.random() * 127) + 1;
+      const binBits = val.toString(2).padStart(8, '0').split('').map(Number);
       const dists = generateDistractors(val, 0, 255, 'denary');
-      const options = shuffleArray([val, ...dists]);
+      const displayHTML = renderBitStripHTML({
+        bits: binBits,
+        weights: [128, 64, 32, 16, 8, 4, 2, 1],
+        showWeights: true
+      });
       return {
         type: 'mc',
-        prompt: "Convert 8-Bit Byte to Denary:",
-        display: binStr,
-        hint: "Place values: 128 • 64 • 32 • 16 • 8 • 4 • 2 • 1",
+        prompt: "Convert 8-Bit Binary to Denary (Weights Shown):",
+        display: `${binBits.slice(0, 4).join('')} ${binBits.slice(4).join('')}`,
+        displayHTML: displayHTML,
+        hint: "Sum all active columns (1s)",
         correctAnswer: String(val),
-        options: options.map(String)
+        options: shuffleArray([val, ...dists]).map(String)
+      };
+    }
+
+    if (effectiveMode === 'mc_byte_bin2den_unassisted' || effectiveMode === 'mc_byte_bin2den') {
+      const val = Math.floor(Math.random() * 256);
+      const binBits = val.toString(2).padStart(8, '0').split('').map(Number);
+      const dists = generateDistractors(val, 0, 255, 'denary');
+      const displayHTML = renderBitStripHTML({
+        bits: binBits,
+        showWeights: false
+      });
+      return {
+        type: 'mc',
+        prompt: "Convert 8-Bit Byte to Denary (No Hints):",
+        display: `${binBits.slice(0, 4).join('')} ${binBits.slice(4).join('')}`,
+        displayHTML: displayHTML,
+        hint: "Mental calculation: 128 down to 1",
+        correctAnswer: String(val),
+        options: shuffleArray([val, ...dists]).map(String)
       };
     }
 
@@ -3469,24 +3605,30 @@
     // =========================================================================
     // STAGE 7: TWO'S COMPLEMENT (FOUNDATIONS, INVERT & ADD 1, NIBBLES, BYTE)
     // =========================================================================
+    // =========================================================================
+    // STAGE 7: TWO'S COMPLEMENT (SIGN, MISSING ?, INVERT+1, NIBBLES, BYTE)
+    // =========================================================================
     if (effectiveMode === 'mc_twos_comp_sign') {
       const qPool = [
         {
-          prompt: "In an 8-bit Two's Complement byte, what is the place value of the leftmost bit (MSB, Bit 7)?",
-          display: "Bit 7 (MSB)",
-          hint: "The leftmost bit is always negative in Two's Complement",
-          correctAnswer: "-128",
-          options: ["-128", "+128", "+127", "-127"]
-        },
-        {
-          prompt: "In a 4-bit Two's Complement nibble, what is the place value of the leftmost bit (Bit 3)?",
-          display: "Bit 3 (MSB)",
-          hint: "Nibble weights from left to right: −8 • 4 • 2 • 1",
+          prompt: "In a 4-bit Two's Complement nibble, what is the place value of the leftmost bit (MSB)?",
+          displayHTML: renderBitStripHTML({ weights: [-8, 4, 2, 1], valuesAsWeights: true, targetIdx: 0, targetChar: '-8', showWeights: true, variant: 'twos' }),
+          display: "-8 4 2 1",
+          hint: "The leftmost bit is negative in Two's Complement",
           correctAnswer: "-8",
           options: ["-8", "+8", "-7", "-1"]
         },
         {
+          prompt: "In an 8-bit Two's Complement byte, what is the place value of the leftmost bit (MSB, Bit 7)?",
+          displayHTML: renderBitStripHTML({ weights: [-128, 64, 32, 16, 8, 4, 2, 1], valuesAsWeights: true, targetIdx: 0, targetChar: '-128', showWeights: true, variant: 'twos' }),
+          display: "-128 64 32 ...",
+          hint: "Bit 7 represents -2⁷ = -128",
+          correctAnswer: "-128",
+          options: ["-128", "+128", "+127", "-127"]
+        },
+        {
           prompt: "In Two's Complement, what does a Most Significant Bit (MSB) of 1 indicate?",
+          displayHTML: renderBitStripHTML({ bits: [1, 0, 1, 0], weights: [-8, 4, 2, 1], showWeights: true, targetIdx: 0, variant: 'twos' }),
           display: "MSB = 1",
           hint: "1 at the left means the negative weight is active",
           correctAnswer: "Negative number (< 0)",
@@ -3494,13 +3636,15 @@
         },
         {
           prompt: "In Two's Complement, what does a Most Significant Bit (MSB) of 0 indicate?",
+          displayHTML: renderBitStripHTML({ bits: [0, 1, 1, 0], weights: [-8, 4, 2, 1], showWeights: true, targetIdx: 0, variant: 'twos' }),
           display: "MSB = 0",
           hint: "0 at the left means no negative weight is applied",
           correctAnswer: "Positive number (≥ 0)",
           options: ["Positive number (≥ 0)", "Negative number (< 0)", "Odd number", "Fractional number"]
         },
         {
-          prompt: "What is the full range of integer values that can be stored in an 8-bit Two's Complement register?",
+          prompt: "What is the full range of integer values for an 8-bit Two's Complement byte?",
+          displayHTML: renderBitStripHTML({ weights: [-128, 64, 32, 16, 8, 4, 2, 1], valuesAsWeights: true, showWeights: true, variant: 'twos' }),
           display: "8-Bit Range",
           hint: "From −2⁷ up to +2⁷ − 1",
           correctAnswer: "-128 to +127",
@@ -3508,20 +3652,23 @@
         },
         {
           prompt: "What is the full range of integer values for a 4-bit Two's Complement nibble?",
+          displayHTML: renderBitStripHTML({ weights: [-8, 4, 2, 1], valuesAsWeights: true, showWeights: true, variant: 'twos' }),
           display: "4-Bit Range",
           hint: "From −2³ up to +2³ − 1",
           correctAnswer: "-8 to +7",
           options: ["-8 to +7", "-7 to +7", "0 to 15", "-16 to +15"]
         },
         {
-          prompt: "Is the 8-bit Two's Complement binary pattern 1001 0110 positive or negative?",
+          prompt: "Is this 8-bit Two's Complement pattern positive or negative?",
+          displayHTML: renderBitStripHTML({ bits: [1, 0, 0, 1, 0, 1, 1, 0], weights: [-128, 64, 32, 16, 8, 4, 2, 1], showWeights: true, targetIdx: 0, variant: 'twos' }),
           display: "1001 0110",
           hint: "Check Bit 7 (MSB): 1 = negative, 0 = positive",
           correctAnswer: "Negative (MSB = 1)",
           options: ["Negative (MSB = 1)", "Positive (MSB = 0)", "Undefined Value", "Overflow Trap"]
         },
         {
-          prompt: "Is the 8-bit Two's Complement binary pattern 0111 0011 positive or negative?",
+          prompt: "Is this 8-bit Two's Complement pattern positive or negative?",
+          displayHTML: renderBitStripHTML({ bits: [0, 1, 1, 1, 0, 0, 1, 1], weights: [-128, 64, 32, 16, 8, 4, 2, 1], showWeights: true, targetIdx: 0, variant: 'twos' }),
           display: "0111 0011",
           hint: "Check Bit 7 (MSB): 1 = negative, 0 = positive",
           correctAnswer: "Positive (MSB = 0)",
@@ -3529,6 +3676,7 @@
         },
         {
           prompt: "How many distinct representations of zero exist in Two's Complement?",
+          displayHTML: renderBitStripHTML({ bits: [0, 0, 0, 0, 0, 0, 0, 0], weights: [-128, 64, 32, 16, 8, 4, 2, 1], showWeights: true, variant: 'twos' }),
           display: "0000 0000",
           hint: "Two's Complement solves the two-zero dilemma of Sign & Magnitude",
           correctAnswer: "Only 1 (00000000)",
@@ -3540,13 +3688,79 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        displayHTML: selected.displayHTML,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
       };
     }
 
-    // Level 2: Invert & Add 1 (+ve to -ve Conversion with Flippable Bits)
+    // Level 2: 4-Bit Two's Complement Missing Value (?)
+    if (effectiveMode === 'twos_comp_nibble_missing') {
+      const weights = [-8, 4, 2, 1];
+      const chosenIdx = Math.floor(Math.random() * 4);
+      const targetVal = weights[chosenIdx];
+      const displayHTML = renderBitStripHTML({
+        weights: weights,
+        valuesAsWeights: true,
+        targetIdx: chosenIdx,
+        targetChar: '?',
+        showWeights: true,
+        variant: 'twos'
+      });
+      let options;
+      if (targetVal === -8) {
+        options = ["-8", "+8", "-7", "-1"];
+      } else if (targetVal === 4) {
+        options = ["4", "-4", "8", "2"];
+      } else if (targetVal === 2) {
+        options = ["2", "-2", "4", "1"];
+      } else {
+        options = ["1", "-1", "2", "0"];
+      }
+      return {
+        type: 'mc',
+        prompt: "What is the place value of the highlighted '?' bit in 4-bit Two's Complement?",
+        display: weights.map((w, idx) => idx === chosenIdx ? '?' : w).join(', '),
+        displayHTML: displayHTML,
+        hint: "4-bit Two's Complement weights from left to right: −8 • 4 • 2 • 1",
+        correctAnswer: String(targetVal),
+        options: shuffleArray(options)
+      };
+    }
+
+    // Level 3: 8-Bit Two's Complement Missing Value (?)
+    if (effectiveMode === 'twos_comp_byte_missing') {
+      const weights = [-128, 64, 32, 16, 8, 4, 2, 1];
+      const chosenIdx = Math.random() < 0.4 ? 0 : Math.floor(Math.random() * 8);
+      const targetVal = weights[chosenIdx];
+      const displayHTML = renderBitStripHTML({
+        weights: weights,
+        valuesAsWeights: true,
+        targetIdx: chosenIdx,
+        targetChar: '?',
+        showWeights: true,
+        variant: 'twos'
+      });
+      let options;
+      if (targetVal === -128) {
+        options = ["-128", "+128", "+127", "-127"];
+      } else {
+        const otherW = [-128, 64, 32, 16, 8, 4, 2, 1].filter(w => w !== targetVal);
+        options = [String(targetVal), ...shuffleArray(otherW).slice(0, 3).map(String)];
+      }
+      return {
+        type: 'mc',
+        prompt: `What is the place value of Bit ${7 - chosenIdx} in 8-bit Two's Complement?`,
+        display: weights.map((w, idx) => idx === chosenIdx ? '?' : w).join(', '),
+        displayHTML: displayHTML,
+        hint: "8-bit Two's Complement weights: −128 • 64 • 32 • 16 • 8 • 4 • 2 • 1",
+        correctAnswer: String(targetVal),
+        options: shuffleArray(options)
+      };
+    }
+
+    // Level 4: Invert & Add 1 (+ve to -ve Conversion with Flippable Bits)
     if (effectiveMode === 'twos_comp_invert_add_1') {
       const candidates = [3, 5, 7, 9, 11, 14, 18, 25, 42, 60];
       const posVal = candidates[Math.floor(Math.random() * candidates.length)];
@@ -3567,7 +3781,7 @@
       };
     }
 
-    // Level 3: 4-Bit Nibbles (Flippable Bits for -6 & MC for 1101 in denary)
+    // Level 5: 4-Bit Nibbles (Flippable Bits for -6 & MC for 1101 in denary)
     if (effectiveMode === 'twos_comp_nibbles') {
       const isSwitch = Math.random() > 0.5;
       if (isSwitch) {
@@ -3598,18 +3812,25 @@
           String(evalVal - 2),
           String(Math.abs(evalVal))
         ];
+        const displayHTML = renderBitStripHTML({
+          bits: b,
+          weights: [-8, 4, 2, 1],
+          showWeights: true,
+          variant: 'twos'
+        });
         return {
           type: 'mc',
-          prompt: `What is the 4-bit Two's Complement number ${pat} in Denary?`,
+          prompt: `What is the 4-bit Two's Complement number in Denary?`,
           display: pat.split('').join(' '),
-          hint: "Place values from left to right: −8 • 4 • 2 • 1",
+          displayHTML: displayHTML,
+          hint: "Leftmost bit is −8. Add active positive weights (4 • 2 • 1)",
           correctAnswer: String(evalVal),
           options: shuffleArray(dists)
         };
       }
     }
 
-    // Level 4: 8-Bit Mastery
+    // Level 6: 8-Bit Mastery
     if (effectiveMode === 'twos_comp_byte_mastery') {
       const isSwitch = Math.random() > 0.5;
       if (isSwitch) {
@@ -3631,11 +3852,17 @@
         const twosComp = (256 + negVal).toString(2).padStart(8, '0');
         const dists = generateDistractors(negVal, -128, -1, 'denary');
         const options = shuffleArray([negVal, ...dists]);
+        const displayHTML = renderBitStripHTML({
+          bits: twosComp.split('').map(Number),
+          showWeights: false,
+          variant: 'twos'
+        });
         return {
           type: 'mc',
-          prompt: "Interpret 8-Bit Two's Complement in Denary (MSB is −128):",
+          prompt: "Interpret 8-Bit Two's Complement in Denary (Mental Calculation):",
           display: `${twosComp.slice(0, 4)} ${twosComp.slice(4)}`,
-          hint: "MSB is −128 + sum of active positive bits",
+          displayHTML: displayHTML,
+          hint: "Bit 7 is −128. Add active positive bits",
           correctAnswer: String(negVal),
           options: options.map(String)
         };
@@ -4213,8 +4440,15 @@
 
     if (promptEl) promptEl.textContent = bitmasterState.currentQuestion.prompt;
     if (mainDispEl) {
-      mainDispEl.style.whiteSpace = 'nowrap';
-      mainDispEl.textContent = bitmasterState.currentQuestion.display;
+      if (bitmasterState.currentQuestion.displayHTML) {
+        mainDispEl.innerHTML = bitmasterState.currentQuestion.displayHTML;
+        mainDispEl.classList.add('has-strip');
+        mainDispEl.style.whiteSpace = 'normal';
+      } else {
+        mainDispEl.textContent = bitmasterState.currentQuestion.display;
+        mainDispEl.classList.remove('has-strip');
+        mainDispEl.style.whiteSpace = 'nowrap';
+      }
     }
     if (hintEl) hintEl.textContent = bitmasterState.currentQuestion.hint || '';
 
@@ -4377,6 +4611,7 @@
     const container = document.getElementById('bitmasterSwitchBitsContainer');
     if (!container) return;
     container.innerHTML = '';
+    container.className = 'switch-bits-flex' + (bitsCount === 4 ? ' bits-4' : ' bits-8');
     bitmasterState.switchBits = new Array(bitsCount).fill(0);
 
     const weights = bitsCount === 4 ? [8, 4, 2, 1] : [128, 64, 32, 16, 8, 4, 2, 1];
