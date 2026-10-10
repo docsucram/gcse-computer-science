@@ -1928,10 +1928,56 @@ html, body {
   white-space: nowrap;
 }
 
-.bottom-nav-btn-text {
+.bottom-nav-btn-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.bottom-nav-btn-col.text-right {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.bottom-nav-kicker {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-tertiary, #64748b);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  line-height: 1.1;
+}
+
+.bottom-nav-btn.next-btn .bottom-nav-kicker {
+  color: var(--isaac-magenta, #c8006b);
+}
+
+.bottom-nav-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink-primary, #001736);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 100%;
+  line-height: 1.25;
+}
+
+html.dark .bottom-nav-label {
+  color: #f1f5f9;
+}
+
+html.dark .bottom-nav-kicker {
+  color: #94a3b8;
+}
+
+html.dark .bottom-nav-btn.next-btn .bottom-nav-kicker {
+  color: #f472b6;
 }
 
 .bottom-nav-btn.prev-btn {
@@ -2019,13 +2065,16 @@ html.dark .bottom-nav-btn.next-btn:hover {
   }
 
   .bottom-nav-btn {
-    padding: 7px 10px !important;
+    padding: 6px 10px !important;
     font-size: 12px !important;
     max-width: 49% !important;
     flex: 1 1 0 !important;
-    justify-content: center !important;
-    min-height: 36px !important;
+    justify-content: flex-start !important;
+    min-height: 42px !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+  }
+  .bottom-nav-btn.next-btn {
+    justify-content: flex-end !important;
   }
 
   /* Universal button wrapping on mobile */

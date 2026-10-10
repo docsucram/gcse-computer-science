@@ -1012,17 +1012,21 @@
     if (tabModules) tabModules.addEventListener('click', () => switchView('modules'));
     if (tabRevision) tabRevision.addEventListener('click', () => switchView('revision'));
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab') || '';
     const hash = window.location.hash.replace('#', '');
-    const savedTab = localStorage.getItem('designTestingActiveTab');
-    if (hash === 'revision' || (!hash && savedTab === 'revision')) {
+    const activeTarget = (tabParam || hash).toLowerCase();
+
+    if (activeTarget.includes('revision')) {
       switchView('revision');
-    } else if (hash === 'trace' || (!hash && savedTab === 'trace')) {
+    } else if (activeTarget.includes('trace')) {
       switchView('trace');
-    } else if (hash === 'testing' || (!hash && savedTab === 'testing')) {
+    } else if (activeTarget.includes('test')) {
       switchView('testing');
-    } else if (hash === 'debugger' || (!hash && savedTab === 'debugger')) {
+    } else if (activeTarget.includes('debugger') || activeTarget.includes('error')) {
       switchView('debugger');
     } else {
+      // Default directly to Topic 1: Structuring programmes
       switchView('modules');
     }
   }

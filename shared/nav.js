@@ -190,6 +190,17 @@
     const currentModId = detectCurrentModuleId();
     const currentTabButtons = viewTabs ? Array.from(viewTabs.querySelectorAll('.view-tab-btn')) : [];
 
+    // Ensure all back-to-hub links carry ?return= query param
+    if (currentModId) {
+      const backLinks = document.querySelectorAll('.back-link, .module-back-btn, .standalone-back-link, a.header-back-btn, header a[href$="index.html"]');
+      backLinks.forEach(link => {
+        const href = link.getAttribute('href') || '';
+        if (href.includes('index.html') && !href.includes('return=')) {
+          link.setAttribute('href', href.includes('?') ? (href + '&return=' + encodeURIComponent(currentModId)) : (href + '?return=' + encodeURIComponent(currentModId)));
+        }
+      });
+    }
+
     // Prevent duplicate injection
     if (document.getElementById('mobileSectionSwitcher')) return;
 
@@ -556,6 +567,37 @@
       return btn.textContent.trim();
     }
 
+    function shortenTopicTitle(raw) {
+      if (!raw) return '';
+      let t = raw.trim();
+      t = t.replace(/^\d+[\.\:\-]\s*/, '').replace(/^§[\d\.]+[\:\-]?\s*/, '').trim();
+      t = t.replace(/^[\u2600-\u27BF\uE000-\uF8FF\uD83C-\uDBFF\uDC00-\uDFFF\s]+/g, '').trim();
+      const map = {
+        'Structuring programmes': 'Structuring Code',
+        'Structuring programs': 'Structuring Code',
+        'Understanding Program Errors': 'Program Errors',
+        'Test Plans & Boundaries': 'Test Plans',
+        'Sorting Race Mode': 'Sorting Race',
+        'Revision Summary': 'Revision',
+        'Procedural World & Art': 'Procedural Art',
+        'PRNG Engine & Math': 'PRNG Engine',
+        'Binary & Hexadecimal Numbers': 'Binary & Hex',
+        'ASCII & Unicode': 'ASCII & Unicode',
+        'Huffman Coding': 'Huffman Coding',
+        'F-D-E Visualizer': 'F-D-E Cycle',
+        'Performance Sandbox': 'Performance',
+        'Storage & Memory': 'Storage & RAM',
+        'Flat-File vs Relational Sim': 'Relational DB',
+        'Schema & SQL Query Studio': 'SQL Studio',
+        'Revision & Mark Schemes': 'Revision',
+        'Boolean Logic & Circuits': 'Logic Circuits',
+        'Bitwise Logic & Masks': 'Bitwise Logic'
+      };
+      if (map[t]) return map[t];
+      if (t.length > 20) return t.slice(0, 18).trim() + '…';
+      return t;
+    }
+
     function updateBottomNav() {
       const idx = getActiveIdx();
       const total = currentTabButtons.length;
@@ -579,19 +621,29 @@
       prevBtn.className = 'bottom-nav-btn prev-btn';
 
       if (idx === 0) {
-        prevBtn.href = hubPrefix + 'index.html';
+        prevBtn.href = hubPrefix + 'index.html?return=' + encodeURIComponent(currentModId);
         prevBtn.className += ' is-hub';
         prevBtn.innerHTML = `
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          <span class="bottom-nav-btn-text">Back to Hub</span>
+          <div class="bottom-nav-btn-col">
+            <span class="bottom-nav-kicker">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              Hub
+            </span>
+            <span class="bottom-nav-label">Back to Modules</span>
+          </div>
         `;
       } else {
         prevBtn.href = '#';
         const targetTab = currentTabButtons[idx - 1];
-        const title = getTabTitle(targetTab);
+        const title = shortenTopicTitle(getTabTitle(targetTab));
         prevBtn.innerHTML = `
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-          <span class="bottom-nav-btn-text">Prev: ${title}</span>
+          <div class="bottom-nav-btn-col">
+            <span class="bottom-nav-kicker">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              Prev
+            </span>
+            <span class="bottom-nav-label">${title}</span>
+          </div>
         `;
         prevBtn.addEventListener('click', (e) => {
           e.preventDefault();
@@ -607,10 +659,15 @@
       if (idx < total - 1) {
         nextBtn.href = '#';
         const targetTab = currentTabButtons[idx + 1];
-        const title = getTabTitle(targetTab);
+        const title = shortenTopicTitle(getTabTitle(targetTab));
         nextBtn.innerHTML = `
-          <span class="bottom-nav-btn-text">Next: ${title}</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+          <div class="bottom-nav-btn-col text-right">
+            <span class="bottom-nav-kicker">
+              Next
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </span>
+            <span class="bottom-nav-label">${title}</span>
+          </div>
         `;
         nextBtn.addEventListener('click', (e) => {
           e.preventDefault();
@@ -626,15 +683,24 @@
         if (nextMod) {
           nextBtn.href = hubPrefix + nextMod.url;
           nextBtn.className += ' is-next-module';
+          const nextModTitle = shortenTopicTitle(nextMod.title);
           nextBtn.innerHTML = `
-            <span class="bottom-nav-btn-text">Next Module: ${nextMod.title}</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            <div class="bottom-nav-btn-col text-right">
+              <span class="bottom-nav-kicker">
+                Next Module
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+              </span>
+              <span class="bottom-nav-label">${nextModTitle}</span>
+            </div>
           `;
         } else {
-          nextBtn.href = hubPrefix + 'index.html';
+          nextBtn.href = hubPrefix + 'index.html?return=' + encodeURIComponent(currentModId);
           nextBtn.className += ' is-complete';
           nextBtn.innerHTML = `
-            <span class="bottom-nav-btn-text">Course Complete ✓</span>
+            <div class="bottom-nav-btn-col text-right">
+              <span class="bottom-nav-kicker">Course Complete</span>
+              <span class="bottom-nav-label">Back to Hub ✓</span>
+            </div>
           `;
         }
       }

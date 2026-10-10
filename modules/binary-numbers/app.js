@@ -2571,26 +2571,36 @@
     return Object.values(bitmasterState.stars).reduce((sum, val) => sum + (Number(val) || 0), 0);
   }
 
-  function getCurrentBitmasterRank() {
+  function getRankForXp(xp) {
     let rank = BITMASTER_RANKS[0];
-    for (const r of BITMASTER_RANKS) {
-      if (bitmasterState.xp >= r.minXp) {
-        rank = r;
+    let rankIdx = 0;
+    for (let i = 0; i < BITMASTER_RANKS.length; i++) {
+      if (xp >= BITMASTER_RANKS[i].minXp) {
+        rank = BITMASTER_RANKS[i];
+        rankIdx = i;
       }
     }
-    return rank;
+    return { ...rank, id: rankIdx + 1, index: rankIdx };
   }
 
-  function getNextBitmasterRank() {
+  function getNextRankForXp(xp) {
     for (let i = 0; i < BITMASTER_RANKS.length; i++) {
-      if (bitmasterState.xp < BITMASTER_RANKS[i].minXp) {
-        return BITMASTER_RANKS[i];
+      if (xp < BITMASTER_RANKS[i].minXp) {
+        return { ...BITMASTER_RANKS[i], id: i + 1, index: i };
       }
     }
     return null;
   }
 
-  function updateBitmasterHUD() {
+  function getCurrentBitmasterRank() {
+    return getRankForXp(bitmasterState.xp);
+  }
+
+  function getNextBitmasterRank() {
+    return getNextRankForXp(bitmasterState.xp);
+  }
+
+  function updateBitmasterHUD(suppressModal = false) {
     const totalStars = calculateBitmasterStars();
     const rank = getCurrentBitmasterRank();
     const nextRank = getNextBitmasterRank();
@@ -2632,7 +2642,7 @@
     if (!bitmasterState.lastNotifiedRankId) {
       bitmasterState.lastNotifiedRankId = storedLastRank;
     }
-    if (rank.id > bitmasterState.lastNotifiedRankId) {
+    if (!suppressModal && rank.id > bitmasterState.lastNotifiedRankId) {
       bitmasterState.lastNotifiedRankId = rank.id;
       localStorage.setItem('bitmaster_last_notified_rank', String(rank.id));
       showBitmasterLevelUpModal(rank);
@@ -4779,6 +4789,19 @@
   }
   window.fireConfetti = fireConfetti;
 
+  function animateNumberCounter(el, start, end, duration) {
+    if (!el) return;
+    const startTime = performance.now();
+    function tick(now) {
+      const p = Math.min((now - startTime) / duration, 1);
+      const val = Math.floor(start + (end - start) * p);
+      el.textContent = `${val} XP`;
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = `${end} XP`;
+    }
+    requestAnimationFrame(tick);
+  }
+
   function finishBitmasterRound() {
     if (bitmasterState.timerInterval) {
       clearInterval(bitmasterState.timerInterval);
@@ -4789,11 +4812,6 @@
     let xpBonus = 0;
 
     if (bitmasterState.isSprint) {
-      // 60s Sprint Criteria:
-      // >= 12 correct: 3 stars
-      // >= 8 correct: 2 stars
-      // >= 4 correct: 1 star
-      // < 4: 0 stars
       if (bitmasterState.correctThisRound >= 12) {
         starsEarned = 3;
       } else if (bitmasterState.correctThisRound >= 8) {
@@ -4805,11 +4823,6 @@
       }
       xpBonus = (bitmasterState.correctThisRound * 10) + (starsEarned === 3 ? 120 : (starsEarned === 2 ? 60 : (starsEarned === 1 ? 30 : 10)));
     } else {
-      // Standard 10-Question Criteria:
-      // 3 Stars = All 10 solved with 0 mistakes in <= 60s
-      // 2 Stars = <= 2 mistakes
-      // 1 Star = <= 5 mistakes
-      // 0 Stars = > 5 mistakes
       if (bitmasterState.mistakesThisRound === 0 && bitmasterState.elapsedSeconds <= 60) {
         starsEarned = 3;
       } else if (bitmasterState.mistakesThisRound <= 2) {
@@ -4828,9 +4841,33 @@
       bitmasterState.stars[saveKey] = starsEarned;
     }
 
-    bitmasterState.xp += xpBonus;
+    const oldXp = bitmasterState.xp;
+    const newXp = oldXp + xpBonus;
+    const oldRank = getRankForXp(oldXp);
+    const newRank = getRankForXp(newXp);
+    const oldNextRank = getNextRankForXp(oldXp);
+    const newNextRank = getNextRankForXp(newXp);
+    const isRankUp = newRank.index > oldRank.index;
+
+    let oldPct = 0;
+    if (oldNextRank) {
+      const span = oldNextRank.minXp - oldRank.minXp;
+      oldPct = Math.max(0, Math.min(100, Math.round(((oldXp - oldRank.minXp) / span) * 100)));
+    } else {
+      oldPct = 100;
+    }
+
+    let newPct = 0;
+    if (newNextRank) {
+      const span = newNextRank.minXp - newRank.minXp;
+      newPct = Math.max(0, Math.min(100, Math.round(((newXp - newRank.minXp) / span) * 100)));
+    } else {
+      newPct = 100;
+    }
+
+    bitmasterState.xp = newXp;
     saveBitmasterProgress();
-    updateBitmasterHUD();
+    updateBitmasterHUD(true);
 
     const titleEl = document.getElementById('bitmasterVictoryTitle');
     const badgeEl = document.getElementById('bitmasterVictoryBadge');
@@ -4956,6 +4993,98 @@
     }
 
     showBitmasterScreen('summary');
+
+    // Configure and animate Architecture XP Card on victory screen
+    const summaryCardEl = document.getElementById('bitmasterSummaryXpCard');
+    const summaryRankAvatar = document.getElementById('bitmasterSummaryRankAvatar');
+    const summaryRankTier = document.getElementById('bitmasterSummaryRankTier');
+    const summaryRankTitle = document.getElementById('bitmasterSummaryRankTitle');
+    const summaryXpGainPill = document.getElementById('bitmasterSummaryXpGainPill');
+    const summaryXpCur = document.getElementById('bitmasterSummaryXpCur');
+    const summaryXpTarget = document.getElementById('bitmasterSummaryXpTarget');
+    const summaryXpFill = document.getElementById('bitmasterSummaryXpFill');
+    const summaryXpFootnote = document.getElementById('bitmasterSummaryXpFootnote');
+
+    if (summaryCardEl) {
+      summaryCardEl.classList.remove('rank-up-flash');
+      if (summaryRankAvatar) summaryRankAvatar.innerHTML = oldRank.svgIcon;
+      if (summaryRankTier) summaryRankTier.textContent = `ARCHITECTURE TIER ${oldRank.id} OF 12`;
+      if (summaryRankTitle) {
+        summaryRankTitle.textContent = oldRank.title;
+        summaryRankTitle.style.color = '#ffffff';
+      }
+      if (summaryXpGainPill) summaryXpGainPill.textContent = `+${xpBonus} XP`;
+      if (summaryXpCur) summaryXpCur.textContent = `${oldXp} XP`;
+      if (summaryXpTarget) summaryXpTarget.textContent = oldNextRank ? `Next Rank: ${oldNextRank.minXp} XP` : 'Max Rank';
+      if (summaryXpFill) {
+        summaryXpFill.style.transition = 'none';
+        summaryXpFill.style.width = `${oldPct}%`;
+      }
+      if (summaryXpFootnote) {
+        summaryXpFootnote.textContent = oldNextRank ? `Need ${Math.max(0, oldNextRank.minXp - oldXp)} more XP to unlock ${oldNextRank.title}` : 'Maximum Architecture Rank Achieved!';
+      }
+
+      // After stars chiming (~700ms), animate XP bar growing forward & trigger level up if earned!
+      setTimeout(() => {
+        if (summaryXpFill) {
+          summaryXpFill.style.transition = 'width 1.1s cubic-bezier(0.16, 1, 0.3, 1)';
+        }
+
+        if (isRankUp) {
+          // Fill bar to 100%
+          if (summaryXpFill) summaryXpFill.style.width = '100%';
+          animateNumberCounter(summaryXpCur, oldXp, oldNextRank.minXp, 900);
+
+          setTimeout(() => {
+            // Flash celebration on summary card
+            if (summaryCardEl) summaryCardEl.classList.add('rank-up-flash');
+            if (summaryRankAvatar) summaryRankAvatar.innerHTML = newRank.svgIcon;
+            if (summaryRankTier) summaryRankTier.textContent = `PROMOTED! TIER ${newRank.id} OF 12`;
+            if (summaryRankTitle) {
+              summaryRankTitle.textContent = newRank.title;
+              summaryRankTitle.style.color = '#facc15';
+            }
+            if (summaryXpTarget) summaryXpTarget.textContent = newNextRank ? `Next Rank: ${newNextRank.minXp} XP` : 'Max Rank';
+            if (summaryXpFootnote) {
+              summaryXpFootnote.textContent = newNextRank ? `Need ${Math.max(0, newNextRank.minXp - newXp)} more XP to unlock ${newNextRank.title}` : 'Maximum Architecture Rank!';
+            }
+
+            playSynthSound('levelup');
+            fireConfetti();
+            setTimeout(fireConfetti, 280);
+
+            // Animate remainder from 0% to newPct
+            if (summaryXpFill) {
+              summaryXpFill.style.transition = 'none';
+              summaryXpFill.style.width = '0%';
+              setTimeout(() => {
+                if (summaryXpFill) {
+                  summaryXpFill.style.transition = 'width 0.9s cubic-bezier(0.16, 1, 0.3, 1)';
+                  summaryXpFill.style.width = `${newPct}%`;
+                }
+              }, 60);
+            }
+            animateNumberCounter(summaryXpCur, oldNextRank.minXp, newXp, 900);
+
+            // Show celebratory Level Up modal after fanfare
+            setTimeout(() => {
+              bitmasterState.lastNotifiedRankId = newRank.id;
+              localStorage.setItem('bitmaster_last_notified_rank', String(newRank.id));
+              showBitmasterLevelUpModal(newRank);
+            }, 850);
+          }, 1000);
+
+        } else {
+          // Normal XP growth
+          if (summaryXpFill) summaryXpFill.style.width = `${newPct}%`;
+          animateNumberCounter(summaryXpCur, oldXp, newXp, 900);
+          playSynthSound('tap');
+          if (summaryXpFootnote && newNextRank) {
+            summaryXpFootnote.textContent = `Need ${Math.max(0, newNextRank.minXp - newXp)} more XP to unlock ${newNextRank.title}`;
+          }
+        }
+      }, 700);
+    }
 
     const retryBtn = document.getElementById('bitmasterSummaryRetryBtn');
     const contBtn = document.getElementById('bitmasterSummaryContinueBtn');

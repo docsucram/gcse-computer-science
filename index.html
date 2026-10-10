@@ -313,6 +313,21 @@
       background: var(--oxford-navy);
     }
 
+    @keyframes returnPulse {
+      0% { box-shadow: 0 0 0 0 rgba(200, 0, 107, 0.5); transform: translateY(-2px); }
+      50% { box-shadow: 0 0 0 10px rgba(200, 0, 107, 0.18); transform: translateY(-4px); }
+      100% { box-shadow: 0 0 0 0 rgba(200, 0, 107, 0); transform: translateY(0); }
+    }
+
+    .module-card.card-return-highlight {
+      border-color: var(--isaac-magenta, #c8006b) !important;
+      animation: returnPulse 1.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
+
+    .module-card.card-return-highlight::before {
+      background: var(--isaac-magenta, #c8006b) !important;
+    }
+
     .card-header {
       display: flex;
       align-items: flex-start;
@@ -1055,7 +1070,7 @@
     <div class="card-grid" id="modulesGrid">
 
       <!-- 1. Searching & Sorting -->
-      <div class="module-card" data-category="paper1" data-search="searching sorting search linear search binary search bubble merge insertion race duel trace table algorithms 3.1 paper 1">
+      <div id="card-sort-lab" class="module-card" data-category="paper1" data-search="searching sorting search linear search binary search bubble merge insertion race duel trace table algorithms 3.1 paper 1">
         <div>
           <div class="card-header">
             <div class="card-icon">
@@ -1094,7 +1109,7 @@
       </div>
 
       <!-- 2. Trace Tables & Program Testing -->
-      <div class="module-card" data-category="paper1" data-search="design testing trace tables algorithms variables subroutines modular iteration selection debugging 3.2 paper 1">
+      <div id="card-trace-tables" class="module-card" data-category="paper1" data-search="design testing trace tables algorithms variables subroutines modular iteration selection debugging 3.2 paper 1">
         <div>
           <div class="card-header">
             <div class="card-icon green-tint">
@@ -1134,7 +1149,7 @@
       </div>
 
       <!-- 3. Random Numbers & PRNG -->
-      <div class="module-card" data-category="paper1" data-search="random numbers prng pseudo random procedural seed randint distribution terrain fractals 3.2 paper 1">
+      <div id="card-random-lab" class="module-card" data-category="paper1" data-search="random numbers prng pseudo random procedural seed randint distribution terrain fractals 3.2 paper 1">
         <div>
           <div class="card-header">
             <div class="card-icon">
@@ -1173,7 +1188,7 @@
       </div>
 
       <!-- 4. Numbers & BitMaster -->
-      <div class="module-card" data-category="paper2" data-search="numbers binary hexadecimal denary game bitmaster twos complement addition shifts bits nibbles bytes units 3.3.1 paper 2">
+      <div id="card-binary-numbers" class="module-card" data-category="paper2" data-search="numbers binary hexadecimal denary game bitmaster twos complement addition shifts bits nibbles bytes units 3.3.1 paper 2">
         <div>
           <div class="card-header">
             <div class="card-icon">
@@ -1211,7 +1226,7 @@
       </div>
 
       <!-- 5. Character Sets & Huffman Coding -->
-      <div class="module-card" data-category="paper2" data-search="characters text encoding ascii unicode utf-8 huffman coding compression prefix code tree variable length 3.3.2 paper 2">
+      <div id="card-character-encoding" class="module-card" data-category="paper2" data-search="characters text encoding ascii unicode utf-8 huffman coding compression prefix code tree variable length 3.3.2 paper 2">
         <div>
           <div class="card-header">
             <div class="card-icon green-tint">
@@ -1249,8 +1264,8 @@
         </div>
       </div>
 
-      <!-- 5. Media Representation -->
-      <div class="module-card" data-category="paper2" data-search="media data representation bitmaps pixels colour depth sound audio sampling quantization rate bit depth file size rle compression paper 2 3.3.2">
+      <!-- 6. Media Representation -->
+      <div id="card-data-representation" class="module-card" data-category="paper2" data-search="media data representation bitmaps pixels colour depth sound audio sampling quantization rate bit depth file size rle compression paper 2 3.3.2">
         <div>
           <div class="card-header">
             <div class="card-icon green-tint">
@@ -1288,8 +1303,8 @@
         </div>
       </div>
 
-      <!-- 6. CPU Architecture -->
-      <div class="module-card" data-category="paper2" data-search="cpu architecture von neumann fde fetch decode execute registers pc mar mdr cir acc alu buses hardware clock cache cores ram rom storage 3.4 paper 2">
+      <!-- 7. CPU Architecture -->
+      <div id="card-cpu-sim" class="module-card" data-category="paper2" data-search="cpu architecture von neumann fde fetch decode execute registers pc mar mdr cir acc alu buses hardware clock cache cores ram rom storage 3.4 paper 2">
         <div>
           <div class="card-header">
             <div class="card-icon">
@@ -1334,8 +1349,8 @@
         </div>
       </div>
 
-      <!-- 7. Networks, Packets & Protocols -->
-      <div class="module-card" data-category="paper2" data-search="networks packets packet switching dns routers ip mac topologies star bus mesh tcp ip layers protocols encryption 3.5 paper 2">
+      <!-- 8. Networks, Packets & Protocols -->
+      <div id="card-networks" class="module-card" data-category="paper2" data-search="networks packets packet switching dns routers ip mac topologies star bus mesh tcp ip layers protocols encryption 3.5 paper 2">
         <div>
           <div class="card-header">
             <div class="card-icon">
@@ -1374,8 +1389,8 @@
         </div>
       </div>
 
-      <!-- 8. Relational Databases & SQL -->
-      <div class="module-card" data-category="paper2" data-search="sql databases relational primary key foreign key select where order by cyber security sql injection 3.7 paper 2">
+      <!-- 9. Relational Databases & SQL -->
+      <div id="card-sql-cyber-lab" class="module-card" data-category="paper2" data-search="sql databases relational primary key foreign key select where order by cyber security sql injection 3.7 paper 2">
         <div>
           <div class="card-header">
             <div class="card-icon green-tint">
@@ -1413,8 +1428,8 @@
         </div>
       </div>
 
-      <!-- 9. Boolean Logic & Circuits -->
-      <div class="module-card" data-category="paper2" data-search="boolean logic gates and or not xor nand nor truth table breadboard circuit alu adder 3.4.3 paper 2">
+      <!-- 10. Boolean Logic & Circuits -->
+      <div id="card-logic-gates" class="module-card" data-category="paper2" data-search="boolean logic gates and or not xor nand nor truth table breadboard circuit alu adder 3.4.3 paper 2">
         <div>
           <div class="card-header">
             <div class="card-icon blue-tint">
@@ -1549,6 +1564,23 @@
           localStorage.setItem('theme', isDark ? 'dark' : 'light');
           localStorage.setItem('gcse_theme', isDark ? 'dark' : 'light');
         });
+      }
+
+      // Smoothly scroll and highlight card if returning from a module
+      const urlParams = new URLSearchParams(window.location.search);
+      const returnMod = urlParams.get('return');
+      const hash = window.location.hash.replace('#', '');
+      const targetCardId = returnMod ? ('card-' + returnMod) : (hash.startsWith('card-') ? hash : (hash ? ('card-' + hash) : null));
+
+      if (targetCardId) {
+        const cardEl = document.getElementById(targetCardId);
+        if (cardEl) {
+          setTimeout(() => {
+            cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            cardEl.classList.add('card-return-highlight');
+            setTimeout(() => cardEl.classList.remove('card-return-highlight'), 2200);
+          }, 180);
+        }
       }
     })();
   </script>
