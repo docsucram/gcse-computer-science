@@ -2458,14 +2458,15 @@
       id: 8,
       title: "Stage 8: Binary Subtraction",
       shortTitle: "Binary Subtraction",
-      subtitle: "Two's Complement Subtraction: A − B = A + (−B)",
+      subtitle: "Column Subtraction & Hardware Two's Complement",
       svgIcon: BITMASTER_STAGE_ICONS[8],
       color: "#ef4444",
       levels: [
-        { id: 1, name: "4-Bit Subtraction Grid", mode: "math_sub_4bit", desc: "4-Bit Column Subtraction Grid (A − B): Flip result bits & submit" },
-        { id: 2, name: "8-Bit Subtraction Grid", mode: "math_sub_8bit", desc: "Full 8-Bit Subtraction Grid: Calculate differences across full byte" },
-        { id: 3, name: "Hardware Subtraction", mode: "math_sub_twos_comp", desc: "Two's Complement Addition: Flip Row B to (−B), then calculate A + (−B)" },
-        { id: 4, name: "Subtraction Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Fast binary subtraction under pressure!" }
+        { id: 1, name: "Starter Subtraction", mode: "math_sub_no_borrow_4bit", desc: "4-Bit Column Subtraction with No Borrows / No Carries (1−0=1, 1−1=0, 0−0=0)" },
+        { id: 2, name: "8-Bit Subtraction", mode: "math_sub_no_borrow_8bit", desc: "Full 8-Bit Column Subtraction with No Borrows across all 8 columns" },
+        { id: 3, name: "Two's Comp Negation", mode: "sub_twos_comp_negate", desc: "Write (−B) in Two's Complement to prepare for hardware addition: A + (−B)" },
+        { id: 4, name: "Hardware Subtraction Grid", mode: "math_sub_twos_comp_grid", desc: "Write (−B) in Row B using Two's Complement, then add Row A + Row B into Result" },
+        { id: 5, name: "Subtraction Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Fast binary subtraction and Two's Complement arithmetic!" }
       ]
     },
     {
@@ -3090,7 +3091,10 @@
         const r = Math.random();
         effectiveMode = r < 0.25 ? 'mc_twos_comp_sign' : (r < 0.5 ? 'twos_comp_nibble_missing' : (r < 0.75 ? 'twos_comp_nibbles' : 'twos_comp_byte_mastery'));
       } else if (stage.id === 8) {
-        effectiveMode = Math.random() > 0.5 ? 'math_sub_4bit' : 'math_sub_twos_comp';
+        const r = Math.random();
+        effectiveMode = r < 0.25
+          ? 'math_sub_no_borrow_4bit'
+          : (r < 0.5 ? 'math_sub_no_borrow_8bit' : (r < 0.75 ? 'sub_twos_comp_negate' : 'math_sub_twos_comp_grid'));
       } else if (stage.id === 9) {
         const r = Math.random();
         effectiveMode = r < 0.33 ? 'math_shift_flip' : (r < 0.66 ? 'mc_shift_left' : 'mc_shift_right');
@@ -3872,12 +3876,31 @@
     // =========================================================================
     // STAGE 8: BINARY SUBTRACTION (4-BIT GRID, 8-BIT GRID, TWO'S COMP ADDITION)
     // =========================================================================
-    if (effectiveMode === 'math_sub_4bit') {
-      const a = Math.floor(Math.random() * 9) + 7; // 7 to 15
-      const b = Math.floor(Math.random() * (a - 1)) + 1; // 1 to a - 1
+    if (effectiveMode === 'math_sub_no_borrow_4bit') {
+      const allowedPairs = [[1, 0], [1, 1], [0, 0]];
+      let bitsA, bitsB, a, b;
+      let attempts = 0;
+      do {
+        bitsA = [];
+        bitsB = [];
+        for (let i = 0; i < 4; i++) {
+          const pair = allowedPairs[Math.floor(Math.random() * allowedPairs.length)];
+          bitsA.push(pair[0]);
+          bitsB.push(pair[1]);
+        }
+        a = parseInt(bitsA.join(''), 2);
+        b = parseInt(bitsB.join(''), 2);
+        attempts++;
+      } while ((a === 0 || b === 0 || a === b) && attempts < 100);
+
+      if (a === 0 || b === 0 || a === b) {
+        bitsA = [1, 1, 0, 1];
+        bitsB = [0, 1, 0, 0];
+        a = 13;
+        b = 4;
+      }
+
       const diff = a - b;
-      const bitsA = a.toString(2).padStart(4, '0').split('').map(Number);
-      const bitsB = b.toString(2).padStart(4, '0').split('').map(Number);
       const diffStr = diff.toString(2).padStart(4, '0');
       return {
         type: 'math_grid',
@@ -3889,18 +3912,37 @@
         bitsA: bitsA,
         bitsB: bitsB,
         correctAnswer: diffStr,
-        prompt: `Subtract 4-Bit Binary Columns (${a} − ${b}):`,
+        prompt: `Starter Subtraction (No Borrows): Subtract Columns (${a} − ${b}):`,
         display: `${a} − ${b} = ${diff}`,
-        hint: `Place values: 8 • 4 • 2 • 1. Flip Result bits to match difference (${diff})!`
+        hint: `No borrows needed! 1−0=1, 1−1=0, 0−0=0. Flip Result bits and submit!`
       };
     }
 
-    if (effectiveMode === 'math_sub_8bit') {
-      const a = Math.floor(Math.random() * 160) + 50; // 50 to 210
-      const b = Math.floor(Math.random() * (a - 10)) + 5;
+    if (effectiveMode === 'math_sub_no_borrow_8bit') {
+      const allowedPairs = [[1, 0], [1, 1], [0, 0], [1, 0]];
+      let bitsA, bitsB, a, b;
+      let attempts = 0;
+      do {
+        bitsA = [];
+        bitsB = [];
+        for (let i = 0; i < 8; i++) {
+          const pair = allowedPairs[Math.floor(Math.random() * allowedPairs.length)];
+          bitsA.push(pair[0]);
+          bitsB.push(pair[1]);
+        }
+        a = parseInt(bitsA.join(''), 2);
+        b = parseInt(bitsB.join(''), 2);
+        attempts++;
+      } while ((a < 30 || b === 0 || a === b) && attempts < 100);
+
+      if (a < 30 || b === 0 || a === b) {
+        bitsA = [1, 0, 1, 1, 0, 1, 1, 0];
+        bitsB = [0, 0, 1, 0, 0, 1, 0, 0];
+        a = 182;
+        b = 36;
+      }
+
       const diff = a - b;
-      const bitsA = a.toString(2).padStart(8, '0').split('').map(Number);
-      const bitsB = b.toString(2).padStart(8, '0').split('').map(Number);
       const diffStr = diff.toString(2).padStart(8, '0');
       return {
         type: 'math_grid',
@@ -3912,34 +3954,55 @@
         bitsA: bitsA,
         bitsB: bitsB,
         correctAnswer: diffStr,
-        prompt: `Subtract 8-Bit Binary Columns (${a} − ${b}):`,
+        prompt: `8-Bit Subtraction (No Borrows): Subtract Columns (${a} − ${b}):`,
         display: `${a} − ${b} = ${diff}`,
-        hint: `Binary Subtraction: Flip the Result bits to match difference ${diff}!`
+        hint: `Zero borrows required! Work column-by-column: 1−0=1, 1−1=0, 0−0=0. Flip Result bits to match!`
       };
     }
 
-    // Hardware Subtraction: Flip Row B to (-B) Two's Complement, then add A + (-B)
-    if (effectiveMode === 'math_sub_twos_comp') {
-      const a = Math.floor(Math.random() * 7) + 8; // 8 to 14
-      const b = Math.floor(Math.random() * 5) + 2; // 2 to 6
+    // Hardware Subtraction Prep: Invert +B and add 1 to make -B
+    if (effectiveMode === 'sub_twos_comp_negate') {
+      const candidates = [4, 6, 9, 12, 15, 18, 24, 28, 35, 42, 50];
+      const posVal = candidates[Math.floor(Math.random() * candidates.length)];
+      const negVal = -posVal;
+      const posBin = posVal.toString(2).padStart(8, '0');
+      const posBinFmt = `${posBin.slice(0, 4)} ${posBin.slice(4)}`;
+      const twosComp = (256 + negVal).toString(2).padStart(8, '0');
+
+      return {
+        type: 'switches',
+        bitsCount: 8,
+        isTwosComp: true,
+        prompt: `Hardware Subtraction Prep: Convert +${posVal} (${posBinFmt}) to −${posVal} in Two's Complement:`,
+        display: `+${posVal} (${posBinFmt})  ➔  −${posVal}`,
+        hint: `Step 1: Invert all bits (0 ↔ 1) • Step 2: Add 1 (+1). Switch columns: −128 • 64 • 32 • 16 • 8 • 4 • 2 • 1`,
+        correctAnswer: negVal,
+        targetBinary: twosComp
+      };
+    }
+
+    // Hardware Subtraction Grid: Flip Row B to (-B) Two's Complement, then add Row A + Row B
+    if (effectiveMode === 'math_sub_twos_comp_grid') {
+      const a = Math.floor(Math.random() * 66) + 25; // 25 to 90
+      const b = Math.floor(Math.random() * Math.min(25, a - 5)) + 6; // 6 to ~30, guaranteed b < a
       const diff = a - b;
-      const bitsA = a.toString(2).padStart(4, '0').split('').map(Number);
-      const twosCompB = (16 - b).toString(2).padStart(4, '0');
-      const diffBin = diff.toString(2).padStart(4, '0');
+      const bitsA = a.toString(2).padStart(8, '0').split('').map(Number);
+      const twosCompB = (256 - b).toString(2).padStart(8, '0');
+      const diffBin = diff.toString(2).padStart(8, '0');
 
       return {
         type: 'math_grid',
         interactiveRowB: true,
-        numBits: 4,
-        placeValues: [8, 4, 2, 1],
+        numBits: 8,
+        placeValues: [128, 64, 32, 16, 8, 4, 2, 1],
         operator: '+',
         valA: a,
         valB: b,
         bitsA: bitsA,
         correctRowB: twosCompB,
         correctAnswer: diffBin,
-        prompt: `Hardware Subtraction: Convert +${b} to Two's Complement (−${b}) in Row B, then add Row A + Row B:`,
-        display: `${a} − ${b} = ${diff}  ➔  ${a} + (−${b})`,
+        prompt: `Hardware Subtraction: Write −${b} in Row B (Two's Comp), then Add Row A + Row B:`,
+        display: `${a} + (−${b}) = ${diff}`,
         hint: `1. Flip Row B cells to make −${b} (invert +${b} and add 1) • 2. Add Row A + Row B into Result!`
       };
     }
@@ -4931,6 +4994,8 @@
           showBitmasterToast(`Row B is correct (−${q.valB}), but check your addition in the Result row! Try again.`, '❌', 2400);
         } else if (q.isShiftGrid) {
           showBitmasterToast(`Not quite! Shift all bits by ${q.valB} and check zeros. Try again!`, '❌', 2200);
+        } else if (q.operator === '−') {
+          showBitmasterToast(`Not quite! Subtract each column (1−0=1, 1−1=0, 0−0=0) and try again.`, '❌', 2200);
         } else {
           showBitmasterToast(`Not quite! Check each binary addition column (1+1=0 carry 1) and try again.`, '❌', 2200);
         }
