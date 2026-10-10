@@ -3554,8 +3554,8 @@
         bitsA: bitsA,
         bitsB: bitsB,
         correctAnswer: sumStr,
-        prompt: `Starter Addition (No Carries): Add Columns (${a} + ${b}):`,
-        display: `${a} + ${b} = ${sum}`,
+        prompt: `Starter Addition (No Carries): Add Columns:`,
+        display: `${a} + ${b}`,
         hint: "No carries needed! 0+0=0, 0+1=1, 1+0=1. Flip result bits and submit!"
       };
     }
@@ -3577,8 +3577,8 @@
         bitsA: bitsA,
         bitsB: bitsB,
         correctAnswer: sumStr,
-        prompt: `Add 4-Bit Binary Columns (${a} + ${b}):`,
-        display: `${a} + ${b} = ${sum}`,
+        prompt: `Add 4-Bit Binary Columns:`,
+        display: `${a} + ${b}`,
         hint: `Place values: 8 • 4 • 2 • 1. Flip cells in Result row to 1 or 0, then submit!`
       };
     }
@@ -3600,8 +3600,8 @@
         bitsA: bitsA,
         bitsB: bitsB,
         correctAnswer: sumStr,
-        prompt: `Add 8-Bit Binary Columns (${a} + ${b}):`,
-        display: `${a} + ${b} = ${sum}`,
+        prompt: `Add 8-Bit Binary Columns:`,
+        display: `${a} + ${b}`,
         hint: `Align columns (128..1). Remember: 1+1=0 carry 1, 1+1+1=1 carry 1`
       };
     }
@@ -3912,8 +3912,8 @@
         bitsA: bitsA,
         bitsB: bitsB,
         correctAnswer: diffStr,
-        prompt: `Starter Subtraction (No Borrows): Subtract Columns (${a} − ${b}):`,
-        display: `${a} − ${b} = ${diff}`,
+        prompt: `Starter Subtraction (No Borrows): Subtract Columns:`,
+        display: `${a} − ${b}`,
         hint: `No borrows needed! 1−0=1, 1−1=0, 0−0=0. Flip Result bits and submit!`
       };
     }
@@ -3954,8 +3954,8 @@
         bitsA: bitsA,
         bitsB: bitsB,
         correctAnswer: diffStr,
-        prompt: `8-Bit Subtraction (No Borrows): Subtract Columns (${a} − ${b}):`,
-        display: `${a} − ${b} = ${diff}`,
+        prompt: `8-Bit Subtraction (No Borrows): Subtract Columns:`,
+        display: `${a} − ${b}`,
         hint: `Zero borrows required! Work column-by-column: 1−0=1, 1−1=0, 0−0=0. Flip Result bits to match!`
       };
     }
@@ -4002,7 +4002,7 @@
         correctRowB: twosCompB,
         correctAnswer: diffBin,
         prompt: `Hardware Subtraction: Write −${b} in Row B (Two's Comp), then Add Row A + Row B:`,
-        display: `${a} + (−${b}) = ${diff}`,
+        display: `${a} − ${b}  ➔  ${a} + (−${b})`,
         hint: `1. Flip Row B cells to make −${b} (invert +${b} and add 1) • 2. Add Row A + Row B into Result!`
       };
     }
@@ -4357,9 +4357,9 @@
           bitsA: bitsA,
           bitsB: bitsB,
           correctAnswer: binSum,
-          prompt: `Gauntlet Blitz: Calculate Binary Sum (${a} + ${b}):`,
-          display: `${a} + ${b} = ${sum}`,
-          hint: "Flip the result bits to equal the sum"
+          prompt: `Gauntlet Blitz: Calculate Binary Sum:`,
+          display: `${a} + ${b}`,
+          hint: "Add the binary columns and flip result bits to submit"
         };
       }
     }
