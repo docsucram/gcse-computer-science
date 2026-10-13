@@ -204,7 +204,7 @@
     // Prevent duplicate injection
     if (document.getElementById('mobileSectionSwitcher')) return;
 
-    // 2. Build Mobile Section Switcher Trigger Button
+    // 2. Build Mobile Section Switcher Trigger Button (in header for mobile)
     const switcherWrap = document.createElement('div');
     switcherWrap.className = 'mobile-section-switcher';
     switcherWrap.id = 'mobileSectionSwitcher';
@@ -244,6 +244,42 @@
     switcherWrap.appendChild(triggerBtn);
     headerInner.appendChild(switcherWrap);
 
+    // 2b. Build Desktop Header Topics Button (Docked cleanly in header)
+    const headerTopicsBtn = document.createElement('button');
+    headerTopicsBtn.type = 'button';
+    headerTopicsBtn.className = 'header-topics-btn';
+    headerTopicsBtn.id = 'headerTopicsBtn';
+    headerTopicsBtn.setAttribute('aria-expanded', 'false');
+    headerTopicsBtn.setAttribute('aria-haspopup', 'dialog');
+    headerTopicsBtn.setAttribute('aria-label', 'Toggle Topics Directory');
+    headerTopicsBtn.title = 'Open All Topics & Sections';
+    headerTopicsBtn.innerHTML = `
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="15" y2="12"></line>
+        <line x1="3" y1="18" x2="18" y2="18"></line>
+      </svg>
+      <span>Topics</span>
+    `;
+
+    // Insert into header space (On main programme / hub: far left before brand block; on modules: next to back link)
+    const brandGroup = headerInner.querySelector('.header-brand-group, .brand-block');
+    if (brandGroup) {
+      if (brandGroup.tagName === 'A') {
+        headerInner.insertBefore(headerTopicsBtn, headerInner.firstChild);
+      } else {
+        const backLink = brandGroup.querySelector('.back-link, a[href*="index.html"]');
+        if (backLink) {
+          brandGroup.insertBefore(headerTopicsBtn, backLink.nextSibling);
+        } else {
+          // On main programme / hub: place Topics button on the far left before the brand block
+          brandGroup.insertBefore(headerTopicsBtn, brandGroup.firstChild);
+        }
+      }
+    } else {
+      headerInner.insertBefore(headerTopicsBtn, headerInner.firstChild);
+    }
+
     // 3. Build Full Course Directory Modal / Drawer
     const modal = document.createElement('div');
     modal.className = 'mobile-section-modal';
@@ -280,12 +316,12 @@
     hubJumpBar.className = 'mobile-drawer-hub-bar';
     const hubPrefix = getHubRelativePrefix();
     hubJumpBar.innerHTML = `
-      <a href="${hubPrefix}index.html" class="mobile-drawer-hub-link">
+      <a href="${hubPrefix}index.html" class="mobile-drawer-hub-link" title="Return to Revision Hub Dashboard">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
           <polyline points="9 22 9 12 15 12 15 22"></polyline>
         </svg>
-        <span>Return to Revision Hub Dashboard</span>
+        <span>Hub Dashboard</span>
       </a>
       <a href="${hubPrefix}bitmaster.html" class="mobile-drawer-arcade-link" title="Launch Full-Screen BitMaster">
         <span>⚡ BitMaster</span>
@@ -318,6 +354,8 @@
       const activeBtn = getActiveTabButton();
       if (activeBtn) {
         triggerTitle.textContent = getTabButtonTitle(activeBtn);
+      } else if (!currentModId) {
+        triggerTitle.textContent = 'All Topics';
       } else {
         // Fallback to module title
         const h1 = document.querySelector('.nav-module-title, h1');
@@ -455,11 +493,20 @@
     function openModal() {
       renderAccordionDirectory();
       modal.style.display = 'block';
-      // Trigger animation frame
+      const isDesktop = window.innerWidth > 768;
+
       requestAnimationFrame(() => {
         modal.classList.add('open');
+        document.body.classList.add('topics-sidebar-open');
         triggerBtn.setAttribute('aria-expanded', 'true');
-        document.body.style.overflow = 'hidden';
+        headerTopicsBtn.setAttribute('aria-expanded', 'true');
+        headerTopicsBtn.classList.add('active');
+
+        if (isDesktop) {
+          localStorage.setItem('gcse_topics_sidebar', 'open');
+        } else {
+          document.body.style.overflow = 'hidden';
+        }
 
         // Auto-scroll so current section is in view
         setTimeout(() => {
@@ -475,16 +522,31 @@
 
     function closeModal() {
       modal.classList.remove('open');
+      document.body.classList.remove('topics-sidebar-open');
       triggerBtn.setAttribute('aria-expanded', 'false');
+      headerTopicsBtn.setAttribute('aria-expanded', 'false');
+      headerTopicsBtn.classList.remove('active');
+
+      const isDesktop = window.innerWidth > 768;
+      if (isDesktop) {
+        localStorage.setItem('gcse_topics_sidebar', 'closed');
+      }
       document.body.style.overflow = '';
+
       setTimeout(() => {
         if (!modal.classList.contains('open')) {
           modal.style.display = 'none';
         }
-      }, 250);
+      }, 240);
     }
 
     triggerBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (modal.classList.contains('open')) closeModal();
+      else openModal();
+    });
+
+    headerTopicsBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (modal.classList.contains('open')) closeModal();
       else openModal();
@@ -499,6 +561,11 @@
         closeModal();
       }
     });
+
+    // Check if user preferred topics sidebar open on desktop
+    if (window.innerWidth > 768 && localStorage.getItem('gcse_topics_sidebar') === 'open') {
+      openModal();
+    }
 
     // Sync trigger label with any external tab changes
     updateTriggerLabel();

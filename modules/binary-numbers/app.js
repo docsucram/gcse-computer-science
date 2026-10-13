@@ -901,8 +901,75 @@
     return audioCtx;
   }
 
+  // Progressive Audio Manager: Plays real .ogg assets if available (e.g. menu_nav.ogg, bit_toggle.ogg),
+  // with instant fallback to Web Audio procedural synthesis oscillators.
+  const SOUND_FILE_MAP = {
+    tap: ['assets/sounds/menu_nav.ogg', 'modules/binary-numbers/assets/sounds/menu_nav.ogg'],
+    click: ['assets/sounds/menu_nav.ogg', 'modules/binary-numbers/assets/sounds/menu_nav.ogg'],
+    switch: ['assets/sounds/bit_toggle.ogg', 'modules/binary-numbers/assets/sounds/bit_toggle.ogg'],
+    correct: ['assets/sounds/answer_correct.ogg', 'modules/binary-numbers/assets/sounds/answer_correct.ogg'],
+    success: ['assets/sounds/answer_correct.ogg', 'modules/binary-numbers/assets/sounds/answer_correct.ogg'],
+    wrong: ['assets/sounds/answer_wrong.ogg', 'modules/binary-numbers/assets/sounds/answer_wrong.ogg'],
+    star: ['assets/sounds/star_pop.ogg', 'modules/binary-numbers/assets/sounds/star_pop.ogg'],
+    victory: ['assets/sounds/victory_fanfare.ogg', 'modules/binary-numbers/assets/sounds/victory_fanfare.ogg'],
+    perfect10: ['assets/sounds/victory_fanfare.ogg', 'modules/binary-numbers/assets/sounds/victory_fanfare.ogg'],
+    levelup: ['assets/sounds/rank_levelup.ogg', 'modules/binary-numbers/assets/sounds/rank_levelup.ogg']
+  };
+
+  const bitmasterAudioCache = {};
+
+  function playRealAudio(type, onFallback) {
+    const list = SOUND_FILE_MAP[type];
+    if (!list || list.length === 0) {
+      if (onFallback) onFallback();
+      return;
+    }
+
+    if (bitmasterAudioCache[type] === false) {
+      if (onFallback) onFallback();
+      return;
+    }
+
+    if (bitmasterAudioCache[type] instanceof Audio) {
+      const a = bitmasterAudioCache[type];
+      a.currentTime = 0;
+      a.play().catch(() => {
+        if (onFallback) onFallback();
+      });
+      return;
+    }
+
+    const a = new Audio();
+    a.src = list[0];
+    a.volume = 0.6;
+    a.play().then(() => {
+      bitmasterAudioCache[type] = a;
+    }).catch(() => {
+      if (list[1]) {
+        const a2 = new Audio();
+        a2.src = list[1];
+        a2.volume = 0.6;
+        a2.play().then(() => {
+          bitmasterAudioCache[type] = a2;
+        }).catch(() => {
+          bitmasterAudioCache[type] = false;
+          if (onFallback) onFallback();
+        });
+      } else {
+        bitmasterAudioCache[type] = false;
+        if (onFallback) onFallback();
+      }
+    });
+  }
+
   function playSynthSound(type) {
     if (isAudioMuted) return;
+    playRealAudio(type, () => {
+      playProceduralSynthSound(type);
+    });
+  }
+
+  function playProceduralSynthSound(type) {
     try {
       const ctx = getAudioContext();
       if (!ctx) return;
@@ -2337,195 +2404,451 @@
   // 7. TAB 0: "BITMASTER" BINARY & HEX MENTAL ARCADE ENGINE
   // =========================================================================
 
-  // Stage Vector SVG Icons (No emojis)
+  // Stage Vector SVG Icons (No emojis - semantic CS symbols)
   const BITMASTER_STAGE_ICONS = {
     1: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3"/></svg>`,
-    2: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/></svg>`,
-    3: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9" x2="6" y2="15"/><line x1="10" y1="9" x2="10" y2="15"/><line x1="14" y1="9" x2="14" y2="15"/><line x1="18" y1="9" x2="18" y2="15"/></svg>`,
-    4: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
-    5: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
-    6: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="7" x2="12" y2="17"/><line x1="7" y1="12" x2="17" y2="12"/></svg>`,
-    7: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="12" y1="5" x2="12" y2="13"/><line x1="7" y1="18" x2="17" y2="18"/></svg>`,
-    8: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="7" y1="12" x2="17" y2="12"/></svg>`,
-    9: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 19 22 12 13 5 13 19"/><polygon points="2 19 11 12 2 5 2 19"/></svg>`,
-    10: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`,
-    11: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/></svg>`
+    2: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="4" x2="6" y2="20"/><line x1="10" y1="4" x2="10" y2="20"/><line x1="14" y1="4" x2="14" y2="20"/><line x1="18" y1="4" x2="18" y2="20"/></svg>`,
+    3: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="5" width="22" height="14" rx="7"/><circle cx="16" cy="12" r="3" fill="currentColor"/></svg>`,
+    4: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>`,
+    5: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
+    6: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg>`,
+    7: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-1.19"/></svg>`,
+    8: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
+    9: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
+    10: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 19 2 12 11 5 11 19"/><polygon points="22 19 13 12 22 5 22 19"/></svg>`,
+    11: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="9" y1="10" x2="15" y2="10"/><line x1="9" y1="17" x2="15" y2="17"/></svg>`,
+    12: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 16V4m0 0L3 8m4-4l4 4"/><path d="M17 8v12m0 0l4-4m-4 4l-4-4"/></svg>`,
+    13: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
+    14: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="12" y1="9" x2="12" y2="15"/><circle cx="12" cy="12" r="2"/></svg>`,
+    15: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`,
+    16: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg>`,
+    17: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>`,
+    18: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>`,
+    19: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+    20: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>`,
+    21: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`
   };
 
-  const BITMASTER_STAGES = [
+  // 6 Thematic Topic Groupings ("Worlds")
+  const BITMASTER_TOPICS = [
     {
       id: 1,
-      title: "Stage 1: Binary Place Values",
-      shortTitle: "Binary Place Values",
-      subtitle: "Place Values & Bit Weights (1 to 128)",
+      name: "Binary Foundations",
+      shortName: "Binary",
+      heroCode: "100101",
+      tag: "TOPIC 01",
+      accent: "#38bdf8",
+      glow: "rgba(56, 189, 248, 0.28)",
+      gradient: "linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(56, 189, 248, 0.05))",
+      svgIcon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3"/></svg>`,
+      desc: "Place values, switches & mental binary/denary conversion"
+    },
+    {
+      id: 2,
+      name: "Hexadecimal Mastery",
+      shortName: "Hexadecimal",
+      heroCode: "0xF",
+      tag: "TOPIC 02",
+      accent: "#ec4899",
+      glow: "rgba(236, 72, 153, 0.28)",
+      gradient: "linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(236, 72, 153, 0.05))",
+      svgIcon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
+      desc: "Hex digits (0x), nibble splitting & 3-way conversions"
+    },
+    {
+      id: 3,
+      name: "Binary Arithmetic",
+      shortName: "Arithmetic",
+      heroCode: "+ −",
+      tag: "TOPIC 03",
+      accent: "#f97316",
+      glow: "rgba(249, 115, 22, 0.28)",
+      gradient: "linear-gradient(135deg, rgba(249, 115, 22, 0.25), rgba(249, 115, 22, 0.05))",
+      svgIcon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="7" x2="12" y2="17"/><line x1="7" y1="12" x2="17" y2="12"/></svg>`,
+      desc: "Column addition, unsigned subtraction & logical shifts"
+    },
+    {
+      id: 4,
+      name: "Signed Numbers & ALU",
+      shortName: "Signed & ALU",
+      heroCode: "± ALU",
+      tag: "TOPIC 04",
+      accent: "#06b6d4",
+      glow: "rgba(6, 182, 212, 0.28)",
+      gradient: "linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(6, 182, 212, 0.05))",
+      svgIcon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="12" y1="5" x2="12" y2="13"/><line x1="7" y1="18" x2="17" y2="18"/></svg>`,
+      desc: "Two's Complement, negation & hardware ALU subtraction"
+    },
+    {
+      id: 5,
+      name: "Data Units & Calculations",
+      shortName: "Data Units",
+      heroCode: "KB / MB",
+      tag: "TOPIC 05",
+      accent: "#10b981",
+      glow: "rgba(16, 185, 129, 0.28)",
+      gradient: "linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(16, 185, 129, 0.05))",
+      svgIcon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`,
+      desc: "Prefixes, multimedia file sizing & network bandwidth"
+    },
+    {
+      id: 6,
+      name: "The Master Gauntlet",
+      shortName: "The Gauntlet",
+      heroCode: "⚡ MAX",
+      tag: "TOPIC 06",
+      accent: "#eab308",
+      glow: "rgba(234, 179, 8, 0.32)",
+      gradient: "linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(234, 179, 8, 0.05))",
+      svgIcon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>`,
+      desc: "Timed championship circuits across all topics"
+    }
+  ];
+
+  const BITMASTER_STAGES = [
+    // -------------------------------------------------------------------------
+    // TOPIC 1: BINARY FOUNDATIONS (Stages 1 - 4)
+    // -------------------------------------------------------------------------
+    {
+      id: 1,
+      topicId: 1,
+      title: "Stage 1: Nibble Place Values",
+      shortTitle: "Nibble Place Values",
+      subtitle: "4-Bit Place Values & Bit Weights (8 • 4 • 2 • 1)",
       svgIcon: BITMASTER_STAGE_ICONS[1],
       color: "#3b82f6",
       levels: [
         { id: 1, name: "Nibble Weights", mode: "place_val_nibble_what", desc: "Identify place values for 4-bit nibbles (8, 4, 2, 1) in visual bit boxes" },
         { id: 2, name: "Nibble Missing (?)", mode: "place_val_nibble_missing", desc: "Find the missing place value marked with '?' (e.g. 8, ?, 2, 1)" },
-        { id: 3, name: "Byte Weights", mode: "place_val_byte_what", desc: "Identify place values across 8-bit positions (128 down to 1)" },
-        { id: 4, name: "Byte Missing (?)", mode: "place_val_byte_missing", desc: "Find the missing place value marked with '?' in an 8-bit byte" },
-        { id: 5, name: "Unassisted Positions", mode: "place_val_byte_unassisted", desc: "Identify place values with all scaffolding removed (Bit 7 down to Bit 0)" }
+        { id: 3, name: "Nibble Blind (?)", mode: "place_val_nibble_all_blank", desc: "All bit boxes blank with a single '?' — identify the highlighted weight" },
+        { id: 4, name: "Reverse Bit Finder", mode: "place_val_nibble_reverse_which_bit", desc: "Given a place value (8, 4, 2, 1), select the matching bit: Bit 3, 2, 1, or 0" }
       ]
     },
     {
       id: 2,
-      title: "Stage 2: Binary to Denary",
-      shortTitle: "Binary to Denary",
-      subtitle: "Convert Binary Patterns to Denary Numbers",
+      topicId: 1,
+      title: "Stage 2: Byte Place Values",
+      shortTitle: "Byte Place Values",
+      subtitle: "8-Bit Place Values & Bit Weights (128 down to 1)",
       svgIcon: BITMASTER_STAGE_ICONS[2],
       color: "#10b981",
       levels: [
-        { id: 1, name: "4-Bit Nibble (Assisted)", mode: "mc_nibble_bin2den_assisted", desc: "4-Bit Binary to Denary with place values (8 • 4 • 2 • 1) shown above bits" },
-        { id: 2, name: "8-Bit Byte (Assisted)", mode: "mc_byte_bin2den_assisted", desc: "8-Bit Binary to Denary with place values (128..1) shown above bits" },
-        { id: 3, name: "8-Bit Byte (Unassisted)", mode: "mc_byte_bin2den_unassisted", desc: "Full 8-Bit Binary to Denary with place values removed (Mental conversion)" },
-        { id: 4, name: "Speed Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Rapid Binary to Denary conversions!" }
+        { id: 1, name: "Byte Weights", mode: "place_val_byte_what", desc: "Identify place values across 8-bit positions (128 down to 1)" },
+        { id: 2, name: "Byte Missing (?)", mode: "place_val_byte_missing", desc: "Find the missing place value marked with '?' in an 8-bit byte" },
+        { id: 3, name: "Byte Blind (?)", mode: "place_val_byte_all_blank", desc: "All bit boxes blank with a single '?' — identify the 8-bit column weight" },
+        { id: 4, name: "Reverse Bit Finder", mode: "place_val_byte_reverse_which_bit", desc: "Given a byte weight (128..1), select the matching bit: Bit 7 down to Bit 0" }
       ]
     },
     {
       id: 3,
+      topicId: 1,
       title: "Stage 3: Denary to Binary",
       shortTitle: "Denary to Binary",
-      subtitle: "Convert Denary Numbers into Binary Patterns",
+      subtitle: "Assemble Binary Bit Patterns from Denary Numbers",
       svgIcon: BITMASTER_STAGE_ICONS[3],
       color: "#0ea5e9",
       levels: [
-        { id: 1, name: "4-Bit Nibble", mode: "switches_nibble", desc: "Toggle 4-Bit Switches (8 • 4 • 2 • 1) for values 0 to 15" },
-        { id: 2, name: "8-Bit Byte", mode: "switches_byte", desc: "Toggle 8-Bit Switches (128..1) for values 0 to 255" },
-        { id: 3, name: "Mixed Bi-Directional", mode: "mixed_bin_den", desc: "Rapid mix of Denary → Binary and Binary → Denary!" },
-        { id: 4, name: "Speed Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Fast-paced Denary to Binary conversions!" }
+        { id: 1, name: "4-Bit Nibble (Assisted)", mode: "switches_nibble_assisted", desc: "Toggle 4-bit switches (8 • 4 • 2 • 1) for values 0 to 15 with live sum helper" },
+        { id: 2, name: "4-Bit Nibble (Unassisted)", mode: "switches_nibble_unassisted", desc: "Toggle 4-bit switches without the current total — mental summation!" },
+        { id: 3, name: "8-Bit Byte (Assisted)", mode: "switches_byte_assisted", desc: "Toggle 8-bit switches (128..1) for values 0 to 255 with live sum helper" },
+        { id: 4, name: "8-Bit Byte (Unassisted)", mode: "switches_byte_unassisted", desc: "Toggle 8-bit switches without the current total — true exam practice!" }
       ]
     },
     {
       id: 4,
-      title: "Stage 4: Hexadecimal",
-      shortTitle: "Hexadecimal",
-      subtitle: "Hex Digits, Nibbles & Byte Representations (with 0x)",
+      topicId: 1,
+      title: "Stage 4: Binary to Denary",
+      shortTitle: "Binary to Denary",
+      subtitle: "Convert Binary Bit Patterns to Denary Numbers",
       svgIcon: BITMASTER_STAGE_ICONS[4],
       color: "#8b5cf6",
       levels: [
-        { id: 1, name: "1-Digit Nibble Flip", mode: "hex_nibble_flip", desc: "1-Digit Hex to 4-Bit Binary: Flip bits aligned below 0x digit" },
-        { id: 2, name: "2-Digit Byte Flip", mode: "hex_byte_flip", desc: "2-Digit Hex to 8-Bit Binary: Side-by-side nibbles with 0x digits" },
-        { id: 3, name: "1-Digit Hex to Denary", mode: "mc_hex_nibble_to_den", desc: "Convert 0x0 to 0xF directly to Denary (0 to 15)" },
-        { id: 4, name: "2-Digit Hex to Denary", mode: "mc_hex_byte", desc: "Convert 2-Digit Hex (0x00 to 0xFF) to Denary (0 to 255)" }
+        { id: 1, name: "4-Bit Nibble (Assisted)", mode: "mc_nibble_bin2den_assisted", desc: "4-Bit Binary to Denary with weights (8 • 4 • 2 • 1) displayed above bits" },
+        { id: 2, name: "4-Bit Nibble (Unassisted)", mode: "mc_nibble_bin2den_unassisted", desc: "4-Bit Binary to Denary with place values removed (Mental conversion)" },
+        { id: 3, name: "8-Bit Byte (Assisted)", mode: "mc_byte_bin2den_assisted", desc: "8-Bit Binary to Denary with weights (128..1) displayed above bits" },
+        { id: 4, name: "8-Bit Byte (Unassisted)", mode: "mc_byte_bin2den_unassisted", desc: "Full 8-Bit Binary to Denary without scaffolding (Mental conversion)" },
+        { id: 5, name: "Mixed Bi-Directional", mode: "mixed_bin_den", desc: "Rapid mix of Binary → Denary and Denary → Binary!" }
       ]
     },
+
+    // -------------------------------------------------------------------------
+    // TOPIC 2: HEXADECIMAL (Stages 5 - 7)
+    // -------------------------------------------------------------------------
     {
       id: 5,
-      title: "Stage 5: 3-Way Conversion",
-      shortTitle: "3-Way Conversion",
-      subtitle: "Tri-Directional Conversion (Hex ↔ Binary ↔ Denary)",
+      topicId: 2,
+      title: "Stage 5: Hexadecimal (Hex to Binary)",
+      shortTitle: "Hex to Binary",
+      subtitle: "Convert Hexadecimal Digits & Bytes into Binary (with 0x)",
       svgIcon: BITMASTER_STAGE_ICONS[5],
-      color: "#a855f7",
+      color: "#ec4899",
       levels: [
-        { id: 1, name: "Hex ↔ Binary", mode: "hex_mixed_bin", desc: "Bi-directional Hex & Binary conversions (with 0x)" },
-        { id: 2, name: "Hex ↔ Denary", mode: "hex_mixed_den", desc: "Bi-directional Hex & Denary conversions (with 0x)" },
-        { id: 3, name: "Tri-Directional Blitz", mode: "hex_tri_mixed", desc: "Master Blitz: Hex ↔ Binary ↔ Denary all mixed together!" },
-        { id: 4, name: "Speed Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Rapid-fire Hexadecimal conversions!" }
+        { id: 1, name: "1-Digit Hex (Assisted)", mode: "hex_nibble_flip_assisted", desc: "Flip 4 bits to match 0x0..0xF with live Hex value feedback" },
+        { id: 2, name: "1-Digit Hex (Unassisted)", mode: "hex_nibble_flip_unassisted", desc: "Flip 4 bits to match 0x0..0xF without live Hex feedback" },
+        { id: 3, name: "2-Digit Byte (Assisted)", mode: "hex_byte_flip_assisted", desc: "Flip two nibbles for 0x00..0xFF with live Hex value feedback" },
+        { id: 4, name: "2-Digit Byte (Unassisted)", mode: "hex_byte_flip_unassisted", desc: "Flip two nibbles for 0x00..0xFF without live Hex feedback" }
       ]
     },
     {
       id: 6,
-      title: "Stage 6: Binary Addition",
-      shortTitle: "Binary Addition",
-      subtitle: "Column Addition & Carry Mechanics",
+      topicId: 2,
+      title: "Stage 6: Hexadecimal to Denary",
+      shortTitle: "Hex to Denary",
+      subtitle: "Convert Hex Values directly to Denary & Vice Versa",
       svgIcon: BITMASTER_STAGE_ICONS[6],
       color: "#f59e0b",
       levels: [
-        { id: 1, name: "Starter Addition", mode: "math_add_no_overflow", desc: "Beginner Addition: No Carries & No Overflow (0+0, 0+1, 1+0)" },
-        { id: 2, name: "Carries Starter", mode: "math_add_simple", desc: "4-Bit Addition with Carries: 1 + 1 = 10" },
-        { id: 3, name: "Full 8-Bit Addition", mode: "math_add_8bit", desc: "Full 8-Bit Column Addition Grid with multiple carries" },
-        { id: 4, name: "Speed Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Rapid column addition against the clock!" }
+        { id: 1, name: "1-Digit Hex to Denary (Assisted)", mode: "mc_hex_nibble_to_den_assisted", desc: "Convert 0x0 to 0xF directly to Denary (0 to 15) with helper" },
+        { id: 2, name: "1-Digit Hex to Denary (Unassisted)", mode: "mc_hex_nibble_to_den_unassisted", desc: "Convert 0x0 to 0xF directly to Denary (pure mental recall)" },
+        { id: 3, name: "2-Digit Hex to Denary (Assisted)", mode: "mc_hex_byte_assisted", desc: "Convert 0x00 to 0xFF to Denary with (16 × High + Low) helper" },
+        { id: 4, name: "2-Digit Hex to Denary (Unassisted)", mode: "mc_hex_byte_unassisted", desc: "Convert 0x00 to 0xFF to Denary without assistance" },
+        { id: 5, name: "Denary to Hex", mode: "mc_den_to_hex", desc: "Convert Denary numbers back into Hexadecimal (e.g. 171 → 0xAB)" }
       ]
     },
     {
       id: 7,
-      title: "Stage 7: Two's Complement",
-      shortTitle: "Two's Complement",
-      subtitle: "Signed Binary & Negative Values (−128 / −8 MSB)",
+      topicId: 2,
+      title: "Stage 7: 3-Way Conversion",
+      shortTitle: "3-Way Conversion",
+      subtitle: "Tri-Directional Conversion (Hex ↔ Binary ↔ Denary)",
       svgIcon: BITMASTER_STAGE_ICONS[7],
-      color: "#06b6d4",
+      color: "#a855f7",
       levels: [
-        { id: 1, name: "Sign & MSB Rectangles", mode: "mc_twos_comp_sign", desc: "Identify the negative MSB (−8 / −128) and sign bit in visual bit boxes" },
-        { id: 2, name: "Nibble Missing (?)", mode: "twos_comp_nibble_missing", desc: "Find the missing place value in 4-bit Two's Comp (e.g. −8, ?, 2, 1)" },
-        { id: 3, name: "Byte Missing (?)", mode: "twos_comp_byte_missing", desc: "Find the missing place value in 8-bit Two's Comp (e.g. ?, 64, 32, ...)" },
-        { id: 4, name: "Invert & Add 1", mode: "twos_comp_invert_add_1", desc: "Two's Complement Negation: Convert +V to −V with flippable switches" },
-        { id: 5, name: "4-Bit Nibbles", mode: "twos_comp_nibbles", desc: "4-Bit Two's Comp: Flip bits & evaluate nibbles in denary" },
-        { id: 6, name: "8-Bit Mastery", mode: "twos_comp_byte_mastery", desc: "Full 8-Bit Two's Complement conversions (−128 to +127) & switches" }
+        { id: 1, name: "Hex ↔ Binary", mode: "hex_mixed_bin", desc: "Bi-directional Hex & Binary conversions (with 0x)" },
+        { id: 2, name: "Hex ↔ Denary", mode: "hex_mixed_den", desc: "Bi-directional Hex & Denary conversions (with 0x)" },
+        { id: 3, name: "Tri-Directional Blitz", mode: "hex_tri_mixed", desc: "Master Blitz: Hex ↔ Binary ↔ Denary all mixed together!" }
       ]
     },
+
+    // -------------------------------------------------------------------------
+    // TOPIC 3: BINARY ARITHMETIC (Stages 8 - 10)
+    // -------------------------------------------------------------------------
     {
       id: 8,
-      title: "Stage 8: Binary Subtraction",
-      shortTitle: "Binary Subtraction",
-      subtitle: "Column Subtraction & Hardware Two's Complement",
+      topicId: 3,
+      title: "Stage 8: Binary Addition & Overflow",
+      shortTitle: "Binary Addition",
+      subtitle: "Column Addition, Carries & Unsigned 8-Bit Overflow",
       svgIcon: BITMASTER_STAGE_ICONS[8],
-      color: "#ef4444",
+      color: "#f97316",
       levels: [
-        { id: 1, name: "Starter Subtraction", mode: "math_sub_no_borrow_4bit", desc: "4-Bit Column Subtraction with No Borrows / No Carries (1−0=1, 1−1=0, 0−0=0)" },
-        { id: 2, name: "8-Bit Subtraction", mode: "math_sub_no_borrow_8bit", desc: "Full 8-Bit Column Subtraction with No Borrows across all 8 columns" },
-        { id: 3, name: "Two's Comp Negation", mode: "sub_twos_comp_negate", desc: "Write (−B) in Two's Complement to prepare for hardware addition: A + (−B)" },
-        { id: 4, name: "Hardware Subtraction Grid", mode: "math_sub_twos_comp_grid", desc: "Write (−B) in Row B using Two's Complement, then add Row A + Row B into Result" },
-        { id: 5, name: "Subtraction Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Fast binary subtraction and Two's Complement arithmetic!" }
+        { id: 1, name: "Starter Addition", mode: "math_add_no_overflow", desc: "Beginner Addition: No Carries & No Overflow (0+0, 0+1, 1+0)" },
+        { id: 2, name: "Carries Starter", mode: "math_add_simple", desc: "4-Bit Addition with Carries: 1 + 1 = 10" },
+        { id: 3, name: "Full 8-Bit Addition", mode: "math_add_8bit", desc: "Full 8-Bit Column Addition Grid with multiple carries" },
+        { id: 4, name: "Unsigned Overflow Detection", mode: "math_add_overflow_detect", desc: "Diagnose 8-bit overflow errors when the 9th carry bit exceeds 255" }
       ]
     },
     {
       id: 9,
-      title: "Stage 9: Logical Shifts",
-      shortTitle: "Logical Shifts",
-      subtitle: "Binary Shifting & Arithmetic Effects (×2, ÷2)",
+      topicId: 3,
+      title: "Stage 9: Unsigned Binary Subtraction",
+      shortTitle: "Unsigned Subtraction",
+      subtitle: "Direct Column Subtraction & Borrow Mechanics",
       svgIcon: BITMASTER_STAGE_ICONS[9],
-      color: "#ec4899",
+      color: "#ef4444",
       levels: [
-        { id: 1, name: "Interactive Shift Flip", mode: "math_shift_flip", desc: "Flip the shifted bits underneath in the result row & submit!" },
-        { id: 2, name: "Logical Left Shifts", mode: "mc_shift_left", desc: "Left Shifts (Multiply by 2, 4, 8) with MSB overflow check" },
-        { id: 3, name: "Logical Right Shifts", mode: "mc_shift_right", desc: "Right Shifts (Divide by 2, 4 with Truncation)" },
-        { id: 4, name: "Speed Sprint", mode: "sprint_60s", desc: "60s Speed Sprint: Fast binary shifting under pressure!" }
+        { id: 1, name: "Starter Subtraction (No Borrows)", mode: "math_sub_no_borrow_4bit", desc: "4-Bit Column Subtraction with No Borrows (1−0=1, 1−1=0, 0−0=0)" },
+        { id: 2, name: "8-Bit Subtraction (No Borrows)", mode: "math_sub_no_borrow_8bit", desc: "Full 8-Bit Column Subtraction with No Borrows across all 8 columns" },
+        { id: 3, name: "Column Subtraction with Borrows", mode: "math_sub_with_borrows_4bit", desc: "4-Bit Column Subtraction where 0−1 borrows 1 from the next higher column" },
+        { id: 4, name: "Unsigned Underflow / Subtraction Trap", mode: "math_sub_underflow_quiz", desc: "Understand why computers cannot represent A < B in unsigned registers without sign bits" }
       ]
     },
     {
       id: 10,
-      title: "Stage 10: Units of Data",
-      shortTitle: "Units of Data",
-      subtitle: "Bits, Bytes, Storage Capacity & Network Transmission",
+      topicId: 3,
+      title: "Stage 10: Logical Shifts",
+      shortTitle: "Logical Shifts",
+      subtitle: "Binary Shifting & Arithmetic Effects (×2, ÷2)",
       svgIcon: BITMASTER_STAGE_ICONS[10],
-      color: "#10b981",
+      color: "#ec4899",
       levels: [
-        { id: 1, name: "Bits, Nibbles & Bytes", mode: "units_fundamental", desc: "Fundamental units of storage: bits in byte, bytes in KB, and sizes" },
-        { id: 2, name: "Unit Conversions", mode: "units_conversions", desc: "Convert between KB, MB, GB, and TB using standard decimal prefixes" },
-        { id: 3, name: "Storage Capacity & Files", mode: "units_capacity", desc: "Calculate file fitting: How many files can store in a given capacity" },
-        { id: 4, name: "Transmission & Mixed Units", mode: "units_transmission", desc: "Bits vs Bytes (MB vs Mb), Mbps transfer speeds, and download times" }
+        { id: 1, name: "Interactive Shift Flip", mode: "math_shift_flip", desc: "Flip the shifted bits underneath in the result row & submit!" },
+        { id: 2, name: "Logical Left Shifts", mode: "mc_shift_left", desc: "Left Shifts (Multiply by 2, 4, 8) with MSB overflow check" },
+        { id: 3, name: "Logical Right Shifts", mode: "mc_shift_right", desc: "Right Shifts (Divide by 2, 4 with Truncation)" }
+      ]
+    },
+
+    // -------------------------------------------------------------------------
+    // TOPIC 4: SIGNED NUMBERS & HARDWARE SUBTRACTION (Stages 11 - 14)
+    // -------------------------------------------------------------------------
+    {
+      id: 11,
+      topicId: 4,
+      title: "Stage 11: Two's Complement Foundations",
+      shortTitle: "Two's Comp Foundations",
+      subtitle: "Signed Binary, Positive vs Negative & Theory Rules",
+      svgIcon: BITMASTER_STAGE_ICONS[11],
+      color: "#06b6d4",
+      levels: [
+        { id: 1, name: "4-Bit: Positive or Negative?", mode: "twos_comp_sign_nibble", desc: "Identify if 4-bit Two's Complement numbers are positive or negative with labelled weights" },
+        { id: 2, name: "8-Bit: Positive or Negative?", mode: "twos_comp_sign_byte", desc: "Identify if 8-bit Two's Complement bytes are positive or negative with labelled weights" },
+        { id: 3, name: "Rapid Sign Recall", mode: "twos_comp_sign_rapid", desc: "Unassisted rapid recall: Look at the MSB and determine the sign instantly!" },
+        { id: 4, name: "Two's Complement Quiz", mode: "mc_twos_comp_sign", desc: "Core theory: MSB values (−8 / −128), range boundaries, and zero representation" }
       ]
     },
     {
-      id: 11,
-      title: "Stage 11: The Master Gauntlet",
-      shortTitle: "The Master Gauntlet",
-      subtitle: "Championship Blitz (All 10 Core Topics Mixed)",
-      svgIcon: BITMASTER_STAGE_ICONS[11],
+      id: 12,
+      topicId: 4,
+      title: "Stage 12: Converting to Two's Complement",
+      shortTitle: "Converting to Two's Comp",
+      subtitle: "Invert all bits and add 1 (+1) to form negative values & vice versa",
+      svgIcon: BITMASTER_STAGE_ICONS[12],
+      color: "#14b8a6",
+      levels: [
+        { id: 1, name: "4-Bit Negation (Odd Numbers)", mode: "twos_comp_negate_4bit_odd", desc: "Convert +X to −X (LSB ends in 1): Invert bits directly above switches and add 1" },
+        { id: 2, name: "8-Bit Negation (Odd Numbers)", mode: "twos_comp_negate_8bit_odd", desc: "Convert +X to −X (LSB ends in 1): 8-bit byte with positive bits aligned directly above" },
+        { id: 3, name: "8-Bit Negation (Even Numbers / Carries)", mode: "twos_comp_negate_8bit_even", desc: "Convert +X to −X (LSB ends in 0): Invert and ripple carries on +1!" },
+        { id: 4, name: "Negation Mastery (Unassisted)", mode: "twos_comp_negate_mastery", desc: "Mixed 4-bit and 8-bit positive to negative without the current total display" },
+        { id: 5, name: "Negative to Positive (−X ➔ +X)", mode: "twos_comp_neg_to_pos", desc: "Convert −X back to +X using the exact same Two's Complement rule: Invert & +1!" }
+      ]
+    },
+    {
+      id: 13,
+      topicId: 4,
+      title: "Stage 13: Two's Complement to Denary",
+      shortTitle: "Two's Comp to Denary",
+      subtitle: "Calculate Signed Denary Values (−128 / −8 MSB)",
+      svgIcon: BITMASTER_STAGE_ICONS[13],
+      color: "#3b82f6",
+      levels: [
+        { id: 1, name: "4-Bit to Denary (Assisted)", mode: "mc_twos_comp_nibble_assisted", desc: "4-Bit Two's Comp to Denary with weights (−8 • 4 • 2 • 1) displayed above bits" },
+        { id: 2, name: "4-Bit to Denary (Unassisted)", mode: "mc_twos_comp_nibble_unassisted", desc: "4-Bit Two's Comp to Denary with weights hidden (Mental calculation)" },
+        { id: 3, name: "8-Bit to Denary (Assisted)", mode: "mc_twos_comp_byte_assisted", desc: "8-Bit Two's Comp to Denary with weights (−128..1) displayed above bits" },
+        { id: 4, name: "8-Bit to Denary (Unassisted)", mode: "mc_twos_comp_byte_unassisted", desc: "8-Bit Two's Comp to Denary with weights hidden (Mental calculation)" },
+        { id: 5, name: "Two's Complement Mastery", mode: "twos_comp_byte_mastery", desc: "Full 8-Bit Two's Complement mastery: mixed mental evaluation & switchboard construction!" }
+      ]
+    },
+    {
+      id: 14,
+      topicId: 4,
+      title: "Stage 14: Hardware Subtraction & ALU",
+      shortTitle: "Hardware Subtraction & ALU",
+      subtitle: "Compute A − B via A + (−B), End-Around Carry & Signed Overflow",
+      svgIcon: BITMASTER_STAGE_ICONS[14],
+      color: "#0284c7",
+      levels: [
+        { id: 1, name: "Two's Comp Negation Prep", mode: "sub_twos_comp_negate", desc: "Write (−B) in Two's Complement to prepare for hardware adder execution" },
+        { id: 2, name: "Hardware Subtraction Grid", mode: "math_sub_twos_comp_grid", desc: "Write (−B) in Row B, then add Row A + Row B into the Result row" },
+        { id: 3, name: "Ignore Final Carry Out", mode: "math_sub_drop_carry_quiz", desc: "Understand why the 9th carry bit out of the MSB is discarded in Two's Complement subtraction" },
+        { id: 4, name: "Signed Overflow Traps", mode: "math_sub_signed_overflow_quiz", desc: "Recognize when adding two numbers with identical signs produces an impossible sign flip" }
+      ]
+    },
+
+    // -------------------------------------------------------------------------
+    // TOPIC 5: DATA UNITS & CALCULATIONS (Stages 15 - 18)
+    // -------------------------------------------------------------------------
+    {
+      id: 15,
+      topicId: 5,
+      title: "Stage 15: Bits, Nibbles & Prefixes",
+      shortTitle: "Bits, Nibbles & Prefixes",
+      subtitle: "Fundamental storage units, decimal prefixes vs binary kibibytes",
+      svgIcon: BITMASTER_STAGE_ICONS[15],
+      color: "#10b981",
+      levels: [
+        { id: 1, name: "Bits, Nibbles & Bytes", mode: "units_fundamental", desc: "Fundamental units of storage: bits in byte, bytes in KB, and sizes" },
+        { id: 2, name: "Decimal vs Binary Prefixes", mode: "units_prefixes_kib", desc: "Compare metric prefixes (KB, MB = 1000) with IEC binary prefixes (KiB, MiB = 1024)" },
+        { id: 3, name: "Character Encoding Sizes", mode: "units_text_chars", desc: "7-bit/8-bit ASCII vs 16-bit/32-bit Unicode string byte calculations" }
+      ]
+    },
+    {
+      id: 16,
+      topicId: 5,
+      title: "Stage 16: Unit Conversions",
+      shortTitle: "Unit Conversions",
+      subtitle: "Convert between KB, MB, GB, and TB using decimal multipliers",
+      svgIcon: BITMASTER_STAGE_ICONS[16],
+      color: "#059669",
+      levels: [
+        { id: 1, name: "Step-Up Conversions (÷1,000)", mode: "units_conversions_up", desc: "Convert small units into larger units: Bytes ➔ KB, KB ➔ MB, MB ➔ GB" },
+        { id: 2, name: "Step-Down Conversions (×1,000)", mode: "units_conversions_down", desc: "Convert large storage units into smaller units: TB ➔ GB, GB ➔ MB, MB ➔ KB" },
+        { id: 3, name: "Mixed Multi-Step Conversions", mode: "units_conversions", desc: "Jump across multiple decimal tiers (e.g. Gigabytes directly to Kilobytes or Bytes)" }
+      ]
+    },
+    {
+      id: 17,
+      topicId: 5,
+      title: "Stage 17: Sound & Image File Sizing",
+      shortTitle: "Sound & Image File Sizing",
+      subtitle: "Compute file sizes from sample rate, bit depth, resolution & colour depth",
+      svgIcon: BITMASTER_STAGE_ICONS[17],
+      color: "#047857",
+      levels: [
+        { id: 1, name: "Sound File Size Formula", mode: "units_sound_calc", desc: "Sample rate (Hz) × Bit depth (bits) × Duration (s) × Channels" },
+        { id: 2, name: "Bitmap Image File Size", mode: "units_image_calc", desc: "Width × Height × Colour Depth (bits) converted into Bytes / KB" },
+        { id: 3, name: "Storage Partition Capacity", mode: "units_capacity", desc: "Calculate how many sound, video, or image files fit in a drive" }
+      ]
+    },
+    {
+      id: 18,
+      topicId: 5,
+      title: "Stage 18: Network Transmission & Speeds",
+      shortTitle: "Network Speeds & Times",
+      subtitle: "Bits vs Bytes (Mbps vs MB/s), network payloads & download times",
+      svgIcon: BITMASTER_STAGE_ICONS[18],
+      color: "#065f46",
+      levels: [
+        { id: 1, name: "Megabits (Mb) vs Megabytes (MB)", mode: "units_mb_vs_mb", desc: "Master the factor of 8 distinction between transfer rate and file storage" },
+        { id: 2, name: "Broadband Download Times", mode: "units_transmission", desc: "Calculate download times: File Size (bits) ÷ Network Speed (bps)" },
+        { id: 3, name: "Payload & Protocol Overhead", mode: "units_payload_overhead", desc: "Calculate effective transfer speeds accounting for packet headers and latency" }
+      ]
+    },
+
+    // -------------------------------------------------------------------------
+    // TOPIC 6: THE MASTER GAUNTLET (Stages 19 - 21)
+    // -------------------------------------------------------------------------
+    {
+      id: 19,
+      topicId: 6,
+      title: "Stage 19: Conversions Circuit",
+      shortTitle: "Conversions Circuit",
+      subtitle: "High-speed blitz across Binary, Hexadecimal (0x) & Denary",
+      svgIcon: BITMASTER_STAGE_ICONS[19],
       color: "#eab308",
       levels: [
-        { id: 1, name: "Conversions Circuit", mode: "blitz_conversions", desc: "Conversions Blitz (Binary, Hex with 0x, Denary)" },
-        { id: 2, name: "Arithmetic Circuit", mode: "blitz_maths", desc: "Binary Arithmetic, Subtraction & Shifts Blitz" },
-        { id: 3, name: "Advanced Circuit", mode: "blitz_signed_hex", desc: "Two's Complement & Units of Data Advanced Blitz" },
-        { id: 4, name: "Grandmaster Sprint", mode: "sprint_60s", desc: "60s Grandmaster Championship Gauntlet Sprint!" }
+        { id: 1, name: "Conversions Sprint", mode: "blitz_conversions", desc: "Rapid conversions between Binary, Hex with 0x, and Denary" }
+      ]
+    },
+    {
+      id: 20,
+      topicId: 6,
+      title: "Stage 20: Arithmetic & ALU Circuit",
+      shortTitle: "Arithmetic & ALU Circuit",
+      subtitle: "High-speed blitz across Addition, Subtraction, Shifts & Signed ALU",
+      svgIcon: BITMASTER_STAGE_ICONS[20],
+      color: "#f59e0b",
+      levels: [
+        { id: 1, name: "Arithmetic Blitz", mode: "blitz_maths", desc: "Binary column arithmetic, subtraction, shifts and signed Two's Complement" }
+      ]
+    },
+    {
+      id: 21,
+      topicId: 6,
+      title: "Stage 21: Grand BitMaster Championship",
+      shortTitle: "BitMaster Championship",
+      subtitle: "The ultimate gauntlet mixing all 20 previous stages together",
+      svgIcon: BITMASTER_STAGE_ICONS[21],
+      color: "#d97706",
+      levels: [
+        { id: 1, name: "Grand Championship Gauntlet", mode: "blitz_signed_hex", desc: "Comprehensive championship mix across all 6 topics of GCSE computer architecture!" }
       ]
     }
   ];
 
+  // Progressive Ranks with accessible, steady point progression
   const BITMASTER_RANKS = [
     { minXp: 0, title: "Logic Novice", svgIcon: BITMASTER_STAGE_ICONS[1], avatarKey: "avatar_tier01_logic_novice" },
-    { minXp: 450, title: "Nibble Operator", svgIcon: BITMASTER_STAGE_ICONS[2], avatarKey: "avatar_tier02_nibble_operator" },
-    { minXp: 1000, title: "Binary Specialist", svgIcon: BITMASTER_STAGE_ICONS[3], avatarKey: "avatar_tier03_binary_specialist" },
-    { minXp: 1650, title: "Byte Engineer", svgIcon: BITMASTER_STAGE_ICONS[4], avatarKey: "avatar_tier04_byte_engineer" },
-    { minXp: 2350, title: "Signed Sentinel", svgIcon: BITMASTER_STAGE_ICONS[7], avatarKey: "avatar_tier05_signed_sentinel" },
-    { minXp: 3100, title: "Silicon Shifter", svgIcon: BITMASTER_STAGE_ICONS[9], avatarKey: "avatar_tier06_silicon_shifter" },
-    { minXp: 3900, title: "ALU Vanguard", svgIcon: BITMASTER_STAGE_ICONS[8], avatarKey: "avatar_tier07_alu_vanguard" },
-    { minXp: 4750, title: "Hex Sorcerer", svgIcon: BITMASTER_STAGE_ICONS[5], avatarKey: "avatar_tier08_hex_sorcerer" },
-    { minXp: 5650, title: "Hex Archon", svgIcon: BITMASTER_STAGE_ICONS[6], avatarKey: "avatar_tier09_hex_archon" },
-    { minXp: 6600, title: "Data Architect", svgIcon: BITMASTER_STAGE_ICONS[10], avatarKey: "avatar_tier10_data_architect" },
-    { minXp: 7800, title: "Grand BitMaster", svgIcon: BITMASTER_STAGE_ICONS[11], avatarKey: "avatar_tier11_grand_bitmaster" },
-    { minXp: 9500, title: "Supreme Silicon Legend", svgIcon: BITMASTER_STAGE_ICONS[11], avatarKey: "avatar_tier12_supreme_silicon_legend" }
+    { minXp: 4000, title: "Nibble Operator", svgIcon: BITMASTER_STAGE_ICONS[2], avatarKey: "avatar_tier02_nibble_operator" },
+    { minXp: 10000, title: "Binary Specialist", svgIcon: BITMASTER_STAGE_ICONS[3], avatarKey: "avatar_tier03_binary_specialist" },
+    { minXp: 18000, title: "Byte Engineer", svgIcon: BITMASTER_STAGE_ICONS[4], avatarKey: "avatar_tier04_byte_engineer" },
+    { minXp: 28000, title: "Hex Sorcerer", svgIcon: BITMASTER_STAGE_ICONS[5], avatarKey: "avatar_tier08_hex_sorcerer" },
+    { minXp: 40000, title: "Hex Archon", svgIcon: BITMASTER_STAGE_ICONS[6], avatarKey: "avatar_tier09_hex_archon" },
+    { minXp: 54000, title: "ALU Vanguard", svgIcon: BITMASTER_STAGE_ICONS[8], avatarKey: "avatar_tier07_alu_vanguard" },
+    { minXp: 70000, title: "Silicon Shifter", svgIcon: BITMASTER_STAGE_ICONS[10], avatarKey: "avatar_tier06_silicon_shifter" },
+    { minXp: 88000, title: "Signed Sentinel", svgIcon: BITMASTER_STAGE_ICONS[11], avatarKey: "avatar_tier05_signed_sentinel" },
+    { minXp: 108000, title: "Data Architect", svgIcon: BITMASTER_STAGE_ICONS[15], avatarKey: "avatar_tier10_data_architect" },
+    { minXp: 130000, title: "Grand BitMaster", svgIcon: BITMASTER_STAGE_ICONS[21], avatarKey: "avatar_tier11_grand_bitmaster" },
+    { minXp: 155000, title: "Supreme Silicon Legend", svgIcon: BITMASTER_STAGE_ICONS[21], avatarKey: "avatar_tier12_supreme_silicon_legend" }
   ];
 
   window.BITMASTER_AVATAR_CACHE = window.BITMASTER_AVATAR_CACHE || {};
@@ -2664,6 +2987,10 @@
   const bitmasterState = {
     xp: 0,
     stars: {}, // key: "s{stageId}_l{levelId}" -> number (1-3)
+    levelRecords: {}, // key: "s{stageId}_l{levelId}" -> { best10Q, stars10Q, bestSprint, solvedSprint, medalSprint }
+    selectedGameMode: '10q', // '10q' | 'sprint'
+    selectedTopicFilter: '1', // '1'..'6'
+    isSprint: false,
     activeStage: 1,
     activeLevel: 1,
     currentQuestionIndex: 0,
@@ -2675,6 +3002,7 @@
     startTime: null,
     timerInterval: null,
     elapsedSeconds: 0,
+    sprintTimeLeft: 60,
     switchBits: [0, 0, 0, 0, 0, 0, 0, 0],
     keypadBuffer: ""
   };
@@ -2682,11 +3010,37 @@
 
   function loadBitmasterSave() {
     try {
-      const saved = localStorage.getItem('bitmaster_save_v1');
-      if (saved) {
-        const data = JSON.parse(saved);
-        bitmasterState.xp = Number(data.xp) || 0;
+      const savedV2 = localStorage.getItem('bitmaster_save_v2');
+      if (savedV2) {
+        const data = JSON.parse(savedV2);
         bitmasterState.stars = data.stars || {};
+        bitmasterState.levelRecords = data.levelRecords || {};
+        let totalXp = 0;
+        Object.values(bitmasterState.levelRecords).forEach(rec => {
+          totalXp += (Number(rec.best10Q) || 0) + (Number(rec.bestSprint) || 0);
+        });
+        bitmasterState.xp = totalXp;
+      } else {
+        const savedV1 = localStorage.getItem('bitmaster_save_v1');
+        if (savedV1) {
+          const data = JSON.parse(savedV1);
+          bitmasterState.stars = data.stars || {};
+          bitmasterState.levelRecords = {};
+          let migXp = 0;
+          Object.entries(bitmasterState.stars).forEach(([k, s]) => {
+            const starVal = Number(s) || 0;
+            const estScore = starVal === 3 ? 1500 : (starVal === 2 ? 1000 : (starVal === 1 ? 600 : 0));
+            bitmasterState.levelRecords[k] = {
+              best10Q: estScore,
+              stars10Q: starVal,
+              bestSprint: 0,
+              solvedSprint: 0,
+              medalSprint: 'none'
+            };
+            migXp += estScore;
+          });
+          bitmasterState.xp = Math.max(migXp, Number(data.xp) || 0);
+        }
       }
     } catch (e) {
       console.warn("Could not load BitMaster save:", e);
@@ -2695,9 +3049,16 @@
 
   function saveBitmasterProgress() {
     try {
-      localStorage.setItem('bitmaster_save_v1', JSON.stringify({
+      let totalXp = 0;
+      Object.values(bitmasterState.levelRecords).forEach(rec => {
+        totalXp += (Number(rec.best10Q) || 0) + (Number(rec.bestSprint) || 0);
+      });
+      bitmasterState.xp = totalXp;
+
+      localStorage.setItem('bitmaster_save_v2', JSON.stringify({
         xp: bitmasterState.xp,
-        stars: bitmasterState.stars
+        stars: bitmasterState.stars,
+        levelRecords: bitmasterState.levelRecords
       }));
     } catch (e) {
       console.warn("Could not write BitMaster save:", e);
@@ -2758,10 +3119,10 @@
       const prevXp = rank.minXp;
       const targetXp = nextRank.minXp;
       const progress = Math.min(100, Math.max(0, Math.round(((bitmasterState.xp - prevXp) / (targetXp - prevXp)) * 100)));
-      if (xpLabelEl) xpLabelEl.textContent = `${bitmasterState.xp} / ${targetXp} XP`;
+      if (xpLabelEl) xpLabelEl.textContent = `${bitmasterState.xp.toLocaleString()} / ${targetXp.toLocaleString()} pts`;
       if (xpBarFillEl) xpBarFillEl.style.width = `${progress}%`;
     } else {
-      if (xpLabelEl) xpLabelEl.textContent = `${bitmasterState.xp} XP • Maximum Rank`;
+      if (xpLabelEl) xpLabelEl.textContent = `${bitmasterState.xp.toLocaleString()} pts • Maximum Rank`;
       if (xpBarFillEl) xpBarFillEl.style.width = '100%';
     }
 
@@ -2774,7 +3135,8 @@
     if (titleRankEl) titleRankEl.textContent = rank.title;
     const maxPossibleStars = BITMASTER_STAGES.reduce((acc, s) => acc + s.levels.length * 3, 0);
     if (titleStarsEl) titleStarsEl.textContent = `${totalStars} / ${maxPossibleStars} ⭐`;
-    if (titleXpEl) titleXpEl.textContent = `${bitmasterState.xp} XP`;
+    if (titleXpEl) titleXpEl.textContent = `${bitmasterState.xp.toLocaleString()} pts`;
+    renderBitmasterFrontTopics();
 
     // Check rank promotion / level-up event
     const storedLastRank = Number(localStorage.getItem('bitmaster_last_notified_rank') || '1');
@@ -2821,7 +3183,7 @@
       }
       if (backBtn) {
         backBtn.style.display = 'inline-flex';
-        if (backText) backText.textContent = 'Title';
+        if (backText) backText.textContent = 'Topics';
       }
       renderBitmasterStagesGrid();
     } else if (screenName === 'levels') {
@@ -2855,12 +3217,62 @@
     }
   }
 
+  // Render the 6 Big Bold Topic Buttons on the Front Menu (as sketched)
+  function renderBitmasterFrontTopics() {
+    const grid = document.getElementById('bitmasterFrontTopicsGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    BITMASTER_TOPICS.forEach(topic => {
+      const topicStages = BITMASTER_STAGES.filter(s => s.topicId === topic.id);
+      let topicEarnedStars = 0;
+      let topicMaxStars = 0;
+
+      topicStages.forEach(s => {
+        s.levels.forEach(lvl => {
+          topicEarnedStars += (bitmasterState.stars[`s${s.id}_l${lvl.id}`] || 0);
+          topicMaxStars += 3;
+        });
+      });
+
+      const card = document.createElement('div');
+      card.className = 'bitmaster-topic-card-btn';
+      card.setAttribute('data-topic-id', topic.id);
+      card.style.setProperty('--topic-accent', topic.accent);
+      card.style.setProperty('--topic-glow', topic.glow);
+
+      card.innerHTML = `
+        <div class="topic-card-stars-pill">${topicEarnedStars}/${topicMaxStars} ⭐</div>
+        <div class="topic-card-code-hero">${topic.heroCode}</div>
+        <div class="topic-card-name">${topic.shortName}</div>
+      `;
+
+      card.addEventListener('click', () => {
+        bitmasterState.selectedTopicFilter = String(topic.id);
+        playSynthSound('tap');
+        renderBitmasterStagesGrid();
+        showBitmasterScreen('stages');
+      });
+
+      grid.appendChild(card);
+    });
+  }
+
+  // Renders ONLY the stages for the currently selected topic (clean, uncluttered view)
   function renderBitmasterStagesGrid() {
     const grid = document.getElementById('bitmasterStagesGrid');
     if (!grid) return;
     grid.innerHTML = '';
 
-    BITMASTER_STAGES.forEach(stage => {
+    let currentFilter = bitmasterState.selectedTopicFilter || '1';
+    if (currentFilter === 'all') currentFilter = '1';
+
+    // Identify active topic
+    const activeTopic = BITMASTER_TOPICS.find(t => String(t.id) === String(currentFilter)) || BITMASTER_TOPICS[0];
+
+    // Render stages for ONLY this topic (clean 3-4 cards!)
+    const topicStages = BITMASTER_STAGES.filter(s => s.topicId === activeTopic.id);
+    topicStages.forEach(stage => {
       let stageStars = 0;
       stage.levels.forEach(lvl => {
         stageStars += (bitmasterState.stars[`s${stage.id}_l${lvl.id}`] || 0);
@@ -2906,14 +3318,60 @@
     if (iconEl) iconEl.innerHTML = stage.svgIcon;
     if (titleEl) titleEl.textContent = stage.title;
     if (descEl) descEl.textContent = stage.subtitle;
-    if (!listEl) return;
 
+    // Attach mode selector button handlers
+    const btn10Q = document.getElementById('bitmasterModeBtn10Q');
+    const btnSprint = document.getElementById('bitmasterModeBtnSprint');
+    if (btn10Q && !btn10Q.dataset.bmBound) {
+      btn10Q.dataset.bmBound = 'true';
+      btn10Q.addEventListener('click', () => {
+        bitmasterState.selectedGameMode = '10q';
+        playSynthSound('tap');
+        renderBitmasterLevelsScreen();
+      });
+    }
+    if (btnSprint && !btnSprint.dataset.bmBound) {
+      btnSprint.dataset.bmBound = 'true';
+      btnSprint.addEventListener('click', () => {
+        bitmasterState.selectedGameMode = 'sprint';
+        playSynthSound('tap');
+        renderBitmasterLevelsScreen();
+      });
+    }
+    if (btn10Q) btn10Q.classList.toggle('active', bitmasterState.selectedGameMode === '10q');
+    if (btnSprint) btnSprint.classList.toggle('active', bitmasterState.selectedGameMode === 'sprint');
+
+    if (!listEl) return;
     listEl.innerHTML = '';
 
+    const isSprintMode = (bitmasterState.selectedGameMode === 'sprint');
+
     stage.levels.forEach(lvl => {
-      const starsEarned = bitmasterState.stars[`s${stage.id}_l${lvl.id}`] || 0;
-      const starStr = '⭐'.repeat(starsEarned) + '☆'.repeat(3 - starsEarned);
-      const isSprint = (lvl.mode === 'sprint_60s');
+      const lvlKey = `s${stage.id}_l${lvl.id}`;
+      const record = bitmasterState.levelRecords[lvlKey] || {};
+
+      let rightStatusHTML = '';
+      if (isSprintMode) {
+        const solved = record.solvedSprint || 0;
+        const medal = record.medalSprint || 'none';
+        let medalHTML = '';
+        if (medal === 'gold' || solved >= 15) {
+          medalHTML = `<span class="level-card-medal-badge gold">🥇 Gold (${solved})</span>`;
+        } else if (medal === 'silver' || solved >= 10) {
+          medalHTML = `<span class="level-card-medal-badge silver">🥈 Silver (${solved})</span>`;
+        } else if (medal === 'bronze' || solved >= 6) {
+          medalHTML = `<span class="level-card-medal-badge bronze">🥉 Bronze (${solved})</span>`;
+        } else {
+          medalHTML = `<span class="level-card-medal-badge unranked">Unranked</span>`;
+        }
+        const scorePill = record.bestSprint ? `<span class="level-card-score-pill">Best: ${record.bestSprint} pts</span>` : '';
+        rightStatusHTML = `${scorePill}${medalHTML}`;
+      } else {
+        const starsEarned = record.stars10Q !== undefined ? record.stars10Q : (bitmasterState.stars[lvlKey] || 0);
+        const starStr = '⭐'.repeat(starsEarned) + '☆'.repeat(3 - starsEarned);
+        const scorePill = record.best10Q ? `<span class="level-card-score-pill">Best: ${record.best10Q} pts</span>` : '';
+        rightStatusHTML = `${scorePill}<span class="level-card-stars">${starStr}</span>`;
+      }
 
       const lvlCard = document.createElement('div');
       lvlCard.className = 'bitmaster-level-card';
@@ -2922,8 +3380,9 @@
         <div class="level-card-info">
           <div class="level-card-title-row">
             <span class="level-card-name">Level ${lvl.id}: ${lvl.name}</span>
-            ${isSprint ? '<span class="badge badge-accent" style="margin-left: 6px; font-size: 10.5px; font-weight: 800;">⚡ 60s Sprint</span>' : ''}
-            <span class="level-card-stars" style="margin-left: auto;">${starStr}</span>
+            <div style="margin-left: auto; display: flex; align-items: center; gap: 8px;">
+              ${rightStatusHTML}
+            </div>
           </div>
           <div class="level-card-desc">${lvl.desc}</div>
         </div>
@@ -3110,7 +3569,7 @@
     const fmtBin = (val, len) => val.toString(2).padStart(len, '0').split('').join(' ');
 
     // =========================================================================
-    // STAGE 1: BINARY PLACE VALUES (SCAFFOLDED WITH BIT RECTANGLES)
+    // STAGE 1: NIBBLE PLACE VALUES
     // =========================================================================
     if (effectiveMode === 'place_val_nibble_what' || effectiveMode === 'place_val_nibble_which') {
       const weights = [8, 4, 2, 1];
@@ -3159,6 +3618,48 @@
       };
     }
 
+    if (effectiveMode === 'place_val_nibble_all_blank') {
+      const weights = [8, 4, 2, 1];
+      const chosenIdx = Math.floor(Math.random() * 4);
+      const targetVal = weights[chosenIdx];
+      const displayHTML = renderBitStripHTML({
+        weights: ['', '', '', ''],
+        valuesAsWeights: true,
+        targetIdx: chosenIdx,
+        targetChar: '?',
+        showWeights: false
+      });
+      return {
+        type: 'mc',
+        prompt: "What is the place value of the highlighted bit marked with '?'?",
+        display: "?",
+        displayHTML: displayHTML,
+        hint: "Remember the 4-bit weights from left to right: 8, 4, 2, 1",
+        correctAnswer: String(targetVal),
+        options: shuffleArray([8, 4, 2, 1]).map(String)
+      };
+    }
+
+    if (effectiveMode === 'place_val_nibble_reverse_which_bit') {
+      const weights = [8, 4, 2, 1];
+      const bitNames = ['Bit 3', 'Bit 2', 'Bit 1', 'Bit 0'];
+      const chosenIdx = Math.floor(Math.random() * 4);
+      const targetVal = weights[chosenIdx];
+      const targetBit = bitNames[chosenIdx];
+      return {
+        type: 'mc',
+        layout: 'bit_boxes',
+        prompt: `Which bit position has the place value ${targetVal}?`,
+        display: `Place Value: ${targetVal}`,
+        hint: "Bit 3 (8) • Bit 2 (4) • Bit 1 (2) • Bit 0 (1)",
+        correctAnswer: targetBit,
+        options: ['Bit 3', 'Bit 2', 'Bit 1', 'Bit 0']
+      };
+    }
+
+    // =========================================================================
+    // STAGE 2: BYTE PLACE VALUES
+    // =========================================================================
     if (effectiveMode === 'place_val_byte_which' || effectiveMode === 'place_val_byte_what') {
       const byteWeights = [128, 64, 32, 16, 8, 4, 2, 1];
       const chosenIdx = Math.floor(Math.random() * 8);
@@ -3207,33 +3708,105 @@
       };
     }
 
-    if (effectiveMode === 'place_val_byte_unassisted') {
+    if (effectiveMode === 'place_val_byte_all_blank') {
       const byteWeights = [128, 64, 32, 16, 8, 4, 2, 1];
-      const bitLabels = ['Bit 7', 'Bit 6', 'Bit 5', 'Bit 4', 'Bit 3', 'Bit 2', 'Bit 1', 'Bit 0'];
       const chosenIdx = Math.floor(Math.random() * 8);
       const targetVal = byteWeights[chosenIdx];
       const displayHTML = renderBitStripHTML({
-        bits: bitLabels,
-        showWeights: false,
-        targetIdx: chosenIdx
+        weights: new Array(8).fill(''),
+        valuesAsWeights: true,
+        targetIdx: chosenIdx,
+        targetChar: '?',
+        showWeights: false
       });
-      const otherWeights = byteWeights.filter(w => w !== targetVal);
-      const dists = shuffleArray(otherWeights).slice(0, 3);
+      const dists = shuffleArray(byteWeights.filter(w => w !== targetVal)).slice(0, 3);
       return {
         type: 'mc',
-        prompt: `Identify the place value of highlighted Bit ${7 - chosenIdx} (Unassisted):`,
-        display: `Bit ${7 - chosenIdx}`,
+        prompt: "What is the place value of the 8-bit position marked with '?'?",
+        display: "?",
         displayHTML: displayHTML,
-        hint: "Recall powers of 2 from right to left (2⁰=1 up to 2⁷=128)",
+        hint: "Each position doubles right to left: 1, 2, 4, 8, 16, 32, 64, 128",
         correctAnswer: String(targetVal),
         options: shuffleArray([targetVal, ...dists]).map(String)
       };
     }
 
+    if (effectiveMode === 'place_val_byte_reverse_which_bit') {
+      const byteWeights = [128, 64, 32, 16, 8, 4, 2, 1];
+      const bitNames = ['Bit 7', 'Bit 6', 'Bit 5', 'Bit 4', 'Bit 3', 'Bit 2', 'Bit 1', 'Bit 0'];
+      const chosenIdx = Math.floor(Math.random() * 8);
+      const targetVal = byteWeights[chosenIdx];
+      const targetBit = bitNames[chosenIdx];
+      return {
+        type: 'mc',
+        layout: 'bit_boxes',
+        prompt: `Which bit position has the place value ${targetVal}?`,
+        display: `Place Value: ${targetVal}`,
+        hint: "Powers of 2: 2⁰=1, 2¹=2, 2²=4, 2³=8, 2⁴=16, 2⁵=32, 2⁶=64, 2⁷=128",
+        correctAnswer: targetBit,
+        options: bitNames
+      };
+    }
+
     // =========================================================================
-    // STAGE 2: BINARY TO DENARY (ASSISTED & UNASSISTED SCAFFOLDING)
+    // STAGE 3: DENARY TO BINARY (SWAPPED)
     // =========================================================================
-    if (effectiveMode === 'mc_nibble_bin2den_assisted' || effectiveMode === 'mc_nibble_bin2den') {
+    if (effectiveMode === 'switches_nibble_assisted' || effectiveMode === 'switches_nibble') {
+      const val = Math.floor(Math.random() * 15) + 1;
+      return {
+        type: 'switches',
+        bitsCount: 4,
+        blind: false,
+        prompt: `Assemble Denary ${val} with 4-Bit Switches:`,
+        display: String(val),
+        hint: "Toggle bits (8, 4, 2, 1) to match total",
+        correctAnswer: val
+      };
+    }
+
+    if (effectiveMode === 'switches_nibble_unassisted') {
+      const val = Math.floor(Math.random() * 15) + 1;
+      return {
+        type: 'switches',
+        bitsCount: 4,
+        blind: true,
+        prompt: `Assemble Denary ${val} with 4-Bit Switches (No Total Helper):`,
+        display: String(val),
+        hint: "Mentally sum your active bits (8, 4, 2, 1)",
+        correctAnswer: val
+      };
+    }
+
+    if (effectiveMode === 'switches_byte_assisted' || effectiveMode === 'switches_byte') {
+      const val = Math.floor(Math.random() * 254) + 1;
+      return {
+        type: 'switches',
+        bitsCount: 8,
+        blind: false,
+        prompt: `Assemble Denary ${val} with 8-Bit Switches:`,
+        display: String(val),
+        hint: "Toggle bits (128..1) to match the target value",
+        correctAnswer: val
+      };
+    }
+
+    if (effectiveMode === 'switches_byte_unassisted') {
+      const val = Math.floor(Math.random() * 254) + 1;
+      return {
+        type: 'switches',
+        bitsCount: 8,
+        blind: true,
+        prompt: `Assemble Denary ${val} with 8-Bit Switches (No Total Helper):`,
+        display: String(val),
+        hint: "Subtract highest powers of 2 (128, 64, 32, 16, 8, 4, 2, 1)",
+        correctAnswer: val
+      };
+    }
+
+    // =========================================================================
+    // STAGE 4: BINARY TO DENARY (SWAPPED)
+    // =========================================================================
+    if (effectiveMode === 'mc_nibble_bin2den_assisted') {
       const val = Math.floor(Math.random() * 16);
       const binBits = val.toString(2).padStart(4, '0').split('').map(Number);
       const dists = generateDistractors(val, 0, 15, 'denary');
@@ -3247,13 +3820,32 @@
         prompt: "Convert 4-Bit Binary to Denary:",
         display: binBits.join(' '),
         displayHTML: displayHTML,
-        hint: "Add active weights where the bit is 1",
+        hint: "Weights 8 • 4 • 2 • 1",
         correctAnswer: String(val),
         options: shuffleArray([val, ...dists]).map(String)
       };
     }
 
-    if (effectiveMode === 'mc_byte_bin2den_assisted' || effectiveMode === 'mc_byte_bin2den_simple') {
+    if (effectiveMode === 'mc_nibble_bin2den_unassisted' || effectiveMode === 'mc_nibble_bin2den') {
+      const val = Math.floor(Math.random() * 16);
+      const binBits = val.toString(2).padStart(4, '0').split('').map(Number);
+      const dists = generateDistractors(val, 0, 15, 'denary');
+      const displayHTML = renderBitStripHTML({
+        bits: binBits,
+        showWeights: false
+      });
+      return {
+        type: 'mc',
+        prompt: "Convert 4-Bit Binary to Denary (Unassisted):",
+        display: binBits.join(' '),
+        displayHTML: displayHTML,
+        hint: "Mental conversion (8 • 4 • 2 • 1)",
+        correctAnswer: String(val),
+        options: shuffleArray([val, ...dists]).map(String)
+      };
+    }
+
+    if (effectiveMode === 'mc_byte_bin2den_assisted') {
       const val = Math.floor(Math.random() * 127) + 1;
       const binBits = val.toString(2).padStart(8, '0').split('').map(Number);
       const dists = generateDistractors(val, 0, 255, 'denary');
@@ -3267,13 +3859,13 @@
         prompt: "Convert 8-Bit Binary to Denary (Weights Shown):",
         display: `${binBits.slice(0, 4).join('')} ${binBits.slice(4).join('')}`,
         displayHTML: displayHTML,
-        hint: "Sum all active columns (1s)",
+        hint: "Weights 128..1 shown above bits",
         correctAnswer: String(val),
         options: shuffleArray([val, ...dists]).map(String)
       };
     }
 
-    if (effectiveMode === 'mc_byte_bin2den_unassisted' || effectiveMode === 'mc_byte_bin2den') {
+    if (effectiveMode === 'mc_byte_bin2den_unassisted') {
       const val = Math.floor(Math.random() * 256);
       const binBits = val.toString(2).padStart(8, '0').split('').map(Number);
       const dists = generateDistractors(val, 0, 255, 'denary');
@@ -3292,33 +3884,6 @@
       };
     }
 
-    // =========================================================================
-    // STAGE 3: DENARY TO BINARY
-    // =========================================================================
-    if (effectiveMode === 'switches_nibble') {
-      const val = Math.floor(Math.random() * 15) + 1;
-      return {
-        type: 'switches',
-        bitsCount: 4,
-        prompt: `Assemble Denary ${val} with 4-Bit Switches:`,
-        display: String(val),
-        hint: "Toggle bits (8, 4, 2, 1) to match total",
-        correctAnswer: val
-      };
-    }
-
-    if (effectiveMode === 'switches_byte') {
-      const val = Math.floor(Math.random() * 254) + 1;
-      return {
-        type: 'switches',
-        bitsCount: 8,
-        prompt: `Assemble Denary ${val} with 8-Bit Switches:`,
-        display: String(val),
-        hint: "Toggle bits (128..1) to match the target value",
-        correctAnswer: val
-      };
-    }
-
     if (effectiveMode === 'mixed_bin_den') {
       const isDenToBin = Math.random() > 0.5;
       if (isDenToBin) {
@@ -3326,6 +3891,7 @@
         return {
           type: 'switches',
           bitsCount: 8,
+          blind: false,
           prompt: `Assemble Denary ${val} with 8-Bit Switches:`,
           display: String(val),
           hint: "Toggle bits (128..1) to add up to target total",
@@ -3347,26 +3913,47 @@
     }
 
     // =========================================================================
-    // STAGE 4: HEXADECIMAL SCRIBE (WITH 0x NOTATION)
+    // STAGE 5: HEXADECIMAL (HEX TO BINARY)
     // =========================================================================
-    if (effectiveMode === 'hex_nibble_flip') {
+    if (effectiveMode === 'hex_nibble_flip_assisted' || effectiveMode === 'hex_nibble_flip') {
       const val = Math.floor(Math.random() * 16);
       const hex = val.toString(16).toUpperCase();
       const binStr = val.toString(2).padStart(4, '0');
       return {
         type: 'hex_nibbles',
         nibblesCount: 1,
+        showLiveHex: true,
+        showDenaryHint: true,
         hexDigits: [hex],
         hexDenaryValues: [val],
-        prompt: `Convert Hex 0x${hex} to a 4-Bit Binary Nibble:`,
+        prompt: "Convert the Following Hex Digit to Binary",
         display: `0x${hex}`,
-        hint: `Place values: 8 • 4 • 2 • 1 (0x${hex} = ${val} in Denary)`,
+        hint: "",
         correctBinary: binStr,
         correctAnswer: binStr
       };
     }
 
-    if (effectiveMode === 'hex_byte_flip') {
+    if (effectiveMode === 'hex_nibble_flip_unassisted') {
+      const val = Math.floor(Math.random() * 16);
+      const hex = val.toString(16).toUpperCase();
+      const binStr = val.toString(2).padStart(4, '0');
+      return {
+        type: 'hex_nibbles',
+        nibblesCount: 1,
+        showLiveHex: false,
+        showDenaryHint: false,
+        hexDigits: [hex],
+        hexDenaryValues: [val],
+        prompt: "Convert the Following Hex Digit to Binary",
+        display: `0x${hex}`,
+        hint: "",
+        correctBinary: binStr,
+        correctAnswer: binStr
+      };
+    }
+
+    if (effectiveMode === 'hex_byte_flip_assisted' || effectiveMode === 'hex_byte_flip') {
       const highVal = Math.floor(Math.random() * 16);
       const lowVal = Math.floor(Math.random() * 16);
       const highHex = highVal.toString(16).toUpperCase();
@@ -3376,13 +3963,117 @@
       return {
         type: 'hex_nibbles',
         nibblesCount: 2,
+        showLiveHex: true,
+        showDenaryHint: true,
         hexDigits: [highHex, lowHex],
         hexDenaryValues: [highVal, lowVal],
-        prompt: `Convert Hex 0x${fullHex} to 8-Bit Binary:`,
+        prompt: "Convert the Following Hex Byte to Binary",
         display: `0x${fullHex}`,
-        hint: `Convert each Hex digit to its 4-bit nibble (8 • 4 • 2 • 1)`,
+        hint: "",
         correctBinary: fullBin,
         correctAnswer: fullBin
+      };
+    }
+
+    if (effectiveMode === 'hex_byte_flip_unassisted') {
+      const highVal = Math.floor(Math.random() * 16);
+      const lowVal = Math.floor(Math.random() * 16);
+      const highHex = highVal.toString(16).toUpperCase();
+      const lowHex = lowVal.toString(16).toUpperCase();
+      const fullHex = highHex + lowHex;
+      const fullBin = highVal.toString(2).padStart(4, '0') + lowVal.toString(2).padStart(4, '0');
+      return {
+        type: 'hex_nibbles',
+        nibblesCount: 2,
+        showLiveHex: false,
+        showDenaryHint: false,
+        hexDigits: [highHex, lowHex],
+        hexDenaryValues: [highVal, lowVal],
+        prompt: "Convert the Following Hex Byte to Binary",
+        display: `0x${fullHex}`,
+        hint: "",
+        correctBinary: fullBin,
+        correctAnswer: fullBin
+      };
+    }
+
+    // =========================================================================
+    // STAGE 6: HEXADECIMAL TO DENARY (NEW STAGE)
+    // =========================================================================
+    if (effectiveMode === 'mc_hex_nibble_to_den_assisted' || effectiveMode === 'mc_hex_nibble_to_den') {
+      const val = Math.floor(Math.random() * 16);
+      const hex = val.toString(16).toUpperCase();
+      const dists = generateDistractors(val, 0, 15, 'denary');
+      const options = shuffleArray([val, ...dists]);
+      return {
+        type: 'mc',
+        prompt: `Convert Hex 0x${hex} to Denary:`,
+        display: `0x${hex}`,
+        hint: "Remember: 0x0..0x9 = 0..9, 0xA=10, 0xB=11, 0xC=12, 0xD=13, 0xE=14, 0xF=15",
+        correctAnswer: String(val),
+        options: options.map(String)
+      };
+    }
+
+    if (effectiveMode === 'mc_hex_nibble_to_den_unassisted') {
+      const val = Math.floor(Math.random() * 16);
+      const hex = val.toString(16).toUpperCase();
+      const dists = generateDistractors(val, 0, 15, 'denary');
+      const options = shuffleArray([val, ...dists]);
+      return {
+        type: 'mc',
+        prompt: `Convert Hex 0x${hex} to Denary (Mental Recall):`,
+        display: `0x${hex}`,
+        hint: "Direct recall (0x0 to 0xF)",
+        correctAnswer: String(val),
+        options: options.map(String)
+      };
+    }
+
+    if (effectiveMode === 'mc_hex_byte_assisted' || effectiveMode === 'mc_hex_byte') {
+      const val = Math.floor(Math.random() * 256);
+      const hex = val.toString(16).toUpperCase().padStart(2, '0');
+      const highVal = parseInt(hex[0], 16);
+      const lowVal = parseInt(hex[1], 16);
+      const dists = generateDistractors(val, 0, 255, 'denary');
+      const options = shuffleArray([val, ...dists]);
+      return {
+        type: 'mc',
+        prompt: `Convert Hex 0x${hex} to Denary:`,
+        display: `0x${hex}`,
+        hint: `Calculation: (${highVal} × 16) + ${lowVal} = ${val}`,
+        correctAnswer: String(val),
+        options: options.map(String)
+      };
+    }
+
+    if (effectiveMode === 'mc_hex_byte_unassisted') {
+      const val = Math.floor(Math.random() * 256);
+      const hex = val.toString(16).toUpperCase().padStart(2, '0');
+      const dists = generateDistractors(val, 0, 255, 'denary');
+      const options = shuffleArray([val, ...dists]);
+      return {
+        type: 'mc',
+        prompt: `Convert Hex 0x${hex} to Denary (Unassisted):`,
+        display: `0x${hex}`,
+        hint: "High digit × 16 + Low digit",
+        correctAnswer: String(val),
+        options: options.map(String)
+      };
+    }
+
+    if (effectiveMode === 'mc_den_to_hex') {
+      const val = Math.floor(Math.random() * 256);
+      const hex = '0x' + val.toString(16).toUpperCase().padStart(2, '0');
+      const rawDists = generateDistractors(val.toString(16).toUpperCase().padStart(2, '0'), 0, 255, 'hex');
+      const dists = rawDists.map(h => '0x' + h.padStart(2, '0'));
+      return {
+        type: 'mc',
+        prompt: `Convert Denary ${val} to Hexadecimal:`,
+        display: String(val),
+        hint: "Divide by 16 for high digit, remainder is low digit",
+        correctAnswer: hex,
+        options: shuffleArray([hex, ...dists]).map(String)
       };
     }
 
@@ -3606,12 +4297,106 @@
       };
     }
 
+    // Level 4: Unsigned Overflow Detection (Diagnose overflow when sum > 255)
+    if (effectiveMode === 'math_add_overflow_detect') {
+      const isOverflow = Math.random() < 0.5;
+      let a, b, sum;
+      if (isOverflow) {
+        a = Math.floor(Math.random() * 80) + 140; // 140..220
+        b = Math.floor(Math.random() * 70) + (256 - a + 1); // guarantees sum > 255
+        sum = a + b;
+      } else {
+        a = Math.floor(Math.random() * 80) + 20; // 20..100
+        b = Math.floor(Math.random() * (255 - a - 10)) + 5; // guarantees sum <= 255
+        sum = a + b;
+      }
+      const binA = a.toString(2).padStart(8, '0');
+      const binB = b.toString(2).padStart(8, '0');
+      return {
+        type: 'mc',
+        prompt: `In an 8-bit unsigned register, does adding ${a} + ${b} trigger an OVERFLOW ERROR?`,
+        display: `${a} + ${b} = ${sum}`,
+        hint: `Maximum value an 8-bit unsigned register can hold is 255 (2⁸ − 1). Current sum: ${sum}`,
+        correctAnswer: isOverflow ? "Yes (Sum > 255)" : "No (Sum ≤ 255)",
+        options: ["Yes (Sum > 255)", "No (Sum ≤ 255)"]
+      };
+    }
+
     // =========================================================================
-    // STAGE 7: TWO'S COMPLEMENT (FOUNDATIONS, INVERT & ADD 1, NIBBLES, BYTE)
+    // STAGE 9: TWO'S COMPLEMENT FOUNDATIONS (SIGN & CONCEPTS)
     // =========================================================================
-    // =========================================================================
-    // STAGE 7: TWO'S COMPLEMENT (SIGN, MISSING ?, INVERT+1, NIBBLES, BYTE)
-    // =========================================================================
+
+    // Level 1: 4-Bit: Positive or Negative? (Labelled with bit strip weights)
+    if (effectiveMode === 'twos_comp_sign_nibble') {
+      const isNegative = Math.random() < 0.5;
+      const msb = isNegative ? 1 : 0;
+      const b1 = Math.random() < 0.5 ? 1 : 0;
+      const b2 = Math.random() < 0.5 ? 1 : 0;
+      const b3 = Math.random() < 0.5 ? 1 : 0;
+      const bits = [msb, b1, b2, b3];
+      const denary = (-8 * msb) + (4 * b1) + (2 * b2) + (1 * b3);
+      const displayHTML = renderBitStripHTML({
+        bits: bits,
+        weights: [-8, 4, 2, 1],
+        showWeights: true,
+        targetIdx: 0,
+        variant: 'twos'
+      });
+      return {
+        type: 'mc',
+        prompt: "Is this 4-bit Two's Complement number positive or negative?",
+        display: bits.join(' '),
+        displayHTML: displayHTML,
+        hint: "Look at the sign bit (MSB, worth −8): 0 = Positive (≥ 0), 1 = Negative (< 0)",
+        correctAnswer: isNegative ? "Negative" : "Positive",
+        options: ["Positive", "Negative"]
+      };
+    }
+
+    // Level 2: 8-Bit: Positive or Negative? (Labelled with bit strip weights)
+    if (effectiveMode === 'twos_comp_sign_byte') {
+      const isNegative = Math.random() < 0.5;
+      const msb = isNegative ? 1 : 0;
+      const otherBits = Array.from({ length: 7 }, () => Math.random() < 0.5 ? 1 : 0);
+      const bits = [msb, ...otherBits];
+      const displayHTML = renderBitStripHTML({
+        bits: bits,
+        weights: [-128, 64, 32, 16, 8, 4, 2, 1],
+        showWeights: true,
+        targetIdx: 0,
+        variant: 'twos'
+      });
+      return {
+        type: 'mc',
+        prompt: "Is this 8-bit Two's Complement byte positive or negative?",
+        display: `${bits.slice(0, 4).join('')} ${bits.slice(4).join('')}`,
+        displayHTML: displayHTML,
+        hint: "Look at Bit 7 (MSB, worth −128): 0 = Positive, 1 = Negative",
+        correctAnswer: isNegative ? "Negative" : "Positive",
+        options: ["Positive", "Negative"]
+      };
+    }
+
+    // Level 3: Rapid Sign Recall (Unassisted pure binary string)
+    if (effectiveMode === 'twos_comp_sign_rapid') {
+      const isNegative = Math.random() < 0.5;
+      const is8Bit = Math.random() < 0.5;
+      const len = is8Bit ? 8 : 4;
+      const msb = isNegative ? 1 : 0;
+      const otherBits = Array.from({ length: len - 1 }, () => Math.random() < 0.5 ? 1 : 0);
+      const bits = [msb, ...otherBits];
+      const binStr = is8Bit ? `${bits.slice(0, 4).join('')} ${bits.slice(4).join('')}` : bits.join(' ');
+      return {
+        type: 'mc',
+        prompt: `Rapid Recall: Is this ${len}-bit pattern positive or negative?`,
+        display: binStr,
+        hint: "Instantly check the leftmost bit (MSB): 0 ➔ Positive • 1 ➔ Negative",
+        correctAnswer: isNegative ? "Negative" : "Positive",
+        options: ["Positive", "Negative"]
+      };
+    }
+
+    // Level 4: Two's Complement Quiz (Core theory)
     if (effectiveMode === 'mc_twos_comp_sign') {
       const qPool = [
         {
@@ -3699,163 +4484,279 @@
       };
     }
 
-    // Level 2: 4-Bit Two's Complement Missing Value (?)
-    if (effectiveMode === 'twos_comp_nibble_missing') {
-      const weights = [-8, 4, 2, 1];
-      const chosenIdx = Math.floor(Math.random() * 4);
-      const targetVal = weights[chosenIdx];
-      const displayHTML = renderBitStripHTML({
-        weights: weights,
-        valuesAsWeights: true,
-        targetIdx: chosenIdx,
-        targetChar: '?',
-        showWeights: true,
-        variant: 'twos'
-      });
-      let options;
-      if (targetVal === -8) {
-        options = ["-8", "+8", "-7", "-1"];
-      } else if (targetVal === 4) {
-        options = ["4", "-4", "8", "2"];
-      } else if (targetVal === 2) {
-        options = ["2", "-2", "4", "1"];
-      } else {
-        options = ["1", "-1", "2", "0"];
-      }
-      return {
-        type: 'mc',
-        prompt: "What is the place value of the highlighted '?' bit in 4-bit Two's Complement?",
-        display: weights.map((w, idx) => idx === chosenIdx ? '?' : w).join(', '),
-        displayHTML: displayHTML,
-        hint: "4-bit Two's Complement weights from left to right: −8 • 4 • 2 • 1",
-        correctAnswer: String(targetVal),
-        options: shuffleArray(options)
-      };
-    }
+    // =========================================================================
+    // STAGE 10: CONVERTING TO TWO'S COMPLEMENT (INVERT & ADD 1)
+    // =========================================================================
 
-    // Level 3: 8-Bit Two's Complement Missing Value (?)
-    if (effectiveMode === 'twos_comp_byte_missing') {
-      const weights = [-128, 64, 32, 16, 8, 4, 2, 1];
-      const chosenIdx = Math.random() < 0.4 ? 0 : Math.floor(Math.random() * 8);
-      const targetVal = weights[chosenIdx];
-      const displayHTML = renderBitStripHTML({
-        weights: weights,
-        valuesAsWeights: true,
-        targetIdx: chosenIdx,
-        targetChar: '?',
-        showWeights: true,
-        variant: 'twos'
-      });
-      let options;
-      if (targetVal === -128) {
-        options = ["-128", "+128", "+127", "-127"];
-      } else {
-        const otherW = [-128, 64, 32, 16, 8, 4, 2, 1].filter(w => w !== targetVal);
-        options = [String(targetVal), ...shuffleArray(otherW).slice(0, 3).map(String)];
-      }
-      return {
-        type: 'mc',
-        prompt: `What is the place value of Bit ${7 - chosenIdx} in 8-bit Two's Complement?`,
-        display: weights.map((w, idx) => idx === chosenIdx ? '?' : w).join(', '),
-        displayHTML: displayHTML,
-        hint: "8-bit Two's Complement weights: −128 • 64 • 32 • 16 • 8 • 4 • 2 • 1",
-        correctAnswer: String(targetVal),
-        options: shuffleArray(options)
-      };
-    }
-
-    // Level 4: Invert & Add 1 (+ve to -ve Conversion with Flippable Bits)
-    if (effectiveMode === 'twos_comp_invert_add_1') {
-      const candidates = [3, 5, 7, 9, 11, 14, 18, 25, 42, 60];
-      const posVal = candidates[Math.floor(Math.random() * candidates.length)];
+    // Level 1: 4-Bit Negation (Odd Numbers: LSB = 1, so inverted ends in 0, +1 turns LSB to 1)
+    if (effectiveMode === 'twos_comp_negate_4bit_odd') {
+      const oddCandidates = [1, 3, 5, 7];
+      const posVal = oddCandidates[Math.floor(Math.random() * oddCandidates.length)];
       const negVal = -posVal;
-      const posBin = posVal.toString(2).padStart(8, '0');
-      const posBinFmt = `${posBin.slice(0, 4)} ${posBin.slice(4)}`;
+      const posBits = posVal.toString(2).padStart(4, '0').split('').map(Number);
+      const twosComp = (16 + negVal).toString(2).padStart(4, '0');
+
+      return {
+        type: 'switches',
+        bitsCount: 4,
+        isTwosComp: true,
+        referenceBits: posBits,
+        referenceLabel: `Positive Bits (+${posVal}):`,
+        prompt: `Convert +${posVal} to −${posVal} in Two's Complement:`,
+        display: `+${posVal} (${posBits.join('')})  ➔  −${posVal}`,
+        hint: "Step 1: Invert all bits (0 ↔ 1) • Step 2: Add 1 (+1). Switch columns: −8 • 4 • 2 • 1",
+        correctAnswer: negVal,
+        targetBinary: twosComp
+      };
+    }
+
+    // Level 2: 8-Bit Negation (Odd Numbers: LSB = 1)
+    if (effectiveMode === 'twos_comp_negate_8bit_odd') {
+      const oddCandidates = [1, 3, 5, 7, 9, 11, 13, 15, 17, 21, 25, 33, 45, 63, 77];
+      const posVal = oddCandidates[Math.floor(Math.random() * oddCandidates.length)];
+      const negVal = -posVal;
+      const posBits = posVal.toString(2).padStart(8, '0').split('').map(Number);
       const twosComp = (256 + negVal).toString(2).padStart(8, '0');
 
       return {
         type: 'switches',
         bitsCount: 8,
         isTwosComp: true,
-        prompt: `Convert +${posVal} (${posBinFmt}) to −${posVal} in Two's Complement:`,
-        display: `+${posVal} (${posBinFmt})  ➔  −${posVal}`,
-        hint: `Step 1: Invert all bits (0 ↔ 1) • Step 2: Add 1 (+1). Switch columns: −128 • 64 • 32 • 16 • 8 • 4 • 2 • 1`,
+        referenceBits: posBits,
+        referenceLabel: `Positive Bits (+${posVal}):`,
+        prompt: `Convert +${posVal} to −${posVal} in Two's Complement:`,
+        display: `+${posVal} (${posBits.slice(0, 4).join('')} ${posBits.slice(4).join('')})  ➔  −${posVal}`,
+        hint: "Step 1: Invert all bits (0 ↔ 1) • Step 2: Add 1 (+1). Switch columns: −128 • 64 • 32 • 16 • 8 • 4 • 2 • 1",
         correctAnswer: negVal,
         targetBinary: twosComp
       };
     }
 
-    // Level 5: 4-Bit Nibbles (Flippable Bits for -6 & MC for 1101 in denary)
-    if (effectiveMode === 'twos_comp_nibbles') {
-      const isSwitch = Math.random() > 0.5;
-      if (isSwitch) {
-        // Write number like -6 in 4-bit Two's Complement
-        const negCandidates = [-1, -2, -3, -4, -5, -6, -7, -8];
-        const negVal = negCandidates[Math.floor(Math.random() * negCandidates.length)];
-        const targetBin = (16 + negVal).toString(2).padStart(4, '0');
+    // Level 3: 8-Bit Negation (Even Numbers: LSB = 0, so inverted ends in 1, +1 triggers carry!)
+    if (effectiveMode === 'twos_comp_negate_8bit_even') {
+      const evenCandidates = [2, 4, 6, 8, 10, 12, 14, 18, 24, 30, 40, 52, 64, 78];
+      const posVal = evenCandidates[Math.floor(Math.random() * evenCandidates.length)];
+      const negVal = -posVal;
+      const posBits = posVal.toString(2).padStart(8, '0').split('').map(Number);
+      const twosComp = (256 + negVal).toString(2).padStart(8, '0');
+
+      return {
+        type: 'switches',
+        bitsCount: 8,
+        isTwosComp: true,
+        referenceBits: posBits,
+        referenceLabel: `Positive Bits (+${posVal}):`,
+        prompt: `Convert +${posVal} to −${posVal} in Two's Complement (With Carry):`,
+        display: `+${posVal} (${posBits.slice(0, 4).join('')} ${posBits.slice(4).join('')})  ➔  −${posVal}`,
+        hint: "Step 1: Invert all bits (0 ↔ 1) • Step 2: Add 1 (+1). Remember: 1 + 1 = 0 carry 1!",
+        correctAnswer: negVal,
+        targetBinary: twosComp
+      };
+    }
+
+    // Level 4: Negation Mastery (Random 4-bit or 8-bit, odd or even, unassisted: blind = true)
+    if (effectiveMode === 'twos_comp_negate_mastery') {
+      const is4Bit = Math.random() < 0.4;
+      if (is4Bit) {
+        const posVal = Math.floor(Math.random() * 7) + 1; // 1..7
+        const negVal = -posVal;
+        const posBits = posVal.toString(2).padStart(4, '0').split('').map(Number);
+        const twosComp = (16 + negVal).toString(2).padStart(4, '0');
         return {
           type: 'switches',
           bitsCount: 4,
           isTwosComp: true,
-          prompt: `Write ${negVal} in 4-bit Two's Complement:`,
-          display: `Target: ${negVal}`,
-          hint: `4-bit Two's Complement columns: −8 • 4 • 2 • 1. Flip switches to equal ${negVal}!`,
+          blind: true,
+          referenceBits: posBits,
+          referenceLabel: `Positive Bits (+${posVal}):`,
+          prompt: `Convert +${posVal} to −${posVal} in 4-bit Two's Complement (Unassisted):`,
+          display: `+${posVal} (${posBits.join('')})  ➔  −${posVal}`,
+          hint: "Step 1: Invert all bits (0 ↔ 1) • Step 2: Add 1 (+1)",
           correctAnswer: negVal,
-          targetBinary: targetBin
+          targetBinary: twosComp
         };
       } else {
-        // Multiple choice: what's 4-bit Two's Complement 1101 in denary?
-        const patterns = ['1101', '1010', '1110', '1011', '1100', '1001', '1111', '1000'];
-        const pat = patterns[Math.floor(Math.random() * patterns.length)];
-        const b = pat.split('').map(Number);
-        const evalVal = (-8 * b[0]) + (4 * b[1]) + (2 * b[2]) + (1 * b[3]);
-        const unsignedVal = (8 * b[0]) + (4 * b[1]) + (2 * b[2]) + (1 * b[3]);
-        const dists = [
-          String(evalVal),
-          String(unsignedVal),
-          String(evalVal - 2),
-          String(Math.abs(evalVal))
-        ];
-        const displayHTML = renderBitStripHTML({
-          bits: b,
-          weights: [-8, 4, 2, 1],
-          showWeights: true,
-          variant: 'twos'
-        });
-        return {
-          type: 'mc',
-          prompt: `What is the 4-bit Two's Complement number in Denary?`,
-          display: pat.split('').join(' '),
-          displayHTML: displayHTML,
-          hint: "Leftmost bit is −8. Add active positive weights (4 • 2 • 1)",
-          correctAnswer: String(evalVal),
-          options: shuffleArray(dists)
-        };
-      }
-    }
-
-    // Level 6: 8-Bit Mastery
-    if (effectiveMode === 'twos_comp_byte_mastery') {
-      const isSwitch = Math.random() > 0.5;
-      if (isSwitch) {
-        const candidates = [-12, -25, -35, -42, -55, -64, -75, -88, -100, -128];
-        const negVal = candidates[Math.floor(Math.random() * candidates.length)];
-        const targetBin = (256 + negVal).toString(2).padStart(8, '0');
+        const posVal = Math.floor(Math.random() * 120) + 1; // 1..120
+        const negVal = -posVal;
+        const posBits = posVal.toString(2).padStart(8, '0').split('').map(Number);
+        const twosComp = (256 + negVal).toString(2).padStart(8, '0');
         return {
           type: 'switches',
           bitsCount: 8,
           isTwosComp: true,
-          prompt: `Construct ${negVal} in 8-bit Two's Complement:`,
-          display: `Target: ${negVal}`,
-          hint: "MSB switch is worth −128! Add positive weights (64..1) to reach target",
+          blind: true,
+          referenceBits: posBits,
+          referenceLabel: `Positive Bits (+${posVal}):`,
+          prompt: `Convert +${posVal} to −${posVal} in 8-bit Two's Complement (Unassisted):`,
+          display: `+${posVal} (${posBits.slice(0, 4).join('')} ${posBits.slice(4).join('')})  ➔  −${posVal}`,
+          hint: "Step 1: Invert all bits (0 ↔ 1) • Step 2: Add 1 (+1)",
           correctAnswer: negVal,
+          targetBinary: twosComp
+        };
+      }
+    }
+
+    // Level 5: Negative to Positive (−X ➔ +X)
+    // Hardware symmetry: Applying Invert & +1 to a negative Two's Complement pattern gives its positive magnitude!
+    if (effectiveMode === 'twos_comp_neg_to_pos') {
+      const is4Bit = Math.random() < 0.35;
+      if (is4Bit) {
+        const posVal = Math.floor(Math.random() * 7) + 1; // 1..7
+        const negVal = -posVal;
+        const negBits = (16 + negVal).toString(2).padStart(4, '0').split('').map(Number);
+        const targetBin = posVal.toString(2).padStart(4, '0');
+        return {
+          type: 'switches',
+          bitsCount: 4,
+          isTwosComp: false, // Target is positive unsigned binary representation
+          referenceBits: negBits,
+          referenceLabel: `Negative Bits (−${posVal}):`,
+          prompt: `Convert −${posVal} (${negBits.join('')}) to +${posVal}:`,
+          display: `−${posVal} (${negBits.join('')})  ➔  +${posVal}`,
+          hint: "The Two's Complement rule works both ways! Step 1: Invert all bits (0 ↔ 1) • Step 2: Add 1 (+1)",
+          correctAnswer: posVal,
           targetBinary: targetBin
         };
       } else {
-        const negVal = -(Math.floor(Math.random() * 120) + 1);
-        const twosComp = (256 + negVal).toString(2).padStart(8, '0');
-        const dists = generateDistractors(negVal, -128, -1, 'denary');
-        const options = shuffleArray([negVal, ...dists]);
+        const posVal = Math.floor(Math.random() * 125) + 1; // 1..125
+        const negVal = -posVal;
+        const negBits = (256 + negVal).toString(2).padStart(8, '0').split('').map(Number);
+        const targetBin = posVal.toString(2).padStart(8, '0');
+        return {
+          type: 'switches',
+          bitsCount: 8,
+          isTwosComp: false, // Target is positive
+          referenceBits: negBits,
+          referenceLabel: `Negative Bits (−${posVal}):`,
+          prompt: `Convert −${posVal} to +${posVal}:`,
+          display: `−${posVal} (${negBits.slice(0, 4).join('')} ${negBits.slice(4).join('')})  ➔  +${posVal}`,
+          hint: "The hardware rule is symmetric: Invert all bits (0 ↔ 1), then add 1 (+1) to find +X!",
+          correctAnswer: posVal,
+          targetBinary: targetBin
+        };
+      }
+    }
+
+    // =========================================================================
+    // STAGE 11: TWO'S COMPLEMENT TO DENARY
+    // =========================================================================
+
+    // Level 1: 4-Bit to Denary (Assisted, weights −8, 4, 2, 1 shown above bits)
+    if (effectiveMode === 'mc_twos_comp_nibble_assisted') {
+      const candidates = [-8, -7, -6, -5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7];
+      const val = candidates[Math.floor(Math.random() * candidates.length)];
+      const rawBin = (val < 0 ? (16 + val) : val).toString(2).padStart(4, '0');
+      const bits = rawBin.split('').map(Number);
+      const dists = generateDistractors(val, -8, 7, 'denary');
+      const displayHTML = renderBitStripHTML({
+        bits: bits,
+        weights: [-8, 4, 2, 1],
+        showWeights: true,
+        variant: 'twos'
+      });
+      return {
+        type: 'mc',
+        prompt: "Convert 4-Bit Two's Complement to Denary:",
+        display: bits.join(' '),
+        displayHTML: displayHTML,
+        hint: "Weight of Bit 3 is −8! Add active positive weights (+4, +2, +1)",
+        correctAnswer: String(val),
+        options: shuffleArray([val, ...dists]).map(String)
+      };
+    }
+
+    // Level 2: 4-Bit to Denary (Unassisted, weights hidden)
+    if (effectiveMode === 'mc_twos_comp_nibble_unassisted') {
+      const candidates = [-8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7];
+      const val = candidates[Math.floor(Math.random() * candidates.length)];
+      const rawBin = (val < 0 ? (16 + val) : val).toString(2).padStart(4, '0');
+      const bits = rawBin.split('').map(Number);
+      const dists = generateDistractors(val, -8, 7, 'denary');
+      const displayHTML = renderBitStripHTML({
+        bits: bits,
+        showWeights: false,
+        variant: 'twos'
+      });
+      return {
+        type: 'mc',
+        prompt: "Convert 4-Bit Two's Complement to Denary (Mental Calculation):",
+        display: bits.join(' '),
+        displayHTML: displayHTML,
+        hint: "Recall the 4-bit Two's Comp weights: −8 • 4 • 2 • 1",
+        correctAnswer: String(val),
+        options: shuffleArray([val, ...dists]).map(String)
+      };
+    }
+
+    // Level 3: 8-Bit to Denary (Assisted, weights −128..1 shown above bits)
+    if (effectiveMode === 'mc_twos_comp_byte_assisted') {
+      const isNegative = Math.random() < 0.65;
+      const val = isNegative ? -(Math.floor(Math.random() * 128) + 1) : Math.floor(Math.random() * 128);
+      const rawBin = (val < 0 ? (256 + val) : val).toString(2).padStart(8, '0');
+      const bits = rawBin.split('').map(Number);
+      const dists = generateDistractors(val, -128, 127, 'denary');
+      const displayHTML = renderBitStripHTML({
+        bits: bits,
+        weights: [-128, 64, 32, 16, 8, 4, 2, 1],
+        showWeights: true,
+        variant: 'twos'
+      });
+      return {
+        type: 'mc',
+        prompt: "Convert 8-Bit Two's Complement to Denary:",
+        display: `${rawBin.slice(0, 4)} ${rawBin.slice(4)}`,
+        displayHTML: displayHTML,
+        hint: "Weight of Bit 7 is −128! Add active positive weights (64..1)",
+        correctAnswer: String(val),
+        options: shuffleArray([val, ...dists]).map(String)
+      };
+    }
+
+    // Level 4: 8-Bit to Denary (Unassisted, weights hidden)
+    if (effectiveMode === 'mc_twos_comp_byte_unassisted') {
+      const isNegative = Math.random() < 0.7;
+      const val = isNegative ? -(Math.floor(Math.random() * 128) + 1) : Math.floor(Math.random() * 128);
+      const rawBin = (val < 0 ? (256 + val) : val).toString(2).padStart(8, '0');
+      const bits = rawBin.split('').map(Number);
+      const dists = generateDistractors(val, -128, 127, 'denary');
+      const displayHTML = renderBitStripHTML({
+        bits: bits,
+        showWeights: false,
+        variant: 'twos'
+      });
+      return {
+        type: 'mc',
+        prompt: "Convert 8-Bit Two's Complement to Denary (Mental Calculation):",
+        display: `${rawBin.slice(0, 4)} ${rawBin.slice(4)}`,
+        displayHTML: displayHTML,
+        hint: "Bit 7 is −128. Add active positive columns (64, 32, 16, 8, 4, 2, 1)",
+        correctAnswer: String(val),
+        options: shuffleArray([val, ...dists]).map(String)
+      };
+    }
+
+    // Level 5: Two's Complement 8-Bit Mastery (Mixed switches construction & mental MC)
+    if (effectiveMode === 'twos_comp_byte_mastery') {
+      const isSwitch = Math.random() > 0.5;
+      if (isSwitch) {
+        const candidates = [-12, -25, -35, -42, -55, -64, -75, -88, -100, -128, 45, 99];
+        const val = candidates[Math.floor(Math.random() * candidates.length)];
+        const targetBin = (val < 0 ? (256 + val) : val).toString(2).padStart(8, '0');
+        return {
+          type: 'switches',
+          bitsCount: 8,
+          isTwosComp: true,
+          prompt: `Construct ${val} in 8-bit Two's Complement:`,
+          display: `Target: ${val}`,
+          hint: "MSB switch is worth −128! Add positive weights (64..1) to reach target",
+          correctAnswer: val,
+          targetBinary: targetBin
+        };
+      } else {
+        const val = -(Math.floor(Math.random() * 120) + 1);
+        const twosComp = (256 + val).toString(2).padStart(8, '0');
+        const dists = generateDistractors(val, -128, -1, 'denary');
+        const options = shuffleArray([val, ...dists]);
         const displayHTML = renderBitStripHTML({
           bits: twosComp.split('').map(Number),
           showWeights: false,
@@ -3867,7 +4768,7 @@
           display: `${twosComp.slice(0, 4)} ${twosComp.slice(4)}`,
           displayHTML: displayHTML,
           hint: "Bit 7 is −128. Add active positive bits",
-          correctAnswer: String(negVal),
+          correctAnswer: String(val),
           options: options.map(String)
         };
       }
@@ -3960,6 +4861,72 @@
       };
     }
 
+    // Unsigned Subtraction with single borrow (4-bit: 0 - 1 borrows from next column)
+    if (effectiveMode === 'math_sub_with_borrows_4bit') {
+      const candidates = [
+        { a: 6, b: 1, bitsA: [0, 1, 1, 0], bitsB: [0, 0, 0, 1], diff: 5 },
+        { a: 10, b: 3, bitsA: [1, 0, 1, 0], bitsB: [0, 0, 1, 1], diff: 7 },
+        { a: 12, b: 5, bitsA: [1, 1, 0, 0], bitsB: [0, 1, 0, 1], diff: 7 },
+        { a: 9, b: 2, bitsA: [1, 0, 0, 1], bitsB: [0, 0, 1, 0], diff: 7 },
+        { a: 14, b: 6, bitsA: [1, 1, 1, 0], bitsB: [0, 1, 1, 0], diff: 8 }
+      ];
+      const item = candidates[Math.floor(Math.random() * candidates.length)];
+      const diffStr = item.diff.toString(2).padStart(4, '0');
+      return {
+        type: 'math_grid',
+        numBits: 4,
+        placeValues: [8, 4, 2, 1],
+        operator: '−',
+        valA: item.a,
+        valB: item.b,
+        bitsA: item.bitsA,
+        bitsB: item.bitsB,
+        correctAnswer: diffStr,
+        prompt: `Subtract 4-Bit Columns (With Borrow):`,
+        display: `${item.a} − ${item.b}`,
+        hint: "When subtracting 0 − 1, borrow 1 from the next higher column (2 − 1 = 1)!"
+      };
+    }
+
+    // Unsigned Underflow Quiz
+    if (effectiveMode === 'math_sub_underflow_quiz') {
+      const qPool = [
+        {
+          prompt: "What happens if an 8-bit unsigned CPU register attempts to compute 5 − 12 without signed representation?",
+          display: "5 − 12 (Unsigned)",
+          hint: "Unsigned integers can only hold non-negative values from 0 up to 255",
+          correctAnswer: "Underflow Error (Cannot represent negative values)",
+          options: [
+            "Underflow Error (Cannot represent negative values)",
+            "The CPU converts automatically to decimal",
+            "Result wraps to 0 without error",
+            "Overflow trap to 255"
+          ]
+        },
+        {
+          prompt: "Why do modern CPU ALUs use Two's Complement instead of manual column borrowing for subtraction?",
+          display: "ALU Architecture",
+          hint: "Reusing the existing binary addition circuit saves millions of transistors",
+          correctAnswer: "It allows subtraction using the exact same adder circuit: A + (−B)",
+          options: [
+            "It allows subtraction using the exact same adder circuit: A + (−B)",
+            "Column borrowing is too fast for the clock speed",
+            "Borrowing creates duplicate zeros",
+            "Two's complement requires double the memory"
+          ]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      return {
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
+      };
+    }
+
     // Hardware Subtraction Prep: Invert +B and add 1 to make -B
     if (effectiveMode === 'sub_twos_comp_negate') {
       const candidates = [4, 6, 9, 12, 15, 18, 24, 28, 35, 42, 50];
@@ -4004,6 +4971,84 @@
         prompt: `Hardware Subtraction: Write −${b} in Row B (Two's Comp), then Add Row A + Row B:`,
         display: `${a} − ${b}  ➔  ${a} + (−${b})`,
         hint: `1. Flip Row B cells to make −${b} (invert +${b} and add 1) • 2. Add Row A + Row B into Result!`
+      };
+    }
+
+    // Hardware Subtraction Rule: Drop final carry out
+    if (effectiveMode === 'math_sub_drop_carry_quiz') {
+      const qPool = [
+        {
+          prompt: "When adding A + (−B) in Two's Complement hardware subtraction, what happens to the 9th carry bit out of the MSB?",
+          display: "Carry Out Flag",
+          hint: "When computing 15 + (-6), an end-around carry is generated into the 9th bit",
+          correctAnswer: "It is discarded / ignored (the 8-bit result is correct)",
+          options: [
+            "It is discarded / ignored (the 8-bit result is correct)",
+            "It triggers a fatal CPU crash",
+            "It must be added back into the LSB",
+            "It inverts the sign bit"
+          ]
+        },
+        {
+          prompt: "In Two's Complement subtraction, why is a carry out of the MSB NOT an overflow error?",
+          display: "Drop Carry Rule",
+          hint: "Adding positive and negative numbers can never exceed the 8-bit range (-128 to +127)",
+          correctAnswer: "Adding opposite-signed numbers can never exceed the 8-bit signed range",
+          options: [
+            "Adding opposite-signed numbers can never exceed the 8-bit signed range",
+            "The CPU ALU has infinite bits",
+            "Two's complement ignores all arithmetic",
+            "Carry bits only apply to multiplication"
+          ]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      return {
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
+      };
+    }
+
+    // Signed Overflow Traps Quiz
+    if (effectiveMode === 'math_sub_signed_overflow_quiz') {
+      const qPool = [
+        {
+          prompt: "In an 8-bit Two's Complement byte, when does a SIGNED OVERFLOW error occur?",
+          display: "Signed Overflow Condition",
+          hint: "Look at the sign of the two operands vs the sign of the result",
+          correctAnswer: "When adding two positives produces a negative (or two negatives produce a positive)",
+          options: [
+            "When adding two positives produces a negative (or two negatives produce a positive)",
+            "Whenever any carry occurs in the LSB",
+            "Whenever zero is the answer",
+            "When subtracting a smaller number from a larger number"
+          ]
+        },
+        {
+          prompt: "Calculate +70 + +70 in 8-bit Two's Complement: 01000110 + 01000110 = 10001100. What error occurred?",
+          display: "+70 + +70 = −116 ?",
+          hint: "70 + 70 = 140, which exceeds the maximum positive 8-bit signed limit of +127",
+          correctAnswer: "Signed Overflow (+140 > +127, MSB flipped to negative)",
+          options: [
+            "Signed Overflow (+140 > +127, MSB flipped to negative)",
+            "Underflow Error",
+            "Parity Mismatch",
+            "No error occurred"
+          ]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      return {
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
       };
     }
 
@@ -4288,16 +5333,301 @@
           options: ["30 MB", "1,920 MB", "60 MB", "15 MB"]
         },
         {
-          prompt: "What is the vital distinction between capital 'B' and lowercase 'b' in computing specifications?",
-          display: "B vs b",
-          hint: "Storage is specified in Bytes, transfer rates in bits",
-          correctAnswer: "B = Byte (8 bits), b = bit (1 binary digit)",
           options: [
             "B = Byte (8 bits), b = bit (1 binary digit)",
             "B = bit (1 binary digit), b = Byte (8 bits)",
             "B = Base 10, b = Base 2",
             "B = Broadband, b = Buffer"
           ]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      return {
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
+      };
+    }
+
+    // Level 2: Decimal vs Binary Prefixes (KB vs KiB)
+    if (effectiveMode === 'units_prefixes_kib') {
+      const qPool = [
+        {
+          prompt: "What is the difference between a Kilobyte (KB) and a Kibibyte (KiB)?",
+          display: "KB vs KiB",
+          hint: "Decimal (base 10) vs IEC Binary (base 2)",
+          correctAnswer: "1 KB = 1,000 bytes (10³), 1 KiB = 1,024 bytes (2¹⁰)",
+          options: [
+            "1 KB = 1,000 bytes (10³), 1 KiB = 1,024 bytes (2¹⁰)",
+            "1 KB = 1,024 bytes, 1 KiB = 1,000 bytes",
+            "KB is for memory, KiB is for hard drives",
+            "They are identical terms with no numerical difference"
+          ]
+        },
+        {
+          prompt: "How many bytes are in 1 Mebibyte (MiB)?",
+          display: "1 MiB ➔ bytes",
+          hint: "2²⁰ bytes = 1,024 × 1,024",
+          correctAnswer: "1,048,576 bytes",
+          options: ["1,048,576 bytes", "1,000,000 bytes", "1,024,000 bytes", "2,048,000 bytes"]
+        },
+        {
+          prompt: "Why does a 500 GB hard drive show approximately 465 GiB in Windows?",
+          display: "Drive Capacity Paradox",
+          hint: "Manufacturers use decimal (10⁹ bytes), but the operating system reports binary (2³⁰ bytes)",
+          correctAnswer: "Manufacturers use 10⁹ bytes (decimal), while the OS reports in 2³⁰ (binary gibibytes)",
+          options: [
+            "Manufacturers use 10⁹ bytes (decimal), while the OS reports in 2³⁰ (binary gibibytes)",
+            "35 GB of space is permanently reserved for the Windows kernel",
+            "The drive loses 7% capacity due to physical magnetic friction",
+            "Formatting destroys 35 GB of sectors"
+          ]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      return {
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
+      };
+    }
+
+    // Level 3: Character Encoding Sizes (ASCII vs Unicode)
+    if (effectiveMode === 'units_text_chars') {
+      const qPool = [
+        {
+          prompt: "How many bytes of storage does an ASCII string of 25 characters require?",
+          display: "\"Hello Computer Science!\" (25 chars)",
+          hint: "Standard 7-bit/8-bit ASCII uses 1 byte (8 bits) per character: 25 × 1",
+          correctAnswer: "25 bytes",
+          options: ["25 bytes", "200 bytes", "50 bytes", "12.5 bytes"]
+        },
+        {
+          prompt: "How many bytes does a 40-character string require when encoded in 16-bit UTF-16 Unicode?",
+          display: "40 chars @ 16-bit Unicode",
+          hint: "Each 16-bit character requires 2 bytes (40 × 2)",
+          correctAnswer: "80 bytes",
+          options: ["80 bytes", "40 bytes", "640 bytes", "20 bytes"]
+        },
+        {
+          prompt: "How many bits are needed to encode a 12-character password in standard ASCII?",
+          display: "12 chars in ASCII",
+          hint: "Each character is 1 byte = 8 bits (12 × 8)",
+          correctAnswer: "96 bits",
+          options: ["96 bits", "12 bits", "48 bits", "120 bits"]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      return {
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
+      };
+    }
+
+    // Step-Up Conversions (÷1,000)
+    if (effectiveMode === 'units_conversions_up') {
+      const qPool = [
+        {
+          prompt: "Convert 8,000 Kilobytes (KB) to Megabytes (MB):",
+          display: "8,000 KB ➔ MB",
+          hint: "Divide by 1,000 (8,000 ÷ 1,000)",
+          correctAnswer: "8 MB",
+          options: ["8 MB", "80 MB", "0.8 MB", "800 MB"]
+        },
+        {
+          prompt: "Convert 12,000 Megabytes (MB) to Gigabytes (GB):",
+          display: "12,000 MB ➔ GB",
+          hint: "Divide by 1,000 (12,000 ÷ 1,000)",
+          correctAnswer: "12 GB",
+          options: ["12 GB", "1.2 GB", "120 GB", "12,000 GB"]
+        },
+        {
+          prompt: "Convert 4,500 bytes to Kilobytes (KB):",
+          display: "4,500 bytes ➔ KB",
+          hint: "Divide by 1,000 (4,500 ÷ 1,000)",
+          correctAnswer: "4.5 KB",
+          options: ["4.5 KB", "45 KB", "0.45 KB", "450 KB"]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      return {
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
+      };
+    }
+
+    // Step-Down Conversions (×1,000)
+    if (effectiveMode === 'units_conversions_down') {
+      const qPool = [
+        {
+          prompt: "Convert 6 Gigabytes (GB) to Megabytes (MB):",
+          display: "6 GB ➔ MB",
+          hint: "Multiply by 1,000 (6 × 1,000)",
+          correctAnswer: "6,000 MB",
+          options: ["6,000 MB", "600 MB", "60,000 MB", "6 MB"]
+        },
+        {
+          prompt: "Convert 1.5 Terabytes (TB) to Gigabytes (GB):",
+          display: "1.5 TB ➔ GB",
+          hint: "Multiply by 1,000 (1.5 × 1,000)",
+          correctAnswer: "1,500 GB",
+          options: ["1,500 GB", "150 GB", "15,000 GB", "15 GB"]
+        },
+        {
+          prompt: "Convert 3.2 Megabytes (MB) to Kilobytes (KB):",
+          display: "3.2 MB ➔ KB",
+          hint: "Multiply by 1,000 (3.2 × 1,000)",
+          correctAnswer: "3,200 KB",
+          options: ["3,200 KB", "320 KB", "32,000 KB", "32 KB"]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      return {
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
+      };
+    }
+
+    // Sound File Size Formula
+    if (effectiveMode === 'units_sound_calc') {
+      const qPool = [
+        {
+          prompt: "Calculate the uncompressed file size for a mono sound recording: Sample Rate = 44,000 Hz, Bit Depth = 16 bits, Duration = 10 seconds.",
+          display: "44,000 Hz × 16 bits × 10 s",
+          hint: "Bits = 44,000 × 16 × 10 = 7,040,000 bits. Bytes = 7,040,000 ÷ 8 = 880,000 bytes (880 KB)",
+          correctAnswer: "880 KB",
+          options: ["880 KB", "7.04 MB", "440 KB", "1.76 MB"]
+        },
+        {
+          prompt: "Calculate the size of 5 seconds of telephone audio recorded in mono at 8,000 Hz with 8-bit sample resolution.",
+          display: "8,000 Hz × 8 bits × 5 s",
+          hint: "Bytes per second = 8,000 × (8 ÷ 8) = 8,000 B/s. Total = 8,000 × 5 = 40,000 bytes (40 KB)",
+          correctAnswer: "40 KB",
+          options: ["40 KB", "320 KB", "80 KB", "20 KB"]
+        },
+        {
+          prompt: "If an audio track is recorded in STEREO (2 channels) instead of mono, what happens to the file size?",
+          display: "Mono vs Stereo",
+          hint: "Stereo doubles the audio stream by recording separate left and right channels",
+          correctAnswer: "The file size doubles (×2)",
+          options: ["The file size doubles (×2)", "The file size quadruples (×4)", "The file size stays identical", "The file size halves (÷2)"]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      return {
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
+      };
+    }
+
+    // Bitmap Image File Size Formula
+    if (effectiveMode === 'units_image_calc') {
+      const qPool = [
+        {
+          prompt: "Calculate the file size of a bitmap image: 200 pixels wide, 100 pixels high, with a colour depth of 8 bits (256 colours).",
+          display: "200 × 100 @ 8 bits",
+          hint: "Pixels = 20,000. Bits = 20,000 × 8 = 160,000 bits. Bytes = 160,000 ÷ 8 = 20,000 bytes (20 KB)",
+          correctAnswer: "20 KB",
+          options: ["20 KB", "160 KB", "200 KB", "2 KB"]
+        },
+        {
+          prompt: "Calculate the file size of a 100 × 50 pixel icon using 24-bit True Colour depth (3 bytes per pixel).",
+          display: "100 × 50 @ 24 bits",
+          hint: "Total pixels = 5,000. Bytes = 5,000 × 3 = 15,000 bytes (15 KB)",
+          correctAnswer: "15 KB",
+          options: ["15 KB", "120 KB", "5 KB", "30 KB"]
+        },
+        {
+          prompt: "A monochrome black-and-white image has a colour depth of 1 bit. How many bytes are needed for an 800 × 600 image?",
+          display: "800 × 600 @ 1 bit",
+          hint: "Total bits = 480,000. Bytes = 480,000 ÷ 8 = 60,000 bytes (60 KB)",
+          correctAnswer: "60 KB",
+          options: ["60 KB", "480 KB", "120 KB", "30 KB"]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      return {
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
+      };
+    }
+
+    // Megabits vs Megabytes
+    if (effectiveMode === 'units_mb_vs_mb') {
+      const qPool = [
+        {
+          prompt: "A user has an 80 Mbps fiber internet package. What is their maximum download speed in Megabytes per second (MB/s)?",
+          display: "80 Mbps ➔ MB/s",
+          hint: "Divide by 8 (8 bits in 1 byte): 80 ÷ 8",
+          correctAnswer: "10 MB/s",
+          options: ["10 MB/s", "8 MB/s", "80 MB/s", "640 MB/s"]
+        },
+        {
+          prompt: "If an online backup transfers at 6 MB/s, what is the network bandwidth in Megabits per second (Mbps)?",
+          display: "6 MB/s ➔ Mbps",
+          hint: "Multiply by 8 (8 bits in 1 byte): 6 × 8",
+          correctAnswer: "48 Mbps",
+          options: ["48 Mbps", "6 Mbps", "24 Mbps", "36 Mbps"]
+        }
+      ];
+      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      return {
+        type: 'mc',
+        prompt: selected.prompt,
+        display: selected.display,
+        hint: selected.hint,
+        correctAnswer: selected.correctAnswer,
+        options: shuffleArray(selected.options)
+      };
+    }
+
+    // Payload & Protocol Overhead
+    if (effectiveMode === 'units_payload_overhead') {
+      const qPool = [
+        {
+          prompt: "Why is the real-world download speed of a file always slightly lower than the theoretical network Mbps speed?",
+          display: "Protocol Overhead",
+          hint: "Network protocols (TCP/IP, Ethernet) require packet headers containing IP addresses, sequence numbers & checksums",
+          correctAnswer: "Packet headers and protocol metadata consume a portion of the bandwidth",
+          options: [
+            "Packet headers and protocol metadata consume a portion of the bandwidth",
+            "Broadband wires absorb binary electrons over distance",
+            "The computer CPU slows down internet packets to inspect syntax",
+            "Binary digits shrink during transmission"
+          ]
+        },
+        {
+          prompt: "In a 1,500-byte Ethernet packet, 40 bytes are consumed by TCP and IP headers. How many bytes represent actual data payload?",
+          display: "1,500 B − 40 B",
+          hint: "Payload = Total Packet − Protocol Headers (1,500 − 40)",
+          correctAnswer: "1,460 bytes",
+          options: ["1,460 bytes", "1,540 bytes", "1,400 bytes", "750 bytes"]
         }
       ];
       const selected = qPool[Math.floor(Math.random() * qPool.length)];
@@ -4391,7 +5721,7 @@
   function startBitmasterRound() {
     const stage = BITMASTER_STAGES.find(s => s.id === bitmasterState.activeStage);
     const level = stage.levels.find(l => l.id === bitmasterState.activeLevel);
-    const isSprint = (level.mode === 'sprint_60s');
+    const isSprint = (bitmasterState.selectedGameMode === 'sprint');
 
     bitmasterState.isSprint = isSprint;
     bitmasterState.currentQuestionIndex = 0;
@@ -4457,8 +5787,8 @@
     const badgeEl = document.getElementById('bitmasterActiveStageBadge');
     if (badgeEl) {
       badgeEl.textContent = isSprint 
-        ? `Stage ${bitmasterState.activeStage} • ⚡ 60s Speed Sprint`
-        : `Stage ${bitmasterState.activeStage} • Lvl ${bitmasterState.activeLevel}`;
+        ? `Stage ${bitmasterState.activeStage} • Lvl ${bitmasterState.activeLevel} • ⚡ 60s Sprint`
+        : `Stage ${bitmasterState.activeStage} • Lvl ${bitmasterState.activeLevel} • 🎯 10 Questions`;
     }
 
     showBitmasterScreen('game');
@@ -4497,6 +5827,11 @@
       barEl.style.width = `${(bitmasterState.currentQuestionIndex / bitmasterState.totalQuestions) * 100}%`;
     }
 
+    const challengeCard = document.getElementById('bitmasterChallengeCard');
+    if (challengeCard) {
+      challengeCard.style.display = bitmasterState.currentQuestion.type === 'hex_nibbles' ? 'none' : 'block';
+    }
+
     const promptEl = document.getElementById('bitmasterPromptLabel');
     const mainDispEl = document.getElementById('bitmasterMainDisplay');
     const hintEl = document.getElementById('bitmasterHintSubtext');
@@ -4532,7 +5867,13 @@
       if (tilesZone) tilesZone.style.display = 'none';
       if (switchZone) {
         switchZone.style.display = 'flex';
-        renderBitmasterSwitchboard(bitmasterState.currentQuestion.bitsCount, bitmasterState.currentQuestion.blind, bitmasterState.currentQuestion.isTwosComp);
+        renderBitmasterSwitchboard(
+          bitmasterState.currentQuestion.bitsCount,
+          bitmasterState.currentQuestion.blind,
+          bitmasterState.currentQuestion.isTwosComp,
+          bitmasterState.currentQuestion.referenceBits,
+          bitmasterState.currentQuestion.referenceLabel
+        );
       }
       if (keypadZone) keypadZone.style.display = 'none';
       if (mathZone) mathZone.style.display = 'none';
@@ -4670,7 +6011,32 @@
     if (modal) modal.style.display = 'none';
   }
 
-  function renderBitmasterSwitchboard(bitsCount = 8, isBlind = false, isTwosComp = false) {
+  function renderBitmasterSwitchboard(bitsCount = 8, isBlind = false, isTwosComp = false, referenceBits = null, referenceLabel = null) {
+    // Handle Optional Reference Row (e.g. Stage 10 Two's Complement Negation where original +ve bits are shown directly above)
+    const refRowEl = document.getElementById('bitmasterSwitchReferenceRow');
+    const refBitsContainer = document.getElementById('bitmasterSwitchRefBits');
+    const refLabelEl = document.getElementById('bitmasterSwitchRefLabel');
+
+    if (refRowEl && refBitsContainer) {
+      if (Array.isArray(referenceBits) && referenceBits.length > 0) {
+        refRowEl.style.display = 'flex';
+        if (refLabelEl && referenceLabel) {
+          refLabelEl.textContent = referenceLabel;
+        }
+        refBitsContainer.className = 'switch-ref-bits-flex' + (bitsCount === 4 ? ' bits-4' : ' bits-8');
+        refBitsContainer.innerHTML = '';
+        referenceBits.forEach(b => {
+          const refCell = document.createElement('div');
+          refCell.className = 'switch-ref-cell' + (b === 1 ? ' bit-1' : '');
+          refCell.innerHTML = `<span class="switch-ref-cell-val">${b}</span>`;
+          refBitsContainer.appendChild(refCell);
+        });
+      } else {
+        refRowEl.style.display = 'none';
+        refBitsContainer.innerHTML = '';
+      }
+    }
+
     const container = document.getElementById('bitmasterSwitchBitsContainer');
     if (!container) return;
     container.innerHTML = '';
@@ -4685,7 +6051,7 @@
     weights.forEach((w, idx) => {
       const bitBtn = document.createElement('div');
       bitBtn.className = 'bitmaster-switch-cell';
-      const label = isBlind ? '?' : (w < 0 ? String(w) : (isTwosComp ? '+' + w : String(w)));
+      const label = w < 0 ? String(w) : (isTwosComp ? '+' + w : String(w));
       bitBtn.innerHTML = `
         <span class="switch-cell-pv">${label}</span>
         <span class="switch-cell-val">0</span>
@@ -4711,6 +6077,10 @@
       container.appendChild(bitBtn);
     });
 
+    const sumWrap = document.getElementById('bitmasterSwitchSumWrap');
+    if (sumWrap) {
+      sumWrap.style.display = isBlind ? 'none' : 'block';
+    }
     updateBitmasterSwitchSum(weights, isBlind);
 
     const submitBtn = document.getElementById('bitmasterSubmitSwitchBtn');
@@ -4770,6 +6140,10 @@
     weights.forEach((w, idx) => {
       if (bitmasterState.switchBits[idx] === 1) sum += w;
     });
+    const sumWrap = document.getElementById('bitmasterSwitchSumWrap');
+    if (sumWrap) {
+      sumWrap.style.display = isBlind ? 'none' : 'block';
+    }
     const sumEl = document.getElementById('bitmasterCurrentSwitchSum');
     if (sumEl) {
       sumEl.textContent = isBlind ? '???' : sum;
@@ -5010,10 +6384,18 @@
   function renderBitmasterHexNibbles(question) {
     const container = document.getElementById('bitmasterHexNibblesContainer');
     const assembledEl = document.getElementById('bitmasterHexAssembledBin');
+    const currentValWrap = document.getElementById('bitmasterHexCurrentValWrap');
+    const headingEl = document.getElementById('bitmasterHexHeading');
     const submitBtn = document.getElementById('bitmasterSubmitHexNibblesBtn');
     if (!container) return;
 
     const nibbleCount = question.nibblesCount || 1;
+    if (headingEl) {
+      headingEl.textContent = nibbleCount === 1
+        ? 'Convert the Following Hex Digit to Binary'
+        : 'Convert the Following Hex Byte to Binary';
+    }
+
     // Each nibble has 4 bits [b3, b2, b1, b0] corresponding to weights [8, 4, 2, 1]
     bitmasterState.hexNibbleBits = Array.from({ length: nibbleCount }, () => [0, 0, 0, 0]);
 
@@ -5031,7 +6413,7 @@
       header.innerHTML = `
         <div class="hex-nibble-card-title-row">
           <span class="hex-nibble-card-tag">${label}</span>
-          <span class="hex-nibble-denary-hint">= ${denVal}</span>
+          ${question.showDenaryHint ? `<span class="hex-nibble-denary-hint">= ${denVal}</span>` : ''}
         </div>
         <div class="hex-digit-badge">0x${hexChar}</div>
       `;
@@ -5077,11 +6459,17 @@
     }
 
     function updateHexNibblesDisplay() {
+      if (currentValWrap) {
+        currentValWrap.style.display = question.showLiveHex ? 'inline-flex' : 'none';
+      }
       if (!assembledEl) return;
       if (nibbleCount === 1) {
-        assembledEl.textContent = `0x${question.hexDigits[0]} = ${bitmasterState.hexNibbleBits[0].join('')}`;
+        const den0 = (bitmasterState.hexNibbleBits[0][0] * 8) + (bitmasterState.hexNibbleBits[0][1] * 4) + (bitmasterState.hexNibbleBits[0][2] * 2) + (bitmasterState.hexNibbleBits[0][3] * 1);
+        assembledEl.textContent = `0x${den0.toString(16).toUpperCase()}`;
       } else {
-        assembledEl.textContent = `0x${question.hexDigits.join('')} = ${bitmasterState.hexNibbleBits[0].join('')} ${bitmasterState.hexNibbleBits[1].join('')}`;
+        const den0 = (bitmasterState.hexNibbleBits[0][0] * 8) + (bitmasterState.hexNibbleBits[0][1] * 4) + (bitmasterState.hexNibbleBits[0][2] * 2) + (bitmasterState.hexNibbleBits[0][3] * 1);
+        const den1 = (bitmasterState.hexNibbleBits[1][0] * 8) + (bitmasterState.hexNibbleBits[1][1] * 4) + (bitmasterState.hexNibbleBits[1][2] * 2) + (bitmasterState.hexNibbleBits[1][3] * 1);
+        assembledEl.textContent = `0x${den0.toString(16).toUpperCase()}${den1.toString(16).toUpperCase()}`;
       }
     }
 
@@ -5230,9 +6618,9 @@
     function tick(now) {
       const p = Math.min((now - startTime) / duration, 1);
       const val = Math.floor(start + (end - start) * p);
-      el.textContent = `${val} XP`;
+      el.textContent = `${val.toLocaleString()} pts`;
       if (p < 1) requestAnimationFrame(tick);
-      else el.textContent = `${end} XP`;
+      else el.textContent = `${end.toLocaleString()} pts`;
     }
     requestAnimationFrame(tick);
   }
@@ -5243,41 +6631,100 @@
       bitmasterState.timerInterval = null;
     }
 
+    const isSprint = bitmasterState.isSprint;
+    const stageId = bitmasterState.activeStage;
+    const levelId = bitmasterState.activeLevel;
+    const stage = BITMASTER_STAGES.find(s => s.id === stageId);
+    const saveKey = `s${stageId}_l${levelId}`;
+    const record = bitmasterState.levelRecords[saveKey] || {
+      best10Q: 0,
+      stars10Q: 0,
+      best10QTime: 999,
+      bestSprint: 0,
+      solvedSprint: 0,
+      medalSprint: 'none'
+    };
+
+    let roundScore = 0;
     let starsEarned = 0;
-    let xpBonus = 0;
+    let sprintMedal = 'none';
 
-    if (bitmasterState.isSprint) {
-      if (bitmasterState.correctThisRound >= 12) {
+    if (isSprint) {
+      const correct = bitmasterState.correctThisRound;
+      const mistakes = bitmasterState.mistakesThisRound;
+      const totalAttempted = correct + mistakes;
+      const accuracy = totalAttempted > 0 ? (correct / totalAttempted) : 0;
+      const accuracyBonus = Math.round(correct * 30 * accuracy);
+      roundScore = (correct * 100) + accuracyBonus;
+
+      if (correct >= 15) {
+        sprintMedal = 'gold';
         starsEarned = 3;
-      } else if (bitmasterState.correctThisRound >= 8) {
+      } else if (correct >= 10) {
+        sprintMedal = 'silver';
         starsEarned = 2;
-      } else if (bitmasterState.correctThisRound >= 4) {
+      } else if (correct >= 6) {
+        sprintMedal = 'bronze';
         starsEarned = 1;
       } else {
+        sprintMedal = 'none';
         starsEarned = 0;
       }
-      xpBonus = (bitmasterState.correctThisRound * 10) + (starsEarned === 3 ? 120 : (starsEarned === 2 ? 60 : (starsEarned === 1 ? 30 : 10)));
     } else {
-      if (bitmasterState.mistakesThisRound === 0 && bitmasterState.elapsedSeconds <= 60) {
+      const correct = bitmasterState.correctThisRound;
+      const mistakes = bitmasterState.mistakesThisRound;
+      const elapsed = bitmasterState.elapsedSeconds;
+      const flawlessBonus = (mistakes === 0 && correct === 10) ? 300 : 0;
+      const speedBonus = Math.max(0, (60 - elapsed) * 10);
+      const mistakePenalty = mistakes * 50;
+      roundScore = Math.max(0, (correct * 100) + flawlessBonus + speedBonus - mistakePenalty);
+
+      if (mistakes === 0 && elapsed <= 60 && correct === 10) {
         starsEarned = 3;
-      } else if (bitmasterState.mistakesThisRound <= 2) {
+      } else if (mistakes <= 2 && correct >= 8) {
         starsEarned = 2;
-      } else if (bitmasterState.mistakesThisRound <= 5) {
+      } else if (mistakes <= 5 && correct >= 5) {
         starsEarned = 1;
       } else {
         starsEarned = 0;
       }
-      xpBonus = starsEarned === 3 ? 120 : (starsEarned === 2 ? 60 : (starsEarned === 1 ? 30 : 10));
     }
 
-    const saveKey = `s${bitmasterState.activeStage}_l${bitmasterState.activeLevel}`;
-    const prevStars = bitmasterState.stars[saveKey] || 0;
-    if (starsEarned > prevStars) {
-      bitmasterState.stars[saveKey] = starsEarned;
+    const prevBest = isSprint ? (record.bestSprint || 0) : (record.best10Q || 0);
+    const isNewRecord = roundScore > prevBest;
+    const deltaXp = Math.max(0, roundScore - prevBest);
+
+    // Update level records
+    if (isSprint) {
+      if (roundScore > (record.bestSprint || 0)) {
+        record.bestSprint = roundScore;
+      }
+      record.solvedSprint = Math.max(record.solvedSprint || 0, bitmasterState.correctThisRound);
+      const medalWeights = { gold: 3, silver: 2, bronze: 1, none: 0 };
+      if (medalWeights[sprintMedal] > medalWeights[record.medalSprint || 'none']) {
+        record.medalSprint = sprintMedal;
+      }
+    } else {
+      if (roundScore > (record.best10Q || 0)) {
+        record.best10Q = roundScore;
+      }
+      record.stars10Q = Math.max(record.stars10Q || 0, starsEarned);
+      if (bitmasterState.elapsedSeconds < (record.best10QTime || 999)) {
+        record.best10QTime = bitmasterState.elapsedSeconds;
+      }
+      bitmasterState.stars[saveKey] = Math.max(bitmasterState.stars[saveKey] || 0, starsEarned);
     }
+    bitmasterState.levelRecords[saveKey] = record;
 
     const oldXp = bitmasterState.xp;
-    const newXp = oldXp + xpBonus;
+    // Compute total XP across all levels
+    let totalXp = 0;
+    Object.values(bitmasterState.levelRecords).forEach(rec => {
+      totalXp += (Number(rec.best10Q) || 0) + (Number(rec.bestSprint) || 0);
+    });
+    bitmasterState.xp = totalXp;
+    const newXp = bitmasterState.xp;
+
     const oldRank = getRankForXp(oldXp);
     const newRank = getRankForXp(newXp);
     const oldNextRank = getNextRankForXp(oldXp);
@@ -5300,7 +6747,6 @@
       newPct = 100;
     }
 
-    bitmasterState.xp = newXp;
     saveBitmasterProgress();
     updateBitmasterHUD(true);
 
@@ -5317,45 +6763,43 @@
       mistakesEl.textContent = String(bitmasterState.mistakesThisRound);
     }
 
-    if (bitmasterState.isSprint) {
-      const totalAttempted = bitmasterState.correctThisRound + bitmasterState.mistakesThisRound;
-      const accuracy = totalAttempted > 0 ? Math.round((bitmasterState.correctThisRound / totalAttempted) * 100) : 0;
+    const totalAttempted = bitmasterState.correctThisRound + bitmasterState.mistakesThisRound;
+    const accuracy = totalAttempted > 0 ? Math.round((bitmasterState.correctThisRound / totalAttempted) * 100) : 0;
+    if (accEl) accEl.textContent = `${accuracy}%`;
+
+    if (isSprint) {
       if (starsEarned === 3) {
-        if (badgeEl) badgeEl.textContent = '👑';
-        if (titleEl) titleEl.textContent = 'Sprint Champion!';
+        if (badgeEl) badgeEl.textContent = '🥇';
+        if (titleEl) titleEl.textContent = 'Gold Medal Sprint!';
         if (starsEl) starsEl.textContent = '⭐⭐⭐';
         fireConfetti();
         setTimeout(fireConfetti, 280);
         playSynthSound('perfect10');
-        if (tipEl) tipEl.innerHTML = `🏆 <strong>Legendary Pace!</strong> You solved ${bitmasterState.correctThisRound} problems in 60s! Maximum 3-Star Sprint rating achieved!`;
+        if (tipEl) tipEl.innerHTML = `🏆 <strong>Legendary Pace!</strong> You solved ${bitmasterState.correctThisRound} problems in 60s! 🥇 Gold Medal achieved! (Score: ${roundScore} pts)`;
       } else if (starsEarned === 2) {
-        if (badgeEl) badgeEl.textContent = '⚡';
-        if (titleEl) titleEl.textContent = 'Speed Specialist!';
+        if (badgeEl) badgeEl.textContent = '🥈';
+        if (titleEl) titleEl.textContent = 'Silver Medal Sprint!';
         if (starsEl) starsEl.textContent = '⭐⭐☆';
         playSynthSound('victory');
-        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn 3 Stars:</strong> Solve at least 12 correct in 60s (you solved ${bitmasterState.correctThisRound}). Keep your pace up!`;
+        if (tipEl) tipEl.innerHTML = `🥈 <strong>Silver Medal!</strong> ${bitmasterState.correctThisRound} solved. To reach Gold: solve 15+ in 60s! (Score: ${roundScore} pts)`;
       } else if (starsEarned === 1) {
-        if (badgeEl) badgeEl.textContent = '💡';
-        if (titleEl) titleEl.textContent = 'Sprint Completed';
+        if (badgeEl) badgeEl.textContent = '🥉';
+        if (titleEl) titleEl.textContent = 'Bronze Medal Sprint!';
         if (starsEl) starsEl.textContent = '⭐☆☆';
         playSynthSound('victory');
-        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn 2 Stars:</strong> Solve at least 8 correct in 60s (you solved ${bitmasterState.correctThisRound}).`;
+        if (tipEl) tipEl.innerHTML = `🥉 <strong>Bronze Medal!</strong> ${bitmasterState.correctThisRound} solved. To reach Silver: solve 10+ in 60s! (Score: ${roundScore} pts)`;
       } else {
         if (badgeEl) badgeEl.textContent = '⏱️';
-        if (titleEl) titleEl.textContent = 'Time Expired';
+        if (titleEl) titleEl.textContent = 'Sprint Finished';
         if (starsEl) starsEl.textContent = '☆☆☆';
         playSynthSound('wrong');
-        if (tipEl) tipEl.innerHTML = `💡 <strong>To pass this sprint:</strong> Solve at least 4 problems before the 60s timer expires. Try again!`;
+        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn Bronze:</strong> Solve at least 6 problems before the 60s timer expires. Keep training!`;
       }
-      if (subtextEl) subtextEl.textContent = `⚡ 60s Sprint Finished • ${bitmasterState.correctThisRound} Solved Correctly • ${bitmasterState.mistakesThisRound} mistakes`;
-      if (xpEl) xpEl.textContent = `+${xpBonus} XP`;
-      if (accEl) accEl.textContent = `${accuracy}%`;
+      if (subtextEl) {
+        subtextEl.textContent = `⚡ 60s Sprint • Score: ${roundScore} pts • ${bitmasterState.correctThisRound} Solved • ${bitmasterState.mistakesThisRound} mistakes` + (isNewRecord ? ' • 🏆 NEW BEST!' : '');
+      }
     } else {
-      const totalAttempts = bitmasterState.correctThisRound + bitmasterState.mistakesThisRound;
-      const accuracy = totalAttempts > 0 ? Math.round((bitmasterState.correctThisRound / totalAttempts) * 100) : 0;
-      const isFlawlessZeroMistakes = (bitmasterState.mistakesThisRound === 0);
-
-      // Trigger celebratory fanfare whenever the player achieves 3 stars or 0 mistakes
+      const isFlawlessZeroMistakes = (bitmasterState.mistakesThisRound === 0 && bitmasterState.correctThisRound === 10);
       if (starsEarned === 3 || isFlawlessZeroMistakes) {
         fireConfetti();
         setTimeout(fireConfetti, 280);
@@ -5366,51 +6810,43 @@
         if (badgeEl) badgeEl.textContent = '👑';
         if (titleEl) titleEl.textContent = 'Flawless Precision!';
         if (starsEl) starsEl.textContent = '⭐⭐⭐';
-        if (tipEl) {
-          tipEl.innerHTML = `🏆 <strong>Flawless 10/10 Mastery!</strong> Cleared in ${bitmasterState.elapsedSeconds}s with 0 mistakes. Maximum 3-Star Grandmaster achieved!`;
-        }
+        if (tipEl) tipEl.innerHTML = `🏆 <strong>Flawless 10/10 Mastery!</strong> Cleared in ${bitmasterState.elapsedSeconds}s with 0 mistakes. Score: ${roundScore} pts!`;
       } else if (starsEarned === 2) {
-        if (isFlawlessZeroMistakes) {
-          if (badgeEl) badgeEl.textContent = '🌟';
-          if (titleEl) titleEl.textContent = 'Flawless Accuracy!';
-          if (starsEl) starsEl.textContent = '⭐⭐☆';
-          if (tipEl) {
-            tipEl.innerHTML = `🎉 <strong>0 Mistakes!</strong> Flawless accuracy! To earn the 3rd Star, complete the round in &le; 60s (you took ${bitmasterState.elapsedSeconds}s). Speed it up just a bit!`;
-          }
-        } else {
-          if (badgeEl) badgeEl.textContent = '⚡';
-          if (titleEl) titleEl.textContent = 'Stage Mastered!';
-          if (starsEl) starsEl.textContent = '⭐⭐☆';
-          playSynthSound('victory');
-          if (tipEl) {
-            tipEl.innerHTML = `💡 <strong>To earn 3 Stars:</strong> Complete all 10 with 0 mistakes in &le; 60s (you made ${bitmasterState.mistakesThisRound} mistake${bitmasterState.mistakesThisRound > 1 ? 's' : ''}).`;
-          }
-        }
+        if (badgeEl) badgeEl.textContent = '🌟';
+        if (titleEl) titleEl.textContent = 'Stage Mastered!';
+        if (starsEl) starsEl.textContent = '⭐⭐☆';
+        playSynthSound('victory');
+        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn 3 Stars:</strong> Complete all 10 with 0 mistakes in &le; 60s (you made ${bitmasterState.mistakesThisRound} mistake${bitmasterState.mistakesThisRound > 1 ? 's' : ''}). Score: ${roundScore} pts.`;
       } else if (starsEarned === 1) {
         if (badgeEl) badgeEl.textContent = '💡';
         if (titleEl) titleEl.textContent = 'Trial Passed';
         if (starsEl) starsEl.textContent = '⭐☆☆';
         playSynthSound('victory');
-        if (tipEl) {
-          tipEl.innerHTML = `💡 <strong>To earn 2 Stars:</strong> Complete with &le; 2 mistakes (you made ${bitmasterState.mistakesThisRound} mistakes). Take your time!`;
-        }
+        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn 2 Stars:</strong> Complete with &le; 2 mistakes (you made ${bitmasterState.mistakesThisRound} mistakes). Score: ${roundScore} pts.`;
       } else {
         if (badgeEl) badgeEl.textContent = '🔄';
         if (titleEl) titleEl.textContent = 'Trial Incomplete';
         if (starsEl) starsEl.textContent = '☆☆☆';
         playSynthSound('wrong');
-        if (tipEl) {
-          tipEl.innerHTML = `💡 <strong>To pass this level:</strong> Complete with &le; 5 mistakes (you made ${bitmasterState.mistakesThisRound} mistakes). Review place values and retry!`;
-        }
+        if (tipEl) tipEl.innerHTML = `💡 <strong>To pass this level:</strong> Complete with &le; 5 mistakes (you made ${bitmasterState.mistakesThisRound} mistakes). Score: ${roundScore} pts.`;
       }
       if (subtextEl) {
-        subtextEl.textContent = `All 10 Solved • ${bitmasterState.mistakesThisRound} mistake${bitmasterState.mistakesThisRound === 1 ? '' : 's'} • ${bitmasterState.elapsedSeconds}s`;
+        subtextEl.textContent = `🎯 10 Questions • Score: ${roundScore} pts • ${bitmasterState.correctThisRound}/10 Correct • ${bitmasterState.elapsedSeconds}s` + (isNewRecord ? ' • 🏆 NEW BEST!' : '');
       }
-      if (xpEl) xpEl.textContent = `+${xpBonus} XP`;
-      if (accEl) accEl.textContent = `${accuracy}%`;
     }
 
-    // Sequentially animate victory stars with crisp chimes
+    if (xpEl) {
+      const diffFormatted = deltaXp > 0 ? `(+${deltaXp.toLocaleString()} pts)` : `(+0 pts)`;
+      const trophy = isNewRecord ? ' 🏆' : '';
+      xpEl.innerHTML = `${roundScore.toLocaleString()} <span class="stat-diff">${diffFormatted}</span>${trophy}`;
+    }
+
+    const timeEl = document.getElementById('bitmasterVictoryTime');
+    if (timeEl) {
+      timeEl.textContent = isSprint ? '60s' : `${bitmasterState.elapsedSeconds}s`;
+    }
+
+    // Sequentially animate victory stars
     if (starsEl) {
       starsEl.textContent = '';
       const starIcons = starsEarned === 3 ? ['⭐', '⭐', '⭐'] : (starsEarned === 2 ? ['⭐', '⭐', '☆'] : (starsEarned === 1 ? ['⭐', '☆', '☆'] : ['☆', '☆', '☆']));
@@ -5448,15 +6884,15 @@
         summaryRankTitle.textContent = oldRank.title;
         summaryRankTitle.style.color = '#ffffff';
       }
-      if (summaryXpGainPill) summaryXpGainPill.textContent = `+${xpBonus} XP`;
-      if (summaryXpCur) summaryXpCur.textContent = `${oldXp} XP`;
-      if (summaryXpTarget) summaryXpTarget.textContent = oldNextRank ? `Next Rank: ${oldNextRank.minXp} XP` : 'Max Rank';
+      if (summaryXpGainPill) summaryXpGainPill.textContent = deltaXp > 0 ? `+${deltaXp.toLocaleString()} pts` : `+0 pts`;
+      if (summaryXpCur) summaryXpCur.textContent = `${oldXp.toLocaleString()} pts`;
+      if (summaryXpTarget) summaryXpTarget.textContent = oldNextRank ? `Next Rank: ${oldNextRank.minXp.toLocaleString()} pts` : 'Max Rank';
       if (summaryXpFill) {
         summaryXpFill.style.transition = 'none';
         summaryXpFill.style.width = `${oldPct}%`;
       }
       if (summaryXpFootnote) {
-        summaryXpFootnote.textContent = oldNextRank ? `Need ${Math.max(0, oldNextRank.minXp - oldXp)} more XP to unlock ${oldNextRank.title}` : 'Maximum Architecture Rank Achieved!';
+        summaryXpFootnote.textContent = oldNextRank ? `Need ${Math.max(0, oldNextRank.minXp - oldXp).toLocaleString()} more pts to unlock ${oldNextRank.title}` : 'Maximum Architecture Rank Achieved!';
       }
 
       // After stars chiming (~700ms), animate XP bar growing forward & trigger level up if earned!
@@ -5466,12 +6902,10 @@
         }
 
         if (isRankUp) {
-          // Fill bar to 100%
           if (summaryXpFill) summaryXpFill.style.width = '100%';
           animateNumberCounter(summaryXpCur, oldXp, oldNextRank.minXp, 900);
 
           setTimeout(() => {
-            // Flash celebration on summary card
             if (summaryCardEl) summaryCardEl.classList.add('rank-up-flash');
             if (summaryRankAvatar) summaryRankAvatar.innerHTML = getBitmasterAvatarHTML(newRank, 'summary-avatar');
             if (summaryRankTier) summaryRankTier.textContent = `PROMOTED! TIER ${newRank.id} OF 12`;
@@ -5479,16 +6913,15 @@
               summaryRankTitle.textContent = newRank.title;
               summaryRankTitle.style.color = '#facc15';
             }
-            if (summaryXpTarget) summaryXpTarget.textContent = newNextRank ? `Next Rank: ${newNextRank.minXp} XP` : 'Max Rank';
+            if (summaryXpTarget) summaryXpTarget.textContent = newNextRank ? `Next Rank: ${newNextRank.minXp.toLocaleString()} pts` : 'Max Rank';
             if (summaryXpFootnote) {
-              summaryXpFootnote.textContent = newNextRank ? `Need ${Math.max(0, newNextRank.minXp - newXp)} more XP to unlock ${newNextRank.title}` : 'Maximum Architecture Rank!';
+              summaryXpFootnote.textContent = newNextRank ? `Need ${Math.max(0, newNextRank.minXp - newXp).toLocaleString()} more pts to unlock ${newNextRank.title}` : 'Maximum Architecture Rank!';
             }
 
             playSynthSound('levelup');
             fireConfetti();
             setTimeout(fireConfetti, 280);
 
-            // Animate remainder from 0% to newPct
             if (summaryXpFill) {
               summaryXpFill.style.transition = 'none';
               summaryXpFill.style.width = '0%';
@@ -5501,21 +6934,18 @@
             }
             animateNumberCounter(summaryXpCur, oldNextRank.minXp, newXp, 900);
 
-            // Show celebratory Level Up modal after fanfare
             setTimeout(() => {
               bitmasterState.lastNotifiedRankId = newRank.id;
               localStorage.setItem('bitmaster_last_notified_rank', String(newRank.id));
               showBitmasterLevelUpModal(newRank);
             }, 850);
           }, 1000);
-
         } else {
-          // Normal XP growth
           if (summaryXpFill) summaryXpFill.style.width = `${newPct}%`;
           animateNumberCounter(summaryXpCur, oldXp, newXp, 900);
           playSynthSound('tap');
           if (summaryXpFootnote && newNextRank) {
-            summaryXpFootnote.textContent = `Need ${Math.max(0, newNextRank.minXp - newXp)} more XP to unlock ${newNextRank.title}`;
+            summaryXpFootnote.textContent = `Need ${Math.max(0, newNextRank.minXp - newXp).toLocaleString()} more pts to unlock ${newNextRank.title}`;
           }
         }
       }, 700);
@@ -5526,7 +6956,8 @@
     const nextLvlBtn = document.getElementById('bitmasterSummaryNextLevelBtn');
 
     if (nextLvlBtn) {
-      if (starsEarned >= 1 && bitmasterState.activeLevel < 4) {
+      const stageLevelCount = stage ? stage.levels.length : 4;
+      if (starsEarned >= 1 && bitmasterState.activeLevel < stageLevelCount) {
         nextLvlBtn.style.display = 'inline-flex';
         nextLvlBtn.textContent = `Next Level (Level ${bitmasterState.activeLevel + 1}) \u2192`;
         nextLvlBtn.onclick = () => {
@@ -5650,12 +7081,37 @@
       });
     }
 
-    // Title Screen Start Arcade Button
+    // Title Screen Start Arcade Button (if present)
     const startBtn = document.getElementById('bitmasterStartBtn');
     if (startBtn) {
       startBtn.addEventListener('click', () => {
         playSynthSound('tap');
         showBitmasterScreen('stages');
+      });
+    }
+
+    // Back to Topics Button on Stages Screen
+    const backToTopicsBtn = document.getElementById('bitmasterBackToTopicsBtn');
+    if (backToTopicsBtn) {
+      backToTopicsBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        showBitmasterScreen('title');
+      });
+    }
+
+    // Front Menu Avatar & Stats Click -> Open Rank Progression Ladder
+    const titleHeroChip = document.getElementById('bitmasterTitleHeroChip');
+    const titleStatsPreview = document.getElementById('bitmasterTitleStatsPreview');
+    if (titleHeroChip) {
+      titleHeroChip.addEventListener('click', () => {
+        playSynthSound('tap');
+        showBitmasterRankModal();
+      });
+    }
+    if (titleStatsPreview) {
+      titleStatsPreview.addEventListener('click', () => {
+        playSynthSound('tap');
+        showBitmasterRankModal();
       });
     }
 
@@ -5774,14 +7230,14 @@
 
     if (curAvatar) curAvatar.innerHTML = getBitmasterAvatarHTML(currentRank, 'modal-avatar');
     if (curTitle) curTitle.textContent = currentRank.title;
-    if (curXp) curXp.textContent = `${bitmasterState.xp} XP`;
+    if (curXp) curXp.textContent = `${bitmasterState.xp.toLocaleString()} pts`;
 
     if (nextRank) {
       if (nextBadge) nextBadge.textContent = 'NEXT RANK';
       if (nextAvatar) nextAvatar.innerHTML = getBitmasterAvatarHTML(nextRank, 'modal-avatar');
       if (nextTitle) nextTitle.textContent = nextRank.title;
       const diff = Math.max(0, nextRank.minXp - bitmasterState.xp);
-      if (nextReq) nextReq.textContent = `Need ${diff} more XP`;
+      if (nextReq) nextReq.textContent = `Need ${diff.toLocaleString()} more pts`;
 
       const prevXp = currentRank.minXp;
       const pct = Math.min(100, Math.max(0, Math.round(((bitmasterState.xp - prevXp) / (nextRank.minXp - prevXp)) * 100)));
@@ -5808,7 +7264,7 @@
                 <span>${r.title}</span>
                 ${isCurrent ? '<span class="ladder-current-tag">ACTIVE</span>' : ''}
               </div>
-              <div class="ladder-rank-xp">${r.minXp} XP required</div>
+              <div class="ladder-rank-xp">${r.minXp.toLocaleString()} pts required</div>
             </div>
             <div class="ladder-rank-status">
               ${isUnlocked ? '<span class="status-unlocked-icon">✓</span>' : '<span class="status-locked-icon">🔒</span>'}
@@ -5841,7 +7297,7 @@
     if (avatarEl) avatarEl.innerHTML = getBitmasterAvatarHTML(newRank, 'levelup-avatar');
     if (titleEl) titleEl.textContent = newRank.title;
     if (subEl) subEl.textContent = `Architecture Tier ${newRank.id} of 12`;
-    if (descEl) descEl.textContent = `Outstanding work! You have earned enough Architecture XP to unlock the rank of ${newRank.title}. Keep conquering binary stages!`;
+    if (descEl) descEl.textContent = `Outstanding work! You have earned enough points to unlock the rank of ${newRank.title}. Keep conquering binary stages!`;
 
     modal.style.display = 'flex';
     playSynthSound('levelup');

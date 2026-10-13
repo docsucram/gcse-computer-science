@@ -179,222 +179,231 @@
       <!-- Main 2-Column Workspace -->
       <div class="workspace-grid">
 
-        <!-- Column 1: Drawing Canvas & Palette -->
-        <div class="panel">
+        <!-- Column 1: Drawing Canvas & Palette Studio -->
+        <div class="panel studio-panel">
           <div class="panel-title-bar">
             <div class="panel-title-group">
-              <span class="badge badge-paper1">Canvas</span>
-              <h3 class="panel-title">Pixel Grid Editor</h3>
+              <h3 class="panel-title">Pixel Grid Canvas</h3>
             </div>
-            <div style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">
-              Click &amp; Drag to Paint
+            <div class="canvas-quick-info">
+              <span id="cellCoordIndicator" class="font-mono">Hover over canvas</span>
+              <span class="coord-divider">•</span>
+              <span id="cellColorIndicator" class="font-mono">-</span>
             </div>
           </div>
 
-          <!-- Controls Toolbar -->
-          <div class="toolbar-row">
-            <div class="control-group">
-              <span class="control-label">Grid Size:</span>
-              <select id="gridSizeSelect" class="control-select">
-                <option value="8">8 × 8 (64 px)</option>
-                <option value="16" selected>16 × 16 (256 px)</option>
+          <!-- Paint Studio Top Header: Canvas Size & Presets -->
+          <div class="studio-controls-bar">
+            <!-- Grid Size Switcher -->
+            <div class="studio-control-unit">
+              <span class="control-unit-label">Canvas Size</span>
+              <div class="segmented-control" id="gridSizeSegmented">
+                <button type="button" class="segment-btn" data-grid-val="8">8 × 8</button>
+                <button type="button" class="segment-btn active" data-grid-val="16">16 × 16</button>
+                <button type="button" class="segment-btn" data-grid-val="32">32 × 32</button>
+              </div>
+              <select id="gridSizeSelect" class="sr-only" aria-label="Grid size">
+                <option value="8">8 × 8</option>
+                <option value="16" selected>16 × 16</option>
+                <option value="32">32 × 32</option>
               </select>
             </div>
 
-            <div class="control-group">
-              <span class="control-label">Colour Depth:</span>
-              <div class="btn-group responsive-btn-group" id="depthButtonGroup">
-                <button type="button" class="control-btn depth-btn" data-depth="1" title="1-bit: 2 colours (Monochrome)">1-bit (2 colours)</button>
-                <button type="button" class="control-btn depth-btn" data-depth="2" title="2-bit: 4 colours (Game Boy)">2-bit (4 colours)</button>
-                <button type="button" class="control-btn depth-btn active" data-depth="4" title="4-bit: 16 colours (Classic retro)">4-bit (16 colours)</button>
-                <button type="button" class="control-btn depth-btn" data-depth="8" title="8-bit: 256 colours (VGA)">8-bit (256 colours)</button>
+            <!-- Presets Dropdown & Action Buttons -->
+            <div class="studio-control-unit studio-presets-unit">
+              <span class="control-unit-label">Preset Artwork</span>
+              <select id="presetSelectDropdown" class="paint-preset-select" aria-label="Load preset artwork">
+                <option value="rainbow" selected>🌈 Rainbow</option>
+                <option value="alien">👾 Space Invader</option>
+                <option value="heart">❤️ Pixel Heart</option>
+                <option value="sword">⚔️ Diamond Sword</option>
+                <option value="mushroom">🍄 Mushroom</option>
+                <option value="pizza">🍕 Pizza</option>
+                <option value="cat">🐱 Cat</option>
+              </select>
+              <button id="btnResetSprite" class="control-btn" style="padding: 5px 9px; font-size: 11.5px;" title="Reset to preset original">Reset</button>
+              <button id="btnClearCanvasBtn" class="control-btn" style="padding: 5px 9px; font-size: 11.5px; color: #dc2626; border-color: rgba(220, 38, 38, 0.3);" title="Clear entire grid to background colour">Clear</button>
+            </div>
+          </div>
+
+          <!-- Canvas Workbench Area: Vertical Paint Tools + Center Canvas -->
+          <div class="canvas-stage-layout">
+            <!-- Vertical Tools Dock on Left -->
+            <div class="vertical-tool-dock" role="toolbar" aria-label="Paint tools">
+              <button id="toolPaintBtn" type="button" class="vertical-tool-btn active" title="Pencil / Brush (Click or drag to paint)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 13.5L8.5 4a3.5 3.5 0 0 0-5 5L13 18.5"></path>
+                  <path d="M14 6l4 4"></path>
+                  <path d="M4 20h4l10.5-10.5-4-4L4 16v4z"></path>
+                </svg>
+                <span class="v-tool-label">Pencil</span>
+              </button>
+              <button id="toolLineBtn" type="button" class="vertical-tool-btn" title="Line Tool (Click and drag to draw a straight line)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="5" y1="19" x2="19" y2="5"></line>
+                  <circle cx="5" cy="19" r="1.5" fill="currentColor"></circle>
+                  <circle cx="19" cy="5" r="1.5" fill="currentColor"></circle>
+                </svg>
+                <span class="v-tool-label">Line</span>
+              </button>
+              <button id="toolEraserBtn" type="button" class="vertical-tool-btn" title="Eraser (Reset pixels to background)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 20H7L3 16C2 15 2 13 3 12L13 2L22 11L18 15"></path>
+                  <path d="M18 11L10 19"></path>
+                </svg>
+                <span class="v-tool-label">Eraser</span>
+              </button>
+              <button id="toolFillBtn" type="button" class="vertical-tool-btn" title="Paint Bucket (Flood fill contiguous area)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 11l-8-8-8.5 8.5a2.12 2.12 0 0 0 0 3l5 5a2.12 2.12 0 0 0 3 0L19 11z"></path>
+                  <path d="M5 2l5 5"></path>
+                  <path d="M2 13h15"></path>
+                  <path d="M22 20a2 2 0 1 1-4 0c0-1.6 2-3 2-3s2 1.4 2 3z"></path>
+                </svg>
+                <span class="v-tool-label">Fill</span>
+              </button>
+            </div>
+
+            <!-- Pixel Canvas Container -->
+            <div class="canvas-wrapper">
+              <div id="pixelGrid" class="pixel-grid">
+                <!-- Dynamically populated grid cells -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Palette & Colour Depth Unified Box -->
+          <div class="palette-shelf-unified">
+            <!-- Colour Depth Bar (Placed directly above swatches) -->
+            <div class="depth-bar-row">
+              <span class="control-unit-label">Colour Depth</span>
+              <div class="segmented-control depth-full-segmented" id="depthButtonGroup">
+                <button type="button" class="segment-btn depth-btn" data-depth="1" title="1-bit: 2 colours ($2^1$) Monochrome">
+                  <span class="depth-bpp">1-bit</span>
+                  <span class="depth-count">(2 colours)</span>
+                </button>
+                <button type="button" class="segment-btn depth-btn" data-depth="2" title="2-bit: 4 colours ($2^2$) Game Boy">
+                  <span class="depth-bpp">2-bit</span>
+                  <span class="depth-count">(4 colours)</span>
+                </button>
+                <button type="button" class="segment-btn depth-btn active" data-depth="4" title="4-bit: 16 colours ($2^4$) Classic Arcade">
+                  <span class="depth-bpp">4-bit</span>
+                  <span class="depth-count">(16 colours)</span>
+                </button>
+                <button type="button" class="segment-btn depth-btn" data-depth="8" title="8-bit: 256 colours ($2^8$) VGA">
+                  <span class="depth-bpp">8-bit</span>
+                  <span class="depth-count">(256 colours)</span>
+                </button>
               </div>
             </div>
 
-            <div class="control-group">
-              <span class="control-label">Tool:</span>
-              <button id="toolPaintBtn" class="control-btn active" title="Paint Tool">Paint</button>
-              <button id="toolEraserBtn" class="control-btn" title="Eraser Tool">Erase</button>
-              <button id="toolFillBtn" class="control-btn" title="Fill Grid">Fill</button>
+            <!-- Active Colour Swatches Bar -->
+            <div class="palette-swatches-section">
+              <div class="palette-shelf-header">
+                <span class="control-unit-label">Palette Swatches (<span id="paletteCountLabel">16</span> Available)</span>
+                <span id="activePaletteInfo" class="palette-selected-info font-mono">
+                  Selected: #0000aa (0001) [Blue]
+                </span>
+              </div>
+              <div id="paletteContainer" class="palette-bar">
+                <!-- Dynamically populated via JS -->
+              </div>
             </div>
-          </div>
-
-          <!-- Quick Starter Sprites Bar (Prominent 1-Click Samples) -->
-          <div style="background: var(--bg-surface-elevated); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 10px 12px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 6px;">
-            <div style="display: flex; align-items: center; justify-content: space-between;">
-              <span style="font-size: 11px; font-weight: 800; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
-                Starter Sprites:
-              </span>
-              <span style="font-size: 10.5px; color: var(--text-muted);">(Click any sprite to load into the grid)</span>
-            </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
-              <button class="control-btn preset-btn" data-preset="alien" style="font-weight: 700; background: rgba(59, 130, 246, 0.12); border-color: rgba(59, 130, 246, 0.3);">Space Invader</button>
-              <button class="control-btn preset-btn" data-preset="heart" style="font-weight: 700; background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.3);">Pixel Heart</button>
-              <button class="control-btn preset-btn" data-preset="sword" style="font-weight: 700; background: rgba(6, 182, 212, 0.12); border-color: rgba(6, 182, 212, 0.3);">Diamond Sword</button>
-              <button class="control-btn preset-btn" data-preset="mushroom" style="font-weight: 700; background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.3);">Mushroom</button>
-              <button class="control-btn preset-btn" data-preset="pizza">Pizza</button>
-              <button class="control-btn preset-btn" data-preset="cat">Cat</button>
-              <button class="control-btn preset-btn" data-preset="rainbow">Rainbow</button>
-              <button class="control-btn preset-btn" data-preset="clear" style="color: #ef4444;">Clear</button>
-              <button class="control-btn" id="btnResetSprite" style="font-weight: 700; margin-left: auto;">Reset Sprite</button>
-            </div>
-          </div>
-
-          <!-- Active Colour Palette Bar -->
-          <div style="margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
-            <span class="control-label" style="font-size: 11px;">Active Palette:</span>
-            <span id="activePaletteInfo" style="font-size: 11px; color: var(--accent-soft-text); font-family: var(--font-mono);">
-              Selected: #0000aa (0001)
-            </span>
-          </div>
-          <div id="paletteContainer" class="palette-bar">
-            <!-- Dynamically populated via JS -->
-          </div>
-
-          <!-- Pixel Canvas Container -->
-          <div class="canvas-wrapper">
-            <div id="pixelGrid" class="pixel-grid">
-              <!-- Dynamically populated grid cells -->
-            </div>
-          </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-muted);">
-            <span>Coordinates: <span id="cellCoordIndicator" class="font-mono">Hover over a pixel</span></span>
-            <span id="cellColorIndicator" class="font-mono">-</span>
           </div>
         </div>
 
-        <!-- Column 2: Calculation & Metadata Inspector -->
-        <div class="panel panel-pastel-cool">
+        <!-- Column 2: File Size & Image Calculation Inspector -->
+        <div class="panel inspector-panel">
           <div class="panel-title-bar">
             <div class="panel-title-group">
-              <span class="badge badge-spec">Inspector</span>
-              <h3 class="panel-title">File Size &amp; Metadata</h3>
+              <h3 class="panel-title">Image File Size</h3>
             </div>
-            <span class="badge badge-topic">AQA 8525 §3.3</span>
+            <span class="inspector-quick-total font-mono" id="inspectorHeaderTotal">128 Bytes</span>
           </div>
 
-          <!-- Metrics Badges -->
-          <div class="metrics-grid">
-            <div class="metric-card">
-              <span class="metric-label">Dimensions</span>
-              <span id="metricDimensions" class="metric-value">16 × 16</span>
-              <span id="metricPixels" class="metric-sub">256 pixels</span>
+          <!-- Clean 3-Step Calculation Card -->
+          <div class="calc-card">
+            <div class="calc-card-title">How File Size is Calculated</div>
+            
+            <div class="calc-formula-banner">
+              File Size = Width × Height × Colour Depth
             </div>
 
-            <div class="metric-card">
-              <span class="metric-label">Colour Depth</span>
-              <span id="metricDepth" class="metric-value">4 bits</span>
-              <span id="metricColors" class="metric-sub">16 colours (2⁴)</span>
-            </div>
-
-            <div class="metric-card">
-              <span class="metric-label">Raw Bits (W×H×D)</span>
-              <span id="metricRawBits" class="metric-value">1024</span>
-              <span class="metric-sub">256 px × 4 bpp</span>
-            </div>
-
-            <div class="metric-card">
-              <span class="metric-label">Bytes (Bits ÷ 8)</span>
-              <span id="metricRawBytes" class="metric-value" style="color: #34d399;">128 B</span>
-              <span class="metric-sub">1,024 ÷ 8</span>
-            </div>
-          </div>
-
-          <!-- Dual Conversion Breakdown: Decimal (kB) vs Binary (KiB) -->
-          <div style="background: var(--bg-root); border: 1px solid var(--border-color); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 16px;">
-            <div style="font-size: 11.5px; font-weight: 700; color: var(--accent-soft-text); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
-              <span>Kilobytes (kB) vs Kibibytes (KiB)</span>
-              <span class="badge badge-topic">Both Accepted</span>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;">
-              <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-md); border-left: 3px solid #38bdf8;">
-                <div style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Decimal (SI) • ÷ 1,000</div>
-                <div id="metricKb" style="font-size: 16px; font-weight: 800; font-family: var(--font-mono); color: #38bdf8; margin: 3px 0;">0.128 kB</div>
-                <div style="font-size: 10.5px; color: var(--text-secondary);">1 kB = 1,000 bytes</div>
+            <div class="calc-steps-list">
+              <div class="calc-step-row" id="formulaStep1">
+                <div class="calc-step-badge">1</div>
+                <div class="calc-step-content">
+                  <span class="calc-step-title">Find Total Pixels</span>
+                  <span class="calc-step-math font-mono"><span id="metricDimensions">16 × 16</span> = <strong id="metricPixels">256 pixels</strong></span>
+                </div>
               </div>
 
-              <div style="background: var(--bg-surface-elevated); padding: 10px 12px; border-radius: var(--radius-md); border-left: 3px solid #a855f7;">
-                <div style="font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Binary (IEC) • ÷ 1,024</div>
-                <div id="metricKib" style="font-size: 16px; font-weight: 800; font-family: var(--font-mono); color: #c084fc; margin: 3px 0;">0.125 KiB</div>
-                <div style="font-size: 10.5px; color: var(--text-secondary);">1 KiB = 1,024 bytes</div>
+              <div class="calc-step-row" id="formulaStep2">
+                <div class="calc-step-badge">2</div>
+                <div class="calc-step-content">
+                  <span class="calc-step-title">Multiply by Colour Depth</span>
+                  <span class="calc-step-math font-mono"><span id="metricStep2Pixels">256</span> px × <span id="metricDepth">4 bits</span> = <strong id="metricRawBits">1,024 bits</strong></span>
+                </div>
+              </div>
+
+              <div class="calc-step-row calc-step-final" id="formulaStep3">
+                <div class="calc-step-badge">3</div>
+                <div class="calc-step-content">
+                  <span class="calc-step-title">Convert Bits to Bytes (÷ 8)</span>
+                  <span class="calc-step-math font-mono"><span id="metricStep3Bits">1,024</span> bits ÷ 8 = <strong id="metricRawBytes" class="byte-highlight">128 Bytes</strong></span>
+                </div>
               </div>
             </div>
 
-            <div style="padding: 10px 12px; border-radius: var(--radius-md); background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.25); font-size: 11px; color: #b45309; line-height: 1.5;">
-              ⚠️ <strong>Exam tip:</strong> Show your working clearly. Either divide by 1,000 or by 1,024, but explicitly write down which one you used so the examiner can give you the marks!
+            <!-- KB vs KiB Units -->
+            <div class="calc-units-footer" id="formulaStep4">
+              <div class="calc-unit-pill">
+                <span class="unit-name">Decimal (kB):</span>
+                <span class="unit-val font-mono" id="metricKb">0.128 kB</span>
+                <span class="unit-note">(÷ 1,000)</span>
+              </div>
+              <div class="calc-unit-pill">
+                <span class="unit-name">Binary (KiB):</span>
+                <span class="unit-val font-mono" id="metricKib">0.125 KiB</span>
+                <span class="unit-note">(÷ 1,024)</span>
+              </div>
             </div>
           </div>
 
-          <!-- Step-by-Step Formula Box -->
-          <div class="formula-box">
-            <div class="formula-header">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <line x1="12" y1="16" x2="12" y2="12"></line>
-                <line x1="12" y1="8" x2="12.01" y2="8"></line>
-              </svg>
-              <span>Exam Working:</span>
-            </div>
-
-            <div id="formulaStep1" class="formula-step">
-              1. Pixels = 16 × 16 = <strong>256 pixels</strong>
-            </div>
-            <div id="formulaStep2" class="formula-step">
-              2. Raw Bits = 256 pixels × 4 bits/pixel = <strong>1,024 bits</strong>
-            </div>
-            <div id="formulaStep3" class="formula-step">
-              3. Bytes = 1,024 bits ÷ 8 = <strong>128 Bytes</strong>
-            </div>
-            <div id="formulaStep4" class="formula-step" style="border-left-color: #38bdf8;">
-              4. Size in kB = 128 ÷ 1,000 = <strong>0.128 kB</strong> &nbsp;|&nbsp; in KiB = 128 ÷ 1,024 = <strong>0.125 KiB</strong>
-            </div>
-          </div>
-
-          <!-- Metadata Toggle Switch (AQA Specification) -->
-          <div class="metadata-toggle-card">
-            <div class="toggle-row">
+          <!-- Metadata Toggle (Data about Data) -->
+          <div class="metadata-tray">
+            <div class="metadata-toggle-row">
               <div>
-                <div style="font-weight: 700; font-size: 13px; color: var(--text-primary); margin-bottom: 2px;">
-                  Add Image Metadata (Shipping Label)
-                </div>
-                <div style="font-size: 11.5px; color: var(--text-secondary);">
-                  Data about data: tells the computer the image width, height, and colour depth.
+                <div class="metadata-title">Include Image Metadata (+14 Bytes)</div>
+                <div class="metadata-desc">
+                  Header data: dimensions, colour depth, and resolution.
                 </div>
               </div>
-              <label class="switch">
+              <label class="switch" aria-label="Toggle metadata inclusion">
                 <input type="checkbox" id="metadataToggle">
                 <span class="slider"></span>
               </label>
             </div>
 
             <div id="metadataBreakdown" class="metadata-breakdown">
-              <div style="font-weight: 700; color: var(--accent-soft-text); margin-bottom: 6px;">
-                Image Header Properties:
-              </div>
-              <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+              <div class="meta-chips-wrap">
                 <span class="meta-chip">Width: <strong id="metaWidthVal">16 px</strong></span>
                 <span class="meta-chip">Height: <strong id="metaHeightVal">16 px</strong></span>
-                <span class="meta-chip">Colour Depth: <strong id="metaDepthVal">4 bpp</strong></span>
-                <span class="meta-chip">Resolution: <strong>72 dpi</strong></span>
-                <span class="meta-chip">File Type: <strong>BMP/PNG</strong></span>
-              </div>
-              <div style="margin-top: 10px; font-size: 11px; color: var(--text-secondary); line-height: 1.5;">
-                <strong>Think of metadata as a shipping label:</strong> Without it, the computer just sees a continuous stream of 1s and 0s and wouldn't know when a row ends or which colour belongs where.
+                <span class="meta-chip">Depth: <strong id="metaDepthVal">4 bpp</strong></span>
+                <span class="meta-chip">Format: <strong>BMP</strong></span>
               </div>
             </div>
           </div>
 
-          <!-- Total Final Size Banner -->
-          <div style="padding: 14px 18px; border-radius: var(--radius-lg); background: var(--bg-root); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+          <!-- Total Stored File Size Banner -->
+          <div class="final-size-banner">
             <div>
-              <span style="font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Total Stored File Size</span>
-              <div id="finalTotalDisplay" style="font-size: 22px; font-weight: 900; font-family: var(--font-mono); color: var(--text-primary);">
+              <span class="final-size-label">Total Stored File Size</span>
+              <div id="finalTotalDisplay" class="final-size-value font-mono">
                 128 Bytes (1,024 bits)
               </div>
             </div>
-            <span id="finalUnitBadge" class="badge badge-spec" style="font-size: 11px;">RAW SIZE</span>
+            <span id="finalUnitBadge" class="final-badge">RAW BITMAP</span>
           </div>
 
         </div>

@@ -230,31 +230,30 @@
               <div class="title-stat-divider"></div>
               <div class="title-stat-item">
                 <span class="title-stat-label">Stars Cleared</span>
-                <span class="title-stat-value text-amber" id="bitmasterTitleStarsCount">0 / 132 ⭐</span>
+                <span class="title-stat-value text-amber" id="bitmasterTitleStarsCount">0 / 219 ⭐</span>
               </div>
               <div class="title-stat-divider"></div>
               <div class="title-stat-item">
-                <span class="title-stat-label">Total XP</span>
-                <span class="title-stat-value text-pink" id="bitmasterTitleXpCount">0 XP</span>
+                <span class="title-stat-label">Total Score</span>
+                <span class="title-stat-value text-pink" id="bitmasterTitleXpCount">0 pts</span>
               </div>
             </div>
 
-            <div class="title-action-wrap">
-              <button id="bitmasterStartBtn" class="bitmaster-big-start-btn">
-                <span>START GAME</span>
-              </button>
+            <!-- 6 BIG BOLD TOPIC BUTTONS (Primary Front Menu Arcade Navigation) -->
+            <div class="bitmaster-front-topics-wrap">
+              <div class="front-topics-header">
+                <span class="front-topics-eyebrow">CHOOSE YOUR TRAINING DOMAIN</span>
+                <h3 class="front-topics-title">Select a Topic</h3>
+              </div>
+              <div class="bitmaster-front-topics-grid" id="bitmasterFrontTopicsGrid">
+                <!-- Dynamically populated with 6 big bold topic cards -->
+              </div>
             </div>
           </div>
         </div>
 
         <!-- SCREEN 1: STAGE SELECTION -->
         <div id="bitmasterScreenStages" class="bitmaster-screen">
-          <!-- BitMaster Title Banner above Rank -->
-          <div class="bitmaster-stages-title-bar">
-            <h2 class="bitmaster-stages-title">BitMaster</h2>
-            <span class="bitmaster-stages-subtitle">Choose a stage to begin</span>
-          </div>
-
           <!-- Rank Profile Panel (Clickable to view next rank and reset scores) -->
           <div class="bitmaster-rank-card" id="bitmasterRankCard" title="Click to view rank progression &amp; reset scores">
             <div class="bitmaster-rank-avatar" id="bitmasterAvatarIcon">
@@ -289,12 +288,7 @@
             </div>
           </div>
 
-          <div class="stages-header-banner">
-            <h3>Choose a Training Stage</h3>
-            <p>Master all 11 stages to achieve the rank of Grand BitMaster</p>
-          </div>
-
-          <!-- Stages Grid -->
+          <!-- Stages Grid (Renders ONLY the stages for the selected topic) -->
           <div class="bitmaster-stages-grid" id="bitmasterStagesGrid">
             <!-- Rendered by BitMaster engine -->
           </div>
@@ -308,11 +302,27 @@
             <p id="bitmasterStageHeaderDesc">4-Bit Binary &amp; Denary Mastery (0–15)</p>
           </div>
 
+          <!-- Mode Switcher: 10 Questions vs 60s Speed Sprint -->
+          <div class="bitmaster-mode-selector-wrap">
+            <div class="bitmaster-mode-toggle-group" role="tablist" aria-label="Game Mode">
+              <button type="button" class="bitmaster-mode-pill active" id="bitmasterModeBtn10Q" data-mode="10q" role="tab" aria-selected="true">
+                <span class="mode-pill-icon">🎯</span>
+                <span class="mode-pill-title">10 Questions</span>
+                <span class="mode-pill-badge">Precision</span>
+              </button>
+              <button type="button" class="bitmaster-mode-pill" id="bitmasterModeBtnSprint" data-mode="sprint" role="tab" aria-selected="false">
+                <span class="mode-pill-icon">⚡</span>
+                <span class="mode-pill-title">60s Speed Sprint</span>
+                <span class="mode-pill-badge">High Score</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Compact Star Rating Info Trigger Button -->
           <div class="bitmaster-criteria-trigger-row">
             <button type="button" class="bitmaster-criteria-btn" id="bitmasterStarCriteriaBtn">
               <span>⭐</span>
-              <span>How to Earn High Star Ratings</span>
+              <span>How Scoring, Stars &amp; Medals Work</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             </button>
           </div>
@@ -337,7 +347,7 @@
           </div>
 
           <!-- Challenge Question Card -->
-          <div class="bitmaster-challenge-card">
+          <div class="bitmaster-challenge-card" id="bitmasterChallengeCard">
             <div class="challenge-prompt" id="bitmasterPromptLabel">Convert Binary to Denary:</div>
             <div class="challenge-display" id="bitmasterMainDisplay">0 1 0 1</div>
             <div class="challenge-hint" id="bitmasterHintSubtext">4-bit value</div>
@@ -356,11 +366,16 @@
 
           <!-- Interaction Zone B: Bit Switches -->
           <div id="bitmasterSwitchboardZone" class="bitmaster-switchboard-zone" style="display: none;">
+            <!-- Optional Reference Bits Row for Two's Complement Inversion & Negation -->
+            <div id="bitmasterSwitchReferenceRow" class="switch-reference-row" style="display: none;">
+              <span class="switch-ref-label" id="bitmasterSwitchRefLabel">Positive Bits:</span>
+              <div id="bitmasterSwitchRefBits" class="switch-ref-bits-flex"></div>
+            </div>
             <div id="bitmasterSwitchBitsContainer" class="switch-bits-flex">
               <!-- Switch buttons -->
             </div>
             <div class="switchboard-footer">
-              <div class="switchboard-sum">
+              <div class="switchboard-sum" id="bitmasterSwitchSumWrap">
                 Current Total: <strong id="bitmasterCurrentSwitchSum">0</strong>
               </div>
               <button id="bitmasterSubmitSwitchBtn" class="control-btn control-btn-primary">
@@ -400,12 +415,13 @@
 
           <!-- Interaction Zone E: Hex to Binary with Hex Digits above Flippable Nibbles -->
           <div id="bitmasterHexNibblesZone" class="bitmaster-hex-nibbles-zone" style="display: none;">
+            <div id="bitmasterHexHeading" class="hex-zone-heading">Convert the Following Hex Digit to Binary</div>
             <div id="bitmasterHexNibblesContainer" class="hex-nibbles-container">
               <!-- Dynamically rendered 1 or 2 nibble cards with Hex digit above each -->
             </div>
             <div class="hex-nibbles-footer">
-              <div class="hex-assembled-binary">
-                Assembled Binary: <strong id="bitmasterHexAssembledBin">0000</strong>
+              <div class="hex-assembled-binary" id="bitmasterHexCurrentValWrap">
+                <span id="bitmasterHexValLabel">Current Value:</span> <strong id="bitmasterHexAssembledBin">0x0</strong>
               </div>
               <button id="bitmasterSubmitHexNibblesBtn" class="control-btn control-btn-primary">
                 Submit Binary &rarr;
@@ -426,8 +442,8 @@
 
             <div class="victory-stats-grid">
               <div class="stat-card">
-                <div class="stat-label">XP Gained</div>
-                <div class="stat-value text-green" id="bitmasterVictoryXp">+150 XP</div>
+                <div class="stat-label">Score</div>
+                <div class="stat-value text-green" id="bitmasterVictoryXp">0 pts</div>
               </div>
               <div class="stat-card">
                 <div class="stat-label">Accuracy</div>
@@ -436,6 +452,10 @@
               <div class="stat-card">
                 <div class="stat-label">Mistakes</div>
                 <div class="stat-value text-amber" id="bitmasterVictoryMistakes">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Time</div>
+                <div class="stat-value text-cyan" id="bitmasterVictoryTime">0s</div>
               </div>
             </div>
 

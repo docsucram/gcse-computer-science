@@ -286,14 +286,17 @@
   // =========================================================================
 
   let state = {
-    gridSize: 16, // 8 or 16
+    gridSize: 16, // 8, 16, or 32
     colourDepth: 4, // 1, 2, 4, 8
     selectedColorIndex: 1, // index in current palette
-    activeTool: 'paint', // 'paint' | 'eraser' | 'fill'
+    activeTool: 'paint', // 'paint' | 'line' | 'eraser' | 'fill'
     includeMetadata: false,
     gridData: [], // 1D array of palette indices in active palette
     masterPixels: [], // 1D array of { r, g, b, hex, isUserModified } for non-destructive reversible depth conversion!
     isMouseDown: false,
+    lineStart: null, // { x, y, index }
+    lineCurrentEnd: null, // { x, y }
+    linePreviewIndices: [],
   };
 
   // Sound Sampling State (AQA §3.3.4)
@@ -339,8 +342,10 @@
 
   // Initialize default grid data
   function initGridData() {
+    const presetSelectDropdown = document.getElementById('presetSelectDropdown');
+    const currentPreset = (presetSelectDropdown && presetSelectDropdown.value) || 'rainbow';
     state.gridData = new Array(state.gridSize * state.gridSize).fill(0);
-    applyPreset('rainbow');
+    applyPreset(currentPreset);
   }
 
   // =========================================================================
@@ -361,6 +366,7 @@
     gridSizeSelect: document.getElementById('gridSizeSelect'),
     depthButtons: document.querySelectorAll('.depth-btn'),
     toolPaintBtn: document.getElementById('toolPaintBtn'),
+    toolLineBtn: document.getElementById('toolLineBtn'),
     toolEraserBtn: document.getElementById('toolEraserBtn'),
     toolFillBtn: document.getElementById('toolFillBtn'),
     presetButtons: document.querySelectorAll('.preset-btn'),
@@ -569,65 +575,29 @@
       DOM.paletteContainer.style.alignItems = 'center';
       DOM.paletteContainer.style.justifyContent = 'flex-start';
       DOM.paletteContainer.style.gap = '8px';
+      DOM.paletteContainer.style.maxHeight = 'none';
+      DOM.paletteContainer.style.overflowY = 'visible';
 
       palette.forEach((color, idx) => {
         const swatch = createSwatchElement(color, idx);
         DOM.paletteContainer.appendChild(swatch);
       });
     } else {
-      // 8-bit mode (256 colours): standard 16 basic colours row + scrollable 256 spectrum
-      DOM.paletteContainer.style.display = 'flex';
-      DOM.paletteContainer.style.flexDirection = 'column';
-      DOM.paletteContainer.style.alignItems = 'stretch';
-      DOM.paletteContainer.style.gap = '8px';
+      // 8-bit mode: single unified 256-colour grid
+      DOM.paletteContainer.style.display = 'grid';
+      DOM.paletteContainer.style.gridTemplateColumns = 'repeat(auto-fill, minmax(24px, 1fr))';
+      DOM.paletteContainer.style.gap = '3px';
+      DOM.paletteContainer.style.maxHeight = '140px';
+      DOM.paletteContainer.style.overflowY = 'auto';
+      DOM.paletteContainer.style.padding = '6px';
+      DOM.paletteContainer.style.background = 'var(--paper-recessed, #f8fafc)';
+      DOM.paletteContainer.style.borderRadius = 'var(--radius-sm, 4px)';
+      DOM.paletteContainer.style.border = '1px solid var(--paper-border, #e2e8f0)';
 
-      const primaryHeader = document.createElement('div');
-      primaryHeader.style.display = 'flex';
-      primaryHeader.style.justifyContent = 'space-between';
-      primaryHeader.style.alignItems = 'center';
-      primaryHeader.innerHTML = `
-        <span style="font-size: 11px; font-weight: 700; color: var(--text-primary);">Standard 16 Colours (Indices 0–15):</span>
-        <span style="font-size: 10px; color: var(--text-muted);">Exact match with 4-bit mode</span>
-      `;
-      DOM.paletteContainer.appendChild(primaryHeader);
-
-      const primaryRow = document.createElement('div');
-      primaryRow.style.display = 'flex';
-      primaryRow.style.flexWrap = 'wrap';
-      primaryRow.style.gap = '6px';
-      for (let i = 0; i < 16; i++) {
-        primaryRow.appendChild(createSwatchElement(palette[i], i));
-      }
-      DOM.paletteContainer.appendChild(primaryRow);
-
-      const fullHeader = document.createElement('div');
-      fullHeader.style.display = 'flex';
-      fullHeader.style.justifyContent = 'space-between';
-      fullHeader.style.alignItems = 'center';
-      fullHeader.style.marginTop = '4px';
-      fullHeader.innerHTML = `
-        <span style="font-size: 11px; font-weight: 700; color: var(--text-primary);">Full 256-Colour Palette (Scroll or click any colour):</span>
-        <span style="font-size: 10px; color: var(--text-muted);">256 total shades</span>
-      `;
-      DOM.paletteContainer.appendChild(fullHeader);
-
-      const scrollGrid = document.createElement('div');
-      scrollGrid.id = 'full256PaletteGrid';
-      scrollGrid.style.display = 'grid';
-      scrollGrid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(24px, 1fr))';
-      scrollGrid.style.gap = '3px';
-      scrollGrid.style.maxHeight = '110px';
-      scrollGrid.style.overflowY = 'auto';
-      scrollGrid.style.padding = '6px';
-      scrollGrid.style.background = 'var(--bg-surface-elevated)';
-      scrollGrid.style.borderRadius = 'var(--radius-md)';
-      scrollGrid.style.border = '1px solid var(--border-color)';
-
-      for (let i = 16; i < 256; i++) {
-        const miniSwatch = createSwatchElement(palette[i], i, true);
-        scrollGrid.appendChild(miniSwatch);
-      }
-      DOM.paletteContainer.appendChild(scrollGrid);
+      palette.forEach((color, idx) => {
+        const swatch = createSwatchElement(color, idx, true);
+        DOM.paletteContainer.appendChild(swatch);
+      });
     }
 
     updatePaletteInfoText();
@@ -656,7 +626,10 @@
       document.querySelectorAll('.palette-swatch').forEach(s => s.classList.remove('active'));
       swatch.classList.add('active');
       state.selectedColorIndex = idx;
-      state.activeTool = 'paint';
+      if (state.activeTool === 'eraser') {
+        state.activeTool = 'paint';
+      }
+      clearLinePreview();
       updateToolButtons();
       updatePaletteInfoText();
     });
@@ -675,7 +648,11 @@
     DOM.pixelGrid.style.gridTemplateColumns = `repeat(${state.gridSize}, 1fr)`;
 
     const isMobile = window.innerWidth <= 640;
-    const cellSize = state.gridSize === 8 ? (isMobile ? '28px' : '36px') : (isMobile ? '16px' : '22px');
+    const cellSize = state.gridSize === 8 
+      ? (isMobile ? '28px' : '44px') 
+      : state.gridSize === 16 
+        ? (isMobile ? '16px' : '26px')
+        : (isMobile ? '8px' : '13px');
     const totalCells = state.gridSize * state.gridSize;
 
     for (let i = 0; i < totalCells; i++) {
@@ -693,7 +670,15 @@
       cell.addEventListener('mousedown', (e) => {
         e.preventDefault();
         state.isMouseDown = true;
-        applyTool(i);
+        if (state.activeTool === 'line') {
+          const row = Math.floor(i / state.gridSize);
+          const col = i % state.gridSize;
+          state.lineStart = { x: col, y: row, index: i };
+          state.lineCurrentEnd = { x: col, y: row };
+          updateLinePreview();
+        } else {
+          applyTool(i);
+        }
       });
 
       cell.addEventListener('mouseenter', () => {
@@ -705,31 +690,120 @@
         DOM.cellColorIndicator.textContent = `${c.name} (${c.bin}) [Index ${state.gridData[i]}]`;
 
         if (state.isMouseDown) {
-          applyTool(i);
-        }
-
-        highlightStreamByteForCell(i);
-
-        // Highlight matching RLE run
-        if (state.rleRuns) {
-          const runIdx = state.rleRuns.findIndex(r => i >= r.start && i <= r.end);
-          if (runIdx !== -1) {
-            highlightRleRun(runIdx, false);
+          if (state.activeTool === 'line' && state.lineStart) {
+            state.lineCurrentEnd = { x: col, y: row };
+            updateLinePreview();
+          } else if (state.activeTool !== 'line') {
+            applyTool(i);
           }
         }
+
+        // Highlight matching byte in raw stream for this single pixel
+        highlightStreamByteForCell(i);
       });
 
       cell.addEventListener('mouseleave', () => {
         clearStreamByteHighlights();
-        clearRleRunHighlights();
       });
 
       DOM.pixelGrid.appendChild(cell);
     }
   }
 
-  // Global mouse up for smooth dragging
+  // Bresenham's Discrete Line Algorithm (Computer Graphics Standard)
+  function getBresenhamLine(x0, y0, x1, y1) {
+    const points = [];
+    const dx = Math.abs(x1 - x0);
+    const dy = Math.abs(y1 - y0);
+    const sx = (x0 < x1) ? 1 : -1;
+    const sy = (y0 < y1) ? 1 : -1;
+    let err = dx - dy;
+
+    let x = x0;
+    let y = y0;
+
+    while (true) {
+      points.push({ x, y });
+      if (x === x1 && y === y1) break;
+      const e2 = 2 * err;
+      if (e2 > -dy) {
+        err -= dy;
+        x += sx;
+      }
+      if (e2 < dx) {
+        err += dx;
+        y += sy;
+      }
+    }
+    return points;
+  }
+
+  function clearLinePreview() {
+    if (state.linePreviewIndices && state.linePreviewIndices.length) {
+      state.linePreviewIndices.forEach(idx => {
+        updateCellVisual(idx);
+        const cell = DOM.pixelGrid.children[idx];
+        if (cell) cell.classList.remove('line-preview');
+      });
+      state.linePreviewIndices = [];
+    }
+  }
+
+  function updateLinePreview() {
+    clearLinePreview();
+    if (!state.lineStart || !state.lineCurrentEnd) return;
+    const points = getBresenhamLine(
+      state.lineStart.x,
+      state.lineStart.y,
+      state.lineCurrentEnd.x,
+      state.lineCurrentEnd.y
+    );
+    const curPal = PALETTES[state.colourDepth];
+    const previewColor = curPal[state.selectedColorIndex] || curPal[0];
+
+    points.forEach(pt => {
+      if (pt.x >= 0 && pt.x < state.gridSize && pt.y >= 0 && pt.y < state.gridSize) {
+        const idx = pt.y * state.gridSize + pt.x;
+        state.linePreviewIndices.push(idx);
+        const cell = DOM.pixelGrid.children[idx];
+        if (cell) {
+          cell.style.backgroundColor = previewColor.hex;
+          cell.classList.add('line-preview');
+        }
+      }
+    });
+  }
+
+  // Global mouse up for smooth dragging & line tool commit
   window.addEventListener('mouseup', () => {
+    if (state.isMouseDown && state.activeTool === 'line' && state.lineStart) {
+      const endX = state.lineCurrentEnd ? state.lineCurrentEnd.x : state.lineStart.x;
+      const endY = state.lineCurrentEnd ? state.lineCurrentEnd.y : state.lineStart.y;
+      clearLinePreview();
+
+      const points = getBresenhamLine(state.lineStart.x, state.lineStart.y, endX, endY);
+      const curPal = PALETTES[state.colourDepth];
+      const chosenColor = curPal[state.selectedColorIndex] || curPal[0];
+      const rgb = hexToRgb(chosenColor.hex);
+
+      points.forEach(pt => {
+        if (pt.x >= 0 && pt.x < state.gridSize && pt.y >= 0 && pt.y < state.gridSize) {
+          const idx = pt.y * state.gridSize + pt.x;
+          state.gridData[idx] = state.selectedColorIndex;
+          if (!state.masterPixels[idx]) state.masterPixels[idx] = {};
+          state.masterPixels[idx].r = rgb.r;
+          state.masterPixels[idx].g = rgb.g;
+          state.masterPixels[idx].b = rgb.b;
+          state.masterPixels[idx].hex = chosenColor.hex;
+          state.masterPixels[idx].isUserModified = true;
+          updateCellVisual(idx);
+        }
+      });
+
+      state.lineStart = null;
+      state.lineCurrentEnd = null;
+      updateCalculationsAndStreams();
+    }
     state.isMouseDown = false;
   });
 
@@ -825,8 +899,8 @@
 
       for (let r = 0; r < state.gridSize; r++) {
         for (let c = 0; c < state.gridSize; c++) {
-          const srcR = state.gridSize === 8 ? r * 2 : r;
-          const srcC = state.gridSize === 8 ? c * 2 : c;
+          const srcR = state.gridSize === 8 ? r * 2 : state.gridSize === 32 ? Math.floor(r / 2) : r;
+          const srcC = state.gridSize === 8 ? c * 2 : state.gridSize === 32 ? Math.floor(c / 2) : c;
           const srcIdx = srcR * 16 + srcC;
           const targetIdx = r * state.gridSize + c;
           const hexCol = srcList[srcIdx] || '#000000';
@@ -886,9 +960,10 @@
   }
 
   function updateToolButtons() {
-    DOM.toolPaintBtn.classList.toggle('active', state.activeTool === 'paint');
-    DOM.toolEraserBtn.classList.toggle('active', state.activeTool === 'eraser');
-    DOM.toolFillBtn.classList.toggle('active', state.activeTool === 'fill');
+    if (DOM.toolPaintBtn) DOM.toolPaintBtn.classList.toggle('active', state.activeTool === 'paint');
+    if (DOM.toolLineBtn) DOM.toolLineBtn.classList.toggle('active', state.activeTool === 'line');
+    if (DOM.toolEraserBtn) DOM.toolEraserBtn.classList.toggle('active', state.activeTool === 'eraser');
+    if (DOM.toolFillBtn) DOM.toolFillBtn.classList.toggle('active', state.activeTool === 'fill');
   }
 
   // =========================================================================
@@ -903,27 +978,38 @@
     const maxColors = Math.pow(2, D);
 
     const rawBits = pixels * D;
-    const metadataBits = state.includeMetadata ? 32 : 0;
+    const metadataBits = state.includeMetadata ? 112 : 0; // 14 bytes = 112 bits
     const totalBits = rawBits + metadataBits;
     const rawBytes = Math.ceil(totalBits / 8);
     const kb = (rawBytes / 1000).toFixed(3);
     const kib = (rawBytes / 1024).toFixed(3);
 
-    DOM.metricDimensions.textContent = `${W} × ${H}`;
-    DOM.metricPixels.textContent = `${pixels} pixels`;
-    DOM.metricDepth.textContent = `${D} bits`;
-    DOM.metricColors.textContent = `${maxColors} colours (2^${D})`;
-    DOM.metricRawBits.textContent = totalBits;
-    DOM.metricRawBytes.textContent = `${rawBytes} B`;
-    DOM.metricKb.textContent = `${kb} kB`;
-    DOM.metricKib.textContent = `${kib} KiB`;
+    if (DOM.metricDimensions) DOM.metricDimensions.textContent = `${W} × ${H}`;
+    if (DOM.metricPixels) DOM.metricPixels.textContent = `${pixels.toLocaleString()} pixels`;
+    if (DOM.metricDepth) DOM.metricDepth.textContent = `${D} bits (${maxColors} colours)`;
+    if (DOM.metricColors) DOM.metricColors.textContent = `${maxColors} colours (2^${D})`;
+    if (DOM.metricRawBits) DOM.metricRawBits.textContent = `${rawBits.toLocaleString()} bits`;
+    if (DOM.metricRawBytes) DOM.metricRawBytes.textContent = `${rawBytes.toLocaleString()} Bytes`;
+    if (DOM.metricKb) DOM.metricKb.textContent = `${kb} kB`;
+    if (DOM.metricKib) DOM.metricKib.textContent = `${kib} KiB`;
 
-    DOM.formulaStep1.textContent = `${W} × ${H} = ${pixels} pixels`;
-    DOM.formulaStep2.textContent = `${pixels} × ${D} = ${rawBits} raw bits`;
-    DOM.formulaStep3.textContent = state.includeMetadata ? `${rawBits} + 32 (metadata) = ${totalBits} bits` : `${totalBits} bits (no metadata)`;
-    DOM.formulaStep4.textContent = `${totalBits} ÷ 8 = ${rawBytes} Bytes`;
+    const metricStep2Pixels = document.getElementById('metricStep2Pixels');
+    if (metricStep2Pixels) metricStep2Pixels.textContent = pixels.toLocaleString();
+    const metricStep3Bits = document.getElementById('metricStep3Bits');
+    if (metricStep3Bits) metricStep3Bits.textContent = rawBits.toLocaleString();
 
-    DOM.finalTotalDisplay.textContent = `${rawBytes} Bytes (${totalBits} bits)`;
+    const inspectorHeaderTotal = document.getElementById('inspectorHeaderTotal');
+    if (inspectorHeaderTotal) inspectorHeaderTotal.textContent = `${rawBytes.toLocaleString()} Bytes`;
+
+    if (DOM.finalTotalDisplay) {
+      DOM.finalTotalDisplay.textContent = state.includeMetadata
+        ? `${rawBytes.toLocaleString()} Bytes (${rawBits.toLocaleString()} raw + 14B metadata)`
+        : `${rawBytes.toLocaleString()} Bytes (${totalBits.toLocaleString()} bits)`;
+    }
+
+    if (DOM.finalUnitBadge) {
+      DOM.finalUnitBadge.textContent = state.includeMetadata ? 'WITH METADATA' : 'RAW BITMAP';
+    }
 
     renderBinaryStream();
     renderRleStream();
@@ -2882,10 +2968,28 @@
   // =========================================================================
 
   function setupEventListeners() {
-    // Grid Size Select
+    // Segmented Grid Size Control & Select
+    const gridSegmentBtns = document.querySelectorAll('#gridSizeSegmented .segment-btn');
+    if (gridSegmentBtns.length) {
+      gridSegmentBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = parseInt(btn.getAttribute('data-grid-val'), 10);
+          gridSegmentBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          if (DOM.gridSizeSelect) DOM.gridSizeSelect.value = String(val);
+          state.gridSize = val;
+          initGridData();
+        });
+      });
+    }
+
+    // Grid Size Select (fallback)
     if (DOM.gridSizeSelect) {
       DOM.gridSizeSelect.addEventListener('change', (e) => {
         state.gridSize = parseInt(e.target.value, 10);
+        gridSegmentBtns.forEach(b => {
+          b.classList.toggle('active', parseInt(b.getAttribute('data-grid-val'), 10) === state.gridSize);
+        });
         initGridData();
       });
     }
@@ -2904,27 +3008,45 @@
     if (DOM.toolPaintBtn) {
       DOM.toolPaintBtn.addEventListener('click', () => {
         state.activeTool = 'paint';
+        clearLinePreview();
+        updateToolButtons();
+      });
+    }
+    if (DOM.toolLineBtn) {
+      DOM.toolLineBtn.addEventListener('click', () => {
+        state.activeTool = 'line';
         updateToolButtons();
       });
     }
     if (DOM.toolEraserBtn) {
       DOM.toolEraserBtn.addEventListener('click', () => {
         state.activeTool = 'eraser';
+        clearLinePreview();
         updateToolButtons();
       });
     }
     if (DOM.toolFillBtn) {
       DOM.toolFillBtn.addEventListener('click', () => {
         state.activeTool = 'fill';
+        clearLinePreview();
         updateToolButtons();
       });
     }
 
-    // Preset Buttons
+    // Preset Dropdown & Action Buttons
+    const presetSelectDropdown = document.getElementById('presetSelectDropdown');
+    if (presetSelectDropdown) {
+      presetSelectDropdown.addEventListener('change', (e) => {
+        applyPreset(e.target.value);
+      });
+    }
+
+    // Preset Buttons (if present)
     if (DOM.presetButtons) {
       DOM.presetButtons.forEach(btn => {
         btn.addEventListener('click', () => {
           const presetName = btn.getAttribute('data-preset');
+          if (presetSelectDropdown) presetSelectDropdown.value = presetName;
           applyPreset(presetName);
         });
       });
@@ -2933,7 +3055,16 @@
     // Reset Sprite Button
     if (DOM.btnResetSprite) {
       DOM.btnResetSprite.addEventListener('click', () => {
-        applyPreset('rainbow');
+        const currentPreset = presetSelectDropdown ? presetSelectDropdown.value : 'rainbow';
+        applyPreset(currentPreset || 'rainbow');
+      });
+    }
+
+    // Clear Canvas Button
+    const btnClearCanvas = document.getElementById('btnClearCanvasBtn');
+    if (btnClearCanvas) {
+      btnClearCanvas.addEventListener('click', () => {
+        applyPreset('clear');
       });
     }
 

@@ -181,19 +181,22 @@ Clear legibility is non-negotiable for students revising on varied screens (smar
 
 ## 10. Development Roadmap & Future Edutainment Sims
 
-The following high-impact sim ideas are scheduled to address syllabus gaps:
-
-1. **Interactive Logic Gate Breadboard (§3.4.3) — [In Active Development]**:
+### Completed Modules & Recent Upgrades:
+1. **Interactive Logic Gate Breadboard (§3.4.3) — [Completed & Live]**:
    - Virtual breadboard to wire AND, OR, NOT, XOR gates with switches and glowing LEDs.
    - Live auto-evaluating truth tables highlighting active input combinations.
    - Challenge/puzzle mode with real GCSE scenarios (smart greenhouse, bank vault alarm, half adder).
-2. **Cyber Security "Red Team / Blue Team" Sandbox (§3.6)**:
+2. **Web Audio Synthesizer & Sampling Studio (§3.3.4) — [Completed & Live in Media Representation]**:
+   - Interactive waveform sampler & melody synthesizer with animated playhead.
+   - Voice & Microphone Degradation Lab featuring real ADC decimation (44.1 kHz down to 2.5 kHz) and bit depth crush (16-bit down to 1-bit binary fuzz).
+   - Live file-size calculations and exam ear-training perception tips.
+
+### Upcoming Roadmap Sims:
+1. **Cyber Security "Red Team / Blue Team" Sandbox (§3.6)**:
    - Interactive attack-defense terminal covering social engineering/phishing email inspection, brute-force vs dictionary cracking times, and unencrypted HTTP packet sniffing vs HTTPS TLS.
-3. **Flowchart Execution Engine & Gamified Maze (§3.1 & §3.2)**:
+2. **Flowchart Execution Engine & Gamified Maze (§3.1 & §3.2)**:
    - Visual flowchart builder following strict AQA standard shapes (Terminators, Processes, Decision rhombuses, I/O parallelograms).
    - Autonomous rover navigating a maze with glowing execution tokens and live variable trace tables.
-4. **Web Audio Synthesizer & Sampling Studio (Upgrade for §3.3.2)**:
-   - Interactive oscilloscope with real Web Audio API playback letting students hear sample rate changes (8 kHz vs 44.1 kHz) and bit depth crush (4-bit vs 16-bit).
-5. **Forensic Debugger / Bug Bounty Game for Trace Tables (§3.2)**:
+3. **Forensic Debugger / Bug Bounty Game for Trace Tables (§3.2)**:
    - Algorithm crime scenes where students diagnose off-by-one errors and rogue variables using interactive trace tables before catastrophic simulation failures.
 

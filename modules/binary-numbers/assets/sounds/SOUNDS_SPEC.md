@@ -17,6 +17,7 @@ BitMaster's audio profile follows a **modern arcade sci-fi / cyberpunk** aesthet
 
 | Filename | In-Game Trigger Event | Audio Description / Mood | Target Duration |
 |:---|:---|:---|:---:|
+| `menu_nav.ogg` | General menu navigation, topic selection, back buttons, modal triggers | Clean subtle interface tap, soft futuristic click | ~30–60 ms |
 | `bit_toggle.ogg` | Flipping an individual bit toggle (0 to 1 or 1 to 0), typing a hex keypad digit | High-tactile mechanical switch, clean micro-click, subtle clicky relay | ~40–80 ms |
 | `answer_correct.ogg` | Submitting a correct answer in practice / level | Bright, buoyant chime or glass ping (major chord, uplifting) | ~200–350 ms |
 | `answer_wrong.ogg` | Submitting an incorrect answer | Soft muted rubber thud / low double-pip; non-punishing, encouraging retry | ~150–250 ms |
@@ -29,6 +30,7 @@ BitMaster's audio profile follows a **modern arcade sci-fi / cyberpunk** aesthet
 ### Expected Folder Structure
 ```text
 modules/binary-numbers/assets/sounds/
+├── menu_nav.ogg
 ├── bit_toggle.ogg
 ├── answer_correct.ogg
 ├── answer_wrong.ogg
