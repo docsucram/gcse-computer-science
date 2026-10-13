@@ -2975,6 +2975,22 @@ html.dark .converter-preset-btn:hover,
 }
 
 /* Stage Selection Grid */
+.bitmaster-stages-topic-header {
+  text-align: center;
+  margin: 18px 0 16px 0;
+}
+
+.stages-topic-title {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin: 0;
+  font-family: var(--font-sans);
+  text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+}
+
 .stages-header-banner {
   text-align: center;
   margin-bottom: 18px;
@@ -3113,6 +3129,49 @@ html.dark .converter-preset-btn:hover,
   .bitmaster-stages-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Bottom Navigation Row for Stages and Levels Screens */
+.bitmaster-screen-bottom-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 22px 0 14px 0;
+  width: 100%;
+}
+
+.bitmaster-bottom-back-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+  padding: 12px 20px;
+  border-radius: 14px;
+  background: #151d2e;
+  border: 2px solid #2d3c54;
+  color: #cbd5e1;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #090e18;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.bitmaster-bottom-back-btn:hover {
+  background: #1e293b;
+  border-color: #38bdf8;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #090e18, 0 0 16px rgba(56, 189, 248, 0.25);
+}
+
+.bitmaster-bottom-back-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #090e18;
 }
 
 /* Chunky Bevelled Stage Cards */

@@ -901,19 +901,19 @@
     return audioCtx;
   }
 
-  // Progressive Audio Manager: Plays real .ogg assets if available (e.g. menu_nav.ogg, bit_toggle.ogg),
+  // Progressive Audio Manager: Plays real .ogg or .mp3 assets if available (e.g. menu_nav.ogg, bit_toggle.ogg, answer_correct.mp3),
   // with instant fallback to Web Audio procedural synthesis oscillators.
   const SOUND_FILE_MAP = {
-    tap: ['assets/sounds/menu_nav.ogg', 'modules/binary-numbers/assets/sounds/menu_nav.ogg'],
-    click: ['assets/sounds/menu_nav.ogg', 'modules/binary-numbers/assets/sounds/menu_nav.ogg'],
-    switch: ['assets/sounds/bit_toggle.ogg', 'modules/binary-numbers/assets/sounds/bit_toggle.ogg'],
-    correct: ['assets/sounds/answer_correct.ogg', 'modules/binary-numbers/assets/sounds/answer_correct.ogg'],
-    success: ['assets/sounds/answer_correct.ogg', 'modules/binary-numbers/assets/sounds/answer_correct.ogg'],
-    wrong: ['assets/sounds/answer_wrong.ogg', 'modules/binary-numbers/assets/sounds/answer_wrong.ogg'],
-    star: ['assets/sounds/star_pop.ogg', 'modules/binary-numbers/assets/sounds/star_pop.ogg'],
-    victory: ['assets/sounds/victory_fanfare.ogg', 'modules/binary-numbers/assets/sounds/victory_fanfare.ogg'],
-    perfect10: ['assets/sounds/victory_fanfare.ogg', 'modules/binary-numbers/assets/sounds/victory_fanfare.ogg'],
-    levelup: ['assets/sounds/rank_levelup.ogg', 'modules/binary-numbers/assets/sounds/rank_levelup.ogg']
+    tap: ['assets/sounds/menu_nav.ogg', 'modules/binary-numbers/assets/sounds/menu_nav.ogg', 'assets/sounds/menu_nav.mp3', 'modules/binary-numbers/assets/sounds/menu_nav.mp3'],
+    click: ['assets/sounds/menu_nav.ogg', 'modules/binary-numbers/assets/sounds/menu_nav.ogg', 'assets/sounds/menu_nav.mp3', 'modules/binary-numbers/assets/sounds/menu_nav.mp3'],
+    switch: ['assets/sounds/bit_toggle.ogg', 'modules/binary-numbers/assets/sounds/bit_toggle.ogg', 'assets/sounds/bit_toggle.mp3', 'modules/binary-numbers/assets/sounds/bit_toggle.mp3'],
+    correct: ['assets/sounds/answer_correct.ogg', 'modules/binary-numbers/assets/sounds/answer_correct.ogg', 'assets/sounds/answer_correct.mp3', 'modules/binary-numbers/assets/sounds/answer_correct.mp3'],
+    success: ['assets/sounds/answer_correct.ogg', 'modules/binary-numbers/assets/sounds/answer_correct.ogg', 'assets/sounds/answer_correct.mp3', 'modules/binary-numbers/assets/sounds/answer_correct.mp3'],
+    wrong: ['assets/sounds/answer_wrong.ogg', 'modules/binary-numbers/assets/sounds/answer_wrong.ogg', 'assets/sounds/answer_wrong.mp3', 'modules/binary-numbers/assets/sounds/answer_wrong.mp3'],
+    star: ['assets/sounds/star_pop.ogg', 'modules/binary-numbers/assets/sounds/star_pop.ogg', 'assets/sounds/star_pop.mp3', 'modules/binary-numbers/assets/sounds/star_pop.mp3'],
+    victory: ['assets/sounds/victory_fanfare.ogg', 'modules/binary-numbers/assets/sounds/victory_fanfare.ogg', 'assets/sounds/victory_fanfare.mp3', 'modules/binary-numbers/assets/sounds/victory_fanfare.mp3'],
+    perfect10: ['assets/sounds/victory_fanfare.ogg', 'modules/binary-numbers/assets/sounds/victory_fanfare.ogg', 'assets/sounds/victory_fanfare.mp3', 'modules/binary-numbers/assets/sounds/victory_fanfare.mp3'],
+    levelup: ['assets/sounds/rank_levelup.ogg', 'modules/binary-numbers/assets/sounds/rank_levelup.ogg', 'assets/sounds/rank_levelup.mp3', 'modules/binary-numbers/assets/sounds/rank_levelup.mp3']
   };
 
   const bitmasterAudioCache = {};
@@ -1109,7 +1109,7 @@
   };
 
   function getSprintRank(score) {
-    if (score >= 20) return 'Rank: ⚡ Hex Grandmaster (Top 1%)';
+    if (score >= 20) return 'Rank: 👑 Hex Grandmaster (Top 1%)';
     if (score >= 15) return 'Rank: 🏆 Byte Master';
     if (score >= 10) return 'Rank: 🚀 Nibble Navigator';
     if (score >= 5) return 'Rank: 💡 Logic Practitioner';
@@ -1895,28 +1895,28 @@
       label: 'AND Row B:',
       title: 'Bitwise AND (&)',
       desc: 'Output bit is <strong>1</strong> ONLY if BOTH Bit A and Bit B are 1. If either is 0, the output is 0.',
-      tip: '🎯 <strong>Exam Masking Use:</strong> Used for <em>masking</em> (extracting or clearing bits). For example, <code>x AND 00000001</code> tests if a number is odd (1) or even (0). <code>x AND 00001111</code> clears the upper nibble and keeps the lower nibble intact.',
+      tip: '💡 <strong>Exam Masking Use:</strong> Used for <em>masking</em> (extracting or clearing bits). For example, <code>x AND 00000001</code> tests if a number is odd (1) or even (0). <code>x AND 00001111</code> clears the upper nibble and keeps the lower nibble intact.',
     },
     OR: {
       symbol: '|',
       label: 'OR Row B:',
       title: 'Bitwise OR (|)',
       desc: 'Output bit is <strong>1</strong> if EITHER Bit A or Bit B is 1 (or both). Output is 0 only when both are 0.',
-      tip: '🎯 <strong>Exam Masking Use:</strong> Used to <em>set</em> specific bits to 1 without changing any other bits in a register or control byte.',
+      tip: '💡 <strong>Exam Masking Use:</strong> Used to <em>set</em> specific bits to 1 without changing any other bits in a register or control byte.',
     },
     XOR: {
       symbol: '^',
       label: 'XOR Row B:',
       title: 'Bitwise XOR (^ Exclusive OR)',
       desc: 'Output bit is <strong>1</strong> if the bits are DIFFERENT. If both bits are identical (both 0 or both 1), the output is 0.',
-      tip: '🎯 <strong>Exam Masking Use:</strong> Used to <em>toggle/flip</em> bits (applying 1 inverts that bit; applying 0 leaves it alone). Widely tested in symmetric ciphers and game graphics (sprites).',
+      tip: '💡 <strong>Exam Masking Use:</strong> Used to <em>toggle/flip</em> bits (applying 1 inverts that bit; applying 0 leaves it alone). Widely tested in symmetric ciphers and game graphics (sprites).',
     },
     NOT: {
       symbol: '~',
       label: 'NOT (Inverts A):',
       title: 'Bitwise NOT (~ Inversion)',
       desc: 'Inverts every single bit in Row A. 0 becomes 1, and 1 becomes 0.',
-      tip: '🎯 <strong>Exam Masking Use:</strong> Used to generate the One\'s complement of a binary number prior to adding 1 for Two\'s complement negative arithmetic.',
+      tip: '💡 <strong>Exam Masking Use:</strong> Used to generate the One\'s complement of a binary number prior to adding 1 for Two\'s complement negative arithmetic.',
     },
   };
 
@@ -2469,15 +2469,15 @@
     },
     {
       id: 4,
-      name: "Signed Numbers & ALU",
-      shortName: "Signed & ALU",
-      heroCode: "± ALU",
+      name: "Signed Numbers",
+      shortName: "Signed",
+      heroCode: "± Signed",
       tag: "TOPIC 04",
       accent: "#06b6d4",
       glow: "rgba(6, 182, 212, 0.28)",
       gradient: "linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(6, 182, 212, 0.05))",
       svgIcon: `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="7" y1="9" x2="17" y2="9"/><line x1="12" y1="5" x2="12" y2="13"/><line x1="7" y1="18" x2="17" y2="18"/></svg>`,
-      desc: "Two's Complement, negation & hardware ALU subtraction"
+      desc: "Two's Complement, negation & signed binary arithmetic"
     },
     {
       id: 5,
@@ -2493,9 +2493,9 @@
     },
     {
       id: 6,
-      name: "The Master Gauntlet",
-      shortName: "The Gauntlet",
-      heroCode: "⚡ MAX",
+      name: "Mixed",
+      shortName: "Mixed",
+      heroCode: "MIX",
       tag: "TOPIC 06",
       accent: "#eab308",
       glow: "rgba(234, 179, 8, 0.32)",
@@ -3150,7 +3150,7 @@
     }
   }
 
-  function showBitmasterScreen(screenName) {
+  function showBitmasterScreen(screenName, isHistoryNav = false) {
     const screens = {
       title: document.getElementById('bitmasterScreenTitle'),
       stages: document.getElementById('bitmasterScreenStages'),
@@ -3215,6 +3215,12 @@
         if (backText) backText.textContent = 'Levels';
       }
     }
+
+    if (!isHistoryNav && window.history && window.history.pushState) {
+      try {
+        window.history.pushState({ bitmasterApp: true, bitmasterScreen: screenName }, '');
+      } catch (err) {}
+    }
   }
 
   // Render the 6 Big Bold Topic Buttons on the Front Menu (as sketched)
@@ -3269,6 +3275,13 @@
 
     // Identify active topic
     const activeTopic = BITMASTER_TOPICS.find(t => String(t.id) === String(currentFilter)) || BITMASTER_TOPICS[0];
+
+    // Update topic title in the Stages screen header
+    const topicTitleEl = document.getElementById('bitmasterStagesTopicTitle');
+    if (topicTitleEl) {
+      topicTitleEl.textContent = activeTopic.shortName;
+      topicTitleEl.style.textShadow = `0 0 20px ${activeTopic.glow}`;
+    }
 
     // Render stages for ONLY this topic (clean 3-4 cards!)
     const topicStages = BITMASTER_STAGES.filter(s => s.topicId === activeTopic.id);
@@ -5751,7 +5764,7 @@
 
     if (counterEl) {
       counterEl.classList.toggle('sprint-counter', isSprint);
-      counterEl.textContent = isSprint ? '⚡ Solved: 0' : 'Q 1/10';
+      counterEl.textContent = isSprint ? 'Solved: 0' : 'Q 1/10';
     }
 
     if (barEl) {
@@ -5787,8 +5800,8 @@
     const badgeEl = document.getElementById('bitmasterActiveStageBadge');
     if (badgeEl) {
       badgeEl.textContent = isSprint 
-        ? `Stage ${bitmasterState.activeStage} • Lvl ${bitmasterState.activeLevel} • ⚡ 60s Sprint`
-        : `Stage ${bitmasterState.activeStage} • Lvl ${bitmasterState.activeLevel} • 🎯 10 Questions`;
+        ? `Stage ${bitmasterState.activeStage} • Lvl ${bitmasterState.activeLevel} • 60s Sprint`
+        : `Stage ${bitmasterState.activeStage} • Lvl ${bitmasterState.activeLevel} • 10 Questions`;
     }
 
     showBitmasterScreen('game');
@@ -5818,7 +5831,7 @@
     const barEl = document.getElementById('bitmasterProgressBar');
     if (counterEl) {
       if (bitmasterState.isSprint) {
-        counterEl.textContent = `⚡ Solved: ${bitmasterState.correctThisRound}`;
+        counterEl.textContent = `Solved: ${bitmasterState.correctThisRound}`;
       } else {
         counterEl.textContent = `Q ${bitmasterState.currentQuestionIndex}/${bitmasterState.totalQuestions}`;
       }
@@ -5947,7 +5960,7 @@
       updateBitmasterHUD();
       if (bitmasterState.isSprint) {
         const counterEl = document.getElementById('bitmasterQuestionCounter');
-        if (counterEl) counterEl.textContent = `⚡ Solved: ${bitmasterState.correctThisRound}`;
+        if (counterEl) counterEl.textContent = `Solved: ${bitmasterState.correctThisRound}`;
         setTimeout(() => {
           loadNextBitmasterQuestion();
         }, 180);
@@ -6008,6 +6021,19 @@
 
   function hideBitmasterAbandonModal() {
     const modal = document.getElementById('bitmasterModalAbandon');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function showBitmasterExitModal() {
+    const modal = document.getElementById('bitmasterModalExit');
+    if (modal) {
+      modal.style.display = 'flex';
+      playSynthSound('tap');
+    }
+  }
+
+  function hideBitmasterExitModal() {
+    const modal = document.getElementById('bitmasterModalExit');
     if (modal) modal.style.display = 'none';
   }
 
@@ -6194,7 +6220,7 @@
       updateBitmasterHUD();
       if (bitmasterState.isSprint) {
         const counterEl = document.getElementById('bitmasterQuestionCounter');
-        if (counterEl) counterEl.textContent = `⚡ Solved: ${bitmasterState.correctThisRound}`;
+        if (counterEl) counterEl.textContent = `Solved: ${bitmasterState.correctThisRound}`;
         setTimeout(() => loadNextBitmasterQuestion(), 200);
       } else {
         loadNextBitmasterQuestion();
@@ -6344,7 +6370,7 @@
       updateBitmasterHUD();
       if (bitmasterState.isSprint) {
         const counterEl = document.getElementById('bitmasterQuestionCounter');
-        if (counterEl) counterEl.textContent = `⚡ Solved: ${bitmasterState.correctThisRound}`;
+        if (counterEl) counterEl.textContent = `Solved: ${bitmasterState.correctThisRound}`;
         setTimeout(() => loadNextBitmasterQuestion(), 200);
       } else {
         setTimeout(() => loadNextBitmasterQuestion(), 400);
@@ -6499,7 +6525,7 @@
       updateBitmasterHUD();
       if (bitmasterState.isSprint) {
         const counterEl = document.getElementById('bitmasterQuestionCounter');
-        if (counterEl) counterEl.textContent = `⚡ Solved: ${bitmasterState.correctThisRound}`;
+        if (counterEl) counterEl.textContent = `Solved: ${bitmasterState.correctThisRound}`;
         setTimeout(() => loadNextBitmasterQuestion(), 200);
       } else {
         setTimeout(() => loadNextBitmasterQuestion(), 400);
@@ -6796,7 +6822,7 @@
         if (tipEl) tipEl.innerHTML = `💡 <strong>To earn Bronze:</strong> Solve at least 6 problems before the 60s timer expires. Keep training!`;
       }
       if (subtextEl) {
-        subtextEl.textContent = `⚡ 60s Sprint • Score: ${roundScore} pts • ${bitmasterState.correctThisRound} Solved • ${bitmasterState.mistakesThisRound} mistakes` + (isNewRecord ? ' • 🏆 NEW BEST!' : '');
+        subtextEl.textContent = `60s Speed Sprint • Score: ${roundScore} pts • ${bitmasterState.correctThisRound} Solved • ${bitmasterState.mistakesThisRound} mistakes` + (isNewRecord ? ' • 🏆 NEW BEST!' : '');
       }
     } else {
       const isFlawlessZeroMistakes = (bitmasterState.mistakesThisRound === 0 && bitmasterState.correctThisRound === 10);
@@ -6831,7 +6857,7 @@
         if (tipEl) tipEl.innerHTML = `💡 <strong>To pass this level:</strong> Complete with &le; 5 mistakes (you made ${bitmasterState.mistakesThisRound} mistakes). Score: ${roundScore} pts.`;
       }
       if (subtextEl) {
-        subtextEl.textContent = `🎯 10 Questions • Score: ${roundScore} pts • ${bitmasterState.correctThisRound}/10 Correct • ${bitmasterState.elapsedSeconds}s` + (isNewRecord ? ' • 🏆 NEW BEST!' : '');
+        subtextEl.textContent = `10 Questions • Score: ${roundScore} pts • ${bitmasterState.correctThisRound}/10 Correct • ${bitmasterState.elapsedSeconds}s` + (isNewRecord ? ' • 🏆 NEW BEST!' : '');
       }
     }
 
@@ -6841,9 +6867,16 @@
       xpEl.innerHTML = `${roundScore.toLocaleString()} <span class="stat-diff">${diffFormatted}</span>${trophy}`;
     }
 
+    const metric4LabelEl = document.getElementById('bitmasterVictoryMetric4Label');
     const timeEl = document.getElementById('bitmasterVictoryTime');
     if (timeEl) {
-      timeEl.textContent = isSprint ? '60s' : `${bitmasterState.elapsedSeconds}s`;
+      if (isSprint) {
+        if (metric4LabelEl) metric4LabelEl.textContent = 'Solved';
+        timeEl.textContent = `${bitmasterState.correctThisRound}`;
+      } else {
+        if (metric4LabelEl) metric4LabelEl.textContent = 'Time';
+        timeEl.textContent = `${bitmasterState.elapsedSeconds}s`;
+      }
     }
 
     // Sequentially animate victory stars
@@ -7187,27 +7220,111 @@
       });
     }
 
-    // HUD Back Button (Strict 4-Tier Hierarchy: Game -> Levels -> Stages -> Title)
+    // Centralized In-Game Back Function
+    function goBackBitmaster() {
+      playSynthSound('tap');
+      const activeScreen = document.querySelector('.bitmaster-screen.active');
+      if (activeScreen && activeScreen.id === 'bitmasterScreenGame') {
+        showBitmasterAbandonModal();
+      } else if (activeScreen && activeScreen.id === 'bitmasterScreenSummary') {
+        showBitmasterScreen('levels');
+      } else if (activeScreen && activeScreen.id === 'bitmasterScreenLevels') {
+        showBitmasterScreen('stages');
+      } else if (activeScreen && activeScreen.id === 'bitmasterScreenStages') {
+        showBitmasterScreen('title');
+      } else {
+        showBitmasterExitModal();
+      }
+    }
+
+    // HUD Top Back Button
     const hudBackBtn = document.getElementById('bitmasterHudBackBtn');
     if (hudBackBtn) {
-      hudBackBtn.addEventListener('click', () => {
+      hudBackBtn.addEventListener('click', goBackBitmaster);
+    }
+
+    // Bottom Back Buttons on Stages & Levels Screens
+    const stagesBottomBackBtn = document.getElementById('bitmasterStagesBottomBackBtn');
+    if (stagesBottomBackBtn) {
+      stagesBottomBackBtn.addEventListener('click', goBackBitmaster);
+    }
+
+    const levelsBottomBackBtn = document.getElementById('bitmasterLevelsBottomBackBtn');
+    if (levelsBottomBackBtn) {
+      levelsBottomBackBtn.addEventListener('click', goBackBitmaster);
+    }
+
+    // Exit BitMaster Modal Event Listeners
+    const exitModal = document.getElementById('bitmasterModalExit');
+    const exitStayBtn = document.getElementById('bitmasterModalStayBtn');
+    const exitConfirmBtn = document.getElementById('bitmasterModalExitConfirmBtn');
+    if (exitStayBtn && exitModal) {
+      exitStayBtn.addEventListener('click', () => {
         playSynthSound('tap');
-        const activeScreen = document.querySelector('.bitmaster-screen.active');
-        if (activeScreen && activeScreen.id === 'bitmasterScreenGame') {
-          showBitmasterAbandonModal();
-        } else if (activeScreen && activeScreen.id === 'bitmasterScreenSummary') {
-          showBitmasterScreen('levels');
-        } else if (activeScreen && activeScreen.id === 'bitmasterScreenLevels') {
-          showBitmasterScreen('stages');
-        } else if (activeScreen && activeScreen.id === 'bitmasterScreenStages') {
-          showBitmasterScreen('title');
-        } else {
-          showBitmasterScreen('title');
+        exitModal.style.display = 'none';
+      });
+    }
+    if (exitConfirmBtn && exitModal) {
+      exitConfirmBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        exitModal.style.display = 'none';
+        window.location.href = '../../index.html';
+      });
+    }
+    if (exitModal) {
+      exitModal.addEventListener('click', (e) => {
+        if (e.target === exitModal) {
+          exitModal.style.display = 'none';
         }
       });
     }
 
-    showBitmasterScreen('title');
+    // Browser History API Integration (Enables Mobile Back Gesture to navigate backwards in game)
+    try {
+      if (window.history && window.history.replaceState) {
+        window.history.replaceState({ bitmasterApp: true, bitmasterRoot: true, bitmasterScreen: 'title' }, '');
+      }
+    } catch (e) {}
+
+    window.addEventListener('popstate', (e) => {
+      // Check if arcade tab is currently active
+      const arcadeTab = document.getElementById('tab-arcade');
+      if (arcadeTab && !arcadeTab.classList.contains('active')) return;
+
+      const activeScreen = document.querySelector('.bitmaster-screen.active');
+      const activeScreenId = activeScreen ? activeScreen.id : 'bitmasterScreenTitle';
+
+      if (activeScreenId === 'bitmasterScreenGame') {
+        // Active challenge in arena: re-push game state so match isn't abruptly abandoned, show confirmation
+        try {
+          window.history.pushState({ bitmasterApp: true, bitmasterScreen: 'game' }, '');
+        } catch (err) {}
+        showBitmasterAbandonModal();
+      } else if (activeScreenId === 'bitmasterScreenSummary') {
+        showBitmasterScreen('levels', true);
+      } else if (activeScreenId === 'bitmasterScreenLevels') {
+        showBitmasterScreen('stages', true);
+      } else if (activeScreenId === 'bitmasterScreenStages') {
+        showBitmasterScreen('title', true);
+      } else if (activeScreenId === 'bitmasterScreenTitle') {
+        // User swiped back while on the front topic menu: show leave confirmation modal
+        try {
+          window.history.pushState({ bitmasterApp: true, bitmasterScreen: 'title' }, '');
+        } catch (err) {}
+        showBitmasterExitModal();
+      }
+    });
+
+    // Confirmation warning when attempting to unload/leave page during an active match
+    window.addEventListener('beforeunload', (e) => {
+      if (bitmasterState && bitmasterState.inRound) {
+        e.preventDefault();
+        e.returnValue = 'You have a match in progress. Are you sure you want to leave?';
+        return e.returnValue;
+      }
+    });
+
+    showBitmasterScreen('title', true);
   }
 
   function renderBitmasterRankModal() {
