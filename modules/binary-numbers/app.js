@@ -7593,10 +7593,7 @@
     updateBitpopHUD();
     showBitmasterScreen('bitpop');
 
-    // Pick first target based on Phase 1
-    pickBitpopTarget();
-
-    // Initialize floating bubbles distributed vertically across the arena
+    // Initialize floating balloons distributed across the screen and choose initial target
     initBitpopBubbles();
 
     // Start 100ms countdown timer & 60fps physics loop
@@ -7658,96 +7655,20 @@
     return 4;                       // Phase 4: Speed Frenzy!
   }
 
-  function pickBitpopTarget() {
-    const phase = getBitpopPhase(bitpopState.poppedCount);
-    bitpopState.phase = phase;
+  function getPhaseSpeed(phase) {
+    // Smooth, slow, readable float speeds (takes 9-13s to cross the arena)
+    const base = 28 + (phase - 1) * 4.5;
+    return base + (Math.random() * 6);
+  }
 
-    const phasePill = document.getElementById('bitpopPhasePill');
-    const promptEl = document.getElementById('bitpopTargetPrompt');
-    const valEl = document.getElementById('bitpopTargetValue');
-    const hintEl = document.getElementById('bitpopTargetHint');
-
-    let targetNum = 0;
-    let targetDisplay = '';
-    let targetPrompt = 'POP BUBBLES MATCHING:';
-    let targetHint = '';
-    let targetFormat = 'bin4'; // 'bin4', 'bin8', 'hex', 'den'
-
-    if (phase === 1) {
-      // 4-bit Nibble: 1 to 15
-      if (phasePill) phasePill.textContent = 'PHASE 1: NIBBLE BLITZ';
-      targetNum = Math.floor(Math.random() * 15) + 1;
-      targetDisplay = String(targetNum);
-      targetPrompt = 'POP BINARY EQUAL TO:';
-      targetHint = `Denary ${targetNum} (4-bit Nibble)`;
-      targetFormat = 'bin4';
-    } else if (phase === 2) {
-      // 8-bit Byte: 16 to 127
-      if (phasePill) phasePill.textContent = 'PHASE 2: BYTE HUNTER';
-      targetNum = Math.floor(Math.random() * 95) + 16; // 16 to 110
-      targetDisplay = String(targetNum);
-      targetPrompt = 'POP BINARY EQUAL TO:';
-      targetHint = `Denary ${targetNum} (8-bit Byte)`;
-      targetFormat = 'bin8';
-    } else if (phase === 3) {
-      // Hexadecimal <-> Denary
-      if (phasePill) phasePill.textContent = 'PHASE 3: HEX MATRIX';
-      targetNum = Math.floor(Math.random() * 200) + 15;
-      const hexStr = targetNum.toString(16).toUpperCase().padStart(2, '0');
-
-      if (Math.random() < 0.5) {
-        // Target is Hex, bubbles are Denary
-        targetDisplay = hexStr + '₁₆';
-        targetPrompt = 'POP DENARY EQUAL TO:';
-        targetHint = `Hexadecimal ${hexStr}`;
-        targetFormat = 'den';
-      } else {
-        // Target is Denary, bubbles are Hex
-        targetDisplay = String(targetNum);
-        targetPrompt = 'POP HEXADECIMAL FOR:';
-        targetHint = `Denary ${targetNum}`;
-        targetFormat = 'hex';
-      }
-    } else {
-      // Phase 4: Speed Frenzy! (Mixed fast bytes & hex)
-      if (phasePill) phasePill.textContent = 'PHASE 4: SPEED FRENZY 🔥';
-      if (Math.random() < 0.5) {
-        targetNum = Math.floor(Math.random() * 230) + 15;
-        targetDisplay = String(targetNum);
-        targetPrompt = 'POP BINARY EQUAL TO:';
-        targetHint = `Denary ${targetNum}`;
-        targetFormat = 'bin8';
-      } else {
-        targetNum = Math.floor(Math.random() * 230) + 15;
-        const hexStr = targetNum.toString(16).toUpperCase().padStart(2, '0');
-        targetDisplay = hexStr + '₁₆';
-        targetPrompt = 'POP DENARY EQUAL TO:';
-        targetHint = `Hexadecimal ${hexStr}`;
-        targetFormat = 'den';
-      }
-    }
-
-    bitpopState.currentTarget = {
-      val: targetNum,
-      display: targetDisplay,
-      prompt: targetPrompt,
-      hint: targetHint,
-      format: targetFormat
-    };
-
-    if (promptEl) promptEl.textContent = targetPrompt;
-    if (valEl) valEl.textContent = targetDisplay;
-    if (hintEl) hintEl.textContent = targetHint;
-
-    // Pulse target display to attract visual focus
-    if (valEl) {
-      valEl.style.transform = 'scale(1.22)';
-      valEl.style.filter = 'drop-shadow(0 0 16px rgba(56, 189, 248, 0.9))';
-      setTimeout(() => {
-        valEl.style.transform = 'scale(1)';
-        valEl.style.filter = '';
-      }, 180);
-    }
+  function getPhaseFormat(phase) {
+    if (phase === 1) return 'bin4';
+    if (phase === 2) return 'bin8';
+    if (phase === 3) return Math.random() < 0.5 ? 'hex' : 'den';
+    const r = Math.random();
+    if (r < 0.45) return 'bin8';
+    if (r < 0.75) return 'hex';
+    return 'den';
   }
 
   function formatBitpopValue(num, format) {
@@ -7762,26 +7683,101 @@
     }
   }
 
-  function generateBitpopDistractor(targetVal, format, phase) {
-    let distNum = targetVal;
+  function generateBitpopValue(phase, format, excludeVals = []) {
+    const excludeSet = new Set(excludeVals);
+    let val = 0;
     let attempts = 0;
-    while ((distNum === targetVal || distNum < 0) && attempts < 15) {
+    while (attempts < 25) {
       attempts++;
       if (format === 'bin4') {
-        const bitIdx = Math.floor(Math.random() * 4);
-        distNum = (targetVal ^ (1 << bitIdx)) & 15;
-        if (distNum === 0 && targetVal !== 0) distNum = (targetVal + 1) % 16;
+        val = Math.floor(Math.random() * 15) + 1; // 1 to 15
       } else if (format === 'bin8') {
-        const bitIdx = Math.floor(Math.random() * 7);
-        distNum = Math.max(1, Math.min(255, targetVal ^ (1 << bitIdx)));
+        val = Math.floor(Math.random() * 105) + 16; // 16 to 120
       } else if (format === 'hex' || format === 'den') {
-        const delta = (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 16) + 1);
-        distNum = Math.max(1, Math.min(255, targetVal + delta));
+        val = Math.floor(Math.random() * 200) + 15; // 15 to 214
       } else {
-        distNum = Math.max(1, targetVal + (Math.random() < 0.5 ? 2 : -2));
+        val = Math.floor(Math.random() * 15) + 1;
       }
+      if (!excludeSet.has(val)) break;
     }
-    return distNum;
+    return val;
+  }
+
+  function setBitpopTarget(num, format, phase) {
+    const phasePill = document.getElementById('bitpopPhasePill');
+    const promptEl = document.getElementById('bitpopTargetPrompt');
+    const valEl = document.getElementById('bitpopTargetValue');
+    const hintEl = document.getElementById('bitpopTargetHint');
+
+    let promptText = 'POP BUBBLE FOR:';
+    let displayText = '';
+    let hintText = '';
+
+    if (format === 'bin4') {
+      if (phasePill) phasePill.textContent = 'PHASE 1: NIBBLE BLITZ';
+      promptText = 'POP BINARY EQUAL TO:';
+      displayText = String(num);
+      hintText = `Denary ${num} (4-bit Nibble)`;
+    } else if (format === 'bin8') {
+      if (phasePill) phasePill.textContent = phase >= 4 ? 'PHASE 4: SPEED FRENZY 🔥' : 'PHASE 2: BYTE HUNTER';
+      promptText = 'POP BINARY EQUAL TO:';
+      displayText = String(num);
+      hintText = `Denary ${num} (8-bit Byte)`;
+    } else if (format === 'hex') {
+      // Bubble shows Hex, Target displays Denary
+      if (phasePill) phasePill.textContent = phase >= 4 ? 'PHASE 4: SPEED FRENZY 🔥' : 'PHASE 3: HEX MATRIX';
+      promptText = 'POP HEXADECIMAL FOR:';
+      displayText = String(num);
+      hintText = `Denary ${num}`;
+    } else {
+      // Bubble shows Denary, Target displays Hex
+      if (phasePill) phasePill.textContent = phase >= 4 ? 'PHASE 4: SPEED FRENZY 🔥' : 'PHASE 3: HEX MATRIX';
+      const hex = num.toString(16).toUpperCase().padStart(2, '0');
+      promptText = 'POP DENARY EQUAL TO:';
+      displayText = hex + '₁₆';
+      hintText = `Hexadecimal ${hex}`;
+    }
+
+    bitpopState.currentTarget = {
+      val: num,
+      format: format,
+      display: displayText,
+      prompt: promptText,
+      hint: hintText
+    };
+
+    if (promptEl) promptEl.textContent = promptText;
+    if (valEl) valEl.textContent = displayText;
+    if (hintEl) hintEl.textContent = hintText;
+
+    if (valEl) {
+      valEl.style.transform = 'scale(1.22)';
+      valEl.style.filter = 'drop-shadow(0 0 16px rgba(56, 189, 248, 0.95))';
+      setTimeout(() => {
+        valEl.style.transform = 'scale(1)';
+        valEl.style.filter = '';
+      }, 180);
+    }
+  }
+
+  function pickTargetFromVisibleBubbles() {
+    const phase = getBitpopPhase(bitpopState.poppedCount);
+    bitpopState.phase = phase;
+
+    // Look for active visible bubbles currently floating on screen
+    const candidates = bitpopState.bubbles.filter(b => !b.isBursting && b.y > 35);
+    let chosenBubble = null;
+    if (candidates.length > 0) {
+      // Sort to prefer bubbles lower on screen (higher y), giving user ample reaction time
+      candidates.sort((a, b) => b.y - a.y);
+      chosenBubble = candidates[0];
+    } else {
+      chosenBubble = bitpopState.bubbles.find(b => !b.isBursting) || bitpopState.bubbles[0];
+    }
+
+    if (chosenBubble) {
+      setBitpopTarget(chosenBubble.val, chosenBubble.format || 'bin4', phase);
+    }
   }
 
   function initBitpopBubbles() {
@@ -7790,34 +7786,49 @@
     arena.innerHTML = '';
     bitpopState.bubbles = [];
 
-    const arenaWidth = arena.clientWidth || 480;
-    const arenaHeight = arena.clientHeight || 380;
+    const arenaWidth = Math.max(320, arena.clientWidth || 480);
+    const arenaHeight = Math.max(380, arena.clientHeight || 400);
     const count = bitpopState.bubbleCount;
+    const phase = 1;
+    const format = 'bin4';
 
-    // We ensure 2 initial bubbles match the target, remaining are distractors
-    const target = bitpopState.currentTarget;
-    const targetSlots = new Set([0, 2]); // Initial slots with correct answer
+    // Generate distinct values with 1 duplicate target
+    const usedVals = new Set();
+    const initialVals = [];
+    while (initialVals.length < count - 1) {
+      const val = Math.floor(Math.random() * 15) + 1;
+      if (!usedVals.has(val)) {
+        usedVals.add(val);
+        initialVals.push(val);
+      }
+    }
+    initialVals.push(initialVals[1]); // Duplicate target for friendly start
 
+    // Shuffle
+    for (let i = initialVals.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [initialVals[i], initialVals[j]] = [initialVals[j], initialVals[i]];
+    }
+
+    // Set initial target to match initialVals[1]
+    setBitpopTarget(initialVals[1], format, phase);
+
+    // Stagger initial vertical positions so the screen is immediately populated
     for (let i = 0; i < count; i++) {
-      const isTarget = targetSlots.has(i);
-      const val = isTarget ? target.val : generateBitpopDistractor(target.val, target.format, bitpopState.phase);
-      const text = formatBitpopValue(val, target.format);
+      const val = initialVals[i];
+      const text = formatBitpopValue(val, format);
       const theme = bitpopThemes[i % bitpopThemes.length];
 
-      // Staggered vertical start so the arena is immediately active
-      const initialY = (arenaHeight / count) * i + (Math.random() * 25);
-      const initialBaseX = Math.max(12, Math.min(arenaWidth - 85, ((arenaWidth - 85) / count) * i + (Math.random() * 20 - 10)));
-
-      // Base speed varies with phase (Phase 1: 50-75px/s, Phase 4: 95-135px/s)
-      const speedMult = 1.0 + (bitpopState.phase - 1) * 0.28;
-      const speed = (55 + Math.random() * 30) * speedMult;
+      const initialY = 40 + (i * 58) + (Math.random() * 16 - 8);
+      const initialBaseX = Math.max(14, Math.min(arenaWidth - 94, ((arenaWidth - 94) / count) * i + (Math.random() * 16 - 8)));
+      const speed = getPhaseSpeed(phase);
 
       const bubbleEl = document.createElement('div');
       bubbleEl.className = `bitpop-bubble-orb ${theme}`;
       bubbleEl.style.transform = `translate3d(${initialBaseX}px, ${initialY}px, 0)`;
 
       const textSpan = document.createElement('span');
-      textSpan.className = 'bitpop-orb-text';
+      textSpan.className = 'bitpop-orb-text' + (format === 'bin8' ? ' is-8bit' : '');
       textSpan.textContent = text;
       bubbleEl.appendChild(textSpan);
 
@@ -7826,13 +7837,14 @@
         el: bubbleEl,
         textSpan: textSpan,
         val: val,
+        format: format,
         theme: theme,
         x: initialBaseX,
         y: initialY,
         baseX: initialBaseX,
         speed: speed,
-        wobbleSpeed: 0.9 + Math.random() * 0.8,
-        wobbleAmp: 16 + Math.random() * 14,
+        wobbleSpeed: 0.8 + Math.random() * 0.6,
+        wobbleAmp: 8 + Math.random() * 10,
         wobbleOffset: Math.random() * Math.PI * 2,
         isBursting: false,
         isWrong: false
@@ -7847,48 +7859,44 @@
     }
   }
 
-  function setBubbleToTarget(b, target) {
-    b.val = target.val;
-    const text = formatBitpopValue(target.val, target.format);
-    if (b.textSpan) b.textSpan.textContent = text;
-  }
-
-  function recycleBubble(b, arenaWidth, arenaHeight, forceTarget = false) {
-    const target = bitpopState.currentTarget;
-    const phase = bitpopState.phase;
+  function recycleBubble(b, arenaWidth, arenaHeight) {
+    const phase = getBitpopPhase(bitpopState.poppedCount);
+    bitpopState.phase = phase;
 
     b.isBursting = false;
     b.isWrong = false;
     b.el.classList.remove('is-bursting', 'is-wrong');
 
-    // Reset position to bottom of arena
-    b.y = arenaHeight + 15 + (Math.random() * 35);
-    b.baseX = Math.max(12, Math.min(arenaWidth - 85, Math.random() * (arenaWidth - 90)));
+    // Spawn just below the bottom edge of the arena
+    b.y = arenaHeight + 15 + (Math.random() * 25);
+    b.baseX = Math.max(14, Math.min(arenaWidth - 94, Math.random() * (arenaWidth - 98)));
 
-    // Re-roll speed with phase scaling
-    const speedMult = 1.0 + (phase - 1) * 0.28;
-    b.speed = (55 + Math.random() * 30) * speedMult;
-    b.wobbleSpeed = 0.9 + Math.random() * 0.8;
-    b.wobbleAmp = 16 + Math.random() * 14;
+    b.speed = getPhaseSpeed(phase);
+    b.wobbleSpeed = 0.8 + Math.random() * 0.6;
+    b.wobbleAmp = 8 + Math.random() * 10;
     b.wobbleOffset = Math.random() * Math.PI * 2;
 
-    // Cycle theme
     const nextTheme = bitpopThemes[Math.floor(Math.random() * bitpopThemes.length)];
     b.el.className = `bitpop-bubble-orb ${nextTheme}`;
     b.theme = nextTheme;
 
-    if (forceTarget) {
-      setBubbleToTarget(b, target);
+    const format = getPhaseFormat(phase);
+    b.format = format;
+
+    // Check if another bubble on screen has the current target
+    const currentTargetVal = bitpopState.currentTarget ? bitpopState.currentTarget.val : null;
+    const activeTargetMatches = bitpopState.bubbles.filter(other => other !== b && !other.isBursting && other.val === currentTargetVal).length;
+
+    if (activeTargetMatches === 0 && currentTargetVal !== null) {
+      // Ensure the target is rising from below
+      b.val = currentTargetVal;
     } else {
-      // Chance of being the target: 35% if other target bubbles exist, 100% if none exist
-      const activeMatches = bitpopState.bubbles.filter(other => other !== b && !other.isBursting && other.val === target.val).length;
-      if (activeMatches === 0 || (activeMatches < 2 && Math.random() < 0.45)) {
-        setBubbleToTarget(b, target);
-      } else {
-        b.val = generateBitpopDistractor(target.val, target.format, phase);
-        b.textSpan.textContent = formatBitpopValue(b.val, target.format);
-      }
+      b.val = generateBitpopValue(phase, format, currentTargetVal !== null ? [currentTargetVal] : []);
     }
+
+    const text = formatBitpopValue(b.val, format);
+    b.textSpan.textContent = text;
+    b.textSpan.classList.toggle('is-8bit', format === 'bin8');
 
     b.el.style.transform = `translate3d(${b.baseX}px, ${b.y}px, 0)`;
   }
@@ -7899,54 +7907,41 @@
     if (!bitpopState.lastTime) {
       bitpopState.lastTime = timestamp;
     }
-    const dt = Math.min(0.08, (timestamp - bitpopState.lastTime) / 1000);
+    const dt = Math.min(0.06, (timestamp - bitpopState.lastTime) / 1000);
     bitpopState.lastTime = timestamp;
 
     const arena = document.getElementById('bitpopArena');
     if (!arena) return;
 
-    const arenaWidth = arena.clientWidth || 480;
-    const arenaHeight = arena.clientHeight || 380;
-    const target = bitpopState.currentTarget;
+    const arenaWidth = Math.max(320, arena.clientWidth || 480);
+    const arenaHeight = Math.max(380, arena.clientHeight || 400);
 
-    // Liveness safeguard: Ensure at least one active bubble in the arena matches the target
-    const targetMatches = bitpopState.bubbles.filter(b => !b.isBursting && b.val === target.val).length;
-    if (targetMatches === 0) {
-      // Find the non-bursting bubble closest to the bottom (highest Y) and convert it
-      let lowestBubble = null;
-      let highestY = -999;
-      for (const b of bitpopState.bubbles) {
-        if (!b.isBursting && !b.isWrong && b.y > highestY) {
-          highestY = b.y;
-          lowestBubble = b;
-        }
-      }
-      if (lowestBubble) {
-        setBubbleToTarget(lowestBubble, target);
-      }
-    }
-
-    // Move all active bubbles
+    // Slowly move each active balloon upwards
     for (let i = 0; i < bitpopState.bubbles.length; i++) {
       const b = bitpopState.bubbles[i];
 
       if (b.isBursting) continue;
 
-      // Move upwards
       b.y -= b.speed * dt;
 
-      // Sine wave wobble
-      const wobble = Math.sin((timestamp * 0.003 * b.wobbleSpeed) + b.wobbleOffset) * b.wobbleAmp;
-      const renderX = Math.max(10, Math.min(arenaWidth - 85, b.baseX + wobble));
+      // Gentle natural wobble
+      const wobble = Math.sin((timestamp * 0.0024 * b.wobbleSpeed) + b.wobbleOffset) * b.wobbleAmp;
+      const renderX = Math.max(12, Math.min(arenaWidth - 92, b.baseX + wobble));
       b.x = renderX;
 
       if (!b.isWrong) {
         b.el.style.transform = `translate3d(${renderX}px, ${b.y}px, 0)`;
       }
 
-      // Check boundary: Floated above top of arena
-      if (b.y < -95) {
+      // Only recycle when the balloon has floated completely off the top of the arena!
+      if (b.y < -92) {
+        const wasTarget = bitpopState.currentTarget && (b.val === bitpopState.currentTarget.val);
         recycleBubble(b, arenaWidth, arenaHeight);
+
+        // If the missed balloon was the active target, pick a new target from remaining visible balloons!
+        if (wasTarget) {
+          pickTargetFromVisibleBubbles();
+        }
       }
     }
 
@@ -7957,6 +7952,7 @@
     if (!bitpopState.isRunning || bubbleObj.isBursting) return;
 
     const target = bitpopState.currentTarget;
+    if (!target) return;
 
     if (bubbleObj.val === target.val) {
       // --- CORRECT BUBBLE BURST! ---
@@ -7988,15 +7984,15 @@
         }, 120);
       }
 
-      // Pick next target immediately so the player can keep hunting seamlessly
-      pickBitpopTarget();
+      // Immediately pick the next target from the other visible balloons on screen
+      pickTargetFromVisibleBubbles();
 
-      // After burst animation finishes (280ms), recycle this bubble to the bottom
+      // After burst animation finishes (280ms), recycle this popped bubble to the bottom
       setTimeout(() => {
         if (bitpopState.isRunning) {
           const arena = document.getElementById('bitpopArena');
-          const arenaWidth = arena ? arena.clientWidth : 480;
-          const arenaHeight = arena ? arena.clientHeight : 380;
+          const arenaWidth = arena ? Math.max(320, arena.clientWidth) : 480;
+          const arenaHeight = arena ? Math.max(380, arena.clientHeight) : 400;
           recycleBubble(bubbleObj, arenaWidth, arenaHeight);
         }
       }, 280);

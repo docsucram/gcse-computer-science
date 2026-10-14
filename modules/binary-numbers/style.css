@@ -6246,6 +6246,8 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 .bitcross-col-pill {
   background: rgba(56, 189, 248, 0.12);
   border: 1.5px solid rgba(56, 189, 248, 0.35);
+}
+
 /* Unboxed Bit Cross Place Value Numbers & Spacers */
 .bitcross-header-num {
   display: flex;
@@ -6668,10 +6670,11 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 .bitpop-arena {
   position: relative;
   width: 100%;
-  height: 380px;
+  height: 400px;
   overflow: hidden;
   user-select: none;
-  cursor: crosshair;
+  cursor: pointer;
+  background: radial-gradient(circle at 50% 30%, #0e1726 0%, #060913 100%);
 }
 
 .bitpop-spawn-glow-bar {
@@ -6679,9 +6682,9 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 22px;
-  background: linear-gradient(to top, rgba(236, 72, 153, 0.25), transparent);
-  border-top: 1px dashed rgba(236, 72, 153, 0.4);
+  height: 20px;
+  background: linear-gradient(to top, rgba(236, 72, 153, 0.2), transparent);
+  border-top: 1px dashed rgba(236, 72, 153, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6699,8 +6702,8 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   position: absolute;
   top: 0;
   left: 0;
-  width: 76px;
-  height: 76px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   cursor: pointer;
   user-select: none;
@@ -6709,9 +6712,9 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   justify-content: center;
   will-change: transform;
   border: 2px solid var(--orb-rim);
-  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0.15) 26%, var(--orb-base) 65%, var(--orb-dark) 100%);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), inset 0 2px 8px rgba(255, 255, 255, 0.6), 0 0 18px var(--orb-glow);
-  transition: transform 0.08s ease-out, filter 0.12s ease;
+  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.12) 28%, var(--orb-base) 65%, var(--orb-dark) 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55), inset 0 2px 8px rgba(255, 255, 255, 0.55), 0 0 16px var(--orb-glow);
+  transition: filter 0.12s ease;
   z-index: 5;
 }
 
@@ -6719,28 +6722,29 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 .bitpop-bubble-orb::before {
   content: '';
   position: absolute;
-  top: 9px;
-  left: 12px;
+  top: 10px;
+  left: 14px;
   width: 22px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.8);
   transform: rotate(-35deg);
   filter: blur(0.5px);
   pointer-events: none;
 }
 
-/* Trailing tether / cyber ribbon (like balloon string in screenshot 2) */
+/* Balloon knot & tether ribbon */
 .bitpop-bubble-orb::after {
   content: '';
   position: absolute;
-  bottom: -20px;
+  bottom: -5px;
   left: 50%;
-  width: 2px;
-  height: 20px;
-  background: linear-gradient(to bottom, var(--orb-rim), transparent);
+  width: 8px;
+  height: 6px;
+  background: var(--orb-base);
+  border: 1px solid var(--orb-rim);
+  border-radius: 2px 2px 4px 4px;
   transform: translateX(-50%);
-  opacity: 0.75;
   pointer-events: none;
 }
 
@@ -6791,6 +6795,12 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   letter-spacing: 0.5px;
   pointer-events: none;
   z-index: 2;
+  text-align: center;
+}
+
+.bitpop-orb-text.is-8bit {
+  font-size: 13.5px;
+  letter-spacing: 0.3px;
 }
 
 /* Pop Burst Shockwave Animation */
