@@ -4917,8 +4917,9 @@
           ]
         },
         {
-          prompt: "Why do modern CPU ALUs use Two's Complement instead of manual column borrowing for subtraction?",
-          display: "ALU Architecture",
+          prompt: "CPU Arithmetic Logic Unit",
+          display: "Why do CPU ALUs use Two's Complement for subtraction?",
+          isQuestionDisplay: true,
           hint: "Reusing the existing binary addition circuit saves millions of transistors",
           correctAnswer: "It allows subtraction using the exact same adder circuit: A + (−B)",
           options: [
@@ -4934,6 +4935,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -4991,8 +4993,9 @@
     if (effectiveMode === 'math_sub_drop_carry_quiz') {
       const qPool = [
         {
-          prompt: "When adding A + (−B) in Two's Complement hardware subtraction, what happens to the 9th carry bit out of the MSB?",
-          display: "Carry Out Flag",
+          prompt: "Hardware Subtraction Rules",
+          display: "What happens to the 9th carry bit out of the MSB in A + (−B)?",
+          isQuestionDisplay: true,
           hint: "When computing 15 + (-6), an end-around carry is generated into the 9th bit",
           correctAnswer: "It is discarded / ignored (the 8-bit result is correct)",
           options: [
@@ -5003,9 +5006,10 @@
           ]
         },
         {
-          prompt: "In Two's Complement subtraction, why is a carry out of the MSB NOT an overflow error?",
-          display: "Drop Carry Rule",
-          hint: "Adding positive and negative numbers can never exceed the 8-bit range (-128 to +127)",
+          prompt: "Hardware Subtraction Rules",
+          display: "Why is an MSB carry out NOT an overflow in Two's Complement?",
+          isQuestionDisplay: true,
+          hint: "Adding opposite-signed numbers can never exceed the 8-bit signed range (-128 to +127)",
           correctAnswer: "Adding opposite-signed numbers can never exceed the 8-bit signed range",
           options: [
             "Adding opposite-signed numbers can never exceed the 8-bit signed range",
@@ -5020,6 +5024,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5030,8 +5035,9 @@
     if (effectiveMode === 'math_sub_signed_overflow_quiz') {
       const qPool = [
         {
-          prompt: "In an 8-bit Two's Complement byte, when does a SIGNED OVERFLOW error occur?",
-          display: "Signed Overflow Condition",
+          prompt: "Signed Overflow Rules",
+          display: "When does an 8-bit Signed Overflow error occur?",
+          isQuestionDisplay: true,
           hint: "Look at the sign of the two operands vs the sign of the result",
           correctAnswer: "When adding two positives produces a negative (or two negatives produce a positive)",
           options: [
@@ -5042,7 +5048,7 @@
           ]
         },
         {
-          prompt: "Calculate +70 + +70 in 8-bit Two's Complement: 01000110 + 01000110 = 10001100. What error occurred?",
+          prompt: "Signed Overflow Calculation",
           display: "+70 + +70 = −116 ?",
           hint: "70 + 70 = 140, which exceeds the maximum positive 8-bit signed limit of +127",
           correctAnswer: "Signed Overflow (+140 > +127, MSB flipped to negative)",
@@ -5059,6 +5065,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5075,25 +5082,24 @@
       const bitsA = initialVal.toString(2).padStart(8, '0').split('').map(Number);
       const resultVal = isLeft ? (initialVal << shiftAmount) & 255 : (initialVal >> shiftAmount);
       const resultStr = resultVal.toString(2).padStart(8, '0');
-      const arrowSymbol = isLeft ? '⇦' : '⇨';
-      const boxArrows = arrowSymbol.repeat(shiftAmount);
-      const bitsB = new Array(8).fill(boxArrows);
+      const arrowSymbol = isLeft ? '◀◀' : '▶▶';
       return {
         type: 'math_grid',
         numBits: 8,
         placeValues: [128, 64, 32, 16, 8, 4, 2, 1],
-        operator: boxArrows,
+        operator: arrowSymbol,
         valA: initialVal,
         valB: shiftAmount,
         bitsA: bitsA,
-        bitsB: bitsB,
+        isLeft: isLeft,
+        shiftAmount: shiftAmount,
         isShiftGrid: true,
         correctAnswer: resultStr,
-        prompt: `Perform Logical Shift ${isLeft ? 'LEFT' : 'RIGHT'} by ${shiftAmount}:`,
-        display: `${initialVal} ${boxArrows} ${shiftAmount} bit${shiftAmount > 1 ? 's' : ''}`,
+        prompt: `Logical Shift ${isLeft ? 'LEFT (×' + Math.pow(2, shiftAmount) + ')' : 'RIGHT (÷' + Math.pow(2, shiftAmount) + ')'}:`,
+        display: `${initialVal}  ${isLeft ? '<<' : '>>'}  ${shiftAmount} bit${shiftAmount > 1 ? 's' : ''}`,
         hint: isLeft 
-          ? `Shift all bits LEFT by ${shiftAmount}. Pad 0s into the rightmost columns!` 
-          : `Shift all bits RIGHT by ${shiftAmount}. Discard bits shifted past the 1s column!`
+          ? `Shift all bits LEFT by ${shiftAmount}. Discard MSB overflow, pad 0s into the rightmost columns!` 
+          : `Shift all bits RIGHT by ${shiftAmount}. Discard bits shifted past the 1s column, pad 0s at the left!`
       };
     }
 
@@ -5117,55 +5123,57 @@
     }
 
     // =========================================================================
-    // STAGE 10: UNITS OF DATA (FUNDAMENTALS, CONVERSIONS, CAPACITY, TRANSMISSION)
+    // UNITS OF DATA: FUNDAMENTALS & CONVERSIONS
     // =========================================================================
     if (effectiveMode === 'units_fundamental') {
       const qPool = [
         {
-          prompt: "How many bits are in 1 Byte?",
-          display: "1 Byte",
-          hint: "The foundational grouping in computer memory",
+          prompt: "Data Storage Units",
+          display: "1 Byte = ? bits",
+          hint: "The foundational grouping in computer memory (8 bits)",
           correctAnswer: "8 bits",
           options: ["8 bits", "4 bits", "16 bits", "2 bits"]
         },
         {
-          prompt: "How many bits are in a Nibble?",
-          display: "1 Nibble",
+          prompt: "Data Storage Units",
+          display: "1 Nibble = ? bits",
           hint: "Half of an 8-bit byte (represents 1 hex digit)",
           correctAnswer: "4 bits",
           options: ["4 bits", "8 bits", "2 bits", "16 bits"]
         },
         {
-          prompt: "How many bytes are in a Kilobyte (KB) using standard AQA decimal prefixes?",
-          display: "1 Kilobyte (KB)",
-          hint: "Kilo = 10³ = 1,000",
+          prompt: "Decimal Storage Prefixes",
+          display: "1 Kilobyte (KB) = ? bytes",
+          hint: "Standard AQA decimal prefix: Kilo = 10³ = 1,000",
           correctAnswer: "1,000 bytes",
           options: ["1,000 bytes", "1,024 bytes", "100 bytes", "10,000 bytes"]
         },
         {
-          prompt: "How many nibbles are in 3 bytes?",
-          display: "3 Bytes",
+          prompt: "Data Storage Units",
+          display: "3 Bytes = ? nibbles",
           hint: "Each byte contains exactly 2 nibbles (3 × 2)",
           correctAnswer: "6 nibbles",
           options: ["6 nibbles", "3 nibbles", "12 nibbles", "24 nibbles"]
         },
         {
-          prompt: "How many bits are in 4 bytes?",
-          display: "4 Bytes",
+          prompt: "Data Storage Units",
+          display: "4 Bytes = ? bits",
           hint: "Each byte contains 8 bits (4 × 8)",
           correctAnswer: "32 bits",
           options: ["32 bits", "16 bits", "64 bits", "24 bits"]
         },
         {
-          prompt: "Which is the smallest individual unit of storage in computing?",
-          display: "Data Hierarchy",
+          prompt: "Data Hierarchy",
+          display: "Which is the smallest individual unit of storage in computing?",
+          isQuestionDisplay: true,
           hint: "Stores a single 0 or 1 transistor state",
           correctAnswer: "Bit (Binary Digit)",
           options: ["Bit (Binary Digit)", "Byte", "Nibble", "Character"]
         },
         {
-          prompt: "Which list displays data units in correct order from SMALLEST to LARGEST?",
-          display: "Unit Ordering",
+          prompt: "Data Hierarchy",
+          display: "Which list is ordered from SMALLEST to LARGEST?",
+          isQuestionDisplay: true,
           hint: "Bit < Nibble < Byte < Kilobyte < Megabyte",
           correctAnswer: "Bit < Nibble < Byte < KB",
           options: ["Bit < Nibble < Byte < KB", "Bit < Byte < Nibble < KB", "Nibble < Bit < Byte < KB", "Byte < Nibble < Bit < KB"]
@@ -5176,6 +5184,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5185,50 +5194,50 @@
     if (effectiveMode === 'units_conversions') {
       const qPool = [
         {
-          prompt: "How many Kilobytes (KB) are in 2.3 Megabytes (MB)?",
-          display: "2.3 MB ➔ KB",
+          prompt: "Storage Unit Conversion",
+          display: "2.3 MB ➔ ? KB",
           hint: "Multiply by 1,000 to move from MB to KB (2.3 × 1,000)",
           correctAnswer: "2,300 KB",
           options: ["2,300 KB", "230 KB", "23,000 KB", "235 KB"]
         },
         {
-          prompt: "How many Megabytes (MB) are in 4 Gigabytes (GB)?",
-          display: "4 GB ➔ MB",
+          prompt: "Storage Unit Conversion",
+          display: "4 GB ➔ ? MB",
           hint: "Multiply by 1,000 to convert GB to MB (4 × 1,000)",
           correctAnswer: "4,000 MB",
           options: ["4,000 MB", "400 MB", "40,000 MB", "4 MB"]
         },
         {
-          prompt: "How many bytes are in 3.5 Kilobytes (KB)?",
-          display: "3.5 KB ➔ bytes",
+          prompt: "Storage Unit Conversion",
+          display: "3.5 KB ➔ ? bytes",
           hint: "Multiply by 1,000 (3.5 × 1,000)",
           correctAnswer: "3,500 bytes",
           options: ["3,500 bytes", "350 bytes", "35,000 bytes", "35 bytes"]
         },
         {
-          prompt: "Convert 5,000 Megabytes (MB) into Gigabytes (GB):",
-          display: "5,000 MB ➔ GB",
+          prompt: "Storage Unit Conversion",
+          display: "5,000 MB ➔ ? GB",
           hint: "Divide by 1,000 to step up from MB to GB (5,000 ÷ 1,000)",
           correctAnswer: "5 GB",
           options: ["5 GB", "50 GB", "0.5 GB", "500 GB"]
         },
         {
-          prompt: "How many bytes are in 1 Megabyte (MB)?",
-          display: "1 MB ➔ bytes",
+          prompt: "Storage Unit Conversion",
+          display: "1 MB ➔ ? bytes",
           hint: "1,000 KB × 1,000 bytes = 10⁶ bytes",
           correctAnswer: "1,000,000 bytes",
           options: ["1,000,000 bytes", "1,000 bytes", "10,000,000 bytes", "100,000 bytes"]
         },
         {
-          prompt: "How many Gigabytes (GB) are in 2 Terabytes (TB)?",
-          display: "2 TB ➔ GB",
+          prompt: "Storage Unit Conversion",
+          display: "2 TB ➔ ? GB",
           hint: "Multiply by 1,000 (2 × 1,000)",
           correctAnswer: "2,000 GB",
           options: ["2,000 GB", "200 GB", "20,000 GB", "20 GB"]
         },
         {
-          prompt: "Convert 750 Kilobytes (KB) to Megabytes (MB):",
-          display: "750 KB ➔ MB",
+          prompt: "Storage Unit Conversion",
+          display: "750 KB ➔ ? MB",
           hint: "Divide by 1,000 (750 ÷ 1,000)",
           correctAnswer: "0.75 MB",
           options: ["0.75 MB", "7.5 MB", "0.075 MB", "75 MB"]
@@ -5239,6 +5248,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5304,48 +5314,53 @@
     if (effectiveMode === 'units_transmission') {
       const qPool = [
         {
-          prompt: "50 Megabytes (MB) is equal to how many Megabits (Mb)?",
-          display: "50 MB ➔ Mb",
+          prompt: "Data Transmission: Bits vs Bytes",
+          display: "50 MB ➔ ? Mb",
           hint: "Multiply by 8 (8 bits per byte: 50 × 8)",
           correctAnswer: "400 Mb",
           options: ["400 Mb", "50 Mb", "25 Mb", "800 Mb"]
         },
         {
-          prompt: "A broadband connection downloads at 40 Mbps. What is the download speed in Megabytes per second (MB/s)?",
-          display: "40 Mbps ➔ MB/s",
+          prompt: "Data Transmission: Transfer Speed",
+          display: "40 Mbps ➔ ? MB/s",
           hint: "Divide by 8 (8 bits per byte: 40 ÷ 8)",
           correctAnswer: "5 MB/s",
           options: ["5 MB/s", "4 MB/s", "8 MB/s", "10 MB/s"]
         },
         {
-          prompt: "How long will it take to download a 300 MB file over a 30 Mbps broadband connection?",
-          display: "300 MB @ 30 Mbps",
+          prompt: "Download Time Calculation",
+          display: "300 MB @ 30 Mbps = ? seconds",
           hint: "File size in bits = 300 × 8 = 2,400 Mb. Time = 2,400 ÷ 30 Mbps",
           correctAnswer: "80 seconds",
           options: ["80 seconds", "10 seconds", "40 seconds", "100 seconds"]
         },
         {
-          prompt: "How long will it take to download a 100 MB file over a 40 Mbps connection?",
-          display: "100 MB @ 40 Mbps",
+          prompt: "Download Time Calculation",
+          display: "100 MB @ 40 Mbps = ? seconds",
           hint: "File size in bits = 100 × 8 = 800 Mb. Time = 800 ÷ 40 Mbps",
           correctAnswer: "20 seconds",
           options: ["20 seconds", "2.5 seconds", "40 seconds", "80 seconds"]
         },
         {
-          prompt: "How long will it take to download an 80 MB file over a 16 Mbps connection?",
-          display: "80 MB @ 16 Mbps",
+          prompt: "Download Time Calculation",
+          display: "80 MB @ 16 Mbps = ? seconds",
           hint: "File in bits = 80 × 8 = 640 Mb. Time = 640 ÷ 16 Mbps",
           correctAnswer: "40 seconds",
           options: ["40 seconds", "5 seconds", "20 seconds", "80 seconds"]
         },
         {
-          prompt: "A network payload is 240 Megabits (Mb). How many Megabytes (MB) is this?",
-          display: "240 Mb ➔ MB",
+          prompt: "Data Transmission: Bits to Bytes",
+          display: "240 Mb ➔ ? MB",
           hint: "Divide by 8 (240 ÷ 8)",
           correctAnswer: "30 MB",
           options: ["30 MB", "1,920 MB", "60 MB", "15 MB"]
         },
         {
+          prompt: "Network Notation Rules",
+          display: "What is the difference between capital 'B' and lowercase 'b'?",
+          isQuestionDisplay: true,
+          hint: "Capital B denotes Bytes (8 bits); lowercase b denotes bits",
+          correctAnswer: "B = Byte (8 bits), b = bit (1 binary digit)",
           options: [
             "B = Byte (8 bits), b = bit (1 binary digit)",
             "B = bit (1 binary digit), b = Byte (8 bits)",
@@ -5359,6 +5374,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5369,8 +5385,9 @@
     if (effectiveMode === 'units_prefixes_kib') {
       const qPool = [
         {
-          prompt: "What is the difference between a Kilobyte (KB) and a Kibibyte (KiB)?",
-          display: "KB vs KiB",
+          prompt: "Decimal vs Binary Prefixes",
+          display: "What is the difference between KB and KiB?",
+          isQuestionDisplay: true,
           hint: "Decimal (base 10) vs IEC Binary (base 2)",
           correctAnswer: "1 KB = 1,000 bytes (10³), 1 KiB = 1,024 bytes (2¹⁰)",
           options: [
@@ -5381,15 +5398,16 @@
           ]
         },
         {
-          prompt: "How many bytes are in 1 Mebibyte (MiB)?",
-          display: "1 MiB ➔ bytes",
+          prompt: "Binary Prefixes (IEC)",
+          display: "1 Mebibyte (MiB) ➔ ? bytes",
           hint: "2²⁰ bytes = 1,024 × 1,024",
           correctAnswer: "1,048,576 bytes",
           options: ["1,048,576 bytes", "1,000,000 bytes", "1,024,000 bytes", "2,048,000 bytes"]
         },
         {
-          prompt: "Why does a 500 GB hard drive show approximately 465 GiB in Windows?",
-          display: "Drive Capacity Paradox",
+          prompt: "Operating System Storage Reporting",
+          display: "Why does a 500 GB drive show ~465 GiB in Windows?",
+          isQuestionDisplay: true,
           hint: "Manufacturers use decimal (10⁹ bytes), but the operating system reports binary (2³⁰ bytes)",
           correctAnswer: "Manufacturers use 10⁹ bytes (decimal), while the OS reports in 2³⁰ (binary gibibytes)",
           options: [
@@ -5405,6 +5423,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5415,22 +5434,25 @@
     if (effectiveMode === 'units_text_chars') {
       const qPool = [
         {
-          prompt: "How many bytes of storage does an ASCII string of 25 characters require?",
-          display: "\"Hello Computer Science!\" (25 chars)",
+          prompt: "Character Encoding Storage",
+          display: "How many bytes for a 25-character ASCII string?",
+          isQuestionDisplay: true,
           hint: "Standard 7-bit/8-bit ASCII uses 1 byte (8 bits) per character: 25 × 1",
           correctAnswer: "25 bytes",
           options: ["25 bytes", "200 bytes", "50 bytes", "12.5 bytes"]
         },
         {
-          prompt: "How many bytes does a 40-character string require when encoded in 16-bit UTF-16 Unicode?",
-          display: "40 chars @ 16-bit Unicode",
+          prompt: "Character Encoding Storage",
+          display: "How many bytes for 40 characters in UTF-16 Unicode?",
+          isQuestionDisplay: true,
           hint: "Each 16-bit character requires 2 bytes (40 × 2)",
           correctAnswer: "80 bytes",
           options: ["80 bytes", "40 bytes", "640 bytes", "20 bytes"]
         },
         {
-          prompt: "How many bits are needed to encode a 12-character password in standard ASCII?",
-          display: "12 chars in ASCII",
+          prompt: "Character Encoding Storage",
+          display: "How many bits to encode a 12-char ASCII password?",
+          isQuestionDisplay: true,
           hint: "Each character is 1 byte = 8 bits (12 × 8)",
           correctAnswer: "96 bits",
           options: ["96 bits", "12 bits", "48 bits", "120 bits"]
@@ -5441,6 +5463,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5451,22 +5474,22 @@
     if (effectiveMode === 'units_conversions_up') {
       const qPool = [
         {
-          prompt: "Convert 8,000 Kilobytes (KB) to Megabytes (MB):",
-          display: "8,000 KB ➔ MB",
+          prompt: "Step-Up Conversion (÷1,000)",
+          display: "8,000 KB ➔ ? MB",
           hint: "Divide by 1,000 (8,000 ÷ 1,000)",
           correctAnswer: "8 MB",
           options: ["8 MB", "80 MB", "0.8 MB", "800 MB"]
         },
         {
-          prompt: "Convert 12,000 Megabytes (MB) to Gigabytes (GB):",
-          display: "12,000 MB ➔ GB",
+          prompt: "Step-Up Conversion (÷1,000)",
+          display: "12,000 MB ➔ ? GB",
           hint: "Divide by 1,000 (12,000 ÷ 1,000)",
           correctAnswer: "12 GB",
           options: ["12 GB", "1.2 GB", "120 GB", "12,000 GB"]
         },
         {
-          prompt: "Convert 4,500 bytes to Kilobytes (KB):",
-          display: "4,500 bytes ➔ KB",
+          prompt: "Step-Up Conversion (÷1,000)",
+          display: "4,500 bytes ➔ ? KB",
           hint: "Divide by 1,000 (4,500 ÷ 1,000)",
           correctAnswer: "4.5 KB",
           options: ["4.5 KB", "45 KB", "0.45 KB", "450 KB"]
@@ -5477,6 +5500,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5487,22 +5511,22 @@
     if (effectiveMode === 'units_conversions_down') {
       const qPool = [
         {
-          prompt: "Convert 6 Gigabytes (GB) to Megabytes (MB):",
-          display: "6 GB ➔ MB",
+          prompt: "Step-Down Conversion (×1,000)",
+          display: "6 GB ➔ ? MB",
           hint: "Multiply by 1,000 (6 × 1,000)",
           correctAnswer: "6,000 MB",
           options: ["6,000 MB", "600 MB", "60,000 MB", "6 MB"]
         },
         {
-          prompt: "Convert 1.5 Terabytes (TB) to Gigabytes (GB):",
-          display: "1.5 TB ➔ GB",
+          prompt: "Step-Down Conversion (×1,000)",
+          display: "1.5 TB ➔ ? GB",
           hint: "Multiply by 1,000 (1.5 × 1,000)",
           correctAnswer: "1,500 GB",
           options: ["1,500 GB", "150 GB", "15,000 GB", "15 GB"]
         },
         {
-          prompt: "Convert 3.2 Megabytes (MB) to Kilobytes (KB):",
-          display: "3.2 MB ➔ KB",
+          prompt: "Step-Down Conversion (×1,000)",
+          display: "3.2 MB ➔ ? KB",
           hint: "Multiply by 1,000 (3.2 × 1,000)",
           correctAnswer: "3,200 KB",
           options: ["3,200 KB", "320 KB", "32,000 KB", "32 KB"]
@@ -5513,6 +5537,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5523,22 +5548,23 @@
     if (effectiveMode === 'units_sound_calc') {
       const qPool = [
         {
-          prompt: "Calculate the uncompressed file size for a mono sound recording: Sample Rate = 44,000 Hz, Bit Depth = 16 bits, Duration = 10 seconds.",
-          display: "44,000 Hz × 16 bits × 10 s",
+          prompt: "Sound File Size Calculation",
+          display: "44,000 Hz × 16 bits × 10 s = ?",
           hint: "Bits = 44,000 × 16 × 10 = 7,040,000 bits. Bytes = 7,040,000 ÷ 8 = 880,000 bytes (880 KB)",
           correctAnswer: "880 KB",
           options: ["880 KB", "7.04 MB", "440 KB", "1.76 MB"]
         },
         {
-          prompt: "Calculate the size of 5 seconds of telephone audio recorded in mono at 8,000 Hz with 8-bit sample resolution.",
-          display: "8,000 Hz × 8 bits × 5 s",
+          prompt: "Sound File Size Calculation",
+          display: "8,000 Hz × 8 bits × 5 s = ?",
           hint: "Bytes per second = 8,000 × (8 ÷ 8) = 8,000 B/s. Total = 8,000 × 5 = 40,000 bytes (40 KB)",
           correctAnswer: "40 KB",
           options: ["40 KB", "320 KB", "80 KB", "20 KB"]
         },
         {
-          prompt: "If an audio track is recorded in STEREO (2 channels) instead of mono, what happens to the file size?",
-          display: "Mono vs Stereo",
+          prompt: "Audio File Sizing",
+          display: "If an audio track is recorded in STEREO instead of MONO:",
+          isQuestionDisplay: true,
           hint: "Stereo doubles the audio stream by recording separate left and right channels",
           correctAnswer: "The file size doubles (×2)",
           options: ["The file size doubles (×2)", "The file size quadruples (×4)", "The file size stays identical", "The file size halves (÷2)"]
@@ -5549,6 +5575,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5559,22 +5586,22 @@
     if (effectiveMode === 'units_image_calc') {
       const qPool = [
         {
-          prompt: "Calculate the file size of a bitmap image: 200 pixels wide, 100 pixels high, with a colour depth of 8 bits (256 colours).",
-          display: "200 × 100 @ 8 bits",
+          prompt: "Bitmap Image File Size",
+          display: "200 × 100 @ 8 bits = ? KB",
           hint: "Pixels = 20,000. Bits = 20,000 × 8 = 160,000 bits. Bytes = 160,000 ÷ 8 = 20,000 bytes (20 KB)",
           correctAnswer: "20 KB",
           options: ["20 KB", "160 KB", "200 KB", "2 KB"]
         },
         {
-          prompt: "Calculate the file size of a 100 × 50 pixel icon using 24-bit True Colour depth (3 bytes per pixel).",
-          display: "100 × 50 @ 24 bits",
+          prompt: "Bitmap Image File Size",
+          display: "100 × 50 @ 24 bits = ? KB",
           hint: "Total pixels = 5,000. Bytes = 5,000 × 3 = 15,000 bytes (15 KB)",
           correctAnswer: "15 KB",
           options: ["15 KB", "120 KB", "5 KB", "30 KB"]
         },
         {
-          prompt: "A monochrome black-and-white image has a colour depth of 1 bit. How many bytes are needed for an 800 × 600 image?",
-          display: "800 × 600 @ 1 bit",
+          prompt: "Bitmap Image File Size",
+          display: "800 × 600 @ 1 bit = ? KB",
           hint: "Total bits = 480,000. Bytes = 480,000 ÷ 8 = 60,000 bytes (60 KB)",
           correctAnswer: "60 KB",
           options: ["60 KB", "480 KB", "120 KB", "30 KB"]
@@ -5585,6 +5612,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5595,15 +5623,15 @@
     if (effectiveMode === 'units_mb_vs_mb') {
       const qPool = [
         {
-          prompt: "A user has an 80 Mbps fiber internet package. What is their maximum download speed in Megabytes per second (MB/s)?",
-          display: "80 Mbps ➔ MB/s",
+          prompt: "Transfer Speed vs File Size",
+          display: "80 Mbps ➔ ? MB/s",
           hint: "Divide by 8 (8 bits in 1 byte): 80 ÷ 8",
           correctAnswer: "10 MB/s",
           options: ["10 MB/s", "8 MB/s", "80 MB/s", "640 MB/s"]
         },
         {
-          prompt: "If an online backup transfers at 6 MB/s, what is the network bandwidth in Megabits per second (Mbps)?",
-          display: "6 MB/s ➔ Mbps",
+          prompt: "Transfer Speed vs File Size",
+          display: "6 MB/s ➔ ? Mbps",
           hint: "Multiply by 8 (8 bits in 1 byte): 6 × 8",
           correctAnswer: "48 Mbps",
           options: ["48 Mbps", "6 Mbps", "24 Mbps", "36 Mbps"]
@@ -5614,6 +5642,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5624,8 +5653,9 @@
     if (effectiveMode === 'units_payload_overhead') {
       const qPool = [
         {
-          prompt: "Why is the real-world download speed of a file always slightly lower than the theoretical network Mbps speed?",
-          display: "Protocol Overhead",
+          prompt: "Network Protocol Overhead",
+          display: "Why is real download speed lower than theoretical Mbps?",
+          isQuestionDisplay: true,
           hint: "Network protocols (TCP/IP, Ethernet) require packet headers containing IP addresses, sequence numbers & checksums",
           correctAnswer: "Packet headers and protocol metadata consume a portion of the bandwidth",
           options: [
@@ -5636,8 +5666,8 @@
           ]
         },
         {
-          prompt: "In a 1,500-byte Ethernet packet, 40 bytes are consumed by TCP and IP headers. How many bytes represent actual data payload?",
-          display: "1,500 B − 40 B",
+          prompt: "Packet Payload Calculation",
+          display: "1,500 B Packet − 40 B Headers = ? Payload",
           hint: "Payload = Total Packet − Protocol Headers (1,500 − 40)",
           correctAnswer: "1,460 bytes",
           options: ["1,460 bytes", "1,540 bytes", "1,400 bytes", "750 bytes"]
@@ -5648,6 +5678,7 @@
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
+        isQuestionDisplay: selected.isQuestionDisplay,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5854,11 +5885,24 @@
       if (bitmasterState.currentQuestion.displayHTML) {
         mainDispEl.innerHTML = bitmasterState.currentQuestion.displayHTML;
         mainDispEl.classList.add('has-strip');
+        mainDispEl.classList.remove('is-question-text');
         mainDispEl.style.whiteSpace = 'normal';
       } else {
         mainDispEl.textContent = bitmasterState.currentQuestion.display;
         mainDispEl.classList.remove('has-strip');
-        mainDispEl.style.whiteSpace = 'nowrap';
+        const isLongText = Boolean(bitmasterState.currentQuestion.isQuestionDisplay) || 
+          (typeof bitmasterState.currentQuestion.display === 'string' && 
+           bitmasterState.currentQuestion.display.length > 25 && 
+           !bitmasterState.currentQuestion.display.includes('➔') && 
+           !bitmasterState.currentQuestion.display.includes('<<') && 
+           !bitmasterState.currentQuestion.display.includes('>>'));
+        if (isLongText) {
+          mainDispEl.classList.add('is-question-text');
+          mainDispEl.style.whiteSpace = 'normal';
+        } else {
+          mainDispEl.classList.remove('is-question-text');
+          mainDispEl.style.whiteSpace = 'nowrap';
+        }
       }
     }
     if (hintEl) hintEl.textContent = bitmasterState.currentQuestion.hint || '';
@@ -6278,7 +6322,20 @@
       question.bitsA.map(b => `<span class="math-bit-cell ${b === 1 ? 'bit-is-1' : ''}">${b}</span>`).join('');
 
     // 3. Operand Row B with Operator
-    if (question.interactiveRowB) {
+    if (question.isShiftGrid) {
+      rowB.className = 'math-grid-shift-row';
+      const isLeft = question.isLeft;
+      const arrow = isLeft ? '◀◀' : '▶▶';
+      const mathEffect = isLeft ? `×${Math.pow(2, question.shiftAmount)}` : `÷${Math.pow(2, question.shiftAmount)}`;
+      rowB.innerHTML = `
+        <div class="math-shift-flow-bar ${isLeft ? 'shift-left' : 'shift-right'}">
+          <span class="shift-flow-arrow">${arrow}</span>
+          <span class="shift-flow-label">Shift ${isLeft ? 'Left' : 'Right'} by ${question.shiftAmount} Bit${question.shiftAmount > 1 ? 's' : ''} (${mathEffect})</span>
+          <span class="shift-flow-arrow">${arrow}</span>
+        </div>
+      `;
+    } else if (question.interactiveRowB) {
+      rowB.className = 'math-grid-operand-row';
       rowB.innerHTML = `<span class="math-row-op op-symbol" title="Two's Complement Addition: A + (-B)">${question.operator || '+'}</span>`;
       for (let i = 0; i < numBits; i++) {
         const flipBtnB = document.createElement('button');
@@ -6298,10 +6355,10 @@
         rowB.appendChild(flipBtnB);
       }
     } else {
+      rowB.className = 'math-grid-operand-row';
       rowB.innerHTML = `<span class="math-row-op op-symbol">${question.operator || '+'}</span>` + 
-        question.bitsB.map(b => {
-          const isShift = typeof b === 'string' && (b.includes('⇦') || b.includes('⇨'));
-          return `<span class="math-bit-cell ${b === 1 ? 'bit-is-1' : ''} ${isShift ? 'shift-arrows' : ''}">${b}</span>`;
+        (question.bitsB || []).map(b => {
+          return `<span class="math-bit-cell ${b === 1 ? 'bit-is-1' : ''}">${b}</span>`;
         }).join('');
     }
 
