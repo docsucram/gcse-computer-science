@@ -6389,83 +6389,80 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   box-shadow: 0 5px 0 #0369a1, 0 0 24px rgba(56, 189, 248, 0.7);
 }
 
-/* Target Badges (Row & Column) */
+/* Target Readouts (Row & Column - Unboxed / No Square) */
 .bitcross-target-badge {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 52px;
-  min-height: 48px;
-  padding: 4px 8px;
-  background: #111827;
-  border: 1.5px solid #2d3748;
-  border-radius: 12px;
+  padding: 4px 6px;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
   font-family: var(--font-mono);
   box-sizing: border-box;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
   user-select: none;
 }
 
 .target-val-row {
   display: flex;
   align-items: baseline;
-  gap: 2px;
+  justify-content: center;
+  gap: 3px;
   line-height: 1;
+  font-family: var(--font-mono);
+  transition: all 0.2s ease;
 }
 
 .target-cur-val {
-  font-size: clamp(14px, 3.5vw, 17px);
+  font-size: clamp(15px, 3.8vw, 19px);
   font-weight: 900;
   color: #94a3b8;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
 .target-sep {
-  font-size: 11px;
+  font-size: 13px;
+  font-weight: 700;
   color: #475569;
+  transition: color 0.2s ease;
 }
 
 .target-goal-val {
-  font-size: clamp(14px, 3.5vw, 17px);
+  font-size: clamp(15px, 3.8vw, 19px);
   font-weight: 900;
-  color: #f8fafc;
+  color: #f1f5f9;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
 }
 
-.target-check-mark {
-  font-size: 11px;
-  font-weight: 900;
-  color: #64748b;
-  margin-top: 2px;
-}
-
-/* Matched Target State (Neon Green!) */
+/* Matched Target State (Neon Green Text!) */
 .bitcross-target-badge.is-matched {
-  background: rgba(16, 185, 129, 0.15) !important;
-  border-color: #10b981 !important;
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.35) !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .bitcross-target-badge.is-matched .target-cur-val,
 .bitcross-target-badge.is-matched .target-goal-val {
-  color: #34d399 !important;
+  color: #10b981 !important;
+  text-shadow: 0 0 14px rgba(16, 185, 129, 0.75), 0 0 4px rgba(16, 185, 129, 0.9) !important;
 }
 
-.bitcross-target-badge.is-matched .target-check-mark {
-  color: #34d399 !important;
+.bitcross-target-badge.is-matched .target-sep {
+  color: #059669 !important;
 }
 
-/* Corner Total Badge */
+/* Corner Total Readout (Unboxed) */
 .bitcross-corner-badge {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 52px;
-  min-height: 48px;
   padding: 4px 6px;
-  background: #0f172a;
-  border: 1.5px solid #232c40;
-  border-radius: 12px;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   font-family: var(--font-mono);
   user-select: none;
   box-sizing: border-box;
@@ -6548,10 +6545,9 @@ body.bitmaster-standalone-mode .bitmaster-arena {
     border-radius: 10px;
   }
   .bitcross-target-badge {
-    min-width: 44px;
-    min-height: 38px;
-    padding: 2px 4px;
-    border-radius: 10px;
+    padding: 2px;
+    background: transparent !important;
+    border: none !important;
   }
 }
 

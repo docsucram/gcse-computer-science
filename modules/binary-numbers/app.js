@@ -7375,7 +7375,7 @@
         board.appendChild(cell);
       }
 
-      // Row Target Indicator Badge
+      // Row Target Indicator Readout (Unboxed, turns green when matched)
       const rowTarget = document.createElement('div');
       rowTarget.className = 'bitcross-target-badge';
       rowTarget.id = `bitcrossRowTarget_${r}`;
@@ -7385,7 +7385,6 @@
           <span class="target-sep">/</span>
           <span class="target-goal-val">${bitcrossState.targetRows[r]}</span>
         </div>
-        <span class="target-check-mark" id="bitcrossRowCheck_${r}">○</span>
       `;
       board.appendChild(rowTarget);
     }
@@ -7405,7 +7404,6 @@
           <span class="target-sep">/</span>
           <span class="target-goal-val">${bitcrossState.targetCols[c]}</span>
         </div>
-        <span class="target-check-mark" id="bitcrossColCheck_${c}">○</span>
       `;
       board.appendChild(colTarget);
     }
@@ -7455,10 +7453,8 @@
 
       const badge = document.getElementById(`bitcrossRowTarget_${r}`);
       const curEl = document.getElementById(`bitcrossRowCur_${r}`);
-      const checkEl = document.getElementById(`bitcrossRowCheck_${r}`);
 
       if (curEl) curEl.textContent = String(curSum);
-      if (checkEl) checkEl.textContent = isMatch ? '✓' : '○';
       if (badge) badge.classList.toggle('is-matched', isMatch);
     }
 
@@ -7471,10 +7467,8 @@
 
       const badge = document.getElementById(`bitcrossColTarget_${c}`);
       const curEl = document.getElementById(`bitcrossColCur_${c}`);
-      const checkEl = document.getElementById(`bitcrossColCheck_${c}`);
 
       if (curEl) curEl.textContent = String(curSum);
-      if (checkEl) checkEl.textContent = isMatch ? '✓' : '○';
       if (badge) badge.classList.toggle('is-matched', isMatch);
     }
 
@@ -7509,9 +7503,9 @@
     saveBitmasterProgress();
     updateBitmasterHUD();
 
-    // Audio chime & Confetti
+    // Audio victory chime & Confetti
     try {
-      playSynthSound('fanfare');
+      playSynthSound('victory');
     } catch (e) {}
     fireConfetti();
 
