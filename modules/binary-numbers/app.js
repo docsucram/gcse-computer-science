@@ -5241,69 +5241,139 @@
     // UNITS OF DATA: FUNDAMENTALS & CONVERSIONS
     // =========================================================================
     if (effectiveMode === 'units_fundamental') {
-      const qPool = [
-        {
-          prompt: "Data Storage Units",
-          display: "1 Byte = ? bits",
-          hint: "The foundational grouping in computer memory (8 bits)",
-          correctAnswer: "8 bits",
-          options: ["8 bits", "4 bits", "16 bits", "2 bits"]
-        },
-        {
-          prompt: "Data Storage Units",
-          display: "1 Nibble = ? bits",
-          hint: "Half of an 8-bit byte (represents 1 hex digit)",
-          correctAnswer: "4 bits",
-          options: ["4 bits", "8 bits", "2 bits", "16 bits"]
-        },
-        {
-          prompt: "Decimal Storage Prefixes",
-          display: "1 Kilobyte (KB) = ? bytes",
-          hint: "Decimal prefix (metric base 10): Kilo = 10³ = 1,000",
-          correctAnswer: "1,000 bytes",
-          options: ["1,000 bytes", "100 bytes", "10,000 bytes", "500 bytes"]
-        },
-        {
-          prompt: "Data Storage Units",
-          display: "3 Bytes = ? nibbles",
-          hint: "Each byte contains exactly 2 nibbles (3 × 2)",
-          correctAnswer: "6 nibbles",
-          options: ["6 nibbles", "3 nibbles", "12 nibbles", "24 nibbles"]
-        },
-        {
-          prompt: "Data Storage Units",
-          display: "4 Bytes = ? bits",
-          hint: "Each byte contains 8 bits (4 × 8)",
-          correctAnswer: "32 bits",
-          options: ["32 bits", "16 bits", "64 bits", "24 bits"]
-        },
-        {
-          prompt: "Data Hierarchy",
-          display: "Which is the smallest individual unit of storage in computing?",
+      const subType = Math.floor(Math.random() * 3);
+
+      if (subType === 0) {
+        // Category A: Direct Definition (How many bits in a byte, how many bytes in a KB/MB/GB)
+        const defs = [
+          {
+            prompt: "Data Storage Units",
+            display: "How many bits are in 1 Byte?",
+            hint: "The fundamental unit of computer memory storage.",
+            correctAnswer: "8 bits",
+            options: ["8 bits", "4 bits", "16 bits", "2 bits"]
+          },
+          {
+            prompt: "Data Storage Units",
+            display: "How many bits are in 1 Nibble?",
+            hint: "A nibble is exactly half of an 8-bit byte (represents 1 hex digit).",
+            correctAnswer: "4 bits",
+            options: ["4 bits", "8 bits", "2 bits", "16 bits"]
+          },
+          {
+            prompt: "Data Storage Units",
+            display: "How many nibbles are in 1 Byte?",
+            hint: "8 bits divided into 4-bit nibbles.",
+            correctAnswer: "2 nibbles",
+            options: ["2 nibbles", "4 nibbles", "8 nibbles", "1 nibble"]
+          },
+          {
+            prompt: "Decimal Storage Prefixes",
+            display: "How many bytes are in 1 Kilobyte (KB)?",
+            hint: "Standard metric decimal prefix: Kilo = 10³.",
+            correctAnswer: "1,000 bytes",
+            options: ["1,000 bytes", "100 bytes", "10,000 bytes", "500 bytes"]
+          },
+          {
+            prompt: "Decimal Storage Prefixes",
+            display: "How many Kilobytes (KB) are in 1 Megabyte (MB)?",
+            hint: "Standard metric decimal step: 10³ Kilobytes.",
+            correctAnswer: "1,000 KB",
+            options: ["1,000 KB", "100 KB", "10,000 KB", "1,024 KB"]
+          },
+          {
+            prompt: "Decimal Storage Prefixes",
+            display: "How many Megabytes (MB) are in 1 Gigabyte (GB)?",
+            hint: "Standard metric decimal step: 10³ Megabytes.",
+            correctAnswer: "1,000 MB",
+            options: ["1,000 MB", "100 MB", "10,000 MB", "500 MB"]
+          },
+          {
+            prompt: "Decimal Storage Prefixes",
+            display: "How many Gigabytes (GB) are in 1 Terabyte (TB)?",
+            hint: "Standard metric decimal step: 10³ Gigabytes.",
+            correctAnswer: "1,000 GB",
+            options: ["1,000 GB", "100 GB", "10,000 GB", "500 GB"]
+          }
+        ];
+        const selected = defs[Math.floor(Math.random() * defs.length)];
+        return {
+          type: 'mc',
+          prompt: selected.prompt,
+          display: selected.display,
           isQuestionDisplay: true,
-          hint: "Stores a single 0 or 1 transistor state",
-          correctAnswer: "Bit (Binary Digit)",
-          options: ["Bit (Binary Digit)", "Byte", "Nibble", "Character"]
-        },
-        {
-          prompt: "Data Hierarchy",
-          display: "Which list is ordered from SMALLEST to LARGEST?",
+          hint: selected.hint,
+          correctAnswer: selected.correctAnswer,
+          options: shuffleArray(selected.options)
+        };
+      } else if (subType === 1) {
+        // Category B: "Which is bigger, X or Y?" (2 options ONLY!)
+        const comparisons = [
+          { itemA: "1 Byte", itemB: "1 Nibble", bigger: "1 Byte", hint: "1 Byte = 8 bits, 1 Nibble = 4 bits." },
+          { itemA: "1 Byte", itemB: "4 bits", bigger: "1 Byte", hint: "1 Byte = 8 bits." },
+          { itemA: "10 bits", itemB: "1 Byte", bigger: "10 bits", hint: "1 Byte is 8 bits, so 10 bits is larger." },
+          { itemA: "1 Kilobyte (KB)", itemB: "500 bytes", bigger: "1 Kilobyte (KB)", hint: "1 KB = 1,000 bytes." },
+          { itemA: "1 Megabyte (MB)", itemB: "1 Kilobyte (KB)", bigger: "1 Megabyte (MB)", hint: "1 MB = 1,000 KB." },
+          { itemA: "1 Gigabyte (GB)", itemB: "1 Megabyte (MB)", bigger: "1 Gigabyte (GB)", hint: "1 GB = 1,000 MB." },
+          { itemA: "1 Terabyte (TB)", itemB: "1 Gigabyte (GB)", bigger: "1 Terabyte (TB)", hint: "1 TB = 1,000 GB." },
+          { itemA: "2 Megabytes (MB)", itemB: "1,500 Kilobytes (KB)", bigger: "2 Megabytes (MB)", hint: "2 MB = 2,000 KB." },
+          { itemA: "3 Bytes", itemB: "4 Nibbles", bigger: "3 Bytes", hint: "3 Bytes = 6 nibbles (24 bits); 4 nibbles = 16 bits." },
+          { itemA: "1,200 Megabytes (MB)", itemB: "1 Gigabyte (GB)", bigger: "1,200 Megabytes (MB)", hint: "1 GB = 1,000 MB." }
+        ];
+        const comp = comparisons[Math.floor(Math.random() * comparisons.length)];
+        const opts = shuffleArray([comp.itemA, comp.itemB]);
+        return {
+          type: 'mc',
+          prompt: "Compare Storage Sizes",
+          display: "Which is bigger?",
           isQuestionDisplay: true,
-          hint: "Bit < Nibble < Byte < Kilobyte < Megabyte",
-          correctAnswer: "Bit < Nibble < Byte < KB",
-          options: ["Bit < Nibble < Byte < KB", "Bit < Byte < Nibble < KB", "Nibble < Bit < Byte < KB", "Byte < Nibble < Bit < KB"]
+          hint: comp.hint,
+          correctAnswer: comp.bigger,
+          options: opts
+        };
+      } else {
+        // Category C: Randomized Multiplier (N bytes to bits/nibbles)
+        const randN = [2, 3, 4, 5, 6, 8][Math.floor(Math.random() * 6)];
+        const kind = Math.floor(Math.random() * 3);
+
+        if (kind === 0) {
+          const ans = `${randN * 8} bits`;
+          const opts = shuffleArray([ans, `${randN * 4} bits`, `${randN * 16} bits`, `${randN * 2} bits`]);
+          return {
+            type: 'mc',
+            prompt: "Data Storage Units",
+            display: `How many bits in ${randN} Bytes?`,
+            isQuestionDisplay: true,
+            hint: "1 Byte = 8 bits. Multiply number of bytes by 8.",
+            correctAnswer: ans,
+            options: opts
+          };
+        } else if (kind === 1) {
+          const ans = `${randN * 2} nibbles`;
+          const opts = shuffleArray([ans, `${randN * 4} nibbles`, `${randN} nibbles`, `${randN * 8} nibbles`]);
+          return {
+            type: 'mc',
+            prompt: "Data Storage Units",
+            display: `How many nibbles in ${randN} Bytes?`,
+            isQuestionDisplay: true,
+            hint: "Each byte contains 2 nibbles. Multiply number of bytes by 2.",
+            correctAnswer: ans,
+            options: opts
+          };
+        } else {
+          const ans = `${(randN * 1000).toLocaleString()} bytes`;
+          const opts = shuffleArray([ans, `${(randN * 100).toLocaleString()} bytes`, `${(randN * 10000).toLocaleString()} bytes`, `${(randN * 500).toLocaleString()} bytes`]);
+          return {
+            type: 'mc',
+            prompt: "Decimal Storage Units",
+            display: `How many bytes in ${randN} Kilobytes (KB)?`,
+            isQuestionDisplay: true,
+            hint: "1 KB = 1,000 bytes. Multiply number of KB by 1,000.",
+            correctAnswer: ans,
+            options: opts
+          };
         }
-      ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
-      return {
-        type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
-      };
+      }
     }
 
     if (effectiveMode === 'units_conversions') {
@@ -5498,47 +5568,99 @@
 
     // Level 2: Decimal vs Binary Prefixes (KB vs KiB)
     if (effectiveMode === 'units_prefixes_kib') {
-      const qPool = [
+      const qTypes = [
+        // Comparison questions (2 options)
         {
-          prompt: "Decimal vs Binary Prefixes",
-          display: "What is the difference between KB and KiB?",
-          isQuestionDisplay: true,
-          hint: "Decimal (base 10) vs IEC Binary (base 2)",
-          correctAnswer: "1 KB = 1,000 bytes (10³), 1 KiB = 1,024 bytes (2¹⁰)",
-          options: [
-            "1 KB = 1,000 bytes (10³), 1 KiB = 1,024 bytes (2¹⁰)",
-            "1 KB = 1,024 bytes, 1 KiB = 1,000 bytes",
-            "KB is for memory, KiB is for hard drives",
-            "They are identical terms with no numerical difference"
-          ]
+          prompt: "Binary vs Decimal Prefixes",
+          display: "Which is larger: 1 KiB or 1 KB?",
+          hint: "1 KiB = 1,024 bytes (binary 2¹⁰); 1 KB = 1,000 bytes (decimal 10³).",
+          correctAnswer: "1 KiB (1,024 bytes)",
+          options: ["1 KiB (1,024 bytes)", "1 KB (1,000 bytes)"]
         },
         {
-          prompt: "Binary Prefixes (IEC)",
-          display: "1 Mebibyte (MiB) ➔ ? bytes",
-          hint: "2²⁰ bytes = 1,024 × 1,024",
-          correctAnswer: "1,048,576 bytes",
-          options: ["1,048,576 bytes", "1,000,000 bytes", "1,024,000 bytes", "2,048,000 bytes"]
+          prompt: "Binary vs Decimal Prefixes",
+          display: "Which is larger: 1 MiB or 1 MB?",
+          hint: "1 MiB = 1,048,576 bytes; 1 MB = 1,000,000 bytes.",
+          correctAnswer: "1 MiB (Mebibyte)",
+          options: ["1 MiB (Mebibyte)", "1 MB (Megabyte)"]
         },
         {
-          prompt: "Operating System Storage Reporting",
+          prompt: "Binary vs Decimal Prefixes",
+          display: "Which is larger: 1 GiB or 1 GB?",
+          hint: "Gibibyte uses powers of 1,024; Gigabyte uses powers of 1,000.",
+          correctAnswer: "1 GiB (Gibibyte)",
+          options: ["1 GiB (Gibibyte)", "1 GB (Gigabyte)"]
+        },
+        // Multiplier rules (2 options)
+        {
+          prompt: "Prefix Standards",
+          display: "Which multiplier is used by Decimal metric prefixes (KB, MB, GB)?",
+          hint: "Metric base 10 uses powers of 1,000 (10³).",
+          correctAnswer: "1,000 (10³)",
+          options: ["1,000 (10³)", "1,024 (2¹⁰)"]
+        },
+        {
+          prompt: "Prefix Standards",
+          display: "Which multiplier is used by IEC Binary prefixes (KiB, MiB, GiB)?",
+          hint: "Binary base 2 uses powers of 1,024 (2¹⁰).",
+          correctAnswer: "1,024 (2¹⁰)",
+          options: ["1,024 (2¹⁰)", "1,000 (10³)"]
+        },
+        // Unit values
+        {
+          prompt: "IEC Binary Prefixes",
+          display: "1 Kibibyte (KiB) = ? bytes",
+          hint: "Binary prefix uses 2¹⁰ = 1,024.",
+          correctAnswer: "1,024 bytes",
+          options: ["1,024 bytes", "1,000 bytes", "512 bytes", "2,048 bytes"]
+        },
+        {
+          prompt: "IEC Binary Prefixes",
+          display: "2 Kibibytes (2 KiB) = ? bytes",
+          hint: "Multiply 1,024 by 2.",
+          correctAnswer: "2,048 bytes",
+          options: ["2,048 bytes", "2,000 bytes", "1,024 bytes", "4,096 bytes"]
+        },
+        {
+          prompt: "Decimal Prefixes",
+          display: "1 Kilobyte (KB) = ? bytes",
+          hint: "Decimal prefix uses 10³ = 1,000.",
+          correctAnswer: "1,000 bytes",
+          options: ["1,000 bytes", "1,024 bytes", "100 bytes", "10,000 bytes"]
+        },
+        // Terminology
+        {
+          prompt: "Prefix Terminology",
+          display: "What does the 'bi' in Kibibyte stand for?",
+          hint: "KiB represents Kilo-Binary.",
+          correctAnswer: "Binary (powers of 2)",
+          options: ["Binary (powers of 2)", "Bit-level", "Broadband", "Base-10"]
+        },
+        {
+          prompt: "Prefix Terminology",
+          display: "What does the prefix 'MiB' stand for?",
+          hint: "Mega + Binary Byte.",
+          correctAnswer: "Mebibyte (Mega-Binary)",
+          options: ["Mebibyte (Mega-Binary)", "Metric Byte", "Micro-Binary", "Multi-Byte"]
+        },
+        {
+          prompt: "Storage Discrepancies",
           display: "Why does a 500 GB drive show ~465 GiB in Windows?",
-          isQuestionDisplay: true,
-          hint: "Manufacturers use decimal (10⁹ bytes), but the operating system reports binary (2³⁰ bytes)",
-          correctAnswer: "Manufacturers use 10⁹ bytes (decimal), while the OS reports in 2³⁰ (binary gibibytes)",
+          hint: "Drive makers use 1,000 (decimal), but Windows calculates in 1,024 (binary).",
+          correctAnswer: "Drive makers use 1,000 (decimal); Windows reports 1,024 (binary)",
           options: [
-            "Manufacturers use 10⁹ bytes (decimal), while the OS reports in 2³⁰ (binary gibibytes)",
-            "35 GB of space is permanently reserved for the Windows kernel",
-            "The drive loses 7% capacity due to physical magnetic friction",
-            "Formatting destroys 35 GB of sectors"
+            "Drive makers use 1,000 (decimal); Windows reports 1,024 (binary)",
+            "Windows reserves 35 GB of space for system files",
+            "35 GB of disk sectors were damaged during shipping"
           ]
         }
       ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      const selected = qTypes[Math.floor(Math.random() * qTypes.length)];
       return {
         type: 'mc',
         prompt: selected.prompt,
         display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
+        isQuestionDisplay: true,
         hint: selected.hint,
         correctAnswer: selected.correctAnswer,
         options: shuffleArray(selected.options)
@@ -5547,42 +5669,99 @@
 
     // Level 3: Character Encoding Sizes (ASCII vs Unicode)
     if (effectiveMode === 'units_text_chars') {
-      const qPool = [
-        {
+      const charCounts = [4, 5, 6, 8, 10, 12, 14, 15, 16, 20, 25];
+      const n = charCounts[Math.floor(Math.random() * charCounts.length)];
+      const qKind = Math.floor(Math.random() * 5);
+
+      if (qKind === 0) {
+        // How many bytes to store N ASCII characters?
+        const ans = `${n} bytes`;
+        const opts = shuffleArray([ans, `${n * 8} bytes`, `${n * 2} bytes`, `${Math.max(1, Math.round(n / 2))} bytes`]);
+        return {
+          type: 'mc',
           prompt: "Character Encoding Storage",
-          display: "How many bytes for a 25-character ASCII string?",
+          display: `How many bytes to store ${n} ASCII characters?`,
           isQuestionDisplay: true,
-          hint: "Standard 7-bit/8-bit ASCII uses 1 byte (8 bits) per character: 25 × 1",
-          correctAnswer: "25 bytes",
-          options: ["25 bytes", "200 bytes", "50 bytes", "12.5 bytes"]
-        },
-        {
+          hint: "Standard ASCII uses exactly 1 byte (8 bits) per character.",
+          correctAnswer: ans,
+          options: opts
+        };
+      } else if (qKind === 1) {
+        // How many bits to store N ASCII characters?
+        const ans = `${n * 8} bits`;
+        const opts = shuffleArray([ans, `${n} bits`, `${n * 4} bits`, `${n * 16} bits`]);
+        return {
+          type: 'mc',
           prompt: "Character Encoding Storage",
-          display: "How many bytes for 40 characters in UTF-16 Unicode?",
+          display: `How many bits to store ${n} ASCII characters?`,
           isQuestionDisplay: true,
-          hint: "Each 16-bit character requires 2 bytes (40 × 2)",
-          correctAnswer: "80 bytes",
-          options: ["80 bytes", "40 bytes", "640 bytes", "20 bytes"]
-        },
-        {
+          hint: "Each ASCII character requires 8 bits (1 byte).",
+          correctAnswer: ans,
+          options: opts
+        };
+      } else if (qKind === 2) {
+        // How many bytes to store N UTF-16 (Unicode) characters?
+        const ans = `${n * 2} bytes`;
+        const opts = shuffleArray([ans, `${n} bytes`, `${n * 4} bytes`, `${n * 8} bytes`]);
+        return {
+          type: 'mc',
           prompt: "Character Encoding Storage",
-          display: "How many bits to encode a 12-char ASCII password?",
+          display: `How many bytes to store ${n} UTF-16 characters?`,
           isQuestionDisplay: true,
-          hint: "Each character is 1 byte = 8 bits (12 × 8)",
-          correctAnswer: "96 bits",
-          options: ["96 bits", "12 bits", "48 bits", "120 bits"]
-        }
-      ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
-      return {
-        type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
-      };
+          hint: "Each UTF-16 Unicode character requires 2 bytes (16 bits).",
+          correctAnswer: ans,
+          options: opts
+        };
+      } else if (qKind === 3) {
+        // Comparison question (2 options)
+        return {
+          type: 'mc',
+          prompt: "Character Encoding Storage",
+          display: "Which character encoding uses more storage per character?",
+          isQuestionDisplay: true,
+          hint: "Unicode uses 16 or 32 bits per character; ASCII uses 7 or 8 bits.",
+          correctAnswer: "Unicode (UTF-16)",
+          options: ["Unicode (UTF-16)", "Standard ASCII"]
+        };
+      } else {
+        // Encoding bit width definitions
+        const bitsDefs = [
+          {
+            display: "How many bits are used by standard 7-bit ASCII?",
+            ans: "7 bits (stored in 1 byte)",
+            opts: ["7 bits (stored in 1 byte)", "16 bits", "4 bits", "32 bits"],
+            hint: "Original standard ASCII uses 7 bits to represent 128 characters."
+          },
+          {
+            display: "How many bits are used by Extended ASCII?",
+            ans: "8 bits (1 byte)",
+            opts: ["8 bits (1 byte)", "7 bits", "16 bits", "4 bits"],
+            hint: "Extended ASCII uses a full 8-bit byte to represent 256 characters."
+          },
+          {
+            display: "How many bits are used by a standard UTF-16 character?",
+            ans: "16 bits (2 bytes)",
+            opts: ["16 bits (2 bytes)", "8 bits (1 byte)", "4 bits", "32 bits"],
+            hint: "UTF-16 uses 16 bits per code unit."
+          },
+          {
+            display: "How many unique characters can 8-bit Extended ASCII represent?",
+            ans: "256 characters (2⁸)",
+            opts: ["256 characters (2⁸)", "128 characters (2⁷)", "65,536 characters (2¹⁶)", "16 characters"],
+            hint: "Formula: 2ⁿ, where n is the number of bits."
+          }
+        ];
+        const chosen = bitsDefs[Math.floor(Math.random() * bitsDefs.length)];
+        return {
+          type: 'mc',
+          prompt: "Character Encoding Standards",
+          display: chosen.display,
+          isQuestionDisplay: true,
+          hint: chosen.hint,
+          correctAnswer: chosen.ans,
+          options: shuffleArray(chosen.opts)
+        };
+      }
     }
 
     // Step-Up Conversions (÷1,000)
@@ -5591,23 +5770,30 @@
         {
           prompt: "Step-Up Conversion (÷1,000)",
           display: "8,000 KB ➔ ? MB",
-          hint: "Divide by 1,000 (8,000 ÷ 1,000)",
+          hint: "1 MB = 1,000 KB. Divide by 1,000 to step up from KB to MB.",
           correctAnswer: "8 MB",
           options: ["8 MB", "80 MB", "0.8 MB", "800 MB"]
         },
         {
           prompt: "Step-Up Conversion (÷1,000)",
           display: "12,000 MB ➔ ? GB",
-          hint: "Divide by 1,000 (12,000 ÷ 1,000)",
+          hint: "1 GB = 1,000 MB. Divide by 1,000 to step up from MB to GB.",
           correctAnswer: "12 GB",
           options: ["12 GB", "1.2 GB", "120 GB", "12,000 GB"]
         },
         {
           prompt: "Step-Up Conversion (÷1,000)",
           display: "4,500 bytes ➔ ? KB",
-          hint: "Divide by 1,000 (4,500 ÷ 1,000)",
+          hint: "1 KB = 1,000 bytes. Divide by 1,000 to step up from bytes to KB.",
           correctAnswer: "4.5 KB",
           options: ["4.5 KB", "45 KB", "0.45 KB", "450 KB"]
+        },
+        {
+          prompt: "Step-Up Conversion (÷1,000)",
+          display: "25,000 KB ➔ ? MB",
+          hint: "1 MB = 1,000 KB. Divide by 1,000 to step up from KB to MB.",
+          correctAnswer: "25 MB",
+          options: ["25 MB", "2.5 MB", "250 MB", "2500 MB"]
         }
       ];
       const selected = qPool[Math.floor(Math.random() * qPool.length)];
@@ -5628,23 +5814,30 @@
         {
           prompt: "Step-Down Conversion (×1,000)",
           display: "6 GB ➔ ? MB",
-          hint: "Multiply by 1,000 (6 × 1,000)",
+          hint: "1 GB = 1,000 MB. Multiply by 1,000 to step down from GB to MB.",
           correctAnswer: "6,000 MB",
           options: ["6,000 MB", "600 MB", "60,000 MB", "6 MB"]
         },
         {
           prompt: "Step-Down Conversion (×1,000)",
           display: "1.5 TB ➔ ? GB",
-          hint: "Multiply by 1,000 (1.5 × 1,000)",
+          hint: "1 TB = 1,000 GB. Multiply by 1,000 to step down from TB to GB.",
           correctAnswer: "1,500 GB",
           options: ["1,500 GB", "150 GB", "15,000 GB", "15 GB"]
         },
         {
           prompt: "Step-Down Conversion (×1,000)",
           display: "3.2 MB ➔ ? KB",
-          hint: "Multiply by 1,000 (3.2 × 1,000)",
+          hint: "1 MB = 1,000 KB. Multiply by 1,000 to step down from MB to KB.",
           correctAnswer: "3,200 KB",
           options: ["3,200 KB", "320 KB", "32,000 KB", "32 KB"]
+        },
+        {
+          prompt: "Step-Down Conversion (×1,000)",
+          display: "0.5 GB ➔ ? MB",
+          hint: "1 GB = 1,000 MB. Multiply by 1,000 to step down from GB to MB.",
+          correctAnswer: "500 MB",
+          options: ["500 MB", "50 MB", "5,000 MB", "0.05 MB"]
         }
       ];
       const selected = qPool[Math.floor(Math.random() * qPool.length)];
@@ -5661,77 +5854,282 @@
 
     // Sound File Size Formula
     if (effectiveMode === 'units_sound_calc') {
-      const qPool = [
-        {
-          prompt: "Sound File Size Calculation",
-          display: "44,000 Hz × 16 bits × 10 s = ?",
-          hint: "Bits = 44,000 × 16 × 10 = 7,040,000 bits. Bytes = 7,040,000 ÷ 8 = 880,000 bytes (880 KB)",
-          correctAnswer: "880 KB",
-          options: ["880 KB", "7.04 MB", "440 KB", "1.76 MB"]
-        },
-        {
-          prompt: "Sound File Size Calculation",
-          display: "8,000 Hz × 8 bits × 5 s = ?",
-          hint: "Bytes per second = 8,000 × (8 ÷ 8) = 8,000 B/s. Total = 8,000 × 5 = 40,000 bytes (40 KB)",
-          correctAnswer: "40 KB",
-          options: ["40 KB", "320 KB", "80 KB", "20 KB"]
-        },
-        {
-          prompt: "Audio File Sizing",
-          display: "If an audio track is recorded in STEREO instead of MONO:",
+      const qKind = Math.floor(Math.random() * 3);
+
+      if (qKind === 0) {
+        // Space for 1 second of audio
+        const secQuestions = [
+          {
+            display: "8,000 Hz sample rate × 8-bit depth (1 second)",
+            ans: "8 KB",
+            opts: ["8 KB", "64 KB", "1 KB", "80 KB"],
+            hint: "Formula: (Sample rate × Bit depth) ÷ 8 bits per byte. 8 bits = 1 byte per sample."
+          },
+          {
+            display: "44,000 Hz sample rate × 16-bit depth (1 second)",
+            ans: "88 KB",
+            opts: ["88 KB", "44 KB", "176 KB", "704 KB"],
+            hint: "16 bits = 2 bytes per sample. Multiply sample rate by 2 bytes."
+          },
+          {
+            display: "10,000 Hz sample rate × 16-bit depth (1 second)",
+            ans: "20 KB",
+            opts: ["20 KB", "10 KB", "160 KB", "40 KB"],
+            hint: "16 bits = 2 bytes per sample. Multiply sample rate by 2 bytes."
+          },
+          {
+            display: "20,000 Hz sample rate × 8-bit depth (1 second)",
+            ans: "20 KB",
+            opts: ["20 KB", "160 KB", "2 KB", "40 KB"],
+            hint: "8 bits = 1 byte per sample. Multiply sample rate by 1 byte."
+          }
+        ];
+        const item = secQuestions[Math.floor(Math.random() * secQuestions.length)];
+        return {
+          type: 'mc',
+          prompt: "Sound Data per Second",
+          display: item.display,
           isQuestionDisplay: true,
-          hint: "Stereo doubles the audio stream by recording separate left and right channels",
-          correctAnswer: "The file size doubles (×2)",
-          options: ["The file size doubles (×2)", "The file size quadruples (×4)", "The file size stays identical", "The file size halves (÷2)"]
-        }
-      ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
-      return {
-        type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
-      };
+          hint: item.hint,
+          correctAnswer: item.ans,
+          options: shuffleArray(item.opts)
+        };
+      } else if (qKind === 1) {
+        // Proportional adjustments (downsampling, stereo, duration)
+        const propQuestions = [
+          {
+            prompt: "Audio Downsampling",
+            display: "A 40,000 Hz audio clip is 60 MB. If downsampled to 20,000 Hz (half the rate), what is the new size?",
+            ans: "30 MB",
+            opts: ["30 MB", "120 MB", "15 MB", "60 MB"],
+            hint: "Sample rate is directly proportional to file size. Halving the rate halves the file size."
+          },
+          {
+            prompt: "Audio Downsampling",
+            display: "A 44,000 Hz audio track is 80 MB. If downsampled to 22,000 Hz, what is the new size?",
+            ans: "40 MB",
+            opts: ["40 MB", "160 MB", "20 MB", "80 MB"],
+            hint: "Halving the sample rate halves the total recorded samples and file size."
+          },
+          {
+            prompt: "Bit Depth Adjustment",
+            display: "A 10 MB audio track is reduced from 16-bit depth to 8-bit depth. What is the new size?",
+            ans: "5 MB",
+            opts: ["5 MB", "20 MB", "2.5 MB", "10 MB"],
+            hint: "Halving the bit depth halves the number of bits stored per sample."
+          },
+          {
+            prompt: "Mono vs Stereo Channels",
+            display: "A 15 MB audio recording is recorded in Stereo (2 channels) instead of Mono (1 channel). What is the file size?",
+            ans: "30 MB",
+            opts: ["30 MB", "15 MB", "60 MB", "7.5 MB"],
+            hint: "Stereo doubles the audio stream by recording separate left and right channels."
+          },
+          {
+            prompt: "Recording Duration",
+            display: "A 3-minute recording is 12 MB. How large would a 6-minute recording be at identical quality?",
+            ans: "24 MB",
+            opts: ["24 MB", "36 MB", "6 MB", "12 MB"],
+            hint: "Duration is directly proportional to file size. Doubling the time doubles the file size."
+          }
+        ];
+        const item = propQuestions[Math.floor(Math.random() * propQuestions.length)];
+        return {
+          type: 'mc',
+          prompt: item.prompt,
+          display: item.display,
+          isQuestionDisplay: true,
+          hint: item.hint,
+          correctAnswer: item.ans,
+          options: shuffleArray(item.opts)
+        };
+      } else {
+        // Conceptual sound formulas & definitions
+        const conceptQuestions = [
+          {
+            prompt: "Sound File Size Formula",
+            display: "Which 3 factors determine the file size of an uncompressed audio recording?",
+            ans: "Sample rate, bit depth & duration",
+            opts: [
+              "Sample rate, bit depth & duration",
+              "Volume, pitch & speaker wattage",
+              "Microphone brand, cable length & tempo",
+              "Genre, album art & artist name"
+            ],
+            hint: "Formula: Sample rate (Hz) × Bit depth (bits) × Duration (seconds) [× Channels]."
+          },
+          {
+            prompt: "Sound File Size Formula",
+            display: "If you double both the sample rate and the bit depth, how much larger does the file become?",
+            ans: "4× larger (quadruples)",
+            opts: ["4× larger (quadruples)", "2× larger (doubles)", "8× larger", "Stays the same"],
+            hint: "Multiply the two factor increases: 2 × 2 = 4×."
+          },
+          {
+            prompt: "Audio Quality & Size",
+            display: "What unit is sample rate measured in?",
+            ans: "Hertz (Hz)",
+            opts: ["Hertz (Hz)", "Bits per second (bps)", "Decibels (dB)", "Pixels"],
+            hint: "Hertz represents the number of samples captured per second."
+          },
+          {
+            prompt: "Audio Sampling",
+            display: "What is sample rate?",
+            ans: "The number of sound samples captured per second",
+            opts: [
+              "The number of sound samples captured per second",
+              "The loudness of the loudest instrument",
+              "The number of bits assigned to each sample",
+              "The physical length of the sound wave"
+            ],
+            hint: "Measured in Hertz (Hz): 44.1 kHz = 44,100 samples per second."
+          }
+        ];
+        const item = conceptQuestions[Math.floor(Math.random() * conceptQuestions.length)];
+        return {
+          type: 'mc',
+          prompt: item.prompt,
+          display: item.display,
+          isQuestionDisplay: true,
+          hint: item.hint,
+          correctAnswer: item.ans,
+          options: shuffleArray(item.opts)
+        };
+      }
     }
 
     // Bitmap Image File Size Formula
     if (effectiveMode === 'units_image_calc') {
-      const qPool = [
-        {
+      const qKind = Math.floor(Math.random() * 3);
+
+      if (qKind === 0) {
+        // Simple pixel calculations (clean numbers, NO spoiler hints)
+        const imgQuestions = [
+          {
+            display: "10 × 10 pixel icon @ 8-bit colour depth",
+            ans: "100 bytes",
+            opts: ["100 bytes", "800 bytes", "10 bytes", "1,000 bytes"],
+            hint: "Formula: Width × Height × (Colour depth ÷ 8). 8 bits = 1 byte per pixel."
+          },
+          {
+            display: "100 × 50 pixel image @ 8-bit colour depth",
+            ans: "5 KB (5,000 bytes)",
+            opts: ["5 KB (5,000 bytes)", "50 KB", "40 KB", "500 bytes"],
+            hint: "Total pixels = Width × Height. 8 bits = 1 byte per pixel."
+          },
+          {
+            display: "200 × 100 monochrome image (1 bit per pixel)",
+            ans: "2,500 bytes",
+            opts: ["2,500 bytes", "20,000 bytes", "200 bytes", "5,000 bytes"],
+            hint: "Calculate total pixels (Width × Height), then divide by 8 to convert bits to bytes."
+          },
+          {
+            display: "20 × 20 pixel sprite @ 16-bit colour depth",
+            ans: "800 bytes",
+            opts: ["800 bytes", "400 bytes", "6,400 bytes", "1,600 bytes"],
+            hint: "16 bits = 2 bytes per pixel. Multiply total pixels by 2 bytes."
+          }
+        ];
+        const item = imgQuestions[Math.floor(Math.random() * imgQuestions.length)];
+        return {
+          type: 'mc',
           prompt: "Bitmap Image File Size",
-          display: "200 × 100 @ 8 bits = ? KB",
-          hint: "Pixels = 20,000. Bits = 20,000 × 8 = 160,000 bits. Bytes = 160,000 ÷ 8 = 20,000 bytes (20 KB)",
-          correctAnswer: "20 KB",
-          options: ["20 KB", "160 KB", "200 KB", "2 KB"]
-        },
-        {
-          prompt: "Bitmap Image File Size",
-          display: "100 × 50 @ 24 bits = ? KB",
-          hint: "Total pixels = 5,000. Bytes = 5,000 × 3 = 15,000 bytes (15 KB)",
-          correctAnswer: "15 KB",
-          options: ["15 KB", "120 KB", "5 KB", "30 KB"]
-        },
-        {
-          prompt: "Bitmap Image File Size",
-          display: "800 × 600 @ 1 bit = ? KB",
-          hint: "Total bits = 480,000. Bytes = 480,000 ÷ 8 = 60,000 bytes (60 KB)",
-          correctAnswer: "60 KB",
-          options: ["60 KB", "480 KB", "120 KB", "30 KB"]
-        }
-      ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
-      return {
-        type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
-      };
+          display: item.display,
+          isQuestionDisplay: true,
+          hint: item.hint,
+          correctAnswer: item.ans,
+          options: shuffleArray(item.opts)
+        };
+      } else if (qKind === 1) {
+        // Proportional adjustments (resolution & depth)
+        const propQuestions = [
+          {
+            prompt: "Colour Depth Adjustment",
+            display: "An 8 MB image has its colour depth increased from 8-bit to 24-bit (True Colour). What is the new size?",
+            ans: "24 MB",
+            opts: ["24 MB", "16 MB", "32 MB", "64 MB"],
+            hint: "Colour depth triples (8 bits ➔ 24 bits), so the uncompressed file size triples."
+          },
+          {
+            prompt: "Image Resolution Scaling",
+            display: "If you double both the width and the height of an image, what happens to its file size?",
+            ans: "File size quadruples (4×)",
+            opts: ["File size quadruples (4×)", "File size doubles (2×)", "File size triples (3×)", "File size stays the same"],
+            hint: "Area = Width × Height. Doubling both dimensions quadruples total pixels (2 × 2 = 4)."
+          },
+          {
+            prompt: "Image Resolution Scaling",
+            display: "A 16 MB image has both its width and height halved. What is the new file size?",
+            ans: "4 MB",
+            opts: ["4 MB", "8 MB", "2 MB", "1 MB"],
+            hint: "Halving both dimensions reduces total pixels to one quarter (1/2 × 1/2 = 1/4)."
+          },
+          {
+            prompt: "Colour Depth Reduction",
+            display: "A 12 MB image is converted from 24-bit True Colour to 8-bit colour. What is the new size?",
+            ans: "4 MB",
+            opts: ["4 MB", "6 MB", "3 MB", "8 MB"],
+            hint: "Colour depth is reduced by a factor of 3 (24 ÷ 8 = 3), so file size is divided by 3."
+          }
+        ];
+        const item = propQuestions[Math.floor(Math.random() * propQuestions.length)];
+        return {
+          type: 'mc',
+          prompt: item.prompt,
+          display: item.display,
+          isQuestionDisplay: true,
+          hint: item.hint,
+          correctAnswer: item.ans,
+          options: shuffleArray(item.opts)
+        };
+      } else {
+        // Colour depth & metadata concepts
+        const conceptQuestions = [
+          {
+            prompt: "Colour Depth Calculation",
+            display: "How many unique colours can be represented with 8-bit colour depth?",
+            ans: "256 colours (2⁸)",
+            opts: ["256 colours (2⁸)", "64 colours", "128 colours", "16 colours"],
+            hint: "Formula: 2ⁿ colours, where n is the number of bits per pixel."
+          },
+          {
+            prompt: "Colour Depth Calculation",
+            display: "How many unique colours can be represented with 4-bit colour depth?",
+            ans: "16 colours (2⁴)",
+            opts: ["16 colours (2⁴)", "8 colours", "32 colours", "64 colours"],
+            hint: "Formula: 2ⁿ colours, where n = 4 bits per pixel."
+          },
+          {
+            prompt: "Colour Depth Calculation",
+            display: "How many unique colours can be represented with 1-bit colour depth?",
+            ans: "2 colours (Monochrome: Black & White)",
+            opts: ["2 colours (Monochrome: Black & White)", "1 colour", "4 colours", "8 colours"],
+            hint: "1 bit has 2 possible binary states: 0 or 1."
+          },
+          {
+            prompt: "Bitmap File Structure",
+            display: "What extra data is stored in an image file alongside pixel colours?",
+            ans: "Metadata (dimensions, colour profile, resolution)",
+            opts: [
+              "Metadata (dimensions, colour profile, resolution)",
+              "Screen refresh rate instructions",
+              "Audio channel frequencies",
+              "Electric voltage requirements"
+            ],
+            hint: "Metadata contains information about the file itself (dimensions, date, camera settings)."
+          }
+        ];
+        const item = conceptQuestions[Math.floor(Math.random() * conceptQuestions.length)];
+        return {
+          type: 'mc',
+          prompt: item.prompt,
+          display: item.display,
+          isQuestionDisplay: true,
+          hint: item.hint,
+          correctAnswer: item.ans,
+          options: shuffleArray(item.opts)
+        };
+      }
     }
 
     // Megabits vs Megabytes
@@ -5740,16 +6138,30 @@
         {
           prompt: "Transfer Speed vs File Size",
           display: "80 Mbps ➔ ? MB/s",
-          hint: "Divide by 8 (8 bits in 1 byte): 80 ÷ 8",
+          hint: "1 Byte = 8 bits. Divide network speed in Mbps by 8 to convert to MB/s.",
           correctAnswer: "10 MB/s",
           options: ["10 MB/s", "8 MB/s", "80 MB/s", "640 MB/s"]
         },
         {
           prompt: "Transfer Speed vs File Size",
           display: "6 MB/s ➔ ? Mbps",
-          hint: "Multiply by 8 (8 bits in 1 byte): 6 × 8",
+          hint: "1 Byte = 8 bits. Multiply file transfer speed in MB/s by 8 to convert to Mbps.",
           correctAnswer: "48 Mbps",
           options: ["48 Mbps", "6 Mbps", "24 Mbps", "36 Mbps"]
+        },
+        {
+          prompt: "Transfer Speed vs File Size",
+          display: "120 Mbps ➔ ? MB/s",
+          hint: "1 Byte = 8 bits. Divide Mbps by 8 to convert to MB/s.",
+          correctAnswer: "15 MB/s",
+          options: ["15 MB/s", "12 MB/s", "120 MB/s", "960 MB/s"]
+        },
+        {
+          prompt: "Transfer Speed vs File Size",
+          display: "25 MB/s ➔ ? Mbps",
+          hint: "1 Byte = 8 bits. Multiply MB/s by 8 to convert to Mbps.",
+          correctAnswer: "200 Mbps",
+          options: ["200 Mbps", "25 Mbps", "100 Mbps", "3.125 Mbps"]
         }
       ];
       const selected = qPool[Math.floor(Math.random() * qPool.length)];
@@ -5783,9 +6195,16 @@
         {
           prompt: "Packet Payload Calculation",
           display: "1,500 B Packet − 40 B Headers = ? Payload",
-          hint: "Payload = Total Packet − Protocol Headers (1,500 − 40)",
+          hint: "Formula: Payload = Total Packet Size − Protocol Headers.",
           correctAnswer: "1,460 bytes",
           options: ["1,460 bytes", "1,540 bytes", "1,400 bytes", "750 bytes"]
+        },
+        {
+          prompt: "Packet Payload Calculation",
+          display: "1,000 B Packet − 60 B Headers = ? Payload",
+          hint: "Formula: Payload = Total Packet Size − Protocol Headers.",
+          correctAnswer: "940 bytes",
+          options: ["940 bytes", "1,060 bytes", "900 bytes", "500 bytes"]
         }
       ];
       const selected = qPool[Math.floor(Math.random() * qPool.length)];
@@ -6085,16 +6504,31 @@
     if (!tilesZone) return;
     tilesZone.innerHTML = '';
 
+    const maxLen = Math.max(...options.map(opt => String(opt).length));
+    const isLongText = maxLen > 22 || options.some(opt => String(opt).length > 20);
+
     if (layout === 'bit_boxes') {
       tilesZone.className = 'bitmaster-tiles-grid bitmaster-bit-boxes-row';
+    } else if (isLongText && options.length <= 4) {
+      // Long text options: stack vertically in 1 column so they are comfortable to read
+      tilesZone.className = 'bitmaster-tiles-grid bitmaster-tiles-stacked';
+    } else if (options.length === 2) {
+      // Direct comparison (e.g. Which is bigger X or Y): 2 prominent side-by-side buttons
+      tilesZone.className = 'bitmaster-tiles-grid bitmaster-tiles-2col';
+    } else if (options.length === 3) {
+      tilesZone.className = 'bitmaster-tiles-grid bitmaster-tiles-3col';
     } else {
       tilesZone.className = 'bitmaster-tiles-grid';
     }
 
     options.forEach(opt => {
       const btn = document.createElement('button');
-      btn.className = 'bitmaster-tile-btn' + (layout === 'bit_boxes' ? ' bit-box-btn' : '');
-      btn.textContent = opt;
+      const optStr = String(opt);
+      const isTextTile = optStr.length > 12 || isLongText;
+      btn.className = 'bitmaster-tile-btn' + 
+                      (layout === 'bit_boxes' ? ' bit-box-btn' : '') + 
+                      (isTextTile ? ' is-text-tile' : '');
+      btn.textContent = optStr;
 
       btn.addEventListener('click', () => {
         playSynthSound('tap');

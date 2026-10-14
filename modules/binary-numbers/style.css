@@ -3906,6 +3906,28 @@ html.dark .converter-preset-btn:hover,
   gap: 10px !important;
 }
 
+/* Flexible Tile Grids */
+.bitmaster-tiles-grid.bitmaster-tiles-stacked {
+  grid-template-columns: 1fr !important;
+  gap: 10px !important;
+}
+
+.bitmaster-tiles-grid.bitmaster-tiles-2col {
+  grid-template-columns: 1fr 1fr !important;
+  gap: 14px !important;
+}
+
+.bitmaster-tiles-grid.bitmaster-tiles-3col {
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 10px !important;
+}
+
+@media (max-width: 540px) {
+  .bitmaster-tiles-grid.bitmaster-tiles-3col {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 .bitmaster-tile-btn.bit-box-btn {
   padding: 16px 8px !important;
   font-size: 16px !important;
@@ -3915,6 +3937,16 @@ html.dark .converter-preset-btn:hover,
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+}
+
+.bitmaster-tile-btn.is-text-tile {
+  font-family: var(--font-sans, system-ui, -apple-system, sans-serif) !important;
+  font-size: clamp(14px, 3.2vw, 17px) !important;
+  line-height: 1.35 !important;
+  font-weight: 700 !important;
+  padding: 16px 14px !important;
+  min-height: 52px !important;
+  letter-spacing: normal !important;
 }
 
 @media (max-width: 480px) {
