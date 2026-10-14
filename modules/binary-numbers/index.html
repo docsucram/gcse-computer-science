@@ -242,28 +242,7 @@
               </div>
             </div>
 
-            <!-- Front Mode Switch Tabs: Stages vs Arcade -->
-            <div class="bitmaster-front-nav-tabs">
-              <button id="bitmasterTabStages" class="bitmaster-nav-tab active" type="button">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
-                  <circle cx="12" cy="12" r="10"/>
-                  <circle cx="12" cy="12" r="6"/>
-                  <circle cx="12" cy="12" r="2"/>
-                </svg>
-                <span>Stages (21)</span>
-              </button>
-              <button id="bitmasterTabArcade" class="bitmaster-nav-tab" type="button">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
-                  <rect x="2" y="6" width="20" height="12" rx="3"/>
-                  <path d="M6 12h4m-2-2v4"/>
-                  <circle cx="17" cy="10" r="1" fill="currentColor"/>
-                  <circle cx="15" cy="13" r="1" fill="currentColor"/>
-                </svg>
-                <span>Arcade</span>
-              </button>
-            </div>
-
-            <!-- 6 BIG BOLD TOPIC BUTTONS (Stages Mode) -->
+            <!-- 6 BIG BOLD TOPIC BUTTONS -->
             <div class="bitmaster-front-topics-wrap" id="bitmasterFrontTopicsWrap">
               <div class="front-topics-header">
                 <span class="front-topics-eyebrow">CHOOSE YOUR TRAINING DOMAIN</span>
@@ -274,62 +253,25 @@
               </div>
             </div>
 
-            <!-- ARCADE GAMES (Arcade Mode) -->
-            <div class="bitmaster-front-arcade-wrap" id="bitmasterFrontArcadeWrap" style="display: none;">
-              <div class="front-topics-header">
+            <!-- ARCADE & PUZZLE GAMES (Streamlined cards matching topic buttons) -->
+            <div class="bitmaster-front-arcade-wrap" id="bitmasterFrontArcadeWrap">
+              <div class="front-topics-header" style="margin-top: 26px;">
                 <span class="front-topics-eyebrow">ARCADE LOGIC &amp; PUZZLES</span>
                 <h3 class="front-topics-title">Arcade Games</h3>
               </div>
-              <div class="bitmaster-arcade-cards-grid">
-                <!-- Bit Cross Card -->
-                <div class="bitmaster-arcade-game-card" id="bitmasterLaunchBitCrossBtn" role="button" tabindex="0">
-                  <div class="arcade-card-top">
-                    <span class="arcade-card-badge">LOGIC PUZZLE</span>
-                    <div class="arcade-card-icon-wrap">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
-                        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
-                        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
-                        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
-                      </svg>
-                    </div>
-                  </div>
-                  <div class="arcade-card-body">
-                    <h4 class="arcade-card-title">Bit Cross</h4>
-                    <p class="arcade-card-desc">Satisfy row &amp; column place-value targets simultaneously on a 3&times;3, 4&times;4, or 5&times;5 binary deduction grid!</p>
-                    <div class="arcade-card-tags">
-                      <span class="arcade-tag">3&times;3 (4,2,1)</span>
-                      <span class="arcade-tag">4&times;4 (8..1)</span>
-                      <span class="arcade-tag">5&times;5 (16..1)</span>
-                    </div>
-                  </div>
-                  <div class="arcade-card-footer">
-                    <button class="control-btn control-btn-primary arcade-play-btn" type="button">Play Bit Cross &rarr;</button>
-                  </div>
+              <div class="bitmaster-front-topics-grid bitmaster-front-arcade-grid" id="bitmasterFrontArcadeGrid">
+                <!-- Bit Cross Button -->
+                <div class="bitmaster-topic-card-btn bitmaster-arcade-card-btn" id="bitmasterLaunchBitCrossBtn" style="--topic-accent: #38bdf8; --topic-glow: rgba(56, 189, 248, 0.35);">
+                  <div class="topic-card-stars-pill">PUZZLE</div>
+                  <div class="topic-card-code-hero">3&times;3 ⊞</div>
+                  <div class="topic-card-name">Bit Cross</div>
                 </div>
 
-                <!-- Bit Pop Teaser Card -->
-                <div class="bitmaster-arcade-game-card is-teaser">
-                  <div class="arcade-card-top">
-                    <span class="arcade-card-badge text-pink">SPEED SURVIVAL</span>
-                    <div class="arcade-card-icon-wrap icon-pink">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                        <circle cx="12" cy="12" r="9"/>
-                        <path d="M12 7v5l3 3"/>
-                      </svg>
-                    </div>
-                  </div>
-                  <div class="arcade-card-body">
-                    <h4 class="arcade-card-title">Bit Pop</h4>
-                    <p class="arcade-card-desc">Rapidly pop rising bubbles matching target values before time expires! Chain combos for extra survival time.</p>
-                    <div class="arcade-card-tags">
-                      <span class="arcade-tag">Reflex Blitz</span>
-                      <span class="arcade-tag">Time Attack</span>
-                    </div>
-                  </div>
-                  <div class="arcade-card-footer">
-                    <span class="arcade-teaser-pill">Coming Soon</span>
-                  </div>
+                <!-- Bit Pop Button -->
+                <div class="bitmaster-topic-card-btn bitmaster-arcade-card-btn" id="bitmasterLaunchBitPopBtn" style="--topic-accent: #ec4899; --topic-glow: rgba(236, 72, 153, 0.35);">
+                  <div class="topic-card-stars-pill">REFLEX</div>
+                  <div class="topic-card-code-hero">POP! ⚪</div>
+                  <div class="topic-card-name">Bit Pop</div>
                 </div>
               </div>
             </div>
@@ -698,6 +640,100 @@
             <div class="modal-dialog-actions">
               <button id="bitcrossVictoryNextBtn" class="control-btn control-btn-primary" type="button">Next Puzzle &rarr;</button>
               <button id="bitcrossVictoryArcadeBtn" class="control-btn" type="button">&larr; Arcade</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 6: BIT POP ARCADE REFLEX BLITZ -->
+        <div id="bitmasterScreenBitPop" class="bitmaster-screen" style="display: none;">
+          <div class="bitpop-screen-inner">
+            <!-- Header & Stats HUD -->
+            <div class="bitpop-header">
+              <div class="bitpop-title-row">
+                <div class="bitpop-title-wrap">
+                  <span class="bitpop-eyebrow">REFLEX TIME ATTACK</span>
+                  <h2 class="bitpop-title">Bit Pop</h2>
+                </div>
+                <!-- Difficulty / Mode Indicator Pill -->
+                <div class="bitpop-mode-indicator" id="bitpopModeBadge">
+                  <span class="bitpop-mode-pill" id="bitpopModePill">WAVE 1: NIBBLES</span>
+                </div>
+              </div>
+
+              <!-- Compact HUD Bar: Timer, Score, Combo Streak -->
+              <div class="bitpop-hud-bar">
+                <div class="bitpop-hud-stat">
+                  <span class="bitpop-hud-label">TIME</span>
+                  <span class="bitpop-hud-val bitpop-timer-val" id="bitpopTimer">30.0s</span>
+                </div>
+                <div class="bitpop-hud-divider"></div>
+                <div class="bitpop-hud-stat">
+                  <span class="bitpop-hud-label">SCORE</span>
+                  <span class="bitpop-hud-val text-emerald" id="bitpopScore">0</span>
+                </div>
+                <div class="bitpop-hud-divider"></div>
+                <div class="bitpop-hud-stat">
+                  <span class="bitpop-hud-label">COMBO</span>
+                  <span class="bitpop-hud-val text-amber" id="bitpopCombo">1.0&times;</span>
+                </div>
+                <div class="bitpop-hud-actions">
+                  <button id="bitpopRestartBtn" class="bitcross-action-btn" type="button" title="Restart Bit Pop">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    <span>Restart</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Prominent Target Banner -->
+              <div class="bitpop-target-banner" id="bitpopTargetBanner">
+                <div class="bitpop-target-prompt" id="bitpopTargetPrompt">POP THE BUBBLE MATCHING:</div>
+                <div class="bitpop-target-value" id="bitpopTargetValue">12</div>
+                <div class="bitpop-target-hint" id="bitpopTargetHint">Denary (Base 10)</div>
+              </div>
+            </div>
+
+            <!-- Floating Feedback Toast Container -->
+            <div class="bitpop-floater-container" id="bitpopFloaterContainer"></div>
+
+            <!-- The Bubble Playfield Arena -->
+            <div class="bitpop-playfield" id="bitpopPlayfield">
+              <!-- Dynamically populated with floating bubbles -->
+            </div>
+          </div>
+        </div>
+
+        <!-- BIT POP GAME OVER MODAL -->
+        <div id="bitpopGameOverModal" class="bitmaster-modal-backdrop" style="display: none;">
+          <div class="bitmaster-modal-dialog bitpop-gameover-dialog">
+            <div class="modal-dialog-icon bitpop-gameover-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2.5">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+            <h3 class="modal-dialog-title">Time Expired!</h3>
+            <p class="modal-dialog-body" id="bitpopGameOverSubtext">Epic blitz! Rapid binary conversion training complete.</p>
+            <div class="bitpop-gameover-stats">
+              <div class="bitcross-v-stat">
+                <span class="v-label">Score</span>
+                <span class="v-val text-cyan" id="bitpopFinalScore">0</span>
+              </div>
+              <div class="bitcross-v-stat">
+                <span class="v-label">Popped</span>
+                <span class="v-val text-amber" id="bitpopFinalPopped">0</span>
+              </div>
+              <div class="bitcross-v-stat">
+                <span class="v-label">Max Combo</span>
+                <span class="v-val text-pink" id="bitpopFinalMaxCombo">1.0&times;</span>
+              </div>
+              <div class="bitcross-v-stat">
+                <span class="v-label">Reward</span>
+                <span class="v-val text-emerald" id="bitpopFinalXp">+0 XP</span>
+              </div>
+            </div>
+            <div class="modal-dialog-actions">
+              <button id="bitpopPlayAgainBtn" class="control-btn control-btn-primary" type="button">Play Again ⚡</button>
+              <button id="bitpopExitToMenuBtn" class="control-btn" type="button">&larr; Arcade</button>
             </div>
           </div>
         </div>

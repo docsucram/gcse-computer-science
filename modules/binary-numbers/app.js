@@ -1088,6 +1088,19 @@
         gain.connect(ctx.destination);
         osc.start(now);
         osc.stop(now + 0.35);
+      } else if (type === 'bubblepop') {
+        // High-resonance pop chirp
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(340, now);
+        osc.frequency.exponentialRampToValueAtTime(1150, now + 0.055);
+        gain.gain.setValueAtTime(0.16, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.065);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.065);
       }
     } catch (e) {}
   }
@@ -3157,7 +3170,8 @@
       levels: document.getElementById('bitmasterScreenLevels'),
       game: document.getElementById('bitmasterScreenGame'),
       summary: document.getElementById('bitmasterScreenSummary'),
-      bitcross: document.getElementById('bitmasterScreenBitCross')
+      bitcross: document.getElementById('bitmasterScreenBitCross'),
+      bitpop: document.getElementById('bitmasterScreenBitPop')
     };
 
     Object.values(screens).forEach(s => {
@@ -3219,6 +3233,15 @@
       if (screens.bitcross) {
         screens.bitcross.classList.add('active');
         screens.bitcross.style.display = 'block';
+      }
+      if (backBtn) {
+        backBtn.style.display = 'inline-flex';
+        if (backText) backText.textContent = 'Arcade';
+      }
+    } else if (screenName === 'bitpop') {
+      if (screens.bitpop) {
+        screens.bitpop.classList.add('active');
+        screens.bitpop.style.display = 'block';
       }
       if (backBtn) {
         backBtn.style.display = 'inline-flex';
@@ -7453,27 +7476,382 @@
     const modal = document.getElementById('bitcrossVictoryModal');
     if (modal) modal.style.display = 'none';
 
-    activateBitmasterFrontTab('arcade');
     showBitmasterScreen('title');
   }
 
-  function activateBitmasterFrontTab(tabName) {
-    const stagesTab = document.getElementById('bitmasterTabStages');
-    const arcadeTab = document.getElementById('bitmasterTabArcade');
-    const stagesWrap = document.getElementById('bitmasterFrontTopicsWrap');
-    const arcadeWrap = document.getElementById('bitmasterFrontArcadeWrap');
+  // =========================================================================
+  // BIT POP: ARCADE REFLEX TIME ATTACK ENGINE
+  // =========================================================================
+  const bitpopState = {
+    isRunning: false,
+    timer: 30.0,
+    timerInterval: null,
+    score: 0,
+    combo: 1.0,
+    maxCombo: 1.0,
+    streak: 0,
+    poppedCount: 0,
+    waveIndex: 0,
+    activeWave: null
+  };
 
-    if (tabName === 'arcade') {
-      if (stagesTab) stagesTab.classList.remove('active');
-      if (arcadeTab) arcadeTab.classList.add('active');
-      if (stagesWrap) stagesWrap.style.display = 'none';
-      if (arcadeWrap) arcadeWrap.style.display = 'block';
-    } else {
-      if (stagesTab) stagesTab.classList.add('active');
-      if (arcadeTab) arcadeTab.classList.remove('active');
-      if (stagesWrap) stagesWrap.style.display = 'block';
-      if (arcadeWrap) arcadeWrap.style.display = 'none';
+  function startBitPopGame() {
+    stopBitpopTimer();
+    bitpopState.isRunning = true;
+    bitpopState.timer = 30.0;
+    bitpopState.score = 0;
+    bitpopState.combo = 1.0;
+    bitpopState.maxCombo = 1.0;
+    bitpopState.streak = 0;
+    bitpopState.poppedCount = 0;
+    bitpopState.waveIndex = 0;
+    bitpopState.activeWave = null;
+
+    const modal = document.getElementById('bitpopGameOverModal');
+    if (modal) modal.style.display = 'none';
+
+    updateBitpopHUD();
+    showBitmasterScreen('bitpop');
+
+    // Start 100ms timer
+    bitpopState.timerInterval = setInterval(updateBitpopTimerTick, 100);
+
+    generateBitpopWave();
+  }
+
+  function stopBitpopTimer() {
+    if (bitpopState.timerInterval) {
+      clearInterval(bitpopState.timerInterval);
+      bitpopState.timerInterval = null;
     }
+  }
+
+  function updateBitpopHUD() {
+    const timerEl = document.getElementById('bitpopTimer');
+    const scoreEl = document.getElementById('bitpopScore');
+    const comboEl = document.getElementById('bitpopCombo');
+
+    if (timerEl) {
+      timerEl.textContent = `${bitpopState.timer.toFixed(1)}s`;
+      if (bitpopState.timer <= 5.0) {
+        timerEl.classList.add('is-low-time');
+      } else {
+        timerEl.classList.remove('is-low-time');
+      }
+    }
+    if (scoreEl) {
+      scoreEl.textContent = bitpopState.score.toLocaleString();
+    }
+    if (comboEl) {
+      comboEl.textContent = `${bitpopState.combo.toFixed(1)}×`;
+    }
+  }
+
+  function updateBitpopTimerTick() {
+    if (!bitpopState.isRunning) return;
+    bitpopState.timer = Math.max(0, bitpopState.timer - 0.1);
+    updateBitpopHUD();
+
+    if (bitpopState.timer <= 0) {
+      endBitPopGame();
+    }
+  }
+
+  function generateBitpopWave() {
+    bitpopState.waveIndex++;
+    const wave = bitpopState.waveIndex;
+    const modePill = document.getElementById('bitpopModePill');
+    const promptEl = document.getElementById('bitpopTargetPrompt');
+    const valEl = document.getElementById('bitpopTargetValue');
+    const hintEl = document.getElementById('bitpopTargetHint');
+    const playfield = document.getElementById('bitpopPlayfield');
+
+    if (!playfield) return;
+    playfield.innerHTML = '';
+
+    let bubbleCount = 4;
+    let targetNum = 0;
+    let targetDisplay = '';
+    let targetPromptText = 'POP THE BUBBLE MATCHING:';
+    let targetHintText = '';
+    let bubblesData = [];
+
+    if (wave <= 5) {
+      // WAVE 1-5: 4-bit Nibbles (0 to 15)
+      bubbleCount = 4;
+      targetNum = Math.floor(Math.random() * 15) + 1; // 1 to 15
+      targetDisplay = String(targetNum);
+      targetPromptText = 'POP BINARY EQUAL TO:';
+      targetHintText = `Denary ${targetNum} (4-bit Nibble)`;
+      if (modePill) modePill.textContent = `WAVE ${wave}: NIBBLE BLITZ`;
+
+      const correctBits = targetNum.toString(2).padStart(4, '0');
+      bubblesData.push({ text: correctBits, isCorrect: true, val: targetNum });
+
+      const usedNums = new Set([targetNum]);
+      while (bubblesData.length < bubbleCount) {
+        let distNum;
+        if (Math.random() < 0.6) {
+          const bitToFlip = 1 << Math.floor(Math.random() * 4);
+          distNum = targetNum ^ bitToFlip;
+        } else {
+          distNum = targetNum + (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 3) + 1);
+        }
+        distNum = Math.max(0, Math.min(15, distNum));
+        if (!usedNums.has(distNum)) {
+          usedNums.add(distNum);
+          bubblesData.push({ text: distNum.toString(2).padStart(4, '0'), isCorrect: false, val: distNum });
+        }
+      }
+    } else if (wave <= 12) {
+      // WAVE 6-12: 8-bit Unsigned Bytes (16 to 127)
+      bubbleCount = 5;
+      targetNum = Math.floor(Math.random() * 100) + 16; // 16 to 115
+      targetDisplay = String(targetNum);
+      targetPromptText = 'POP BINARY EQUAL TO:';
+      targetHintText = `Denary ${targetNum} (8-bit Byte)`;
+      if (modePill) modePill.textContent = `WAVE ${wave}: BYTE BUILDER`;
+
+      const correctBits = targetNum.toString(2).padStart(8, '0');
+      bubblesData.push({ text: correctBits, isCorrect: true, val: targetNum });
+
+      const usedNums = new Set([targetNum]);
+      while (bubblesData.length < bubbleCount) {
+        let distNum;
+        if (Math.random() < 0.7) {
+          const bitIdx = Math.floor(Math.random() * 7);
+          distNum = targetNum ^ (1 << bitIdx);
+        } else {
+          distNum = targetNum + (Math.random() < 0.5 ? 2 : -2);
+        }
+        distNum = Math.max(1, Math.min(255, distNum));
+        if (!usedNums.has(distNum)) {
+          usedNums.add(distNum);
+          bubblesData.push({ text: distNum.toString(2).padStart(8, '0'), isCorrect: false, val: distNum });
+        }
+      }
+    } else if (wave <= 18) {
+      // WAVE 13-18: Hexadecimal <-> Denary conversions
+      bubbleCount = 5;
+      const isHexTarget = Math.random() < 0.5;
+      targetNum = Math.floor(Math.random() * 200) + 15; // 15 to 215
+      const hexStr = targetNum.toString(16).toUpperCase().padStart(2, '0');
+
+      if (isHexTarget) {
+        targetDisplay = hexStr + '₁₆';
+        targetPromptText = 'POP DENARY EQUAL TO:';
+        targetHintText = `Hexadecimal ${hexStr}`;
+        if (modePill) modePill.textContent = `WAVE ${wave}: HEX HUNTER`;
+
+        bubblesData.push({ text: String(targetNum), isCorrect: true, val: targetNum });
+        const used = new Set([targetNum]);
+        while (bubblesData.length < bubbleCount) {
+          let dist = targetNum + (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 16) + 1);
+          dist = Math.max(0, dist);
+          if (!used.has(dist)) {
+            used.add(dist);
+            bubblesData.push({ text: String(dist), isCorrect: false, val: dist });
+          }
+        }
+      } else {
+        targetDisplay = String(targetNum);
+        targetPromptText = 'POP HEXADECIMAL FOR:';
+        targetHintText = `Denary ${targetNum}`;
+        if (modePill) modePill.textContent = `WAVE ${wave}: HEX HUNTER`;
+
+        bubblesData.push({ text: hexStr, isCorrect: true, val: targetNum });
+        const used = new Set([hexStr]);
+        while (bubblesData.length < bubbleCount) {
+          let dist = Math.max(0, targetNum + (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 16) + 1));
+          let distHex = dist.toString(16).toUpperCase().padStart(2, '0');
+          if (!used.has(distHex)) {
+            used.add(distHex);
+            bubblesData.push({ text: distHex, isCorrect: false, val: dist });
+          }
+        }
+      }
+    } else {
+      // WAVE 19+: Frenzy Speed Attack (Mixed Bytes & Hex, 6 bubbles!)
+      bubbleCount = 6;
+      if (modePill) modePill.textContent = `WAVE ${wave}: SPEED FRENZY 🔥`;
+      if (Math.random() < 0.5) {
+        targetNum = Math.floor(Math.random() * 240) + 10;
+        targetDisplay = String(targetNum);
+        targetPromptText = 'POP BINARY EQUAL TO:';
+        targetHintText = `Denary ${targetNum}`;
+        const correctBits = targetNum.toString(2).padStart(8, '0');
+        bubblesData.push({ text: correctBits, isCorrect: true, val: targetNum });
+        const used = new Set([targetNum]);
+        while (bubblesData.length < bubbleCount) {
+          let dist = targetNum ^ (1 << Math.floor(Math.random() * 8));
+          dist = Math.max(0, Math.min(255, dist));
+          if (!used.has(dist)) {
+            used.add(dist);
+            bubblesData.push({ text: dist.toString(2).padStart(8, '0'), isCorrect: false, val: dist });
+          }
+        }
+      } else {
+        targetNum = Math.floor(Math.random() * 240) + 10;
+        const hexStr = targetNum.toString(16).toUpperCase().padStart(2, '0');
+        targetDisplay = hexStr + '₁₆';
+        targetPromptText = 'POP DENARY EQUAL TO:';
+        targetHintText = `Hexadecimal ${hexStr}`;
+        bubblesData.push({ text: String(targetNum), isCorrect: true, val: targetNum });
+        const used = new Set([targetNum]);
+        while (bubblesData.length < bubbleCount) {
+          let dist = targetNum + (Math.random() < 0.5 ? 1 : -1) * (Math.floor(Math.random() * 16) + 1);
+          dist = Math.max(0, dist);
+          if (!used.has(dist)) {
+            used.add(dist);
+            bubblesData.push({ text: String(dist), isCorrect: false, val: dist });
+          }
+        }
+      }
+    }
+
+    if (promptEl) promptEl.textContent = targetPromptText;
+    if (valEl) valEl.textContent = targetDisplay;
+    if (hintEl) hintEl.textContent = targetHintText;
+
+    // Shuffle bubbles
+    for (let i = bubblesData.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [bubblesData[i], bubblesData[j]] = [bubblesData[j], bubblesData[i]];
+    }
+
+    bitpopState.activeWave = { targetNum, bubbles: bubblesData };
+
+    // Render bubbles
+    bubblesData.forEach((bData, idx) => {
+      const bubble = document.createElement('div');
+      bubble.className = 'bitpop-bubble';
+      bubble.textContent = bData.text;
+      bubble.setAttribute('data-idx', idx);
+
+      bubble.addEventListener('click', (e) => {
+        handleBitpopBubbleClick(bubble, bData, e);
+      });
+
+      playfield.appendChild(bubble);
+    });
+  }
+
+  function handleBitpopBubbleClick(bubbleEl, bData, evt) {
+    if (!bitpopState.isRunning) return;
+
+    if (bData.isCorrect) {
+      playSynthSound('bubblepop');
+      bubbleEl.classList.add('popping');
+
+      // +2.5s time bonus (max cap 60s)
+      bitpopState.timer = Math.min(60.0, bitpopState.timer + 2.5);
+      bitpopState.streak++;
+      bitpopState.poppedCount++;
+
+      // Increase combo
+      bitpopState.combo = Math.min(3.0, 1.0 + (bitpopState.streak * 0.1));
+      bitpopState.maxCombo = Math.max(bitpopState.maxCombo, bitpopState.combo);
+
+      const pts = Math.round(100 * bitpopState.combo);
+      bitpopState.score += pts;
+
+      updateBitpopHUD();
+
+      // Show floaters
+      showBitpopFloater(`+2.5s`, true, evt);
+      if (bitpopState.streak >= 3) {
+        setTimeout(() => {
+          showBitpopFloater(`${bitpopState.combo.toFixed(1)}× Combo!`, true, evt, -24);
+        }, 150);
+      }
+
+      // Briefly wait for pop animation then spawn next wave
+      setTimeout(() => {
+        if (bitpopState.isRunning) {
+          generateBitpopWave();
+        }
+      }, 200);
+
+    } else {
+      playSynthSound('wrong');
+      bubbleEl.classList.add('wrong');
+
+      // -2.0s penalty
+      bitpopState.timer = Math.max(0, bitpopState.timer - 2.0);
+      bitpopState.streak = 0;
+      bitpopState.combo = 1.0;
+
+      updateBitpopHUD();
+      showBitpopFloater(`-2.0s`, false, evt);
+
+      if (bitpopState.timer <= 0) {
+        endBitPopGame();
+      }
+    }
+  }
+
+  function showBitpopFloater(text, isBonus, evt, yOffset = 0) {
+    const container = document.getElementById('bitpopFloaterContainer');
+    if (!container) return;
+
+    const floater = document.createElement('div');
+    floater.className = `bitpop-floater ${isBonus ? 'bonus' : 'penalty'}`;
+    floater.textContent = text;
+
+    if (evt && evt.clientX && container.getBoundingClientRect) {
+      const rect = container.getBoundingClientRect();
+      const x = Math.max(30, Math.min(rect.width - 30, evt.clientX - rect.left));
+      floater.style.left = `${x}px`;
+      floater.style.top = `${yOffset}px`;
+    } else {
+      floater.style.left = '50%';
+      floater.style.top = `${yOffset}px`;
+    }
+
+    container.appendChild(floater);
+    setTimeout(() => {
+      if (floater.parentNode) floater.parentNode.removeChild(floater);
+    }, 850);
+  }
+
+  function endBitPopGame() {
+    stopBitpopTimer();
+    bitpopState.isRunning = false;
+
+    // Architecture XP Reward formula:
+    const xpReward = Math.max(25, Math.round(bitpopState.score / 25) + (bitpopState.poppedCount * 4));
+
+    // Award XP
+    bitmasterState.xp = (bitmasterState.xp || 0) + xpReward;
+    saveBitmasterProgress();
+    updateBitmasterHUD();
+
+    try {
+      playSynthSound('victory');
+    } catch (e) {}
+    fireConfetti();
+
+    // Populate modal stats
+    const modal = document.getElementById('bitpopGameOverModal');
+    const finalScoreEl = document.getElementById('bitpopFinalScore');
+    const finalPoppedEl = document.getElementById('bitpopFinalPopped');
+    const finalComboEl = document.getElementById('bitpopFinalMaxCombo');
+    const finalXpEl = document.getElementById('bitpopFinalXp');
+
+    if (finalScoreEl) finalScoreEl.textContent = bitpopState.score.toLocaleString();
+    if (finalPoppedEl) finalPoppedEl.textContent = String(bitpopState.poppedCount);
+    if (finalComboEl) finalComboEl.textContent = `${bitpopState.maxCombo.toFixed(1)}× 🔥`;
+    if (finalXpEl) finalXpEl.textContent = `+${xpReward} XP`;
+
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function exitBitPop() {
+    stopBitpopTimer();
+    bitpopState.isRunning = false;
+    const modal = document.getElementById('bitpopGameOverModal');
+    if (modal) modal.style.display = 'none';
+    showBitmasterScreen('title');
   }
 
   window.finishBitmasterRound = finishBitmasterRound;
@@ -7484,6 +7862,9 @@
   window.showBitmasterRankModal = showBitmasterRankModal;
   window.startBitCrossGame = startBitCrossGame;
   window.bitcrossState = bitcrossState;
+  window.startBitPopGame = startBitPopGame;
+  window.exitBitPop = exitBitPop;
+  window.bitpopState = bitpopState;
 
   // =========================================================================
   function setupBitMaster() {
@@ -7694,6 +8075,8 @@
         showBitmasterAbandonModal();
       } else if (activeScreen && activeScreen.id === 'bitmasterScreenBitCross') {
         exitBitCrossToArcade();
+      } else if (activeScreen && activeScreen.id === 'bitmasterScreenBitPop') {
+        exitBitPop();
       } else if (activeScreen && activeScreen.id === 'bitmasterScreenSummary') {
         showBitmasterScreen('levels');
       } else if (activeScreen && activeScreen.id === 'bitmasterScreenLevels') {
@@ -7722,28 +8105,46 @@
       levelsBottomBackBtn.addEventListener('click', goBackBitmaster);
     }
 
-    // Arcade vs Stages Navigation Tabs
-    const tabStages = document.getElementById('bitmasterTabStages');
-    const tabArcade = document.getElementById('bitmasterTabArcade');
-    if (tabStages) {
-      tabStages.addEventListener('click', () => {
-        playSynthSound('tap');
-        activateBitmasterFrontTab('stages');
-      });
-    }
-    if (tabArcade) {
-      tabArcade.addEventListener('click', () => {
-        playSynthSound('tap');
-        activateBitmasterFrontTab('arcade');
-      });
-    }
-
     // Launch Bit Cross Game Card
     const launchBitCrossBtn = document.getElementById('bitmasterLaunchBitCrossBtn');
     if (launchBitCrossBtn) {
       launchBitCrossBtn.addEventListener('click', () => {
         playSynthSound('tap');
         startBitCrossGame(4);
+      });
+    }
+
+    // Launch Bit Pop Game Card
+    const launchBitPopBtn = document.getElementById('bitmasterLaunchBitPopBtn');
+    if (launchBitPopBtn) {
+      launchBitPopBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        startBitPopGame();
+      });
+    }
+
+    // Bit Pop Controls & Modal Buttons
+    const restartPopBtn = document.getElementById('bitpopRestartBtn');
+    if (restartPopBtn) {
+      restartPopBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        startBitPopGame();
+      });
+    }
+
+    const popPlayAgainBtn = document.getElementById('bitpopPlayAgainBtn');
+    if (popPlayAgainBtn) {
+      popPlayAgainBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        startBitPopGame();
+      });
+    }
+
+    const popExitBtn = document.getElementById('bitpopExitToMenuBtn');
+    if (popExitBtn) {
+      popExitBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        exitBitPop();
       });
     }
 
@@ -7836,6 +8237,8 @@
         showBitmasterAbandonModal();
       } else if (activeScreenId === 'bitmasterScreenBitCross') {
         exitBitCrossToArcade();
+      } else if (activeScreenId === 'bitmasterScreenBitPop') {
+        exitBitPop();
       } else if (activeScreenId === 'bitmasterScreenSummary') {
         showBitmasterScreen('levels', true);
       } else if (activeScreenId === 'bitmasterScreenLevels') {

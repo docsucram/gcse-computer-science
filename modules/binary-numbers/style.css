@@ -6388,3 +6388,352 @@ body.bitmaster-standalone-mode .bitmaster-arena {
     border-radius: 10px;
   }
 }
+
+/* ========================================================================= */
+/* BIT POP: ARCADE REFLEX TIME ATTACK                                       */
+/* ========================================================================= */
+.bitpop-screen-inner {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 8px 12px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.bitpop-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.bitpop-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.bitpop-title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.bitpop-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #ec4899;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+.bitpop-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 2px 0 0;
+  text-shadow: 0 0 20px rgba(236, 72, 153, 0.45);
+}
+
+.bitpop-mode-pill {
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: #f472b6;
+  background: rgba(236, 72, 153, 0.15);
+  border: 1.5px solid rgba(236, 72, 153, 0.45);
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bitpop-hud-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #0f172a;
+  border: 1.5px solid #232c40;
+  border-radius: 14px;
+  padding: 8px 14px;
+  width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+.bitpop-hud-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 58px;
+}
+
+.bitpop-hud-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #64748b;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.bitpop-hud-val {
+  font-size: 17px;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  color: #f1f5f9;
+  margin-top: 2px;
+}
+
+.bitpop-timer-val {
+  color: #38bdf8;
+  transition: color 0.2s ease;
+}
+
+.bitpop-timer-val.is-low-time {
+  color: #ef4444 !important;
+  animation: lowTimePulse 0.55s ease-in-out infinite alternate;
+}
+
+.bitpop-hud-divider {
+  width: 1px;
+  height: 24px;
+  background: #232c40;
+}
+
+.bitpop-target-banner {
+  width: 100%;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.14) 0%, rgba(99, 102, 241, 0.14) 100%);
+  border: 2px solid rgba(236, 72, 153, 0.45);
+  border-radius: 16px;
+  padding: 12px 16px;
+  text-align: center;
+  box-sizing: border-box;
+  box-shadow: 0 0 24px rgba(236, 72, 153, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.bitpop-target-prompt {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: #f472b6;
+  font-family: var(--font-mono);
+  margin-bottom: 2px;
+}
+
+.bitpop-target-value {
+  font-size: 40px;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: 2px;
+  text-shadow: 0 0 20px rgba(236, 72, 153, 0.7), 0 0 40px rgba(236, 72, 153, 0.4);
+}
+
+.bitpop-target-hint {
+  font-size: 12px;
+  font-weight: 700;
+  color: #94a3b8;
+  font-family: var(--font-mono);
+  margin-top: 3px;
+}
+
+.bitpop-floater-container {
+  position: relative;
+  width: 100%;
+  height: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.bitpop-floater {
+  position: absolute;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-weight: 900;
+  font-size: 20px;
+  z-index: 100;
+  animation: bitpopFloatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.bitpop-floater.bonus {
+  color: #34d399;
+  text-shadow: 0 0 12px rgba(52, 211, 153, 0.9);
+}
+
+.bitpop-floater.penalty {
+  color: #f87171;
+  text-shadow: 0 0 12px rgba(248, 113, 113, 0.9);
+}
+
+.bitpop-playfield {
+  width: 100%;
+  min-height: 290px;
+  background: radial-gradient(circle at center, rgba(30, 41, 59, 0.6) 0%, rgba(13, 18, 31, 0.98) 100%);
+  border: 2px solid #232c40;
+  border-radius: 20px;
+  padding: 22px 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  gap: 16px;
+  position: relative;
+  box-shadow: inset 0 2px 18px rgba(0, 0, 0, 0.6);
+}
+
+.bitpop-bubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 108px;
+  min-height: 74px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.22), rgba(236, 72, 153, 0.18) 45%, rgba(15, 23, 42, 0.95) 100%);
+  border: 2.5px solid rgba(236, 72, 153, 0.55);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 2px 8px rgba(255, 255, 255, 0.4), 0 0 16px rgba(236, 72, 153, 0.25);
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: 1px;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  animation: bitpopBob 2.6s ease-in-out infinite alternate;
+}
+
+.bitpop-bubble:nth-child(2n) {
+  animation-duration: 2.9s;
+  animation-delay: -0.8s;
+}
+
+.bitpop-bubble:nth-child(3n) {
+  animation-duration: 3.2s;
+  animation-delay: -1.6s;
+}
+
+.bitpop-bubble:hover {
+  transform: scale(1.08) translateY(-3px);
+  border-color: #f472b6;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.6), inset 0 2px 10px rgba(255, 255, 255, 0.6), 0 0 28px rgba(236, 72, 153, 0.65);
+}
+
+.bitpop-bubble:active {
+  transform: scale(0.94);
+}
+
+.bitpop-bubble.popping {
+  animation: bitpopBurst 0.26s forwards cubic-bezier(0.1, 0.9, 0.2, 1) !important;
+  pointer-events: none;
+}
+
+.bitpop-bubble.wrong {
+  animation: bitpopShake 0.4s ease !important;
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.25) !important;
+  opacity: 0.4 !important;
+  pointer-events: none;
+}
+
+.bitpop-gameover-dialog {
+  max-width: 390px !important;
+}
+
+.bitpop-gameover-icon {
+  background: rgba(236, 72, 153, 0.15) !important;
+  border: 2px solid rgba(236, 72, 153, 0.4) !important;
+  box-shadow: 0 0 24px rgba(236, 72, 153, 0.35) !important;
+}
+
+@keyframes bitpopBob {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(-8px) rotate(1.5deg);
+  }
+}
+
+@keyframes bitpopBurst {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+    filter: brightness(1.5);
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.8;
+    filter: brightness(2.5);
+    box-shadow: 0 0 40px #ec4899;
+  }
+  100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes bitpopShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+@keyframes bitpopFloatUp {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -24px) scale(1.15);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -46px) scale(1);
+  }
+}
+
+@keyframes lowTimePulse {
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 6px rgba(239, 68, 68, 0.5);
+  }
+  100% {
+    transform: scale(1.1);
+    text-shadow: 0 0 16px rgba(239, 68, 68, 0.9);
+  }
+}
+
+@media (max-width: 480px) {
+  .bitpop-bubble {
+    min-width: 86px;
+    min-height: 60px;
+    font-size: 16px;
+    padding: 8px 14px;
+  }
+  .bitpop-target-value {
+    font-size: 32px;
+  }
+  .bitpop-playfield {
+    min-height: 240px;
+    gap: 10px;
+    padding: 14px 10px;
+  }
+}
+
