@@ -7559,7 +7559,7 @@
 
   const bitpopState = {
     isRunning: false,
-    timer: 45.0,
+    timer: 50.0,
     timerInterval: null,
     score: 0,
     combo: 1.0,
@@ -7568,8 +7568,9 @@
     poppedCount: 0,
     tier: 0,              // 0: Nibble (0-15), 1: 5-bit (0-31), 2: 6-bit (0-63), 3: 7-bit (0-127), 4: 8-bit (0-255)
     cycleStep: 0,         // 0: Den->Bin, 1: Bin->Den, 2: Den Add->Bin, 3: Bin Add->Den
+    roundInStep: 1,       // 1 or 2 (each phase step repeats twice before advancing)
     sheetNumber: 1,
-    sheetQuestions: [],   // Array of 4 target question specs for this sheet
+    sheetQuestions: [],   // Array of 8 target question specs for this sheet
     currentQIndex: 0,
     sheetPoppedInCurrent: 0,
     cells: []
@@ -7632,7 +7633,7 @@
   function startBitPopGame() {
     stopBitpopEngine();
     bitpopState.isRunning = true;
-    bitpopState.timer = 45.0;
+    bitpopState.timer = 50.0;
     bitpopState.score = 0;
     bitpopState.combo = 1.0;
     bitpopState.maxCombo = 1.0;
@@ -7640,6 +7641,7 @@
     bitpopState.poppedCount = 0;
     bitpopState.tier = 0;
     bitpopState.cycleStep = 0;
+    bitpopState.roundInStep = 1;
     bitpopState.sheetNumber = 1;
     bitpopState.sheetQuestions = [];
     bitpopState.currentQIndex = 0;
@@ -7652,7 +7654,7 @@
     updateBitpopHUD();
     showBitmasterScreen('bitpop');
 
-    // Generate initial static bubble wrap sheet (12 cells with 4 solvable questions)
+    // Generate initial static bubble wrap sheet (3x4 grid of 12 cells with 8 solvable questions)
     initBitpopSheet();
 
     // Start 100ms countdown timer
@@ -7692,7 +7694,7 @@
       poppedEl.textContent = String(bitpopState.poppedCount);
     }
     if (progressEl) {
-      progressEl.textContent = `Sheet ${bitpopState.sheetNumber} • ${bitpopState.sheetPoppedInCurrent}/4`;
+      progressEl.textContent = `Round ${bitpopState.roundInStep}/2 • ${bitpopState.sheetPoppedInCurrent}/8`;
     }
   }
 
@@ -7706,7 +7708,7 @@
     }
   }
 
-  // Generates 12 distinct cell values for the grid, ensuring 4 target values exist
+  // Generates 12 distinct cell values for the 3x4 grid, ensuring 8 target values exist
   function initBitpopSheet() {
     const arena = document.getElementById('bitpopArena');
     if (!arena) return;
@@ -7719,12 +7721,12 @@
     const step = bitpopState.cycleStep; // 0: Den->Bin, 1: Bin->Den, 2: DenAdd->Bin, 3: BinAdd->Den
     const isBinOnCells = (step === 0 || step === 2); // Cells show binary when converting to binary
 
-    // Pick 4 unique target values within the tier
+    // Pick 8 unique target values within the tier
     const targetVals = [];
     const usedVals = new Set();
 
     let targetAttempts = 0;
-    while (targetVals.length < 4 && targetAttempts < 250) {
+    while (targetVals.length < 8 && targetAttempts < 350) {
       targetAttempts++;
       let candidate = 0;
       if (bitpopState.tier === 0) {
@@ -7732,7 +7734,7 @@
         candidate = Math.floor(Math.random() * 15) + 1;
       } else {
         // Tiers 1-4: bias towards newly introduced bits (>= minTarget)
-        if (targetVals.length < 3) {
+        if (targetVals.length < 5) {
           const range = tierCfg.maxVal - tierCfg.minTarget + 1;
           candidate = tierCfg.minTarget + Math.floor(Math.random() * range);
         } else {
@@ -7745,7 +7747,7 @@
       }
     }
 
-    // Pick 8 distractors so total cells = 12
+    // Pick 4 distractors so total cells = 12
     let distractorAttempts = 0;
     const allCellVals = [...targetVals];
     while (allCellVals.length < 12 && distractorAttempts < 350) {
@@ -7768,13 +7770,13 @@
       allCellVals.push(fallback);
     }
 
-    // Shuffle the 12 cell values so targets are scattered across the 4x3 sheet
+    // Shuffle the 12 cell values so targets and distractors are scattered across the 3x4 sheet
     for (let i = allCellVals.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [allCellVals[i], allCellVals[j]] = [allCellVals[j], allCellVals[i]];
     }
 
-    // Build the 4 question descriptors for targetVals
+    // Build the 8 question descriptors for targetVals
     bitpopState.sheetQuestions = targetVals.map((val) => {
       let promptText = '';
       let displayValue = '';
@@ -7826,7 +7828,7 @@
       };
     });
 
-    // Render 12 blister cells into the arena grid
+    // Render 12 blister cells into the 3x4 arena grid
     for (let i = 0; i < allCellVals.length; i++) {
       const val = allCellVals[i];
       const theme = bitpopThemes[i % bitpopThemes.length];
@@ -7937,24 +7939,29 @@
         }, 110);
       }
 
-      // Check if this sheet is fully cleared!
-      if (bitpopState.sheetPoppedInCurrent >= 4) {
+      // Check if this sheet is fully cleared (all 8 target questions solved)!
+      if (bitpopState.sheetPoppedInCurrent >= 8) {
         // --- COMPLETE SHEET CLEARED! ---
         playSynthSound('levelup');
-        bitpopState.timer = Math.min(60.0, bitpopState.timer + 5.0);
-        bitpopState.score += Math.round(300 * bitpopState.combo);
+        bitpopState.timer = Math.min(60.0, bitpopState.timer + 6.0);
+        bitpopState.score += Math.round(500 * bitpopState.combo);
         updateBitpopHUD();
 
-        showBitpopFloater('SHEET CLEAR! +5s ⚡', true, null, -10);
+        showBitpopFloater('SHEET CLEAR! +6s ⚡', true, null, -10);
 
-        // Advance cycle & tier
+        // Advance round or cycle step (each phase repeats twice)
         bitpopState.sheetNumber++;
-        bitpopState.cycleStep++;
-        if (bitpopState.cycleStep >= 4) {
-          bitpopState.cycleStep = 0;
-          bitpopState.tier++;
-          if (bitpopState.tier > 4) {
-            bitpopState.tier = 4; // Stay at 8-bit master blitz
+        if (bitpopState.roundInStep < 2) {
+          bitpopState.roundInStep++;
+        } else {
+          bitpopState.roundInStep = 1;
+          bitpopState.cycleStep++;
+          if (bitpopState.cycleStep >= 4) {
+            bitpopState.cycleStep = 0;
+            bitpopState.tier++;
+            if (bitpopState.tier > 4) {
+              bitpopState.tier = 4; // Stay at 8-bit master blitz
+            }
           }
         }
 
