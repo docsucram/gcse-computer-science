@@ -242,14 +242,95 @@
               </div>
             </div>
 
-            <!-- 6 BIG BOLD TOPIC BUTTONS (Primary Front Menu Arcade Navigation) -->
-            <div class="bitmaster-front-topics-wrap">
+            <!-- Front Mode Switch Tabs: Stages vs Arcade -->
+            <div class="bitmaster-front-nav-tabs">
+              <button id="bitmasterTabStages" class="bitmaster-nav-tab active" type="button">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                  <circle cx="12" cy="12" r="10"/>
+                  <circle cx="12" cy="12" r="6"/>
+                  <circle cx="12" cy="12" r="2"/>
+                </svg>
+                <span>Stages (21)</span>
+              </button>
+              <button id="bitmasterTabArcade" class="bitmaster-nav-tab" type="button">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                  <rect x="2" y="6" width="20" height="12" rx="3"/>
+                  <path d="M6 12h4m-2-2v4"/>
+                  <circle cx="17" cy="10" r="1" fill="currentColor"/>
+                  <circle cx="15" cy="13" r="1" fill="currentColor"/>
+                </svg>
+                <span>Arcade</span>
+              </button>
+            </div>
+
+            <!-- 6 BIG BOLD TOPIC BUTTONS (Stages Mode) -->
+            <div class="bitmaster-front-topics-wrap" id="bitmasterFrontTopicsWrap">
               <div class="front-topics-header">
                 <span class="front-topics-eyebrow">CHOOSE YOUR TRAINING DOMAIN</span>
                 <h3 class="front-topics-title">Select a Topic</h3>
               </div>
               <div class="bitmaster-front-topics-grid" id="bitmasterFrontTopicsGrid">
                 <!-- Dynamically populated with 6 big bold topic cards -->
+              </div>
+            </div>
+
+            <!-- ARCADE GAMES (Arcade Mode) -->
+            <div class="bitmaster-front-arcade-wrap" id="bitmasterFrontArcadeWrap" style="display: none;">
+              <div class="front-topics-header">
+                <span class="front-topics-eyebrow">ARCADE LOGIC &amp; PUZZLES</span>
+                <h3 class="front-topics-title">Arcade Games</h3>
+              </div>
+              <div class="bitmaster-arcade-cards-grid">
+                <!-- Bit Cross Card -->
+                <div class="bitmaster-arcade-game-card" id="bitmasterLaunchBitCrossBtn" role="button" tabindex="0">
+                  <div class="arcade-card-top">
+                    <span class="arcade-card-badge">LOGIC PUZZLE</span>
+                    <div class="arcade-card-icon-wrap">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+                        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+                        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="arcade-card-body">
+                    <h4 class="arcade-card-title">Bit Cross</h4>
+                    <p class="arcade-card-desc">Satisfy row &amp; column place-value targets simultaneously on a 3&times;3, 4&times;4, or 5&times;5 binary deduction grid!</p>
+                    <div class="arcade-card-tags">
+                      <span class="arcade-tag">3&times;3 (4,2,1)</span>
+                      <span class="arcade-tag">4&times;4 (8..1)</span>
+                      <span class="arcade-tag">5&times;5 (16..1)</span>
+                    </div>
+                  </div>
+                  <div class="arcade-card-footer">
+                    <button class="control-btn control-btn-primary arcade-play-btn" type="button">Play Bit Cross &rarr;</button>
+                  </div>
+                </div>
+
+                <!-- Bit Pop Teaser Card -->
+                <div class="bitmaster-arcade-game-card is-teaser">
+                  <div class="arcade-card-top">
+                    <span class="arcade-card-badge text-pink">SPEED SURVIVAL</span>
+                    <div class="arcade-card-icon-wrap icon-pink">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                        <circle cx="12" cy="12" r="9"/>
+                        <path d="M12 7v5l3 3"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="arcade-card-body">
+                    <h4 class="arcade-card-title">Bit Pop</h4>
+                    <p class="arcade-card-desc">Rapidly pop rising bubbles matching target values before time expires! Chain combos for extra survival time.</p>
+                    <div class="arcade-card-tags">
+                      <span class="arcade-tag">Reflex Blitz</span>
+                      <span class="arcade-tag">Time Attack</span>
+                    </div>
+                  </div>
+                  <div class="arcade-card-footer">
+                    <span class="arcade-teaser-pill">Coming Soon</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -522,6 +603,101 @@
             <div class="victory-buttons">
               <button id="bitmasterSummaryRetryBtn" class="control-btn">Play Again</button>
               <button id="bitmasterSummaryNextLevelBtn" class="control-btn control-btn-primary" style="display: none;">Next Level &rarr;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SCREEN 5: BIT CROSS ARCADE PUZZLE -->
+        <div id="bitmasterScreenBitCross" class="bitmaster-screen" style="display: none;">
+          <div class="bitcross-screen-inner">
+            <!-- Header & Instructions -->
+            <div class="bitcross-header">
+              <div class="bitcross-title-row">
+                <div class="bitcross-title-wrap">
+                  <span class="bitcross-eyebrow">ARCADE LOGIC GRID</span>
+                  <h2 class="bitcross-title">Bit Cross</h2>
+                </div>
+                <!-- Size Selector (3x3, 4x4, 5x5) -->
+                <div class="bitcross-size-selector" id="bitcrossSizeSelector">
+                  <button class="bitcross-size-pill active" data-size="3" type="button">3&times;3</button>
+                  <button class="bitcross-size-pill" data-size="4" type="button">4&times;4</button>
+                  <button class="bitcross-size-pill" data-size="5" type="button">5&times;5</button>
+                </div>
+              </div>
+
+              <!-- Compact HUD Bar: Timer, Flips, Matches, Controls -->
+              <div class="bitcross-hud-bar">
+                <div class="bitcross-hud-stat">
+                  <span class="bitcross-hud-label">TIME</span>
+                  <span class="bitcross-hud-val" id="bitcrossTimer">0:00</span>
+                </div>
+                <div class="bitcross-hud-divider"></div>
+                <div class="bitcross-hud-stat">
+                  <span class="bitcross-hud-label">FLIPS</span>
+                  <span class="bitcross-hud-val" id="bitcrossFlips">0</span>
+                </div>
+                <div class="bitcross-hud-divider"></div>
+                <div class="bitcross-hud-stat">
+                  <span class="bitcross-hud-label">MATCHES</span>
+                  <span class="bitcross-hud-val text-cyan" id="bitcrossMatches">0 / 6</span>
+                </div>
+                <div class="bitcross-hud-actions">
+                  <button id="bitcrossResetBtn" class="bitcross-action-btn" type="button" title="Clear all cells to 0">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    <span>Clear</span>
+                  </button>
+                  <button id="bitcrossNewPuzzleBtn" class="bitcross-action-btn bitcross-action-btn-primary" type="button" title="Generate brand new puzzle">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                    <span>New</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Brief Guideline -->
+              <div class="bitcross-guide-hint">
+                Flip cells (0 &harr; 1) so horizontal sums and vertical sums match their targets!
+              </div>
+            </div>
+
+            <!-- The Interactive Puzzle Board Grid Container -->
+            <div class="bitcross-board-container" id="bitcrossBoardContainer">
+              <!-- Dynamically populated by renderBitCrossBoard() -->
+            </div>
+          </div>
+        </div>
+
+        <!-- BIT CROSS VICTORY OVERLAY MODAL -->
+        <div id="bitcrossVictoryModal" class="bitmaster-modal-backdrop" style="display: none;">
+          <div class="bitmaster-modal-dialog bitcross-victory-dialog">
+            <div class="modal-dialog-icon bitcross-win-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                <polyline points="22 4 12 14.01 9 11.01"/>
+              </svg>
+            </div>
+            <h3 class="modal-dialog-title">Grid Solved!</h3>
+            <p class="modal-dialog-body" id="bitcrossVictorySubtext">All horizontal and vertical place values match their targets!</p>
+            <div class="bitcross-victory-stats">
+              <div class="bitcross-v-stat">
+                <span class="v-label">Grid</span>
+                <span class="v-val text-cyan" id="bitcrossVictoryGridSize">4&times;4</span>
+              </div>
+              <div class="bitcross-v-stat">
+                <span class="v-label">Time</span>
+                <span class="v-val text-amber" id="bitcrossVictoryTime">0:45</span>
+              </div>
+              <div class="bitcross-v-stat">
+                <span class="v-label">Flips</span>
+                <span class="v-val text-pink" id="bitcrossVictoryFlips">12</span>
+              </div>
+              <div class="bitcross-v-stat">
+                <span class="v-label">Score</span>
+                <span class="v-val text-emerald" id="bitcrossVictoryXp">+300 XP</span>
+              </div>
+            </div>
+            <div class="modal-dialog-actions">
+              <button id="bitcrossVictoryNextBtn" class="control-btn control-btn-primary" type="button">Next Puzzle &rarr;</button>
+              <button id="bitcrossVictoryArcadeBtn" class="control-btn" type="button">&larr; Arcade</button>
             </div>
           </div>
         </div>

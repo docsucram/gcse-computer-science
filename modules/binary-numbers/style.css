@@ -5725,5 +5725,666 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   }
 }
 
+/* =========================================================================
+   ARCADE & BIT CROSS LOGIC GRID SYSTEM
+   ========================================================================= */
 
+/* Front Navigation Tabs (Stages vs Arcade) */
+.bitmaster-front-nav-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 440px;
+  margin: 18px auto 6px;
+  padding: 4px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+}
 
+.bitmaster-nav-tab {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  color: #94a3b8;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.bitmaster-nav-tab:hover {
+  color: #f8fafc;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.bitmaster-nav-tab.active {
+  background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+  color: #04101f;
+  font-weight: 800;
+  box-shadow: 0 4px 14px rgba(14, 165, 233, 0.35);
+}
+
+/* Arcade Wrap & Game Cards */
+.bitmaster-front-arcade-wrap {
+  width: 100%;
+  max-width: 620px;
+  margin: 16px auto 0;
+  text-align: center;
+}
+
+.bitmaster-arcade-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  width: 100%;
+}
+
+.bitmaster-arcade-game-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: relative;
+  background: #0d121f;
+  border: 2px solid #232c40;
+  border-radius: 18px;
+  padding: 20px 18px;
+  box-shadow: 0 5px 0 #070b12, inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.bitmaster-arcade-game-card:hover {
+  border-color: #38bdf8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #070b12, 0 0 20px rgba(56, 189, 248, 0.2);
+}
+
+.bitmaster-arcade-game-card.is-teaser {
+  opacity: 0.72;
+  cursor: default;
+}
+
+.bitmaster-arcade-game-card.is-teaser:hover {
+  border-color: #232c40;
+  transform: none;
+  box-shadow: 0 5px 0 #070b12;
+}
+
+.arcade-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.arcade-card-badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: #38bdf8;
+  text-transform: uppercase;
+}
+
+.arcade-card-badge.text-pink {
+  color: #ec4899;
+}
+
+.arcade-card-icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(56, 189, 248, 0.1);
+  border: 1.5px solid rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+}
+
+.arcade-card-icon-wrap.icon-pink {
+  background: rgba(236, 72, 153, 0.1);
+  border-color: rgba(236, 72, 153, 0.3);
+  color: #ec4899;
+}
+
+.arcade-card-body {
+  flex: 1;
+}
+
+.arcade-card-title {
+  margin: 0 0 6px 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: #f8fafc;
+  letter-spacing: -0.3px;
+}
+
+.arcade-card-desc {
+  margin: 0 0 14px 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #94a3b8;
+}
+
+.arcade-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.arcade-tag {
+  padding: 3px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #cbd5e1;
+  font-family: var(--font-mono);
+}
+
+.arcade-card-footer {
+  margin-top: auto;
+}
+
+.arcade-play-btn {
+  width: 100%;
+  padding: 10px 14px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  text-align: center !important;
+  border-radius: 10px !important;
+}
+
+.arcade-teaser-pill {
+  display: inline-block;
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* =========================================================================
+   BIT CROSS PUZZLE SCREEN
+   ========================================================================= */
+
+.bitcross-screen-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 12px 14px 24px;
+  box-sizing: border-box;
+}
+
+.bitcross-header {
+  width: 100%;
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.bitcross-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.bitcross-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  color: #38bdf8;
+  text-transform: uppercase;
+}
+
+.bitcross-title {
+  margin: 2px 0 0 0;
+  font-size: clamp(22px, 5vw, 28px);
+  font-weight: 900;
+  color: #f8fafc;
+  letter-spacing: -0.5px;
+}
+
+/* Size Selector Pills */
+.bitcross-size-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #0f172a;
+  padding: 4px;
+  border: 1.5px solid #232c40;
+  border-radius: 999px;
+}
+
+.bitcross-size-pill {
+  padding: 6px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 999px;
+  color: #94a3b8;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bitcross-size-pill:hover {
+  color: #f8fafc;
+}
+
+.bitcross-size-pill.active {
+  background: #38bdf8;
+  color: #04101f;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
+}
+
+/* HUD Status Bar */
+.bitcross-hud-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: #0f172a;
+  border: 1.5px solid #232c40;
+  border-radius: 14px;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  gap: 12px;
+}
+
+.bitcross-hud-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.bitcross-hud-label {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 0.6px;
+}
+
+.bitcross-hud-val {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.bitcross-hud-divider {
+  width: 1px;
+  height: 24px;
+  background: #232c40;
+}
+
+.bitcross-hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.bitcross-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  background: #1e293b;
+  border: 1.5px solid #334155;
+  border-radius: 8px;
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bitcross-action-btn:hover {
+  background: #334155;
+  color: #f8fafc;
+}
+
+.bitcross-action-btn-primary {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
+.bitcross-action-btn-primary:hover {
+  background: #38bdf8;
+  color: #04101f;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);
+}
+
+.bitcross-guide-hint {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.4;
+  text-align: center;
+  padding: 4px 6px;
+}
+
+/* =========================================================================
+   BIT CROSS PUZZLE BOARD (2D MATRIX WITH DUAL PLACE VALUES)
+   ========================================================================= */
+
+.bitcross-board-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.bitcross-grid-board {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  background: #090e1a;
+  border: 2px solid #1e293b;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Headers: Column (Cyan) and Row (Pink) */
+.bitcross-header-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 4px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.bitcross-col-pill {
+  background: rgba(56, 189, 248, 0.12);
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+}
+
+.bitcross-row-pill {
+  background: rgba(236, 72, 153, 0.12);
+  border: 1.5px solid rgba(236, 72, 153, 0.35);
+  color: #f472b6;
+}
+
+.bitcross-pill-val {
+  font-family: var(--font-mono);
+  font-size: clamp(14px, 3.5vw, 18px);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.bitcross-pill-sub {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 700;
+  opacity: 0.8;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.bitcross-corner-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+/* Interactive Bit Toggle Cells */
+.bitcross-cell-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  min-height: 48px;
+  aspect-ratio: 1 / 1;
+  background: #131b2e;
+  border: 2px solid #28354f;
+  border-radius: 14px;
+  color: #64748b;
+  font-family: var(--font-mono);
+  font-size: clamp(18px, 4vw, 24px);
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #0a0f1d;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.bitcross-cell-btn:hover {
+  border-color: #38bdf8;
+  color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 0 #0a0f1d;
+}
+
+.bitcross-cell-btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #0a0f1d;
+}
+
+.bitcross-cell-btn.is-active-1 {
+  background: linear-gradient(135deg, #0284c7, #38bdf8);
+  border-color: #7dd3fc;
+  color: #04101f;
+  box-shadow: 0 4px 0 #0369a1, 0 0 18px rgba(56, 189, 248, 0.5);
+  transform: translateY(0);
+}
+
+.bitcross-cell-btn.is-active-1:hover {
+  box-shadow: 0 5px 0 #0369a1, 0 0 24px rgba(56, 189, 248, 0.7);
+}
+
+/* Target Badges (Row & Column) */
+.bitcross-target-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  min-height: 48px;
+  padding: 4px 8px;
+  background: #111827;
+  border: 1.5px solid #2d3748;
+  border-radius: 12px;
+  font-family: var(--font-mono);
+  box-sizing: border-box;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.target-val-row {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  line-height: 1;
+}
+
+.target-cur-val {
+  font-size: clamp(14px, 3.5vw, 17px);
+  font-weight: 900;
+  color: #94a3b8;
+}
+
+.target-sep {
+  font-size: 11px;
+  color: #475569;
+}
+
+.target-goal-val {
+  font-size: clamp(14px, 3.5vw, 17px);
+  font-weight: 900;
+  color: #f8fafc;
+}
+
+.target-check-mark {
+  font-size: 11px;
+  font-weight: 900;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Matched Target State (Neon Green!) */
+.bitcross-target-badge.is-matched {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.35) !important;
+}
+
+.bitcross-target-badge.is-matched .target-cur-val,
+.bitcross-target-badge.is-matched .target-goal-val {
+  color: #34d399 !important;
+}
+
+.bitcross-target-badge.is-matched .target-check-mark {
+  color: #34d399 !important;
+}
+
+/* Corner Total Badge */
+.bitcross-corner-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 52px;
+  min-height: 48px;
+  padding: 4px 6px;
+  background: #0f172a;
+  border: 1.5px solid #232c40;
+  border-radius: 12px;
+  font-family: var(--font-mono);
+  user-select: none;
+  box-sizing: border-box;
+}
+
+.corner-matches-text {
+  font-size: 12px;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.corner-status-icon {
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+/* Victory Dialog specific */
+.bitcross-victory-dialog {
+  max-width: 380px !important;
+}
+
+.bitcross-win-icon {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border: 2px solid rgba(16, 185, 129, 0.4) !important;
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.3) !important;
+}
+
+.bitcross-victory-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  width: 100%;
+  margin: 18px 0;
+  padding: 12px 6px;
+  background: #0f172a;
+  border: 1.5px solid #232c40;
+  border-radius: 14px;
+  box-sizing: border-box;
+}
+
+.bitcross-v-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.bitcross-v-stat .v-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+.bitcross-v-stat .v-val {
+  font-size: 15px;
+  font-weight: 900;
+  font-family: var(--font-mono);
+  margin-top: 3px;
+}
+
+@media (max-width: 480px) {
+  .bitmaster-arcade-cards-grid {
+    grid-template-columns: 1fr;
+  }
+  .bitcross-grid-board {
+    gap: 5px;
+    padding: 10px;
+  }
+  .bitcross-cell-btn {
+    min-width: 38px;
+    min-height: 38px;
+    font-size: 17px;
+    border-radius: 10px;
+  }
+  .bitcross-header-pill {
+    min-width: 38px;
+    min-height: 38px;
+    border-radius: 10px;
+  }
+  .bitcross-target-badge {
+    min-width: 44px;
+    min-height: 38px;
+    padding: 2px 4px;
+    border-radius: 10px;
+  }
+}

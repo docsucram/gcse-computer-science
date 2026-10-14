@@ -1,7 +1,7 @@
 /**
  * GCSE Numbers & Characters Module Logic
  * Pure Vanilla JavaScript (ES6+) - Zero build tools required
- * Aligned with AQA 8525 §3.3.1 & §3.3.2
+ * Universal GCSE Computer Science Number Systems (AQA, OCR, Edexcel, Eduqas, CIE)
  */
 
 (function () {
@@ -3156,7 +3156,8 @@
       stages: document.getElementById('bitmasterScreenStages'),
       levels: document.getElementById('bitmasterScreenLevels'),
       game: document.getElementById('bitmasterScreenGame'),
-      summary: document.getElementById('bitmasterScreenSummary')
+      summary: document.getElementById('bitmasterScreenSummary'),
+      bitcross: document.getElementById('bitmasterScreenBitCross')
     };
 
     Object.values(screens).forEach(s => {
@@ -3213,6 +3214,15 @@
       if (backBtn) {
         backBtn.style.display = 'inline-flex';
         if (backText) backText.textContent = 'Levels';
+      }
+    } else if (screenName === 'bitcross') {
+      if (screens.bitcross) {
+        screens.bitcross.classList.add('active');
+        screens.bitcross.style.display = 'block';
+      }
+      if (backBtn) {
+        backBtn.style.display = 'inline-flex';
+        if (backText) backText.textContent = 'Arcade';
       }
     }
 
@@ -5144,9 +5154,9 @@
         {
           prompt: "Decimal Storage Prefixes",
           display: "1 Kilobyte (KB) = ? bytes",
-          hint: "Standard AQA decimal prefix: Kilo = 10³ = 1,000",
+          hint: "Decimal prefix (metric base 10): Kilo = 10³ = 1,000",
           correctAnswer: "1,000 bytes",
-          options: ["1,000 bytes", "1,024 bytes", "100 bytes", "10,000 bytes"]
+          options: ["1,000 bytes", "100 bytes", "10,000 bytes", "500 bytes"]
         },
         {
           prompt: "Data Storage Units",
@@ -7069,12 +7079,411 @@
       showBitmasterScreen('levels');
     };
   }
+
+  // =========================================================================
+  // ARCADE & BIT CROSS LOGIC GRID SYSTEM
+  // =========================================================================
+  const bitcrossState = {
+    size: 4, // 3, 4, 5
+    weights: [8, 4, 2, 1],
+    targetRows: [0, 0, 0, 0],
+    targetCols: [0, 0, 0, 0],
+    playerGrid: [], // size x size
+    flips: 0,
+    startTime: 0,
+    elapsedSeconds: 0,
+    timerInterval: null,
+    isSolved: false
+  };
+
+  function getBitcrossWeights(size) {
+    if (size === 3) return [4, 2, 1];
+    if (size === 5) return [16, 8, 4, 2, 1];
+    return [8, 4, 2, 1]; // size 4
+  }
+
+  function startBitCrossGame(size = 4) {
+    bitcrossState.size = size;
+    bitcrossState.weights = getBitcrossWeights(size);
+    bitcrossState.flips = 0;
+    bitcrossState.isSolved = false;
+    bitcrossState.elapsedSeconds = 0;
+
+    // Generate puzzle
+    generateBitcrossPuzzle(size);
+
+    // Update size buttons UI
+    const sizePills = document.querySelectorAll('.bitcross-size-pill');
+    sizePills.forEach(pill => {
+      const pSize = parseInt(pill.getAttribute('data-size'), 10);
+      pill.classList.toggle('active', pSize === size);
+    });
+
+    // Start timer
+    startBitcrossTimer();
+
+    // Render board
+    renderBitcrossBoard();
+    updateBitcrossHUD();
+
+    // Close victory modal if open
+    const winModal = document.getElementById('bitcrossVictoryModal');
+    if (winModal) winModal.style.display = 'none';
+
+    showBitmasterScreen('bitcross');
+  }
+
+  function generateBitcrossPuzzle(size) {
+    const weights = bitcrossState.weights;
+    let matrix = [];
+    let attempts = 0;
+
+    while (attempts < 80) {
+      matrix = Array.from({ length: size }, () =>
+        Array.from({ length: size }, () => Math.random() < 0.48 ? 1 : 0)
+      );
+
+      const rowSums = matrix.map(r => r.reduce((s, bit, c) => s + (bit ? weights[c] : 0), 0));
+      const colSums = Array.from({ length: size }, (_, c) =>
+        matrix.reduce((s, r, rowIdx) => s + (r[c] ? weights[rowIdx] : 0), 0)
+      );
+
+      const maxVal = weights.reduce((a, b) => a + b, 0);
+      const totalOnes = matrix.flat().filter(b => b === 1).length;
+      const minOnes = Math.max(2, size);
+      const maxOnes = (size * size) - Math.max(2, size);
+
+      const hasVariedRows = rowSums.some(s => s > 0 && s < maxVal);
+      const hasVariedCols = colSums.some(s => s > 0 && s < maxVal);
+
+      if (totalOnes >= minOnes && totalOnes <= maxOnes && hasVariedRows && hasVariedCols) {
+        bitcrossState.targetRows = rowSums;
+        bitcrossState.targetCols = colSums;
+        break;
+      }
+      attempts++;
+    }
+
+    if (attempts >= 80) {
+      bitcrossState.targetRows = matrix.map(r => r.reduce((s, bit, c) => s + (bit ? weights[c] : 0), 0));
+      bitcrossState.targetCols = Array.from({ length: size }, (_, c) =>
+        matrix.reduce((s, r, rowIdx) => s + (r[c] ? weights[rowIdx] : 0), 0)
+      );
+    }
+
+    bitcrossState.playerGrid = Array.from({ length: size }, () => Array(size).fill(0));
+  }
+
+  function startBitcrossTimer() {
+    if (bitcrossState.timerInterval) {
+      clearInterval(bitcrossState.timerInterval);
+    }
+    bitcrossState.startTime = Date.now();
+    bitcrossState.elapsedSeconds = 0;
+    updateBitcrossTimerDisplay();
+    bitcrossState.timerInterval = setInterval(() => {
+      bitcrossState.elapsedSeconds = Math.floor((Date.now() - bitcrossState.startTime) / 1000);
+      updateBitcrossTimerDisplay();
+    }, 1000);
+  }
+
+  function stopBitcrossTimer() {
+    if (bitcrossState.timerInterval) {
+      clearInterval(bitcrossState.timerInterval);
+      bitcrossState.timerInterval = null;
+    }
+  }
+
+  function formatBitcrossTime(sec) {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m}:${s < 10 ? '0' : ''}${s}`;
+  }
+
+  function updateBitcrossTimerDisplay() {
+    const el = document.getElementById('bitcrossTimer');
+    if (el) el.textContent = formatBitcrossTime(bitcrossState.elapsedSeconds);
+  }
+
+  function calcBitcrossRowSum(r) {
+    const weights = bitcrossState.weights;
+    return bitcrossState.playerGrid[r].reduce((sum, bit, c) => sum + (bit ? weights[c] : 0), 0);
+  }
+
+  function calcBitcrossColSum(c) {
+    const weights = bitcrossState.weights;
+    return bitcrossState.playerGrid.reduce((sum, row, r) => sum + (row[c] ? weights[r] : 0), 0);
+  }
+
+  function renderBitcrossBoard() {
+    const container = document.getElementById('bitcrossBoardContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const size = bitcrossState.size;
+    const weights = bitcrossState.weights;
+
+    const board = document.createElement('div');
+    board.className = 'bitcross-grid-board';
+    board.style.gridTemplateColumns = `auto repeat(${size}, minmax(44px, 58px)) auto`;
+
+    // 1. Top-left corner: Place value axes indicator
+    const tlCorner = document.createElement('div');
+    tlCorner.className = 'bitcross-corner-label';
+    tlCorner.innerHTML = '<span>ROW&nbsp;▼</span><span style="color:#ec4899;">COL&nbsp;►</span>';
+    board.appendChild(tlCorner);
+
+    // 2. Column Place Value Header pills (Cyan)
+    for (let c = 0; c < size; c++) {
+      const colPill = document.createElement('div');
+      colPill.className = 'bitcross-header-pill bitcross-col-pill';
+      colPill.innerHTML = `
+        <span class="bitcross-pill-val">${weights[c]}</span>
+        <span class="bitcross-pill-sub">Col</span>
+      `;
+      board.appendChild(colPill);
+    }
+
+    // 3. Top-right corner label
+    const trCorner = document.createElement('div');
+    trCorner.className = 'bitcross-corner-label';
+    trCorner.innerHTML = '<span>ROW</span><span style="color:#38bdf8;">TARGET</span>';
+    board.appendChild(trCorner);
+
+    // 4. Matrix Rows
+    for (let r = 0; r < size; r++) {
+      // Row place value header pill (Pink)
+      const rowPill = document.createElement('div');
+      rowPill.className = 'bitcross-header-pill bitcross-row-pill';
+      rowPill.innerHTML = `
+        <span class="bitcross-pill-val">${weights[r]}</span>
+        <span class="bitcross-pill-sub">Row</span>
+      `;
+      board.appendChild(rowPill);
+
+      // Interactive bit cells
+      for (let c = 0; c < size; c++) {
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'bitcross-cell-btn' + (bitcrossState.playerGrid[r][c] === 1 ? ' is-active-1' : '');
+        cell.setAttribute('data-row', r);
+        cell.setAttribute('data-col', c);
+        cell.textContent = String(bitcrossState.playerGrid[r][c]);
+        cell.setAttribute('aria-label', `Row ${weights[r]}, Column ${weights[c]}, value ${bitcrossState.playerGrid[r][c]}`);
+
+        cell.addEventListener('click', () => {
+          toggleBitcrossCell(r, c, cell);
+        });
+
+        board.appendChild(cell);
+      }
+
+      // Row Target Indicator Badge
+      const rowTarget = document.createElement('div');
+      rowTarget.className = 'bitcross-target-badge';
+      rowTarget.id = `bitcrossRowTarget_${r}`;
+      rowTarget.innerHTML = `
+        <div class="target-val-row">
+          <span class="target-cur-val" id="bitcrossRowCur_${r}">0</span>
+          <span class="target-sep">/</span>
+          <span class="target-goal-val">${bitcrossState.targetRows[r]}</span>
+        </div>
+        <span class="target-check-mark" id="bitcrossRowCheck_${r}">○</span>
+      `;
+      board.appendChild(rowTarget);
+    }
+
+    // 5. Bottom Row: Col Targets & Summary
+    const blCorner = document.createElement('div');
+    blCorner.className = 'bitcross-corner-label';
+    blCorner.innerHTML = '<span>COL</span><span style="color:#f472b6;">TARGET</span>';
+    board.appendChild(blCorner);
+
+    for (let c = 0; c < size; c++) {
+      const colTarget = document.createElement('div');
+      colTarget.className = 'bitcross-target-badge';
+      colTarget.id = `bitcrossColTarget_${c}`;
+      colTarget.innerHTML = `
+        <div class="target-val-row">
+          <span class="target-cur-val" id="bitcrossColCur_${c}">0</span>
+          <span class="target-sep">/</span>
+          <span class="target-goal-val">${bitcrossState.targetCols[c]}</span>
+        </div>
+        <span class="target-check-mark" id="bitcrossColCheck_${c}">○</span>
+      `;
+      board.appendChild(colTarget);
+    }
+
+    // Bottom-right corner summary badge
+    const brCorner = document.createElement('div');
+    brCorner.className = 'bitcross-corner-badge';
+    brCorner.id = 'bitcrossCornerSummary';
+    brCorner.innerHTML = `
+      <span class="corner-matches-text" id="bitcrossCornerMatchesText">0 / ${size * 2}</span>
+      <span class="corner-status-icon" id="bitcrossCornerStatusIcon">🔒</span>
+    `;
+    board.appendChild(brCorner);
+
+    container.appendChild(board);
+    updateBitcrossBadges();
+  }
+
+  function toggleBitcrossCell(r, c, cellBtn) {
+    if (bitcrossState.isSolved) return;
+
+    const cur = bitcrossState.playerGrid[r][c];
+    const next = cur === 1 ? 0 : 1;
+    bitcrossState.playerGrid[r][c] = next;
+    bitcrossState.flips++;
+
+    cellBtn.textContent = String(next);
+    cellBtn.classList.toggle('is-active-1', next === 1);
+    cellBtn.setAttribute('aria-label', `Row ${bitcrossState.weights[r]}, Column ${bitcrossState.weights[c]}, value ${next}`);
+
+    playSynthSound('switch');
+    updateBitcrossBadges();
+    updateBitcrossHUD();
+    checkBitcrossWin();
+  }
+
+  function updateBitcrossBadges() {
+    const size = bitcrossState.size;
+    let matchedCount = 0;
+
+    // Check Rows
+    for (let r = 0; r < size; r++) {
+      const curSum = calcBitcrossRowSum(r);
+      const target = bitcrossState.targetRows[r];
+      const isMatch = curSum === target;
+      if (isMatch) matchedCount++;
+
+      const badge = document.getElementById(`bitcrossRowTarget_${r}`);
+      const curEl = document.getElementById(`bitcrossRowCur_${r}`);
+      const checkEl = document.getElementById(`bitcrossRowCheck_${r}`);
+
+      if (curEl) curEl.textContent = String(curSum);
+      if (checkEl) checkEl.textContent = isMatch ? '✓' : '○';
+      if (badge) badge.classList.toggle('is-matched', isMatch);
+    }
+
+    // Check Columns
+    for (let c = 0; c < size; c++) {
+      const curSum = calcBitcrossColSum(c);
+      const target = bitcrossState.targetCols[c];
+      const isMatch = curSum === target;
+      if (isMatch) matchedCount++;
+
+      const badge = document.getElementById(`bitcrossColTarget_${c}`);
+      const curEl = document.getElementById(`bitcrossColCur_${c}`);
+      const checkEl = document.getElementById(`bitcrossColCheck_${c}`);
+
+      if (curEl) curEl.textContent = String(curSum);
+      if (checkEl) checkEl.textContent = isMatch ? '✓' : '○';
+      if (badge) badge.classList.toggle('is-matched', isMatch);
+    }
+
+    const totalTargets = size * 2;
+    const cornerText = document.getElementById('bitcrossCornerMatchesText');
+    const cornerIcon = document.getElementById('bitcrossCornerStatusIcon');
+    if (cornerText) cornerText.textContent = `${matchedCount} / ${totalTargets}`;
+    if (cornerIcon) cornerIcon.textContent = matchedCount === totalTargets ? '🔓' : '🔒';
+
+    const matchesEl = document.getElementById('bitcrossMatches');
+    if (matchesEl) matchesEl.textContent = `${matchedCount} / ${totalTargets}`;
+
+    return matchedCount === totalTargets;
+  }
+
+  function updateBitcrossHUD() {
+    const flipsEl = document.getElementById('bitcrossFlips');
+    if (flipsEl) flipsEl.textContent = String(bitcrossState.flips);
+  }
+
+  function checkBitcrossWin() {
+    const isWin = updateBitcrossBadges();
+    if (!isWin || bitcrossState.isSolved) return;
+
+    bitcrossState.isSolved = true;
+    stopBitcrossTimer();
+
+    // Reward XP based on size
+    const xpRewards = { 3: 150, 4: 300, 5: 500 };
+    const earnedXp = xpRewards[bitcrossState.size] || 300;
+    bitmasterState.xp += earnedXp;
+    saveBitmasterProgress();
+    updateBitmasterHUD();
+
+    // Audio chime & Confetti
+    try {
+      playSynthSound('fanfare');
+    } catch (e) {}
+    fireConfetti();
+
+    // Show Victory Overlay Modal
+    setTimeout(() => {
+      const modal = document.getElementById('bitcrossVictoryModal');
+      const sizeEl = document.getElementById('bitcrossVictoryGridSize');
+      const timeEl = document.getElementById('bitcrossVictoryTime');
+      const flipsEl = document.getElementById('bitcrossVictoryFlips');
+      const xpEl = document.getElementById('bitcrossVictoryXp');
+      const subtextEl = document.getElementById('bitcrossVictorySubtext');
+
+      if (sizeEl) sizeEl.textContent = `${bitcrossState.size}×${bitcrossState.size}`;
+      if (timeEl) timeEl.textContent = formatBitcrossTime(bitcrossState.elapsedSeconds);
+      if (flipsEl) flipsEl.textContent = `${bitcrossState.flips}`;
+      if (xpEl) xpEl.textContent = `+${earnedXp} XP`;
+      if (subtextEl) subtextEl.textContent = `Flawless deduction! All ${bitcrossState.size * 2} place-value sums verified!`;
+      if (modal) modal.style.display = 'flex';
+    }, 600);
+  }
+
+  function resetBitcrossGrid() {
+    const size = bitcrossState.size;
+    bitcrossState.playerGrid = Array.from({ length: size }, () => Array(size).fill(0));
+    bitcrossState.flips = 0;
+    bitcrossState.isSolved = false;
+
+    renderBitcrossBoard();
+    updateBitcrossHUD();
+    playSynthSound('tap');
+  }
+
+  function exitBitCrossToArcade() {
+    stopBitcrossTimer();
+    const modal = document.getElementById('bitcrossVictoryModal');
+    if (modal) modal.style.display = 'none';
+
+    activateBitmasterFrontTab('arcade');
+    showBitmasterScreen('title');
+  }
+
+  function activateBitmasterFrontTab(tabName) {
+    const stagesTab = document.getElementById('bitmasterTabStages');
+    const arcadeTab = document.getElementById('bitmasterTabArcade');
+    const stagesWrap = document.getElementById('bitmasterFrontTopicsWrap');
+    const arcadeWrap = document.getElementById('bitmasterFrontArcadeWrap');
+
+    if (tabName === 'arcade') {
+      if (stagesTab) stagesTab.classList.remove('active');
+      if (arcadeTab) arcadeTab.classList.add('active');
+      if (stagesWrap) stagesWrap.style.display = 'none';
+      if (arcadeWrap) arcadeWrap.style.display = 'block';
+    } else {
+      if (stagesTab) stagesTab.classList.add('active');
+      if (arcadeTab) arcadeTab.classList.remove('active');
+      if (stagesWrap) stagesWrap.style.display = 'block';
+      if (arcadeWrap) arcadeWrap.style.display = 'none';
+    }
+  }
+
   window.finishBitmasterRound = finishBitmasterRound;
   window.startBitmasterRound = startBitmasterRound;
   window.loadNextBitmasterQuestion = loadNextBitmasterQuestion;
   window.createBitmasterQuestion = createBitmasterQuestion;
   window.showBitmasterScreen = showBitmasterScreen;
   window.showBitmasterRankModal = showBitmasterRankModal;
+  window.startBitCrossGame = startBitCrossGame;
+  window.bitcrossState = bitcrossState;
 
   // =========================================================================
   function setupBitMaster() {
@@ -7283,6 +7692,8 @@
       const activeScreen = document.querySelector('.bitmaster-screen.active');
       if (activeScreen && activeScreen.id === 'bitmasterScreenGame') {
         showBitmasterAbandonModal();
+      } else if (activeScreen && activeScreen.id === 'bitmasterScreenBitCross') {
+        exitBitCrossToArcade();
       } else if (activeScreen && activeScreen.id === 'bitmasterScreenSummary') {
         showBitmasterScreen('levels');
       } else if (activeScreen && activeScreen.id === 'bitmasterScreenLevels') {
@@ -7309,6 +7720,72 @@
     const levelsBottomBackBtn = document.getElementById('bitmasterLevelsBottomBackBtn');
     if (levelsBottomBackBtn) {
       levelsBottomBackBtn.addEventListener('click', goBackBitmaster);
+    }
+
+    // Arcade vs Stages Navigation Tabs
+    const tabStages = document.getElementById('bitmasterTabStages');
+    const tabArcade = document.getElementById('bitmasterTabArcade');
+    if (tabStages) {
+      tabStages.addEventListener('click', () => {
+        playSynthSound('tap');
+        activateBitmasterFrontTab('stages');
+      });
+    }
+    if (tabArcade) {
+      tabArcade.addEventListener('click', () => {
+        playSynthSound('tap');
+        activateBitmasterFrontTab('arcade');
+      });
+    }
+
+    // Launch Bit Cross Game Card
+    const launchBitCrossBtn = document.getElementById('bitmasterLaunchBitCrossBtn');
+    if (launchBitCrossBtn) {
+      launchBitCrossBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        startBitCrossGame(4);
+      });
+    }
+
+    // Bit Cross Size Selector Pills
+    const sizePills = document.querySelectorAll('.bitcross-size-pill');
+    sizePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const s = parseInt(pill.getAttribute('data-size'), 10);
+        playSynthSound('tap');
+        startBitCrossGame(s);
+      });
+    });
+
+    // Bit Cross Controls: Reset and New Puzzle
+    const resetCrossBtn = document.getElementById('bitcrossResetBtn');
+    if (resetCrossBtn) {
+      resetCrossBtn.addEventListener('click', () => {
+        resetBitcrossGrid();
+      });
+    }
+    const newCrossBtn = document.getElementById('bitcrossNewPuzzleBtn');
+    if (newCrossBtn) {
+      newCrossBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        startBitCrossGame(bitcrossState.size);
+      });
+    }
+
+    // Bit Cross Victory Modal Buttons
+    const winNextBtn = document.getElementById('bitcrossVictoryNextBtn');
+    if (winNextBtn) {
+      winNextBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        startBitCrossGame(bitcrossState.size);
+      });
+    }
+    const winArcadeBtn = document.getElementById('bitcrossVictoryArcadeBtn');
+    if (winArcadeBtn) {
+      winArcadeBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        exitBitCrossToArcade();
+      });
     }
 
     // Exit BitMaster Modal Event Listeners
@@ -7357,6 +7834,8 @@
           window.history.pushState({ bitmasterApp: true, bitmasterScreen: 'game' }, '');
         } catch (err) {}
         showBitmasterAbandonModal();
+      } else if (activeScreenId === 'bitmasterScreenBitCross') {
+        exitBitCrossToArcade();
       } else if (activeScreenId === 'bitmasterScreenSummary') {
         showBitmasterScreen('levels', true);
       } else if (activeScreenId === 'bitmasterScreenLevels') {
