@@ -190,9 +190,9 @@
           </div>
           <div class="bitmaster-hud-right">
             <div class="bitmaster-hud-stats">
-              <span class="hud-stat-pill hud-stars" title="Total Stars Earned">
+              <button type="button" class="hud-stat-pill hud-stars" id="bitmasterHudStarsPill" title="Open Star Vault &amp; Themes" aria-label="Open Star Vault and Themes">
                 ⭐ <span id="bitmasterTotalStars">0</span>
-              </span>
+              </button>
             </div>
             <!-- Sleek Symbol-Only Fullscreen Toggle Button in Top Right -->
             <button class="bitmaster-hud-icon-btn" id="bitmasterFullscreenToggleBtn" title="Toggle Fullscreen" aria-label="Toggle Fullscreen">
@@ -864,6 +864,99 @@
               <button id="bitmasterModalLevelUpClaimBtn" class="control-btn control-btn-primary" style="width: 100%; padding: 12px; font-size: 15px;">
                 Claim Rank &amp; Continue &rarr;
               </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- IN-ARENA MODAL: Star Vault & Arena Theme Customizer -->
+        <div id="bitmasterModalStarVault" class="bitmaster-modal-backdrop" style="display: none;">
+          <div class="bitmaster-modal-dialog star-vault-modal-dialog">
+            <div class="star-vault-header">
+              <div class="star-vault-badge">⭐</div>
+              <h3 class="modal-dialog-title" style="margin-bottom: 4px;">Star Vault &amp; Themes</h3>
+              <p class="modal-dialog-subtitle" style="font-size: 13px; color: var(--text-secondary); margin: 0 0 16px;">
+                Total Earned: <strong style="color: #fbbf24; font-size: 15px;">⭐ <span id="bitmasterVaultStarsTally">0</span></strong> across BitMaster
+              </p>
+            </div>
+
+            <div class="star-vault-section-title">
+              <span>🎨 ARENA THEMES</span>
+              <span class="star-vault-free-tag">Free to Test</span>
+            </div>
+
+            <div class="star-themes-grid" id="bitmasterThemesGrid">
+              <div class="star-theme-card active" data-theme-id="cyber-neon" role="button" tabindex="0">
+                <div class="theme-card-preview theme-preview-cyber">
+                  <div class="theme-preview-dots">
+                    <span style="background: #00f5ff;"></span>
+                    <span style="background: #ec4899;"></span>
+                    <span style="background: #3b82f6;"></span>
+                  </div>
+                </div>
+                <div class="theme-card-body">
+                  <div class="theme-card-name">Cyber Neon</div>
+                  <div class="theme-card-desc">Dark arcade with electric cyan &amp; magenta neon glow.</div>
+                </div>
+                <span class="theme-card-status">Active</span>
+              </div>
+
+              <div class="star-theme-card" data-theme-id="natural-breeze" role="button" tabindex="0">
+                <div class="theme-card-preview theme-preview-breeze">
+                  <div class="theme-preview-dots">
+                    <span style="background: #16a34a;"></span>
+                    <span style="background: #22c55e;"></span>
+                    <span style="background: #86efac;"></span>
+                  </div>
+                </div>
+                <div class="theme-card-body">
+                  <div class="theme-card-name">Natural Breeze</div>
+                  <div class="theme-card-desc">Light, crisp &amp; airy botanical with fresh meadow greens.</div>
+                </div>
+                <span class="theme-card-status">Equip</span>
+              </div>
+
+              <div class="star-theme-card" data-theme-id="sunset-horizon" role="button" tabindex="0">
+                <div class="theme-card-preview theme-preview-sunset">
+                  <div class="theme-preview-dots">
+                    <span style="background: #f59e0b;"></span>
+                    <span style="background: #f43f5e;"></span>
+                    <span style="background: #a855f7;"></span>
+                  </div>
+                </div>
+                <div class="theme-card-body">
+                  <div class="theme-card-name">Sunset Horizon</div>
+                  <div class="theme-card-desc">Warm twilight mocha with golden amber &amp; coral dusk.</div>
+                </div>
+                <span class="theme-card-status">Equip</span>
+              </div>
+            </div>
+
+            <details class="star-rules-details" style="margin-top: 14px; text-align: left; font-size: 12.5px;">
+              <summary class="star-rules-summary">
+                <span>⭐ How to Earn High Star Ratings</span>
+              </summary>
+              <div class="star-rules-body" style="padding-top: 10px;">
+                <div style="margin-bottom: 8px;">
+                  <strong style="color: #fbbf24;">Standard 10-Question Trials:</strong>
+                  <ul style="margin: 4px 0 0 16px; padding: 0; line-height: 1.45;">
+                    <li>⭐⭐⭐ 3 Stars: 10/10 solved with 0 mistakes in &le; 60s</li>
+                    <li>⭐⭐ 2 Stars: 10/10 solved with &le; 2 mistakes</li>
+                    <li>⭐ 1 Star: 10/10 solved with &le; 5 mistakes</li>
+                  </ul>
+                </div>
+                <div>
+                  <strong style="color: #38bdf8;">60-Second Speed Sprints:</strong>
+                  <ul style="margin: 4px 0 0 16px; padding: 0; line-height: 1.45;">
+                    <li>⭐⭐⭐ 3 Stars: &ge; 12 solved in 60s</li>
+                    <li>⭐⭐ 2 Stars: &ge; 8 solved in 60s</li>
+                    <li>⭐ 1 Star: &ge; 4 solved in 60s</li>
+                  </ul>
+                </div>
+              </div>
+            </details>
+
+            <div class="modal-dialog-actions" style="margin-top: 18px;">
+              <button id="bitmasterStarVaultCloseBtn" class="control-btn control-btn-primary" style="width: 100%; padding: 11px;">Done</button>
             </div>
           </div>
         </div>

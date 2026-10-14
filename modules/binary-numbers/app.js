@@ -5311,49 +5311,49 @@
         {
           prompt: "Storage Unit Conversion",
           display: "2.3 MB ➔ ? KB",
-          hint: "Multiply by 1,000 to move from MB to KB (2.3 × 1,000)",
+          hint: "1 MB = 1,000 KB. Multiply by 1,000 to convert down to KB.",
           correctAnswer: "2,300 KB",
           options: ["2,300 KB", "230 KB", "23,000 KB", "235 KB"]
         },
         {
           prompt: "Storage Unit Conversion",
           display: "4 GB ➔ ? MB",
-          hint: "Multiply by 1,000 to convert GB to MB (4 × 1,000)",
+          hint: "1 GB = 1,000 MB. Multiply by 1,000 to convert down to MB.",
           correctAnswer: "4,000 MB",
           options: ["4,000 MB", "400 MB", "40,000 MB", "4 MB"]
         },
         {
           prompt: "Storage Unit Conversion",
           display: "3.5 KB ➔ ? bytes",
-          hint: "Multiply by 1,000 (3.5 × 1,000)",
+          hint: "1 KB = 1,000 bytes. Multiply by 1,000 to convert down to bytes.",
           correctAnswer: "3,500 bytes",
           options: ["3,500 bytes", "350 bytes", "35,000 bytes", "35 bytes"]
         },
         {
           prompt: "Storage Unit Conversion",
           display: "5,000 MB ➔ ? GB",
-          hint: "Divide by 1,000 to step up from MB to GB (5,000 ÷ 1,000)",
+          hint: "1 GB = 1,000 MB. Divide by 1,000 to convert up to GB.",
           correctAnswer: "5 GB",
           options: ["5 GB", "50 GB", "0.5 GB", "500 GB"]
         },
         {
           prompt: "Storage Unit Conversion",
           display: "1 MB ➔ ? bytes",
-          hint: "1,000 KB × 1,000 bytes = 10⁶ bytes",
+          hint: "1 MB = 1,000 KB, and 1 KB = 1,000 bytes. Multiply by 1,000 twice (× 1,000,000).",
           correctAnswer: "1,000,000 bytes",
           options: ["1,000,000 bytes", "1,000 bytes", "10,000,000 bytes", "100,000 bytes"]
         },
         {
           prompt: "Storage Unit Conversion",
           display: "2 TB ➔ ? GB",
-          hint: "Multiply by 1,000 (2 × 1,000)",
+          hint: "1 TB = 1,000 GB. Multiply by 1,000 to convert down to GB.",
           correctAnswer: "2,000 GB",
           options: ["2,000 GB", "200 GB", "20,000 GB", "20 GB"]
         },
         {
           prompt: "Storage Unit Conversion",
           display: "750 KB ➔ ? MB",
-          hint: "Divide by 1,000 (750 ÷ 1,000)",
+          hint: "1 MB = 1,000 KB. Divide by 1,000 to convert up to MB.",
           correctAnswer: "0.75 MB",
           options: ["0.75 MB", "7.5 MB", "0.075 MB", "75 MB"]
         }
@@ -5375,42 +5375,42 @@
         {
           prompt: "How many 500 KB image files can fit into a 2 MB USB partition?",
           display: "2 MB ÷ 500 KB",
-          hint: "Convert 2 MB to 2,000 KB, then divide: 2,000 ÷ 500",
+          hint: "First convert MB to KB (× 1,000) so units match, then divide by file size.",
           correctAnswer: "4 files",
           options: ["4 files", "2 files", "8 files", "10 files"]
         },
         {
           prompt: "How many 250 MB video clips can fit on a 4 GB memory card?",
           display: "4 GB ÷ 250 MB",
-          hint: "Convert 4 GB to 4,000 MB, then divide: 4,000 ÷ 250",
+          hint: "First convert GB to MB (× 1,000) so units match, then divide by file size.",
           correctAnswer: "16 videos",
           options: ["16 videos", "8 videos", "12 videos", "20 videos"]
         },
         {
           prompt: "A text file is 100 KB. How many can fit into 1 MB of cache?",
           display: "1 MB ÷ 100 KB",
-          hint: "Convert 1 MB to 1,000 KB, then divide: 1,000 ÷ 100",
+          hint: "First convert MB to KB (× 1,000) so units match, then divide by file size.",
           correctAnswer: "10 files",
           options: ["10 files", "5 files", "100 files", "1 file"]
         },
         {
           prompt: "A music track is 4 MB. How many tracks can be stored on a 16 GB phone drive?",
           display: "16 GB ÷ 4 MB",
-          hint: "Convert 16 GB to 16,000 MB, then divide: 16,000 ÷ 4",
+          hint: "First convert GB to MB (× 1,000) so units match, then divide by file size.",
           correctAnswer: "4,000 songs",
           options: ["4,000 songs", "400 songs", "40,000 songs", "2,000 songs"]
         },
         {
           prompt: "How many 200 KB document scans can fit into 3 MB of free drive space?",
           display: "3 MB ÷ 200 KB",
-          hint: "Convert 3 MB to 3,000 KB, then divide: 3,000 ÷ 200",
+          hint: "First convert MB to KB (× 1,000) so units match, then divide by file size.",
           correctAnswer: "15 scans",
           options: ["15 scans", "12 scans", "18 scans", "30 scans"]
         },
         {
           prompt: "A high-res photo is 5 MB. How many photos can fit on an 8 GB flash drive?",
           display: "8 GB ÷ 5 MB",
-          hint: "Convert 8 GB to 8,000 MB, then divide: 8,000 ÷ 5",
+          hint: "First convert GB to MB (× 1,000) so units match, then divide by file size.",
           correctAnswer: "1,600 photos",
           options: ["1,600 photos", "160 photos", "16,000 photos", "800 photos"]
         }
@@ -5431,42 +5431,42 @@
         {
           prompt: "Data Transmission: Bits vs Bytes",
           display: "50 MB ➔ ? Mb",
-          hint: "Multiply by 8 (8 bits per byte: 50 × 8)",
+          hint: "1 Byte = 8 bits. Multiply Bytes by 8 to convert to bits (Mb).",
           correctAnswer: "400 Mb",
           options: ["400 Mb", "50 Mb", "25 Mb", "800 Mb"]
         },
         {
           prompt: "Data Transmission: Transfer Speed",
           display: "40 Mbps ➔ ? MB/s",
-          hint: "Divide by 8 (8 bits per byte: 40 ÷ 8)",
+          hint: "1 Byte = 8 bits. Divide Mbps by 8 to convert speed to MB/s.",
           correctAnswer: "5 MB/s",
           options: ["5 MB/s", "4 MB/s", "8 MB/s", "10 MB/s"]
         },
         {
           prompt: "Download Time Calculation",
           display: "300 MB @ 30 Mbps = ? seconds",
-          hint: "File size in bits = 300 × 8 = 2,400 Mb. Time = 2,400 ÷ 30 Mbps",
+          hint: "Formula: Convert file size to bits (MB × 8 = Mb), then divide by speed in Mbps.",
           correctAnswer: "80 seconds",
           options: ["80 seconds", "10 seconds", "40 seconds", "100 seconds"]
         },
         {
           prompt: "Download Time Calculation",
           display: "100 MB @ 40 Mbps = ? seconds",
-          hint: "File size in bits = 100 × 8 = 800 Mb. Time = 800 ÷ 40 Mbps",
+          hint: "Formula: Convert file size to bits (MB × 8 = Mb), then divide by speed in Mbps.",
           correctAnswer: "20 seconds",
           options: ["20 seconds", "2.5 seconds", "40 seconds", "80 seconds"]
         },
         {
           prompt: "Download Time Calculation",
           display: "80 MB @ 16 Mbps = ? seconds",
-          hint: "File in bits = 80 × 8 = 640 Mb. Time = 640 ÷ 16 Mbps",
+          hint: "Formula: Convert file size to bits (MB × 8 = Mb), then divide by speed in Mbps.",
           correctAnswer: "40 seconds",
           options: ["40 seconds", "5 seconds", "20 seconds", "80 seconds"]
         },
         {
           prompt: "Data Transmission: Bits to Bytes",
           display: "240 Mb ➔ ? MB",
-          hint: "Divide by 8 (240 ÷ 8)",
+          hint: "1 Byte = 8 bits. Divide bits (Mb) by 8 to convert to Bytes (MB).",
           correctAnswer: "30 MB",
           options: ["30 MB", "1,920 MB", "60 MB", "15 MB"]
         },
@@ -6194,6 +6194,58 @@
   function hideBitmasterExitModal() {
     const modal = document.getElementById('bitmasterModalExit');
     if (modal) modal.style.display = 'none';
+  }
+
+  function applyBitmasterTheme(themeId, save = true) {
+    const validThemes = ['cyber-neon', 'natural-breeze', 'sunset-horizon'];
+    const chosenTheme = validThemes.includes(themeId) ? themeId : 'cyber-neon';
+
+    const arena = document.getElementById('bitmasterArena');
+    if (arena) {
+      arena.setAttribute('data-theme', chosenTheme);
+    }
+
+    if (save) {
+      try {
+        localStorage.setItem('bitmaster_theme', chosenTheme);
+      } catch (err) {
+        // Local storage might be blocked or unavailable
+      }
+    }
+
+    // Update active states on cards in theme grid
+    const themeCards = document.querySelectorAll('#bitmasterThemesGrid .star-theme-card');
+    themeCards.forEach((card) => {
+      const isCurrent = card.getAttribute('data-theme-id') === chosenTheme;
+      card.classList.toggle('active', isCurrent);
+      const statusEl = card.querySelector('.theme-card-status');
+      if (statusEl) {
+        statusEl.textContent = isCurrent ? 'Active' : 'Equip';
+      }
+    });
+  }
+
+  function showBitmasterStarVaultModal() {
+    const modal = document.getElementById('bitmasterModalStarVault');
+    const tallyEl = document.getElementById('bitmasterVaultStarsTally');
+    if (tallyEl) {
+      tallyEl.textContent = calculateBitmasterStars();
+    }
+    const currentTheme = localStorage.getItem('bitmaster_theme') || 'cyber-neon';
+    applyBitmasterTheme(currentTheme, false);
+
+    if (modal) {
+      modal.style.display = 'flex';
+      playSynthSound('tap');
+    }
+  }
+
+  function hideBitmasterStarVaultModal() {
+    const modal = document.getElementById('bitmasterModalStarVault');
+    if (modal) {
+      modal.style.display = 'none';
+      playSynthSound('tap');
+    }
   }
 
   function renderBitmasterSwitchboard(bitsCount = 8, isBlind = false, isTwosComp = false, referenceBits = null, referenceLabel = null) {
@@ -7780,14 +7832,14 @@
         // Denary to Binary
         promptText = 'POP BINARY EQUAL TO:';
         displayValue = String(val);
-        hintText = `Denary ${val}`;
+        hintText = `${tierCfg.bits}-Bit Binary`;
       } else if (step === 1) {
         // Binary to Denary
         promptText = 'POP DENARY EQUAL TO:';
         displayValue = formatBinaryStr(val, tierCfg.bits);
-        hintText = `Binary ${displayValue}`;
+        hintText = 'Denary Value';
       } else if (step === 2) {
-        // Denary addition to Binary
+        // Denary addition to Binary (User must compute sum!)
         promptText = 'POP BINARY SUM OF:';
         if (val <= 1) {
           displayValue = `${val} + 0`;
@@ -7796,9 +7848,9 @@
           const b = val - a;
           displayValue = `${a} + ${b}`;
         }
-        hintText = `Denary sum = ${val}`;
+        hintText = `${tierCfg.bits}-Bit Binary Sum`;
       } else {
-        // Binary addition to Denary
+        // Binary addition to Denary (User must compute sum!)
         promptText = 'POP DENARY SUM OF:';
         if (val <= 1) {
           const aBin = formatBinaryStr(val, tierCfg.bits);
@@ -7811,7 +7863,7 @@
           const bBin = formatBinaryStr(b, tierCfg.bits);
           displayValue = `${aBin} + ${bBin}`;
         }
-        hintText = `Binary sum = ${val}`;
+        hintText = 'Denary Sum';
       }
 
       return {
@@ -8137,15 +8189,57 @@
       });
     }
 
-    // Star Rating Criteria Modal
+    // Star Vault & Themes Modal
+    const hudStarsPill = document.getElementById('bitmasterHudStarsPill');
+    const closeStarVaultBtn = document.getElementById('bitmasterStarVaultCloseBtn');
+    const starVaultModal = document.getElementById('bitmasterModalStarVault');
     const starCriteriaBtn = document.getElementById('bitmasterStarCriteriaBtn');
     const starCriteriaModal = document.getElementById('bitmasterModalStarCriteria');
     const closeStarCriteriaBtn = document.getElementById('bitmasterModalCloseStarCriteriaBtn');
 
-    if (starCriteriaBtn && starCriteriaModal) {
+    if (hudStarsPill) {
+      hudStarsPill.addEventListener('click', () => {
+        showBitmasterStarVaultModal();
+      });
+    }
+
+    if (closeStarVaultBtn) {
+      closeStarVaultBtn.addEventListener('click', () => {
+        hideBitmasterStarVaultModal();
+      });
+    }
+
+    if (starVaultModal) {
+      starVaultModal.addEventListener('click', (e) => {
+        if (e.target === starVaultModal) {
+          hideBitmasterStarVaultModal();
+        }
+      });
+    }
+
+    // Theme Selection Cards
+    const themeCards = document.querySelectorAll('#bitmasterThemesGrid .star-theme-card');
+    themeCards.forEach((card) => {
+      const equip = () => {
+        const themeId = card.getAttribute('data-theme-id');
+        if (themeId) {
+          applyBitmasterTheme(themeId, true);
+          playSynthSound('celebrate');
+        }
+      };
+      card.addEventListener('click', equip);
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          equip();
+        }
+      });
+    });
+
+    // Star Criteria Button in Levels Screen opens Star Vault & Rules
+    if (starCriteriaBtn) {
       starCriteriaBtn.addEventListener('click', () => {
-        playSynthSound('tap');
-        starCriteriaModal.style.display = 'flex';
+        showBitmasterStarVaultModal();
       });
     }
 
@@ -8163,6 +8257,10 @@
         }
       });
     }
+
+    // Restore saved theme on startup
+    const savedTheme = localStorage.getItem('bitmaster_theme') || 'cyber-neon';
+    applyBitmasterTheme(savedTheme, false);
 
     // Title Screen Start Arcade Button (if present)
     const startBtn = document.getElementById('bitmasterStartBtn');
