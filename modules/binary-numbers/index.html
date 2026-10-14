@@ -242,6 +242,13 @@
               </div>
             </div>
 
+            <!-- SUGGESTED NEXT LEVEL QUICK RESUME CARD -->
+            <div class="bitmaster-suggested-card-wrap" id="bitmasterSuggestedLevelWrap">
+              <div class="bitmaster-suggested-card" id="bitmasterSuggestedLevelCard">
+                <!-- Dynamically populated by renderBitmasterSuggestedLevel() -->
+              </div>
+            </div>
+
             <!-- 6 BIG BOLD TOPIC BUTTONS -->
             <div class="bitmaster-front-topics-wrap" id="bitmasterFrontTopicsWrap">
               <div class="front-topics-header">
@@ -651,16 +658,16 @@
             <div class="bitpop-header">
               <div class="bitpop-title-row">
                 <div class="bitpop-title-wrap">
-                  <span class="bitpop-eyebrow">REFLEX TIME ATTACK</span>
+                  <span class="bitpop-eyebrow">NEON REFLEX BLITZ</span>
                   <h2 class="bitpop-title">Bit Pop</h2>
                 </div>
-                <!-- Difficulty / Mode Indicator Pill -->
-                <div class="bitpop-mode-indicator" id="bitpopModeBadge">
-                  <span class="bitpop-mode-pill" id="bitpopModePill">WAVE 1: NIBBLES</span>
+                <!-- Phase / Level Badge -->
+                <div class="bitpop-phase-badge" id="bitpopPhaseBadge">
+                  <span class="bitpop-phase-pill" id="bitpopPhasePill">PHASE 1: NIBBLES</span>
                 </div>
               </div>
 
-              <!-- Compact HUD Bar: Timer, Score, Combo Streak -->
+              <!-- Compact HUD Bar: Timer, Score, Combo Streak, Popped Count -->
               <div class="bitpop-hud-bar">
                 <div class="bitpop-hud-stat">
                   <span class="bitpop-hud-label">TIME</span>
@@ -676,6 +683,11 @@
                   <span class="bitpop-hud-label">COMBO</span>
                   <span class="bitpop-hud-val text-amber" id="bitpopCombo">1.0&times;</span>
                 </div>
+                <div class="bitpop-hud-divider"></div>
+                <div class="bitpop-hud-stat">
+                  <span class="bitpop-hud-label">POPPED</span>
+                  <span class="bitpop-hud-val text-pink" id="bitpopPoppedStat">0</span>
+                </div>
                 <div class="bitpop-hud-actions">
                   <button id="bitpopRestartBtn" class="bitcross-action-btn" type="button" title="Restart Bit Pop">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
@@ -684,20 +696,26 @@
                 </div>
               </div>
 
-              <!-- Prominent Target Banner -->
+              <!-- Prominent Glowing Cyber Target Readout -->
               <div class="bitpop-target-banner" id="bitpopTargetBanner">
-                <div class="bitpop-target-prompt" id="bitpopTargetPrompt">POP THE BUBBLE MATCHING:</div>
-                <div class="bitpop-target-value" id="bitpopTargetValue">12</div>
-                <div class="bitpop-target-hint" id="bitpopTargetHint">Denary (Base 10)</div>
+                <div class="bitpop-target-prompt" id="bitpopTargetPrompt">POP BUBBLES MATCHING:</div>
+                <div class="bitpop-target-display-row">
+                  <span class="bitpop-target-value" id="bitpopTargetValue">12</span>
+                  <span class="bitpop-target-hint-tag" id="bitpopTargetHint">Denary 12</span>
+                </div>
               </div>
             </div>
 
-            <!-- Floating Feedback Toast Container -->
-            <div class="bitpop-floater-container" id="bitpopFloaterContainer"></div>
-
-            <!-- The Bubble Playfield Arena -->
-            <div class="bitpop-playfield" id="bitpopPlayfield">
-              <!-- Dynamically populated with floating bubbles -->
+            <!-- The Cyber Floating Arena (Bubbles rise upwards from bottom) -->
+            <div class="bitpop-playfield-wrap" id="bitpopPlayfieldWrap">
+              <div class="bitpop-arena" id="bitpopArena">
+                <!-- Floating bubbles rendered and moved by 60fps physics loop -->
+              </div>
+              <!-- Floating Feedback Toast Container -->
+              <div class="bitpop-floater-container" id="bitpopFloaterContainer"></div>
+              <div class="bitpop-spawn-glow-bar">
+                <span>▲ RISING BUBBLE STREAM ▲</span>
+              </div>
             </div>
           </div>
         </div>
