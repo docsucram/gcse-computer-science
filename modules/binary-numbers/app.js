@@ -7553,39 +7553,98 @@
   }
 
   // =========================================================================
-  // BIT POP: CONTINUOUS 60FPS RISING BUBBLE REFLEX ARCADE ENGINE
+  // BIT POP: TACTILE STATIC BUBBLE WRAP ARCADE ENGINE
   // =========================================================================
-  const bitpopThemes = ['theme-cyan', 'theme-magenta', 'theme-amber', 'theme-purple'];
+  const bitpopThemes = ['theme-cyan', 'theme-magenta', 'theme-amber', 'theme-purple', 'theme-emerald'];
 
   const bitpopState = {
     isRunning: false,
-    timer: 30.0,
+    timer: 45.0,
     timerInterval: null,
     score: 0,
     combo: 1.0,
     maxCombo: 1.0,
     streak: 0,
     poppedCount: 0,
-    phase: 1,
-    currentTarget: null,
-    bubbles: [],
-    animFrameId: null,
-    lastTime: 0,
-    bubbleCount: 6
+    tier: 0,              // 0: Nibble (0-15), 1: 5-bit (0-31), 2: 6-bit (0-63), 3: 7-bit (0-127), 4: 8-bit (0-255)
+    cycleStep: 0,         // 0: Den->Bin, 1: Bin->Den, 2: Den Add->Bin, 3: Bin Add->Den
+    sheetNumber: 1,
+    sheetQuestions: [],   // Array of 4 target question specs for this sheet
+    currentQIndex: 0,
+    sheetPoppedInCurrent: 0,
+    cells: []
   };
+
+  function getBitpopTierConfig(tier) {
+    switch (tier) {
+      case 0:
+        return {
+          name: 'NIBBLE',
+          title: 'NIBBLE BLITZ (BITS 0–3)',
+          bits: 4,
+          maxVal: 15,
+          minTarget: 1,
+          isNibble: true
+        };
+      case 1:
+        return {
+          name: '5-BIT BYTE',
+          title: '5-BIT EXPANSION (BITS 0–4)',
+          bits: 5,
+          maxVal: 31,
+          minTarget: 16,
+          isNibble: false
+        };
+      case 2:
+        return {
+          name: '6-BIT BYTE',
+          title: '6-BIT EXPANSION (BITS 0–5)',
+          bits: 6,
+          maxVal: 63,
+          minTarget: 32,
+          isNibble: false
+        };
+      case 3:
+        return {
+          name: '7-BIT BYTE',
+          title: '7-BIT EXPANSION (BITS 0–6)',
+          bits: 7,
+          maxVal: 127,
+          minTarget: 64,
+          isNibble: false
+        };
+      default:
+        return {
+          name: '8-BIT BYTE',
+          title: '8-BIT BYTE MASTER (BITS 0–7)',
+          bits: 8,
+          maxVal: 255,
+          minTarget: 128,
+          isNibble: false
+        };
+    }
+  }
+
+  function formatBinaryStr(val, bits) {
+    return (val >>> 0).toString(2).padStart(bits, '0');
+  }
 
   function startBitPopGame() {
     stopBitpopEngine();
     bitpopState.isRunning = true;
-    bitpopState.timer = 30.0;
+    bitpopState.timer = 45.0;
     bitpopState.score = 0;
     bitpopState.combo = 1.0;
     bitpopState.maxCombo = 1.0;
     bitpopState.streak = 0;
     bitpopState.poppedCount = 0;
-    bitpopState.phase = 1;
-    bitpopState.bubbles = [];
-    bitpopState.lastTime = 0;
+    bitpopState.tier = 0;
+    bitpopState.cycleStep = 0;
+    bitpopState.sheetNumber = 1;
+    bitpopState.sheetQuestions = [];
+    bitpopState.currentQIndex = 0;
+    bitpopState.sheetPoppedInCurrent = 0;
+    bitpopState.cells = [];
 
     const modal = document.getElementById('bitpopGameOverModal');
     if (modal) modal.style.display = 'none';
@@ -7593,12 +7652,11 @@
     updateBitpopHUD();
     showBitmasterScreen('bitpop');
 
-    // Initialize floating balloons distributed across the screen and choose initial target
-    initBitpopBubbles();
+    // Generate initial static bubble wrap sheet (12 cells with 4 solvable questions)
+    initBitpopSheet();
 
-    // Start 100ms countdown timer & 60fps physics loop
+    // Start 100ms countdown timer
     bitpopState.timerInterval = setInterval(updateBitpopTimerTick, 100);
-    bitpopState.animFrameId = requestAnimationFrame(updateBitpopPhysics);
   }
 
   function stopBitpopEngine() {
@@ -7607,10 +7665,6 @@
       clearInterval(bitpopState.timerInterval);
       bitpopState.timerInterval = null;
     }
-    if (bitpopState.animFrameId) {
-      cancelAnimationFrame(bitpopState.animFrameId);
-      bitpopState.animFrameId = null;
-    }
   }
 
   function updateBitpopHUD() {
@@ -7618,10 +7672,11 @@
     const scoreEl = document.getElementById('bitpopScore');
     const comboEl = document.getElementById('bitpopCombo');
     const poppedEl = document.getElementById('bitpopPoppedStat');
+    const progressEl = document.getElementById('bitpopSheetProgress');
 
     if (timerEl) {
       timerEl.textContent = `${bitpopState.timer.toFixed(1)}s`;
-      if (bitpopState.timer <= 5.0) {
+      if (bitpopState.timer <= 6.0) {
         timerEl.classList.add('is-low-time');
       } else {
         timerEl.classList.remove('is-low-time');
@@ -7636,6 +7691,9 @@
     if (poppedEl) {
       poppedEl.textContent = String(bitpopState.poppedCount);
     }
+    if (progressEl) {
+      progressEl.textContent = `Sheet ${bitpopState.sheetNumber} • ${bitpopState.sheetPoppedInCurrent}/4`;
+    }
   }
 
   function updateBitpopTimerTick() {
@@ -7648,375 +7706,285 @@
     }
   }
 
-  function getBitpopPhase(popped) {
-    if (popped < 6) return 1;       // Phase 1: 4-bit Nibbles (1–15)
-    if (popped < 15) return 2;      // Phase 2: 8-bit Bytes (16–127)
-    if (popped < 25) return 3;      // Phase 3: Hexadecimal conversions
-    return 4;                       // Phase 4: Speed Frenzy!
-  }
+  // Generates 12 distinct cell values for the grid, ensuring 4 target values exist
+  function initBitpopSheet() {
+    const arena = document.getElementById('bitpopArena');
+    if (!arena) return;
+    arena.innerHTML = '';
+    bitpopState.cells = [];
+    bitpopState.sheetPoppedInCurrent = 0;
+    bitpopState.currentQIndex = 0;
 
-  function getPhaseSpeed(phase) {
-    // Smooth, slow, readable float speeds (takes 9-13s to cross the arena)
-    const base = 28 + (phase - 1) * 4.5;
-    return base + (Math.random() * 6);
-  }
+    const tierCfg = getBitpopTierConfig(bitpopState.tier);
+    const step = bitpopState.cycleStep; // 0: Den->Bin, 1: Bin->Den, 2: DenAdd->Bin, 3: BinAdd->Den
+    const isBinOnCells = (step === 0 || step === 2); // Cells show binary when converting to binary
 
-  function getPhaseFormat(phase) {
-    if (phase === 1) return 'bin4';
-    if (phase === 2) return 'bin8';
-    if (phase === 3) return Math.random() < 0.5 ? 'hex' : 'den';
-    const r = Math.random();
-    if (r < 0.45) return 'bin8';
-    if (r < 0.75) return 'hex';
-    return 'den';
-  }
+    // Pick 4 unique target values within the tier
+    const targetVals = [];
+    const usedVals = new Set();
 
-  function formatBitpopValue(num, format) {
-    if (format === 'bin4') {
-      return (num & 15).toString(2).padStart(4, '0');
-    } else if (format === 'bin8') {
-      return (num & 255).toString(2).padStart(8, '0');
-    } else if (format === 'hex') {
-      return (num & 255).toString(16).toUpperCase().padStart(2, '0');
-    } else {
-      return String(num);
-    }
-  }
-
-  function generateBitpopValue(phase, format, excludeVals = []) {
-    const excludeSet = new Set(excludeVals);
-    let val = 0;
-    let attempts = 0;
-    while (attempts < 25) {
-      attempts++;
-      if (format === 'bin4') {
-        val = Math.floor(Math.random() * 15) + 1; // 1 to 15
-      } else if (format === 'bin8') {
-        val = Math.floor(Math.random() * 105) + 16; // 16 to 120
-      } else if (format === 'hex' || format === 'den') {
-        val = Math.floor(Math.random() * 200) + 15; // 15 to 214
+    let targetAttempts = 0;
+    while (targetVals.length < 4 && targetAttempts < 250) {
+      targetAttempts++;
+      let candidate = 0;
+      if (bitpopState.tier === 0) {
+        // Nibble: 1 to 15
+        candidate = Math.floor(Math.random() * 15) + 1;
       } else {
-        val = Math.floor(Math.random() * 15) + 1;
+        // Tiers 1-4: bias towards newly introduced bits (>= minTarget)
+        if (targetVals.length < 3) {
+          const range = tierCfg.maxVal - tierCfg.minTarget + 1;
+          candidate = tierCfg.minTarget + Math.floor(Math.random() * range);
+        } else {
+          candidate = Math.floor(Math.random() * tierCfg.maxVal) + 1;
+        }
       }
-      if (!excludeSet.has(val)) break;
+      if (!usedVals.has(candidate)) {
+        usedVals.add(candidate);
+        targetVals.push(candidate);
+      }
     }
-    return val;
+
+    // Pick 8 distractors so total cells = 12
+    let distractorAttempts = 0;
+    const allCellVals = [...targetVals];
+    while (allCellVals.length < 12 && distractorAttempts < 350) {
+      distractorAttempts++;
+      let candidate = 0;
+      if (bitpopState.tier === 0) {
+        candidate = Math.floor(Math.random() * 15) + 1;
+      } else {
+        candidate = Math.floor(Math.random() * tierCfg.maxVal) + 1;
+      }
+      if (!usedVals.has(candidate)) {
+        usedVals.add(candidate);
+        allCellVals.push(candidate);
+      }
+    }
+
+    // Fallback if needed
+    while (allCellVals.length < 12) {
+      const fallback = allCellVals.length + 1;
+      allCellVals.push(fallback);
+    }
+
+    // Shuffle the 12 cell values so targets are scattered across the 4x3 sheet
+    for (let i = allCellVals.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [allCellVals[i], allCellVals[j]] = [allCellVals[j], allCellVals[i]];
+    }
+
+    // Build the 4 question descriptors for targetVals
+    bitpopState.sheetQuestions = targetVals.map((val) => {
+      let promptText = '';
+      let displayValue = '';
+      let hintText = '';
+
+      if (step === 0) {
+        // Denary to Binary
+        promptText = 'POP BINARY EQUAL TO:';
+        displayValue = String(val);
+        hintText = `Denary ${val}`;
+      } else if (step === 1) {
+        // Binary to Denary
+        promptText = 'POP DENARY EQUAL TO:';
+        displayValue = formatBinaryStr(val, tierCfg.bits);
+        hintText = `Binary ${displayValue}`;
+      } else if (step === 2) {
+        // Denary addition to Binary
+        promptText = 'POP BINARY SUM OF:';
+        if (val <= 1) {
+          displayValue = `${val} + 0`;
+        } else {
+          const a = Math.floor(Math.random() * (val - 1)) + 1;
+          const b = val - a;
+          displayValue = `${a} + ${b}`;
+        }
+        hintText = `Denary sum = ${val}`;
+      } else {
+        // Binary addition to Denary
+        promptText = 'POP DENARY SUM OF:';
+        if (val <= 1) {
+          const aBin = formatBinaryStr(val, tierCfg.bits);
+          const bBin = formatBinaryStr(0, tierCfg.bits);
+          displayValue = `${aBin} + ${bBin}`;
+        } else {
+          const a = Math.floor(Math.random() * (val - 1)) + 1;
+          const b = val - a;
+          const aBin = formatBinaryStr(a, tierCfg.bits);
+          const bBin = formatBinaryStr(b, tierCfg.bits);
+          displayValue = `${aBin} + ${bBin}`;
+        }
+        hintText = `Binary sum = ${val}`;
+      }
+
+      return {
+        targetVal: val,
+        promptText: promptText,
+        displayValue: displayValue,
+        hintText: hintText
+      };
+    });
+
+    // Render 12 blister cells into the arena grid
+    for (let i = 0; i < allCellVals.length; i++) {
+      const val = allCellVals[i];
+      const theme = bitpopThemes[i % bitpopThemes.length];
+      const cellEl = document.createElement('div');
+      cellEl.className = `bitpop-wrap-cell ${theme}`;
+      cellEl.setAttribute('data-val', String(val));
+
+      const textSpan = document.createElement('span');
+      const is8Bit = isBinOnCells && tierCfg.bits >= 8;
+      textSpan.className = 'bitpop-wrap-text' + (is8Bit ? ' is-8bit' : '');
+
+      if (isBinOnCells) {
+        textSpan.textContent = formatBinaryStr(val, tierCfg.bits);
+      } else {
+        textSpan.textContent = String(val);
+      }
+
+      cellEl.appendChild(textSpan);
+
+      const cellObj = {
+        val: val,
+        el: cellEl,
+        isPopped: false
+      };
+
+      cellEl.addEventListener('click', (evt) => {
+        handleBitpopCellClick(cellObj, evt);
+      });
+
+      arena.appendChild(cellEl);
+      bitpopState.cells.push(cellObj);
+    }
+
+    // Set first question active
+    setBitpopTargetFromQuestion(bitpopState.sheetQuestions[0]);
+    updateBitpopHUD();
   }
 
-  function setBitpopTarget(num, format, phase) {
+  function setBitpopTargetFromQuestion(q) {
+    if (!q) return;
     const phasePill = document.getElementById('bitpopPhasePill');
     const promptEl = document.getElementById('bitpopTargetPrompt');
     const valEl = document.getElementById('bitpopTargetValue');
     const hintEl = document.getElementById('bitpopTargetHint');
 
-    let promptText = 'POP BUBBLE FOR:';
-    let displayText = '';
-    let hintText = '';
+    const tierCfg = getBitpopTierConfig(bitpopState.tier);
+    const stepNames = [
+      'DENARY → BINARY',
+      'BINARY → DENARY',
+      'DENARY ADDITION',
+      'BINARY ADDITION'
+    ];
+    const currentStepName = stepNames[bitpopState.cycleStep] || 'CONVERSION';
 
-    if (format === 'bin4') {
-      if (phasePill) phasePill.textContent = 'PHASE 1: NIBBLE BLITZ';
-      promptText = 'POP BINARY EQUAL TO:';
-      displayText = String(num);
-      hintText = `Denary ${num} (4-bit Nibble)`;
-    } else if (format === 'bin8') {
-      if (phasePill) phasePill.textContent = phase >= 4 ? 'PHASE 4: SPEED FRENZY 🔥' : 'PHASE 2: BYTE HUNTER';
-      promptText = 'POP BINARY EQUAL TO:';
-      displayText = String(num);
-      hintText = `Denary ${num} (8-bit Byte)`;
-    } else if (format === 'hex') {
-      // Bubble shows Hex, Target displays Denary
-      if (phasePill) phasePill.textContent = phase >= 4 ? 'PHASE 4: SPEED FRENZY 🔥' : 'PHASE 3: HEX MATRIX';
-      promptText = 'POP HEXADECIMAL FOR:';
-      displayText = String(num);
-      hintText = `Denary ${num}`;
-    } else {
-      // Bubble shows Denary, Target displays Hex
-      if (phasePill) phasePill.textContent = phase >= 4 ? 'PHASE 4: SPEED FRENZY 🔥' : 'PHASE 3: HEX MATRIX';
-      const hex = num.toString(16).toUpperCase().padStart(2, '0');
-      promptText = 'POP DENARY EQUAL TO:';
-      displayText = hex + '₁₆';
-      hintText = `Hexadecimal ${hex}`;
+    if (phasePill) {
+      phasePill.textContent = `PHASE ${bitpopState.tier + 1}.${bitpopState.cycleStep + 1}: ${tierCfg.name} • ${currentStepName}`;
     }
-
-    bitpopState.currentTarget = {
-      val: num,
-      format: format,
-      display: displayText,
-      prompt: promptText,
-      hint: hintText
-    };
-
-    if (promptEl) promptEl.textContent = promptText;
-    if (valEl) valEl.textContent = displayText;
-    if (hintEl) hintEl.textContent = hintText;
+    if (promptEl) promptEl.textContent = q.promptText;
+    if (valEl) valEl.textContent = q.displayValue;
+    if (hintEl) hintEl.textContent = q.hintText;
 
     if (valEl) {
-      valEl.style.transform = 'scale(1.22)';
-      valEl.style.filter = 'drop-shadow(0 0 16px rgba(56, 189, 248, 0.95))';
+      valEl.style.transform = 'scale(1.18)';
+      valEl.style.filter = 'drop-shadow(0 0 16px rgba(236, 72, 153, 0.9))';
       setTimeout(() => {
         valEl.style.transform = 'scale(1)';
         valEl.style.filter = '';
-      }, 180);
+      }, 160);
     }
   }
 
-  function pickTargetFromVisibleBubbles() {
-    const phase = getBitpopPhase(bitpopState.poppedCount);
-    bitpopState.phase = phase;
+  function handleBitpopCellClick(cellObj, evt) {
+    if (!bitpopState.isRunning || cellObj.isPopped) return;
 
-    // Look for active visible bubbles currently floating on screen
-    const candidates = bitpopState.bubbles.filter(b => !b.isBursting && b.y > 35);
-    let chosenBubble = null;
-    if (candidates.length > 0) {
-      // Sort to prefer bubbles lower on screen (higher y), giving user ample reaction time
-      candidates.sort((a, b) => b.y - a.y);
-      chosenBubble = candidates[0];
-    } else {
-      chosenBubble = bitpopState.bubbles.find(b => !b.isBursting) || bitpopState.bubbles[0];
-    }
+    const currentQ = bitpopState.sheetQuestions[bitpopState.currentQIndex];
+    if (!currentQ) return;
 
-    if (chosenBubble) {
-      setBitpopTarget(chosenBubble.val, chosenBubble.format || 'bin4', phase);
-    }
-  }
-
-  function initBitpopBubbles() {
-    const arena = document.getElementById('bitpopArena');
-    if (!arena) return;
-    arena.innerHTML = '';
-    bitpopState.bubbles = [];
-
-    const arenaWidth = Math.max(320, arena.clientWidth || 480);
-    const arenaHeight = Math.max(380, arena.clientHeight || 400);
-    const count = bitpopState.bubbleCount;
-    const phase = 1;
-    const format = 'bin4';
-
-    // Generate distinct values with 1 duplicate target
-    const usedVals = new Set();
-    const initialVals = [];
-    while (initialVals.length < count - 1) {
-      const val = Math.floor(Math.random() * 15) + 1;
-      if (!usedVals.has(val)) {
-        usedVals.add(val);
-        initialVals.push(val);
-      }
-    }
-    initialVals.push(initialVals[1]); // Duplicate target for friendly start
-
-    // Shuffle
-    for (let i = initialVals.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [initialVals[i], initialVals[j]] = [initialVals[j], initialVals[i]];
-    }
-
-    // Set initial target to match initialVals[1]
-    setBitpopTarget(initialVals[1], format, phase);
-
-    // Stagger initial vertical positions so the screen is immediately populated
-    for (let i = 0; i < count; i++) {
-      const val = initialVals[i];
-      const text = formatBitpopValue(val, format);
-      const theme = bitpopThemes[i % bitpopThemes.length];
-
-      const initialY = 40 + (i * 58) + (Math.random() * 16 - 8);
-      const initialBaseX = Math.max(14, Math.min(arenaWidth - 94, ((arenaWidth - 94) / count) * i + (Math.random() * 16 - 8)));
-      const speed = getPhaseSpeed(phase);
-
-      const bubbleEl = document.createElement('div');
-      bubbleEl.className = `bitpop-bubble-orb ${theme}`;
-      bubbleEl.style.transform = `translate3d(${initialBaseX}px, ${initialY}px, 0)`;
-
-      const textSpan = document.createElement('span');
-      textSpan.className = 'bitpop-orb-text' + (format === 'bin8' ? ' is-8bit' : '');
-      textSpan.textContent = text;
-      bubbleEl.appendChild(textSpan);
-
-      const bubbleObj = {
-        id: i,
-        el: bubbleEl,
-        textSpan: textSpan,
-        val: val,
-        format: format,
-        theme: theme,
-        x: initialBaseX,
-        y: initialY,
-        baseX: initialBaseX,
-        speed: speed,
-        wobbleSpeed: 0.8 + Math.random() * 0.6,
-        wobbleAmp: 8 + Math.random() * 10,
-        wobbleOffset: Math.random() * Math.PI * 2,
-        isBursting: false,
-        isWrong: false
-      };
-
-      bubbleEl.addEventListener('click', (evt) => {
-        handleBitpopOrbClick(bubbleObj, evt);
-      });
-
-      arena.appendChild(bubbleEl);
-      bitpopState.bubbles.push(bubbleObj);
-    }
-  }
-
-  function recycleBubble(b, arenaWidth, arenaHeight) {
-    const phase = getBitpopPhase(bitpopState.poppedCount);
-    bitpopState.phase = phase;
-
-    b.isBursting = false;
-    b.isWrong = false;
-    b.el.classList.remove('is-bursting', 'is-wrong');
-
-    // Spawn just below the bottom edge of the arena
-    b.y = arenaHeight + 15 + (Math.random() * 25);
-    b.baseX = Math.max(14, Math.min(arenaWidth - 94, Math.random() * (arenaWidth - 98)));
-
-    b.speed = getPhaseSpeed(phase);
-    b.wobbleSpeed = 0.8 + Math.random() * 0.6;
-    b.wobbleAmp = 8 + Math.random() * 10;
-    b.wobbleOffset = Math.random() * Math.PI * 2;
-
-    const nextTheme = bitpopThemes[Math.floor(Math.random() * bitpopThemes.length)];
-    b.el.className = `bitpop-bubble-orb ${nextTheme}`;
-    b.theme = nextTheme;
-
-    const format = getPhaseFormat(phase);
-    b.format = format;
-
-    // Check if another bubble on screen has the current target
-    const currentTargetVal = bitpopState.currentTarget ? bitpopState.currentTarget.val : null;
-    const activeTargetMatches = bitpopState.bubbles.filter(other => other !== b && !other.isBursting && other.val === currentTargetVal).length;
-
-    if (activeTargetMatches === 0 && currentTargetVal !== null) {
-      // Ensure the target is rising from below
-      b.val = currentTargetVal;
-    } else {
-      b.val = generateBitpopValue(phase, format, currentTargetVal !== null ? [currentTargetVal] : []);
-    }
-
-    const text = formatBitpopValue(b.val, format);
-    b.textSpan.textContent = text;
-    b.textSpan.classList.toggle('is-8bit', format === 'bin8');
-
-    b.el.style.transform = `translate3d(${b.baseX}px, ${b.y}px, 0)`;
-  }
-
-  function updateBitpopPhysics(timestamp) {
-    if (!bitpopState.isRunning) return;
-
-    if (!bitpopState.lastTime) {
-      bitpopState.lastTime = timestamp;
-    }
-    const dt = Math.min(0.06, (timestamp - bitpopState.lastTime) / 1000);
-    bitpopState.lastTime = timestamp;
-
-    const arena = document.getElementById('bitpopArena');
-    if (!arena) return;
-
-    const arenaWidth = Math.max(320, arena.clientWidth || 480);
-    const arenaHeight = Math.max(380, arena.clientHeight || 400);
-
-    // Slowly move each active balloon upwards
-    for (let i = 0; i < bitpopState.bubbles.length; i++) {
-      const b = bitpopState.bubbles[i];
-
-      if (b.isBursting) continue;
-
-      b.y -= b.speed * dt;
-
-      // Gentle natural wobble
-      const wobble = Math.sin((timestamp * 0.0024 * b.wobbleSpeed) + b.wobbleOffset) * b.wobbleAmp;
-      const renderX = Math.max(12, Math.min(arenaWidth - 92, b.baseX + wobble));
-      b.x = renderX;
-
-      if (!b.isWrong) {
-        b.el.style.transform = `translate3d(${renderX}px, ${b.y}px, 0)`;
-      }
-
-      // Only recycle when the balloon has floated completely off the top of the arena!
-      if (b.y < -92) {
-        const wasTarget = bitpopState.currentTarget && (b.val === bitpopState.currentTarget.val);
-        recycleBubble(b, arenaWidth, arenaHeight);
-
-        // If the missed balloon was the active target, pick a new target from remaining visible balloons!
-        if (wasTarget) {
-          pickTargetFromVisibleBubbles();
-        }
-      }
-    }
-
-    bitpopState.animFrameId = requestAnimationFrame(updateBitpopPhysics);
-  }
-
-  function handleBitpopOrbClick(bubbleObj, evt) {
-    if (!bitpopState.isRunning || bubbleObj.isBursting) return;
-
-    const target = bitpopState.currentTarget;
-    if (!target) return;
-
-    if (bubbleObj.val === target.val) {
-      // --- CORRECT BUBBLE BURST! ---
+    if (cellObj.val === currentQ.targetVal) {
+      // --- CORRECT TACTILE POP! ---
       playSynthSound('bubblepop');
 
-      bubbleObj.isBursting = true;
-      bubbleObj.el.classList.add('is-bursting');
+      cellObj.isPopped = true;
+      cellObj.el.classList.add('is-popped');
 
-      // +2.5s time bonus (capped at 60s)
+      // Add checkmark visual to deflated blister
+      const checkBadge = document.createElement('span');
+      checkBadge.className = 'bitpop-popped-tick';
+      checkBadge.innerHTML = ' &#10003;';
+      const textSpan = cellObj.el.querySelector('.bitpop-wrap-text');
+      if (textSpan) textSpan.appendChild(checkBadge);
+
       bitpopState.timer = Math.min(60.0, bitpopState.timer + 2.5);
       bitpopState.streak++;
       bitpopState.poppedCount++;
+      bitpopState.sheetPoppedInCurrent++;
 
-      // Increase Combo Multiplier (up to 3.5x)
+      // Combo & scoring
       bitpopState.combo = Math.min(3.5, 1.0 + (bitpopState.streak * 0.15));
       bitpopState.maxCombo = Math.max(bitpopState.maxCombo, bitpopState.combo);
-
-      // Points formula
       const pts = Math.round(100 * bitpopState.combo);
       bitpopState.score += pts;
 
       updateBitpopHUD();
-
-      // Show floating bonus text
-      showBitpopFloater(`+2.5s`, true, evt);
+      showBitpopFloater('+2.5s', true, evt);
       if (bitpopState.streak >= 3) {
         setTimeout(() => {
-          showBitpopFloater(`${bitpopState.combo.toFixed(1)}× Combo!`, true, evt, -24);
-        }, 120);
+          showBitpopFloater(`${bitpopState.combo.toFixed(1)}× Combo!`, true, evt, -22);
+        }, 110);
       }
 
-      // Immediately pick the next target from the other visible balloons on screen
-      pickTargetFromVisibleBubbles();
+      // Check if this sheet is fully cleared!
+      if (bitpopState.sheetPoppedInCurrent >= 4) {
+        // --- COMPLETE SHEET CLEARED! ---
+        playSynthSound('levelup');
+        bitpopState.timer = Math.min(60.0, bitpopState.timer + 5.0);
+        bitpopState.score += Math.round(300 * bitpopState.combo);
+        updateBitpopHUD();
 
-      // After burst animation finishes (280ms), recycle this popped bubble to the bottom
-      setTimeout(() => {
-        if (bitpopState.isRunning) {
-          const arena = document.getElementById('bitpopArena');
-          const arenaWidth = arena ? Math.max(320, arena.clientWidth) : 480;
-          const arenaHeight = arena ? Math.max(380, arena.clientHeight) : 400;
-          recycleBubble(bubbleObj, arenaWidth, arenaHeight);
+        showBitpopFloater('SHEET CLEAR! +5s ⚡', true, null, -10);
+
+        // Advance cycle & tier
+        bitpopState.sheetNumber++;
+        bitpopState.cycleStep++;
+        if (bitpopState.cycleStep >= 4) {
+          bitpopState.cycleStep = 0;
+          bitpopState.tier++;
+          if (bitpopState.tier > 4) {
+            bitpopState.tier = 4; // Stay at 8-bit master blitz
+          }
         }
-      }, 280);
+
+        // Brief delay for tactile satisfaction, then render the next fresh bubble wrap sheet
+        setTimeout(() => {
+          if (bitpopState.isRunning) {
+            initBitpopSheet();
+          }
+        }, 450);
+
+      } else {
+        // Advance to next question in the current sheet
+        bitpopState.currentQIndex++;
+        setBitpopTargetFromQuestion(bitpopState.sheetQuestions[bitpopState.currentQIndex]);
+      }
 
     } else {
-      // --- WRONG BUBBLE PENALTY ---
+      // --- WRONG BUBBLE CLICK ---
       playSynthSound('wrong');
 
-      bubbleObj.isWrong = true;
-      bubbleObj.el.style.setProperty('--cur-x', `${bubbleObj.x}px`);
-      bubbleObj.el.style.setProperty('--cur-y', `${bubbleObj.y}px`);
-      bubbleObj.el.classList.add('is-wrong');
-
-      // -2.0s penalty
+      cellObj.el.classList.add('is-wrong');
       bitpopState.timer = Math.max(0, bitpopState.timer - 2.0);
       bitpopState.streak = 0;
       bitpopState.combo = 1.0;
 
       updateBitpopHUD();
-      showBitpopFloater(`-2.0s`, false, evt);
+      showBitpopFloater('-2.0s', false, evt);
 
       setTimeout(() => {
-        bubbleObj.isWrong = false;
-        bubbleObj.el.classList.remove('is-wrong');
+        cellObj.el.classList.remove('is-wrong');
       }, 380);
 
       if (bitpopState.timer <= 0) {
@@ -8054,7 +8022,7 @@
     stopBitpopEngine();
 
     // Architecture XP Reward formula:
-    const xpReward = Math.max(25, Math.round(bitpopState.score / 25) + (bitpopState.poppedCount * 4));
+    const xpReward = Math.max(35, Math.round(bitpopState.score / 20) + (bitpopState.poppedCount * 5));
 
     // Award XP
     bitmasterState.xp = (bitmasterState.xp || 0) + xpReward;

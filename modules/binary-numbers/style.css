@@ -4962,6 +4962,75 @@ html.dark .converter-preset-btn:hover,
   box-shadow: 0 1px 0 #7f1d1d;
 }
 
+/* Secondary Dark Cyberpunk Modal Buttons (Prevents Stark White Fallback) */
+.bitmaster-modal-dialog .control-btn-secondary,
+.modal-dialog-actions .control-btn-secondary,
+.control-btn-secondary {
+  background: #1e293b !important;
+  color: #e2e8f0 !important;
+  border: 2px solid #334155 !important;
+  border-radius: 12px !important;
+  padding: 10px 18px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 4px 0 #0f172a !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+.bitmaster-modal-dialog .control-btn-secondary:hover,
+.modal-dialog-actions .control-btn-secondary:hover,
+.control-btn-secondary:hover {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #0f172a !important;
+}
+
+.bitmaster-modal-dialog .control-btn-secondary:active,
+.modal-dialog-actions .control-btn-secondary:active,
+.control-btn-secondary:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 1px 0 #0f172a !important;
+}
+
+/* Explicit Modal Primary Cyberpunk Button */
+.bitmaster-modal-dialog .control-btn-primary,
+.modal-dialog-actions .control-btn-primary {
+  background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%) !important;
+  color: #ffffff !important;
+  border: 2px solid #38bdf8 !important;
+  border-radius: 12px !important;
+  padding: 10px 18px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 0 #0284c7, 0 0 16px rgba(6, 182, 212, 0.4) !important;
+  transition: all 0.15s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+.bitmaster-modal-dialog .control-btn-primary:hover,
+.modal-dialog-actions .control-btn-primary:hover {
+  background: linear-gradient(135deg, #0891b2 0%, #2563eb 100%) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 0 #0284c7, 0 0 20px rgba(6, 182, 212, 0.6) !important;
+}
+
+.bitmaster-modal-dialog .control-btn-primary:active,
+.modal-dialog-actions .control-btn-primary:active {
+  transform: translateY(2px) !important;
+  box-shadow: 0 1px 0 #0284c7 !important;
+}
+
 /* Inline Feedback Toast */
 .bitmaster-feedback-toast {
   display: flex;
@@ -6487,12 +6556,12 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 }
 
 /* ========================================================================= */
-/* BIT POP: ARCADE REFLEX TIME ATTACK                                       */
+/* BIT POP: ARCADE TACTILE BUBBLE WRAP BLITZ                                 */
 /* ========================================================================= */
 .bitpop-screen-inner {
-  max-width: 640px;
+  max-width: 680px;
   margin: 0 auto;
-  padding: 6px 12px 24px;
+  padding: 4px 8px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -6500,41 +6569,22 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   box-sizing: border-box;
 }
 
-.bitpop-header {
-  width: 100%;
+/* Compact Top HUD Bar */
+.bitpop-top-bar {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.bitpop-title-row {
-  display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   width: 100%;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
-.bitpop-title-wrap {
+.bitpop-phase-meta {
   display: flex;
-  flex-direction: column;
-}
-
-.bitpop-eyebrow {
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  color: #ec4899;
-  text-transform: uppercase;
-  font-family: var(--font-mono);
-}
-
-.bitpop-title {
-  font-size: 26px;
-  font-weight: 900;
-  color: #ffffff;
-  margin: 2px 0 0;
-  text-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .bitpop-phase-pill {
@@ -6550,41 +6600,50 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   letter-spacing: 0.5px;
 }
 
-.bitpop-hud-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #0f172a;
-  border: 1.5px solid #232c40;
-  border-radius: 14px;
-  padding: 8px 14px;
-  width: 100%;
-  box-sizing: border-box;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+.bitpop-sheet-pill {
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  padding: 4px 9px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
 }
 
-.bitpop-hud-stat {
+.bitpop-compact-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #0f172a;
+  border: 1.5px solid #232c40;
+  border-radius: 12px;
+  padding: 4px 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.bitpop-stat-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 52px;
+  min-width: 40px;
 }
 
-.bitpop-hud-label {
-  font-size: 9.5px;
+.bitpop-stat-item .stat-lbl {
+  font-size: 8.5px;
   font-weight: 800;
   color: #64748b;
   font-family: var(--font-mono);
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
 }
 
-.bitpop-hud-val {
-  font-size: 16px;
+.bitpop-stat-item .stat-num {
+  font-size: 14px;
   font-weight: 900;
   font-family: var(--font-mono);
-  color: #f1f5f9;
-  margin-top: 2px;
+  line-height: 1.15;
 }
 
 .bitpop-timer-val {
@@ -6597,35 +6656,42 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   animation: lowTimePulse 0.55s ease-in-out infinite alternate;
 }
 
-.bitpop-hud-divider {
+.bitpop-stat-sep {
   width: 1px;
-  height: 24px;
+  height: 20px;
   background: #232c40;
+}
+
+.bitpop-top-actions {
+  display: flex;
+  align-items: center;
 }
 
 /* Neon Cyber Target Readout Banner */
 .bitpop-target-banner {
   width: 100%;
-  background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(99, 102, 241, 0.15) 100%);
-  border: 2px solid rgba(236, 72, 153, 0.5);
-  border-radius: 16px;
-  padding: 10px 16px;
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.18) 0%, rgba(99, 102, 241, 0.18) 100%);
+  border: 2px solid rgba(236, 72, 153, 0.55);
+  border-radius: 14px;
+  padding: 8px 14px;
   box-sizing: border-box;
-  box-shadow: 0 0 24px rgba(236, 72, 153, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
+  margin-bottom: 10px;
 }
 
 .bitpop-target-prompt {
-  font-size: 10.5px;
+  font-size: 10px;
   font-weight: 800;
   letter-spacing: 1.5px;
   color: #f472b6;
   font-family: var(--font-mono);
   margin-bottom: 2px;
+  text-transform: uppercase;
 }
 
 .bitpop-target-display-row {
@@ -6636,7 +6702,7 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 }
 
 .bitpop-target-value {
-  font-size: 38px;
+  font-size: 34px;
   font-weight: 900;
   font-family: var(--font-mono);
   color: #ffffff;
@@ -6646,147 +6712,160 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 }
 
 .bitpop-target-hint-tag {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
   color: #a5b4fc;
   font-family: var(--font-mono);
-  background: rgba(99, 102, 241, 0.2);
-  border: 1px solid rgba(99, 102, 241, 0.4);
-  padding: 2px 8px;
+  background: rgba(99, 102, 241, 0.25);
+  border: 1px solid rgba(99, 102, 241, 0.45);
+  padding: 2px 9px;
   border-radius: 999px;
 }
 
-/* Cyber Floating Arena */
-.bitpop-playfield-wrap {
+/* Tactile Bubble Wrap Sheet Container */
+.bitpop-wrap-container {
   width: 100%;
-  background: radial-gradient(circle at 50% 25%, rgba(26, 36, 56, 0.7) 0%, rgba(10, 15, 28, 0.98) 100%);
+  background: radial-gradient(circle at 50% 25%, rgba(26, 36, 56, 0.75) 0%, rgba(10, 15, 28, 0.98) 100%);
   border: 2px solid #232c40;
-  border-radius: 20px;
-  overflow: hidden;
+  border-radius: 18px;
+  padding: 12px;
+  box-sizing: border-box;
   position: relative;
   box-shadow: inset 0 2px 20px rgba(0, 0, 0, 0.7), 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
-.bitpop-arena {
+/* 4-Column x 3-Row Tactile Blister Grid */
+.bitpop-wrap-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+/* Tactile Blister Cell */
+.bitpop-wrap-cell {
   position: relative;
-  width: 100%;
-  height: 400px;
+  height: 74px;
+  border-radius: 16px;
+  border: 2px solid var(--cell-rim);
+  background: radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.08) 26%, var(--cell-bg) 62%, var(--cell-dark) 100%);
+  box-shadow: 0 6px 0 var(--cell-shade), 0 8px 16px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.45);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.12s ease, box-shadow 0.12s ease;
   overflow: hidden;
-  user-select: none;
-  cursor: pointer;
-  background: radial-gradient(circle at 50% 30%, #0e1726 0%, #060913 100%);
+  box-sizing: border-box;
 }
 
-.bitpop-spawn-glow-bar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 20px;
-  background: linear-gradient(to top, rgba(236, 72, 153, 0.2), transparent);
-  border-top: 1px dashed rgba(236, 72, 153, 0.35);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
-  font-weight: 800;
-  font-family: var(--font-mono);
-  color: #f472b6;
-  letter-spacing: 1.5px;
-  pointer-events: none;
-  z-index: 10;
-}
-
-/* Floating Spherical Bubble / Balloon Orb */
-.bitpop-bubble-orb {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  cursor: pointer;
-  user-select: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  will-change: transform;
-  border: 2px solid var(--orb-rim);
-  background: radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0.12) 28%, var(--orb-base) 65%, var(--orb-dark) 100%);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.55), inset 0 2px 8px rgba(255, 255, 255, 0.55), 0 0 16px var(--orb-glow);
-  transition: filter 0.12s ease;
-  z-index: 5;
-}
-
-/* Specular highlight crescent */
-.bitpop-bubble-orb::before {
+/* Specular Dome Highlight */
+.bitpop-wrap-cell::before {
   content: '';
   position: absolute;
-  top: 10px;
-  left: 14px;
-  width: 22px;
+  top: 6px;
+  left: 12px;
+  width: 30px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.8);
-  transform: rotate(-35deg);
+  background: rgba(255, 255, 255, 0.75);
+  transform: rotate(-25deg);
   filter: blur(0.5px);
   pointer-events: none;
 }
 
-/* Balloon knot & tether ribbon */
-.bitpop-bubble-orb::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 50%;
-  width: 8px;
-  height: 6px;
-  background: var(--orb-base);
-  border: 1px solid var(--orb-rim);
-  border-radius: 2px 2px 4px 4px;
-  transform: translateX(-50%);
-  pointer-events: none;
+.bitpop-wrap-cell:hover:not(.is-popped) {
+  transform: translateY(-2px);
+  filter: brightness(1.18) drop-shadow(0 0 12px var(--cell-glow));
+  box-shadow: 0 8px 0 var(--cell-shade), 0 12px 20px rgba(0, 0, 0, 0.55);
 }
 
-/* Color Themes */
-.bitpop-bubble-orb.theme-cyan {
-  --orb-base: #0284c7;
-  --orb-dark: #082f49;
-  --orb-glow: rgba(56, 189, 248, 0.55);
-  --orb-rim: rgba(56, 189, 248, 0.85);
+.bitpop-wrap-cell:active:not(.is-popped) {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 var(--cell-shade);
 }
 
-.bitpop-bubble-orb.theme-magenta {
-  --orb-base: #db2777;
-  --orb-dark: #500724;
-  --orb-glow: rgba(236, 72, 153, 0.55);
-  --orb-rim: rgba(236, 72, 153, 0.85);
+/* Popped / Deflated Blister Cell (Concave tactile indentation) */
+.bitpop-wrap-cell.is-popped {
+  transform: translateY(5px) scale(0.96) !important;
+  background: #090e1a !important;
+  border-color: #1e293b !important;
+  box-shadow: inset 0 5px 10px rgba(0, 0, 0, 0.9), inset 0 1px 2px rgba(0, 0, 0, 0.9) !important;
+  cursor: default !important;
+  opacity: 0.45 !important;
+  pointer-events: none !important;
 }
 
-.bitpop-bubble-orb.theme-amber {
-  --orb-base: #d97706;
-  --orb-dark: #451a03;
-  --orb-glow: rgba(245, 158, 11, 0.55);
-  --orb-rim: rgba(245, 158, 11, 0.85);
+.bitpop-wrap-cell.is-popped::before {
+  display: none !important;
 }
 
-.bitpop-bubble-orb.theme-purple {
-  --orb-base: #7c3aed;
-  --orb-dark: #2e1065;
-  --orb-glow: rgba(168, 85, 247, 0.55);
-  --orb-rim: rgba(168, 85, 247, 0.85);
+.bitpop-wrap-cell.is-popped .bitpop-wrap-text {
+  text-decoration: line-through;
+  color: #475569 !important;
+  text-shadow: none !important;
 }
 
-.bitpop-bubble-orb:hover {
-  filter: brightness(1.22) drop-shadow(0 0 16px var(--orb-glow));
-  z-index: 10;
+/* Shake animation on wrong answer */
+.bitpop-wrap-cell.is-wrong {
+  animation: bitpopCellShake 0.4s ease forwards !important;
+  border-color: #ef4444 !important;
+  filter: brightness(1.2) drop-shadow(0 0 12px rgba(239, 68, 68, 0.7)) !important;
 }
 
-.bitpop-bubble-orb:active {
-  transform: scale(0.92);
+@keyframes bitpopCellShake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
 }
 
-.bitpop-orb-text {
+/* Bubble Wrap Blister Themes */
+.bitpop-wrap-cell.theme-cyan {
+  --cell-bg: #0284c7;
+  --cell-dark: #082f49;
+  --cell-shade: #0369a1;
+  --cell-rim: #38bdf8;
+  --cell-glow: rgba(56, 189, 248, 0.55);
+}
+
+.bitpop-wrap-cell.theme-magenta {
+  --cell-bg: #db2777;
+  --cell-dark: #500724;
+  --cell-shade: #be185d;
+  --cell-rim: #f472b6;
+  --cell-glow: rgba(236, 72, 153, 0.55);
+}
+
+.bitpop-wrap-cell.theme-amber {
+  --cell-bg: #d97706;
+  --cell-dark: #451a03;
+  --cell-shade: #b45309;
+  --cell-rim: #fbbf24;
+  --cell-glow: rgba(245, 158, 11, 0.55);
+}
+
+.bitpop-wrap-cell.theme-purple {
+  --cell-bg: #7c3aed;
+  --cell-dark: #2e1065;
+  --cell-shade: #6d28d9;
+  --cell-rim: #c084fc;
+  --cell-glow: rgba(168, 85, 247, 0.55);
+}
+
+.bitpop-wrap-cell.theme-emerald {
+  --cell-bg: #059669;
+  --cell-dark: #022c22;
+  --cell-shade: #047857;
+  --cell-rim: #34d399;
+  --cell-glow: rgba(52, 211, 153, 0.55);
+}
+
+/* Number Text Inside Bubble */
+.bitpop-wrap-text {
   font-family: var(--font-mono);
   font-size: 16px;
   font-weight: 900;
@@ -6798,49 +6877,12 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   text-align: center;
 }
 
-.bitpop-orb-text.is-8bit {
-  font-size: 13.5px;
-  letter-spacing: 0.3px;
+.bitpop-wrap-text.is-8bit {
+  font-size: 13px;
+  letter-spacing: 0.2px;
 }
 
-/* Pop Burst Shockwave Animation */
-.bitpop-bubble-orb.is-bursting {
-  animation: bitpopOrbBurst 0.28s cubic-bezier(0.1, 0.9, 0.2, 1) forwards !important;
-  pointer-events: none;
-}
-
-.bitpop-bubble-orb.is-wrong {
-  animation: bitpopOrbShake 0.4s ease forwards !important;
-  filter: grayscale(0.8) brightness(0.6) !important;
-  pointer-events: none;
-}
-
-@keyframes bitpopOrbBurst {
-  0% {
-    transform: scale(1);
-    opacity: 1;
-    filter: brightness(2);
-  }
-  50% {
-    transform: scale(1.45);
-    opacity: 0.85;
-    filter: brightness(3);
-    box-shadow: 0 0 45px var(--orb-glow);
-  }
-  100% {
-    transform: scale(0);
-    opacity: 0;
-  }
-}
-
-@keyframes bitpopOrbShake {
-  0%, 100% { transform: translate3d(var(--cur-x, 0), var(--cur-y, 0), 0); }
-  20% { transform: translate3d(calc(var(--cur-x, 0) - 8px), var(--cur-y, 0), 0); }
-  40% { transform: translate3d(calc(var(--cur-x, 0) + 8px), var(--cur-y, 0), 0); }
-  60% { transform: translate3d(calc(var(--cur-x, 0) - 5px), var(--cur-y, 0), 0); }
-  80% { transform: translate3d(calc(var(--cur-x, 0) + 5px), var(--cur-y, 0), 0); }
-}
-
+/* Floating Feedback / Points */
 .bitpop-floater-container {
   position: absolute;
   top: 0;
@@ -6857,7 +6899,7 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   pointer-events: none;
   font-family: var(--font-mono);
   font-weight: 900;
-  font-size: 20px;
+  font-size: 18px;
   z-index: 100;
   animation: bitpopFloatUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
@@ -6909,18 +6951,25 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 }
 
 @media (max-width: 480px) {
-  .bitpop-arena {
-    height: 330px;
+  .bitpop-wrap-cell {
+    height: 58px;
   }
-  .bitpop-bubble-orb {
-    width: 66px;
-    height: 66px;
-  }
-  .bitpop-orb-text {
+  .bitpop-wrap-text {
     font-size: 14px;
   }
+  .bitpop-wrap-text.is-8bit {
+    font-size: 11px;
+    letter-spacing: 0px;
+  }
   .bitpop-target-value {
-    font-size: 30px;
+    font-size: 26px;
+  }
+  .bitpop-wrap-grid {
+    gap: 7px;
+  }
+  .bitpop-wrap-container {
+    padding: 8px;
   }
 }
+
 

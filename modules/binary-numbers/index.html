@@ -646,76 +646,67 @@
             </div>
             <div class="modal-dialog-actions">
               <button id="bitcrossVictoryNextBtn" class="control-btn control-btn-primary" type="button">Next Puzzle &rarr;</button>
-              <button id="bitcrossVictoryArcadeBtn" class="control-btn" type="button">&larr; Arcade</button>
+              <button id="bitcrossVictoryArcadeBtn" class="control-btn control-btn-secondary" type="button">&larr; Arcade</button>
             </div>
           </div>
         </div>
 
-        <!-- SCREEN 6: BIT POP ARCADE REFLEX BLITZ -->
+        <!-- SCREEN 6: BIT POP ARCADE BUBBLE WRAP BLITZ -->
         <div id="bitmasterScreenBitPop" class="bitmaster-screen" style="display: none;">
           <div class="bitpop-screen-inner">
-            <!-- Header & Stats HUD -->
-            <div class="bitpop-header">
-              <div class="bitpop-title-row">
-                <div class="bitpop-title-wrap">
-                  <span class="bitpop-eyebrow">NEON REFLEX BLITZ</span>
-                  <h2 class="bitpop-title">Bit Pop</h2>
+            <!-- Row 1: Compact HUD Bar (Phase & Progress on Left, Live Stats in Center, Restart on Right) -->
+            <div class="bitpop-top-bar">
+              <div class="bitpop-phase-meta">
+                <span class="bitpop-phase-pill" id="bitpopPhasePill">PHASE 1: NIBBLE BLITZ</span>
+                <span class="bitpop-sheet-pill" id="bitpopSheetProgress">Sheet 1 • 0/4</span>
+              </div>
+
+              <div class="bitpop-compact-stats">
+                <div class="bitpop-stat-item">
+                  <span class="stat-lbl">TIME</span>
+                  <span class="stat-num bitpop-timer-val" id="bitpopTimer">45.0s</span>
                 </div>
-                <!-- Phase / Level Badge -->
-                <div class="bitpop-phase-badge" id="bitpopPhaseBadge">
-                  <span class="bitpop-phase-pill" id="bitpopPhasePill">PHASE 1: NIBBLES</span>
+                <div class="bitpop-stat-sep"></div>
+                <div class="bitpop-stat-item">
+                  <span class="stat-lbl">SCORE</span>
+                  <span class="stat-num text-emerald" id="bitpopScore">0</span>
+                </div>
+                <div class="bitpop-stat-sep"></div>
+                <div class="bitpop-stat-item">
+                  <span class="stat-lbl">COMBO</span>
+                  <span class="stat-num text-amber" id="bitpopCombo">1.0&times;</span>
+                </div>
+                <div class="bitpop-stat-sep"></div>
+                <div class="bitpop-stat-item">
+                  <span class="stat-lbl">POPPED</span>
+                  <span class="stat-num text-pink" id="bitpopPoppedStat">0</span>
                 </div>
               </div>
 
-              <!-- Compact HUD Bar: Timer, Score, Combo Streak, Popped Count -->
-              <div class="bitpop-hud-bar">
-                <div class="bitpop-hud-stat">
-                  <span class="bitpop-hud-label">TIME</span>
-                  <span class="bitpop-hud-val bitpop-timer-val" id="bitpopTimer">30.0s</span>
-                </div>
-                <div class="bitpop-hud-divider"></div>
-                <div class="bitpop-hud-stat">
-                  <span class="bitpop-hud-label">SCORE</span>
-                  <span class="bitpop-hud-val text-emerald" id="bitpopScore">0</span>
-                </div>
-                <div class="bitpop-hud-divider"></div>
-                <div class="bitpop-hud-stat">
-                  <span class="bitpop-hud-label">COMBO</span>
-                  <span class="bitpop-hud-val text-amber" id="bitpopCombo">1.0&times;</span>
-                </div>
-                <div class="bitpop-hud-divider"></div>
-                <div class="bitpop-hud-stat">
-                  <span class="bitpop-hud-label">POPPED</span>
-                  <span class="bitpop-hud-val text-pink" id="bitpopPoppedStat">0</span>
-                </div>
-                <div class="bitpop-hud-actions">
-                  <button id="bitpopRestartBtn" class="bitcross-action-btn" type="button" title="Restart Bit Pop">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                    <span>Restart</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Prominent Glowing Cyber Target Readout -->
-              <div class="bitpop-target-banner" id="bitpopTargetBanner">
-                <div class="bitpop-target-prompt" id="bitpopTargetPrompt">POP BUBBLES MATCHING:</div>
-                <div class="bitpop-target-display-row">
-                  <span class="bitpop-target-value" id="bitpopTargetValue">12</span>
-                  <span class="bitpop-target-hint-tag" id="bitpopTargetHint">Denary 12</span>
-                </div>
+              <div class="bitpop-top-actions">
+                <button id="bitpopRestartBtn" class="bitcross-action-btn" type="button" title="Restart Bit Pop">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                  <span>Restart</span>
+                </button>
               </div>
             </div>
 
-            <!-- The Cyber Floating Arena (Bubbles rise upwards from bottom) -->
-            <div class="bitpop-playfield-wrap" id="bitpopPlayfieldWrap">
-              <div class="bitpop-arena" id="bitpopArena">
-                <!-- Floating bubbles rendered and moved by 60fps physics loop -->
+            <!-- Row 2: Prominent Glowing Cyber Target Readout -->
+            <div class="bitpop-target-banner" id="bitpopTargetBanner">
+              <div class="bitpop-target-prompt" id="bitpopTargetPrompt">POP BUBBLE FOR:</div>
+              <div class="bitpop-target-display-row">
+                <span class="bitpop-target-value" id="bitpopTargetValue">12</span>
+                <span class="bitpop-target-hint-tag" id="bitpopTargetHint">Denary 12</span>
+              </div>
+            </div>
+
+            <!-- Row 3: The Tactile Bubble Wrap Sheet (Fills all space to sides & bottom) -->
+            <div class="bitpop-wrap-container" id="bitpopWrapContainer">
+              <div class="bitpop-wrap-grid" id="bitpopArena">
+                <!-- 12 tactile bubble wrap blister cells rendered dynamically -->
               </div>
               <!-- Floating Feedback Toast Container -->
               <div class="bitpop-floater-container" id="bitpopFloaterContainer"></div>
-              <div class="bitpop-spawn-glow-bar">
-                <span>▲ RISING BUBBLE STREAM ▲</span>
-              </div>
             </div>
           </div>
         </div>
@@ -751,7 +742,7 @@
             </div>
             <div class="modal-dialog-actions">
               <button id="bitpopPlayAgainBtn" class="control-btn control-btn-primary" type="button">Play Again ⚡</button>
-              <button id="bitpopExitToMenuBtn" class="control-btn" type="button">&larr; Arcade</button>
+              <button id="bitpopExitToMenuBtn" class="control-btn control-btn-secondary" type="button">&larr; Arcade</button>
             </div>
           </div>
         </div>
