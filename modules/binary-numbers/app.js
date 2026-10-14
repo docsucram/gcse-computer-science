@@ -3314,7 +3314,7 @@
           </div>
           <div class="suggested-title-row">
             <span class="suggested-stage-label">${stage.shortTitle}:</span>
-            <span class="suggested-level-name">${lvl.title}</span>
+            <span class="suggested-level-name">${lvl.name || lvl.title || 'Start'}</span>
           </div>
         </div>
         <button type="button" class="control-btn control-btn-primary suggested-action-btn">

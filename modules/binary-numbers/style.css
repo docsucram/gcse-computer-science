@@ -7203,90 +7203,395 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   box-shadow: 0 6px 0 #94a3b8, 0 0 12px rgba(22, 163, 74, 0.25) !important;
 }
 
-.bitmaster-arena[data-theme="natural-breeze"] .title-hero-title,
-.bitmaster-arena[data-theme="natural-breeze"] .topic-hero-title,
-.bitmaster-arena[data-theme="natural-breeze"] .arena-topic-heading,
-.bitmaster-arena[data-theme="natural-breeze"] .bitpop-target-value,
+/* =========================================================================
+   THEME 1: NATURAL BREEZE (Light, Fresh, Airy Botanical)
+   ========================================================================= */
+.bitmaster-arena[data-theme="natural-breeze"] {
+  background: #f4f7f4 !important;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.12) 0%, transparent 65%),
+    linear-gradient(rgba(15, 23, 42, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.03) 1px, transparent 1px) !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 14px 44px rgba(15, 23, 42, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"]:fullscreen,
+.bitmaster-arena[data-theme="natural-breeze"].is-fullscreen {
+  background: #edf2ed !important;
+  background-image: radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.14) 0%, transparent 70%) !important;
+}
+
+/* Natural Breeze: HUD Header */
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-hud-bar {
+  border-bottom-color: #cbd5e1 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-hud-btn,
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-hud-icon-btn {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+  box-shadow: 0 4px 0 #94a3b8 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-hud-btn:hover,
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-hud-icon-btn:hover {
+  border-color: #16a34a !important;
+  color: #15803d !important;
+  box-shadow: 0 5px 0 #86efac, 0 0 12px rgba(22, 163, 74, 0.2) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .hud-stat-pill.hud-stars {
+  background: #fef3c7 !important;
+  border-color: #fde68a !important;
+  color: #b45309 !important;
+}
+
+/* Natural Breeze: Title Screen (Screen 0) */
+.bitmaster-arena[data-theme="natural-breeze"] .title-hero-heading {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .title-hero-subheading {
+  color: #16a34a !important;
+  font-weight: 900 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .title-hero-desc {
+  color: #475569 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .title-hero-chip {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .title-player-stats {
+  background: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .title-stat-label {
+  color: #64748b !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .title-stat-value {
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .title-stat-value.text-cyan {
+  color: #0284c7 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .title-stat-value.text-amber {
+  color: #d97706 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .title-stat-value.text-pink {
+  color: #db2777 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .title-stat-divider {
+  background: #e2e8f0 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-suggested-card {
+  background: #ffffff !important;
+  border: 2px solid #bbf7d0 !important;
+  box-shadow: 0 6px 18px rgba(22, 163, 74, 0.08) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .suggested-tag-pill {
+  background: #dcfce7 !important;
+  color: #166534 !important;
+  border: 1px solid #86efac !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .suggested-reason-pill {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .suggested-stars-badge {
+  color: #d97706 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .suggested-stage-label {
+  color: #64748b !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .suggested-level-name {
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .suggested-action-btn {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
+  border-color: #15803d !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 0 #14532d !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .front-topics-eyebrow {
+  color: #16a34a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .front-topics-title {
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-topic-card-btn {
+  background: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  box-shadow: 0 5px 0 #94a3b8, 0 4px 14px rgba(0, 0, 0, 0.04) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-topic-card-btn:hover {
+  border-color: #16a34a !important;
+  box-shadow: 0 7px 0 #94a3b8, 0 0 16px rgba(22, 163, 74, 0.18) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-topic-card-btn:active {
+  box-shadow: 0 2px 0 #94a3b8 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .topic-card-name {
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .topic-card-code-hero {
+  text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .topic-card-stars-pill {
+  background: #fef3c7 !important;
+  color: #b45309 !important;
+  border: 1px solid #fde68a !important;
+}
+
+/* Natural Breeze: Stage & Level Select (Screens 1 and 2) */
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-rank-card {
+  background: #ffffff !important;
+  border: 2.5px solid #cbd5e1 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .rank-card-title {
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .rank-card-meta,
+.bitmaster-arena[data-theme="natural-breeze"] .rank-xp-label {
+  color: #475569 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-topic-tab-btn {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-topic-tab-btn.active {
+  background: #16a34a !important;
+  color: #ffffff !important;
+  border-color: #15803d !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-stage-card,
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-level-card {
+  background: #ffffff !important;
+  border: 2.5px solid #cbd5e1 !important;
+  box-shadow: 0 5px 0 #94a3b8, 0 4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-stage-card:hover,
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-level-card:hover {
+  border-color: #16a34a !important;
+  box-shadow: 0 7px 0 #94a3b8, 0 0 16px rgba(22, 163, 74, 0.2) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .stage-card-title,
+.bitmaster-arena[data-theme="natural-breeze"] .level-card-name {
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .stage-card-desc,
+.bitmaster-arena[data-theme="natural-breeze"] .level-card-desc {
+  color: #475569 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .level-card-stars {
+  color: #d97706 !important;
+}
+
+/* Natural Breeze: Trial Game Screen (Screen 3) */
+.bitmaster-arena[data-theme="natural-breeze"] .badge.badge-paper1 {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border: 1.5px solid #cbd5e1 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .game-timer,
+.bitmaster-arena[data-theme="natural-breeze"] .game-counter {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .game-progress-track {
+  background: #e2e8f0 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .game-progress-fill {
+  background: linear-gradient(90deg, #16a34a 0%, #22c55e 100%) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-challenge-card {
+  background: #ffffff !important;
+  border: 2.5px solid #cbd5e1 !important;
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.05) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .challenge-prompt {
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .challenge-display {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .challenge-hint {
+  color: #64748b !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bm-bit-rect {
+  background: #f8fafc !important;
+  border: 2px solid #cbd5e1 !important;
+  box-shadow: 0 3px 0 #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bm-bit-rect.is-target {
+  background: #f0fdf4 !important;
+  border: 2px solid #16a34a !important;
+  color: #15803d !important;
+  box-shadow: 0 0 12px rgba(22, 163, 74, 0.25) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bm-weight-lbl,
+.bitmaster-arena[data-theme="natural-breeze"] .bm-bit-num {
+  color: #475569 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-tile-btn {
+  background: #ffffff !important;
+  border: 3px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 6px 0 #94a3b8, 0 8px 18px rgba(0, 0, 0, 0.04) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-tile-btn:hover {
+  background: #f0fdf4 !important;
+  border-color: #16a34a !important;
+  color: #15803d !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 0 #86efac, 0 10px 22px rgba(22, 163, 74, 0.15) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-tile-btn:active {
+  transform: translateY(4px) !important;
+  box-shadow: 0 2px 0 #94a3b8 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-tile-btn.correct {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
+  border-color: #15803d !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 0 #14532d !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-tile-btn.incorrect {
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 100%) !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 0 #991b1b !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .switch-toggle-btn {
+  background: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  color: #475569 !important;
+  box-shadow: 0 4px 0 #94a3b8 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .switch-toggle-btn.active {
+  background: #16a34a !important;
+  border-color: #15803d !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 0 #14532d !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .switchboard-footer {
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .keypad-input-display {
+  background: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .keypad-btn {
+  background: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 0 #94a3b8 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .keypad-btn:hover {
+  border-color: #16a34a !important;
+  color: #15803d !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-math-card {
+  background: #ffffff !important;
+  border: 2.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .math-grid-header-row,
+.bitmaster-arena[data-theme="natural-breeze"] .math-grid-operand-row,
+.bitmaster-arena[data-theme="natural-breeze"] .math-grid-result-cell {
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .math-grid-result-cell {
+  background: #f8fafc !important;
+  border: 2px solid #cbd5e1 !important;
+}
+
+/* Natural Breeze: BitCross */
+.bitmaster-arena[data-theme="natural-breeze"] .bitcross-game-card {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05) !important;
+}
+
 .bitmaster-arena[data-theme="natural-breeze"] .bitcross-title {
   color: #0f172a !important;
   text-shadow: none !important;
 }
 
-.bitmaster-arena[data-theme="natural-breeze"] .title-hero-subtitle,
-.bitmaster-arena[data-theme="natural-breeze"] .topic-hero-desc,
-.bitmaster-arena[data-theme="natural-breeze"] .arcade-game-desc,
-.bitmaster-arena[data-theme="natural-breeze"] .bitpop-target-prompt {
+.bitmaster-arena[data-theme="natural-breeze"] .bitcross-rule-desc {
   color: #475569 !important;
 }
 
-.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-hub-card,
-.bitmaster-arena[data-theme="natural-breeze"] .arcade-game-card,
-.bitmaster-arena[data-theme="natural-breeze"] .bitpop-board-card,
-.bitmaster-arena[data-theme="natural-breeze"] .bitcross-game-card {
-  background: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06) !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-hub-card:hover,
-.bitmaster-arena[data-theme="natural-breeze"] .arcade-game-card:hover {
-  border-color: #16a34a !important;
-  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.15) !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .title-hero-chip {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3) !important;
-}
-
-/* Natural Breeze: BitPop */
-.bitmaster-arena[data-theme="natural-breeze"] .bitpop-target-banner {
-  background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%) !important;
-  border-color: #86efac !important;
-  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.1) !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .bitpop-target-value {
-  color: #15803d !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .bitpop-target-hint {
-  background: rgba(22, 163, 74, 0.15) !important;
-  color: #15803d !important;
-  border-color: rgba(22, 163, 74, 0.3) !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-container {
-  background: #f1f5f9 !important;
-  border-color: #cbd5e1 !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-cell {
-  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 6px 0 #94a3b8 !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-cell:hover:not(.popped) {
-  border-color: #16a34a !important;
-  box-shadow: 0 8px 0 #94a3b8, 0 0 16px rgba(22, 163, 74, 0.25) !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-text {
-  color: #0f172a !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-cell.popped {
-  background: #e2e8f0 !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 2px 0 #94a3b8 !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-cell.popped .bitpop-wrap-text {
-  color: #94a3b8 !important;
-}
-
-/* Natural Breeze: BitCross */
 .bitmaster-arena[data-theme="natural-breeze"] .bitcross-cell {
   background: #ffffff !important;
   border-color: #cbd5e1 !important;
@@ -7299,6 +7604,100 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   border-color: #15803d !important;
   color: #ffffff !important;
   box-shadow: 0 4px 0 #14532d, 0 0 16px rgba(22, 163, 74, 0.35) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitcross-target-val {
+  color: #0f172a !important;
+}
+
+/* Natural Breeze: BitPop */
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-compact-stats {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-stat-item .stat-lbl {
+  color: #64748b !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-stat-item .stat-num {
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-stat-sep {
+  background: #e2e8f0 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-restart-btn {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-restart-btn:hover {
+  border-color: #16a34a !important;
+  color: #15803d !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-target-banner {
+  background: #ffffff !important;
+  border: 2px solid #bbf7d0 !important;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.08) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-target-prompt {
+  color: #15803d !important;
+  font-weight: 800 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-target-value {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-target-hint-tag {
+  background: #dcfce7 !important;
+  color: #15803d !important;
+  border: 1px solid #86efac !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-container {
+  background: #e8eee8 !important;
+  border: 2px solid #cbd5e1 !important;
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-cell {
+  background: #ffffff !important;
+  border: 2.5px solid #cbd5e1 !important;
+  box-shadow: 0 6px 0 #94a3b8, 0 8px 16px rgba(0, 0, 0, 0.05) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-text {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-cell:hover:not(.is-popped) {
+  background: #f0fdf4 !important;
+  border-color: #16a34a !important;
+  box-shadow: 0 8px 0 #86efac, 0 0 16px rgba(22, 163, 74, 0.18) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-cell:active:not(.is-popped) {
+  transform: translateY(4px) !important;
+  box-shadow: 0 2px 0 #94a3b8 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-cell.is-popped {
+  background: #dce3dc !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12) !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .bitpop-wrap-cell.is-popped .bitpop-wrap-text {
+  color: #94a3b8 !important;
 }
 
 /* Natural Breeze: Modals */
@@ -7383,12 +7782,102 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   box-shadow: 0 6px 0 #110c18, 0 0 14px rgba(245, 158, 11, 0.3) !important;
 }
 
+.bitmaster-arena[data-theme="sunset-horizon"] .title-hero-heading {
+  color: #fef08a !important;
+  text-shadow: 0 0 24px rgba(245, 158, 11, 0.5) !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .title-hero-subheading {
+  color: #f43f5e !important;
+}
+
 .bitmaster-arena[data-theme="sunset-horizon"] .title-hero-chip {
   background: linear-gradient(135deg, #f59e0b 0%, #f43f5e 100%) !important;
   box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35) !important;
 }
 
+.bitmaster-arena[data-theme="sunset-horizon"] .title-player-stats {
+  background: #231b34 !important;
+  border: 2px solid #4a3464 !important;
+  box-shadow: 0 4px 0 #110c18 !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .bitmaster-suggested-card {
+  background: linear-gradient(135deg, rgba(35, 27, 52, 0.95) 0%, rgba(28, 21, 39, 0.95) 100%) !important;
+  border: 2px solid #5a3c7a !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .front-topics-eyebrow {
+  color: #f59e0b !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .front-topics-title {
+  color: #ffedd5 !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .bitmaster-topic-card-btn {
+  background: #231b34 !important;
+  border: 2px solid #4a3464 !important;
+  box-shadow: 0 5px 0 #110c18 !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .bitmaster-topic-card-btn:hover {
+  border-color: #f59e0b !important;
+  box-shadow: 0 8px 0 #110c18, 0 0 20px rgba(245, 158, 11, 0.3) !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .topic-card-name {
+  color: #ffedd5 !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .bitmaster-stage-card,
+.bitmaster-arena[data-theme="sunset-horizon"] .bitmaster-level-card {
+  background: linear-gradient(180deg, #2b203c 0%, #1e162a 100%) !important;
+  border-color: #553e74 !important;
+  box-shadow: 0 5px 0 #110c18 !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .bitmaster-stage-card:hover,
+.bitmaster-arena[data-theme="sunset-horizon"] .bitmaster-level-card:hover {
+  border-color: #f59e0b !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .stage-card-title,
+.bitmaster-arena[data-theme="sunset-horizon"] .level-card-name {
+  color: #ffedd5 !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .bitmaster-challenge-card {
+  background: #20172e !important;
+  border-color: #4a3464 !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .challenge-prompt {
+  color: #fed7aa !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .challenge-display {
+  color: #fef08a !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .bitmaster-tile-btn {
+  background: linear-gradient(180deg, #2c203d 0%, #1c1527 100%) !important;
+  border-color: #f59e0b !important;
+  color: #ffedd5 !important;
+  box-shadow: 0 6px 0 #110c18, 0 8px 18px rgba(0, 0, 0, 0.5) !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .bitmaster-tile-btn:hover {
+  border-color: #fbbf24 !important;
+  box-shadow: 0 8px 0 #110c18, 0 0 16px rgba(245, 158, 11, 0.35) !important;
+}
+
 /* Sunset Horizon: BitPop */
+.bitmaster-arena[data-theme="sunset-horizon"] .bitpop-compact-stats {
+  background: #20172e !important;
+  border-color: #4a3464 !important;
+}
+
 .bitmaster-arena[data-theme="sunset-horizon"] .bitpop-target-banner {
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(244, 63, 94, 0.16) 100%) !important;
   border-color: #f59e0b !important;
@@ -7400,7 +7889,7 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   text-shadow: 0 0 16px rgba(245, 158, 11, 0.6) !important;
 }
 
-.bitmaster-arena[data-theme="sunset-horizon"] .bitpop-target-hint {
+.bitmaster-arena[data-theme="sunset-horizon"] .bitpop-target-hint-tag {
   background: rgba(245, 158, 11, 0.2) !important;
   color: #fbbf24 !important;
   border-color: rgba(245, 158, 11, 0.4) !important;
@@ -7413,9 +7902,15 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   box-shadow: 0 6px 0 #110c18 !important;
 }
 
-.bitmaster-arena[data-theme="sunset-horizon"] .bitpop-wrap-cell:hover:not(.popped) {
+.bitmaster-arena[data-theme="sunset-horizon"] .bitpop-wrap-cell:hover:not(.is-popped) {
   border-color: #f59e0b !important;
   box-shadow: 0 8px 0 #110c18, 0 0 16px rgba(245, 158, 11, 0.35) !important;
+}
+
+.bitmaster-arena[data-theme="sunset-horizon"] .bitpop-wrap-cell.is-popped {
+  background: #140e1d !important;
+  border-color: #38294c !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5) !important;
 }
 
 /* Sunset Horizon: BitCross */
@@ -7432,5 +7927,6 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   border-color: #4a3464 !important;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85) !important;
 }
+
 
 
