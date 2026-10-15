@@ -17,8 +17,8 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="../../shared/styles.css?v=2.3.0">
-  <link rel="stylesheet" href="./style.css?v=2.3.0">
+  <link rel="stylesheet" href="../../shared/styles.css?v=2.4.0">
+  <link rel="stylesheet" href="./style.css?v=2.4.0">
 
   <script>
     // Immediate theme initialization to prevent flash
@@ -220,22 +220,20 @@
             </div>
 
             <h1 class="title-hero-heading">BitMaster</h1>
-            <div class="title-hero-subheading">Binary &amp; Hex Trainer</div>
 
             <div class="title-player-stats" id="bitmasterTitleStatsPreview">
-              <div class="title-stat-item">
-                <span class="title-stat-label">Current Rank</span>
+              <div class="title-stat-rank-box">
+                <span class="title-stat-label">RANK</span>
                 <span class="title-stat-value text-cyan" id="bitmasterTitleRankName">Logic Novice</span>
               </div>
-              <div class="title-stat-divider"></div>
-              <div class="title-stat-item">
-                <span class="title-stat-label">Stars Cleared</span>
-                <span class="title-stat-value text-amber" id="bitmasterTitleStarsCount">0 / 219 ⭐</span>
-              </div>
-              <div class="title-stat-divider"></div>
-              <div class="title-stat-item">
-                <span class="title-stat-label">Total Score</span>
-                <span class="title-stat-value text-pink" id="bitmasterTitleXpCount">0 pts</span>
+              <div class="title-stat-pill-group">
+                <div class="title-stat-badge title-stat-stars">
+                  <span class="stat-badge-icon">⭐</span>
+                  <span id="bitmasterTitleStarsCount">0 / 219</span>
+                </div>
+                <div class="title-stat-badge title-stat-score">
+                  <span id="bitmasterTitleXpCount">0 pts</span>
+                </div>
               </div>
             </div>
 
@@ -249,7 +247,6 @@
             <!-- 6 BIG BOLD TOPIC BUTTONS -->
             <div class="bitmaster-front-topics-wrap" id="bitmasterFrontTopicsWrap">
               <div class="front-topics-header">
-                <span class="front-topics-eyebrow">CHOOSE YOUR TRAINING DOMAIN</span>
                 <h3 class="front-topics-title">Select a Topic</h3>
               </div>
               <div class="bitmaster-front-topics-grid" id="bitmasterFrontTopicsGrid">
@@ -260,7 +257,6 @@
             <!-- ARCADE & PUZZLE GAMES (Streamlined cards matching topic buttons) -->
             <div class="bitmaster-front-arcade-wrap" id="bitmasterFrontArcadeWrap">
               <div class="front-topics-header" style="margin-top: 26px;">
-                <span class="front-topics-eyebrow">ARCADE LOGIC &amp; PUZZLES</span>
                 <h3 class="front-topics-title">Arcade Games</h3>
               </div>
               <div class="bitmaster-front-topics-grid bitmaster-front-arcade-grid" id="bitmasterFrontArcadeGrid">
@@ -282,71 +278,22 @@
           </div>
         </div>
 
-        <!-- SCREEN 1: STAGE SELECTION -->
+        <!-- SCREEN 1: TOPIC LEVELS SELECTION (Stages as Subtitles) -->
         <div id="bitmasterScreenStages" class="bitmaster-screen">
-          <!-- Rank Profile Panel (Clickable to view next rank and reset scores) -->
-          <div class="bitmaster-rank-card" id="bitmasterRankCard" title="Click to view rank progression &amp; reset scores">
-            <div class="bitmaster-rank-avatar" id="bitmasterAvatarIcon">
-              <div class="bitmaster-avatar-media hud-avatar">
-                <img src="assets/avatars/avatar_tier01_logic_novice.png"
-                     alt="Logic Novice"
-                     class="bitmaster-avatar-img"
-                     data-avatar-key="avatar_tier01_logic_novice"
-                     data-candidates="assets/avatars/avatar_tier01_logic_novice.png|assets/avatars/avatar_tier01_logic_novice.jpeg|assets/avatars/avatar_tier01_logic_novice.jpg|assets/avatars/avatar_tier01_logic_novice (Custom).jpeg|modules/binary-numbers/assets/avatars/avatar_tier01_logic_novice.png|modules/binary-numbers/assets/avatars/avatar_tier01_logic_novice.jpeg"
-                     data-cand-idx="0"
-                     onload="window.handleBitmasterAvatarLoad(this)"
-                     onerror="window.handleBitmasterAvatarError(this)" />
-                <div class="bitmaster-avatar-fallback" style="display:none;">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M15 9h.01"/><path d="M9 15h6"/></svg>
-                </div>
-              </div>
-            </div>
-            <div class="bitmaster-rank-details">
-              <div class="bitmaster-rank-header">
-                <div>
-                  <span class="rank-eyebrow">RANK</span>
-                  <div class="bitmaster-rank-title" id="bitmasterRankTitle">Logic Novice</div>
-                </div>
-                <div class="bitmaster-xp-label" id="bitmasterXpLabel">0 / 200 XP</div>
-              </div>
-              <div class="bitmaster-xp-track">
-                <div class="bitmaster-xp-fill" id="bitmasterXpBarFill" style="width: 0%;"></div>
-              </div>
-            </div>
-            <div class="rank-card-tap-arrow" title="View Rank Progression">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-            </div>
-          </div>
-
-          <!-- Topic Title Banner -->
-          <div class="bitmaster-stages-topic-header">
-            <h2 class="stages-topic-title" id="bitmasterStagesTopicTitle">Binary</h2>
-          </div>
-
-          <!-- Stages Grid (Renders ONLY the stages for the selected topic) -->
-          <div class="bitmaster-stages-grid" id="bitmasterStagesGrid">
-            <!-- Rendered by BitMaster engine -->
-          </div>
-
-          <!-- Bottom Back Button -->
-          <div class="bitmaster-screen-bottom-nav">
-            <button type="button" class="bitmaster-bottom-back-btn" id="bitmasterStagesBottomBackBtn">
+          <div class="topic-levels-header-bar">
+            <button type="button" class="bitmaster-top-back-btn" id="bitmasterTopicTopBackBtn" title="Back to Topics">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-              <span>Back to Topics</span>
+              <span>Topics</span>
             </button>
-          </div>
-        </div>
-
-        <!-- SCREEN 2: LEVEL SELECT -->
-        <div id="bitmasterScreenLevels" class="bitmaster-screen">
-          <div class="levels-header-banner">
-            <div id="bitmasterStageHeaderIcon" class="stage-header-icon">💾</div>
-            <h2 id="bitmasterStageHeaderTitle">Stage 1: The 4-Bit Nibble</h2>
-            <p id="bitmasterStageHeaderDesc">4-Bit Binary &amp; Denary Mastery (0–15)</p>
+            <div class="topic-levels-header-title-wrap">
+              <span class="topic-levels-tag" id="bitmasterStagesTopicTag">TOPIC 01</span>
+              <h2 class="stages-topic-title" id="bitmasterStagesTopicTitle">Binary</h2>
+            </div>
+            <div class="topic-levels-header-spacer"></div>
           </div>
 
           <!-- Mode Switcher: 10 Questions vs 60s Speed Sprint -->
-          <div class="bitmaster-mode-selector-wrap">
+          <div class="bitmaster-mode-selector-wrap" style="margin: 14px auto;">
             <div class="bitmaster-mode-toggle-group" role="tablist" aria-label="Game Mode">
               <button type="button" class="bitmaster-mode-pill active" id="bitmasterModeBtn10Q" data-mode="10q" role="tab" aria-selected="true">
                 <span class="mode-pill-icon">
@@ -364,7 +311,7 @@
           </div>
 
           <!-- Compact Star Rating Info Trigger Button -->
-          <div class="bitmaster-criteria-trigger-row">
+          <div class="bitmaster-criteria-trigger-row" style="margin-bottom: 16px;">
             <button type="button" class="bitmaster-criteria-btn" id="bitmasterStarCriteriaBtn">
               <span>⭐</span>
               <span>How Scoring, Stars &amp; Medals Work</span>
@@ -372,21 +319,43 @@
             </button>
           </div>
 
-          <div class="bitmaster-levels-list" id="bitmasterLevelsList">
-            <!-- Rendered dynamically -->
+          <!-- Stages & Levels List (Stages rendered as section subtitles, with levels directly underneath) -->
+          <div class="bitmaster-topic-levels-container" id="bitmasterStagesGrid">
+            <!-- Rendered by BitMaster engine -->
           </div>
 
           <!-- Bottom Back Button -->
           <div class="bitmaster-screen-bottom-nav">
+            <button type="button" class="bitmaster-bottom-back-btn" id="bitmasterStagesBottomBackBtn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              <span>Back to Topics</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SCREEN 2: LEVEL SELECT (Maintained for backward-compatible fallback) -->
+        <div id="bitmasterScreenLevels" class="bitmaster-screen" style="display: none;">
+          <div class="levels-header-banner">
+            <div id="bitmasterStageHeaderIcon" class="stage-header-icon">💾</div>
+            <h2 id="bitmasterStageHeaderTitle">Stage 1: The 4-Bit Nibble</h2>
+            <p id="bitmasterStageHeaderDesc">4-Bit Binary &amp; Denary Mastery (0–15)</p>
+          </div>
+          <div class="bitmaster-levels-list" id="bitmasterLevelsList"></div>
+          <div class="bitmaster-screen-bottom-nav">
             <button type="button" class="bitmaster-bottom-back-btn" id="bitmasterLevelsBottomBackBtn">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-              <span>Back to Stages</span>
+              <span>Back to Topics</span>
             </button>
           </div>
         </div>
 
         <!-- SCREEN 3: ACTIVE GAME ARENA -->
         <div id="bitmasterScreenGame" class="bitmaster-screen">
+          <!-- Quick 3, 2, 1 Countdown Overlay -->
+          <div id="bitmasterCountdownOverlay" class="bitmaster-countdown-overlay" style="display: none;">
+            <div class="countdown-badge">GET READY!</div>
+            <div id="bitmasterCountdownNum" class="countdown-num">3</div>
+          </div>
           <div class="game-hud-subbar">
             <span id="bitmasterActiveStageBadge" class="badge badge-paper1">Stage 1 &bull; Level 1</span>
             <div class="game-hud-metrics">
@@ -2554,7 +2523,7 @@
   </footer>
 
   <!-- Shared & Module Scripts -->
-  <script src="../../shared/nav.js?v=2.3.0"></script>
-  <script src="./app.js?v=2.3.0"></script>
+  <script src="../../shared/nav.js?v=2.4.0"></script>
+  <script src="./app.js?v=2.4.0"></script>
 </body>
 </html>

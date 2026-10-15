@@ -2484,7 +2484,7 @@
       id: 4,
       name: "Signed Numbers",
       shortName: "Signed",
-      heroCode: "± Signed",
+      heroCode: "± -128",
       tag: "TOPIC 04",
       accent: "#06b6d4",
       glow: "rgba(6, 182, 212, 0.28)",
@@ -3305,22 +3305,16 @@
     cardContainer.innerHTML = `
       <div class="suggested-card-inner" style="--topic-accent: ${topic.accent}; --topic-glow: ${topic.glow};">
         <div class="suggested-card-left">
-          <div class="suggested-badge-row">
-            <span class="suggested-tag-pill">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block; vertical-align:-1px; margin-right:4px;"><polygon points="5 3 19 12 5 21 5 3"/></svg>RECOMMENDED
-            </span>
-            <span class="suggested-reason-pill">${suggested.reason}</span>
-            <span class="suggested-stars-badge">${starIcons} (${suggested.stars}/3)</span>
-          </div>
-          <div class="suggested-title-row">
-            <span class="suggested-stage-label">${stage.shortTitle}:</span>
-            <span class="suggested-level-name">${lvl.name || lvl.title || 'Start'}</span>
-          </div>
+          <div class="suggested-stage-label">${stage.shortTitle || stage.title}</div>
+          <div class="suggested-level-name">${lvl.name || lvl.title || 'Start'}</div>
         </div>
-        <button type="button" class="control-btn control-btn-primary suggested-action-btn">
-          <span>Play Level</span>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+        <div class="suggested-card-right">
+          <div class="suggested-stars-badge">${starIcons}</div>
+          <button type="button" class="control-btn control-btn-primary suggested-action-btn">
+            <span>Play Level</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
       </div>
     `;
 
@@ -3328,17 +3322,17 @@
     const startHandler = (e) => {
       if (e) e.stopPropagation();
       playSynthSound('tap');
-      bitmasterState.selectedStage = stage;
-      bitmasterState.selectedLevel = lvl;
+      bitmasterState.activeStage = stage.id;
+      bitmasterState.activeLevel = lvl.id;
       bitmasterState.selectedTopicFilter = String(stage.topicId);
-      startBitmasterRound(stage, lvl);
+      startBitmasterRound();
     };
 
     if (playBtn) playBtn.addEventListener('click', startHandler);
     cardContainer.onclick = startHandler;
   }
 
-  // Render the 6 Big Bold Topic Buttons on the Front Menu (as sketched)
+  // Render the 6 Full-Width Topic Cards on the Front Menu
   function renderBitmasterFrontTopics() {
     const grid = document.getElementById('bitmasterFrontTopicsGrid');
     if (!grid) return;
@@ -3348,24 +3342,37 @@
       const topicStages = BITMASTER_STAGES.filter(s => s.topicId === topic.id);
       let topicEarnedStars = 0;
       let topicMaxStars = 0;
+      let totalLevels = 0;
 
       topicStages.forEach(s => {
         s.levels.forEach(lvl => {
           topicEarnedStars += (bitmasterState.stars[`s${s.id}_l${lvl.id}`] || 0);
           topicMaxStars += 3;
+          totalLevels++;
         });
       });
 
+      const pct = topicMaxStars > 0 ? Math.round((topicEarnedStars / topicMaxStars) * 100) : 0;
+
       const card = document.createElement('div');
-      card.className = 'bitmaster-topic-card-btn';
+      card.className = 'bitmaster-topic-card-btn bitmaster-topic-fullwidth-btn';
       card.setAttribute('data-topic-id', topic.id);
       card.style.setProperty('--topic-accent', topic.accent);
       card.style.setProperty('--topic-glow', topic.glow);
 
       card.innerHTML = `
-        <div class="topic-card-stars-pill">${topicEarnedStars}/${topicMaxStars} ⭐</div>
-        <div class="topic-card-code-hero">${topic.heroCode}</div>
-        <div class="topic-card-name">${topic.shortName}</div>
+        <div class="topic-card-hero-box">${topic.heroCode}</div>
+        <div class="topic-card-body">
+          <div class="topic-card-name">${topic.name || topic.shortName}</div>
+          <div class="topic-card-meta">${topicStages.length} Stages • ${totalLevels} Levels</div>
+        </div>
+        <div class="topic-card-right">
+          <div class="topic-card-stars-pill">${topicEarnedStars}/${topicMaxStars} ⭐</div>
+          <div class="topic-card-chevron">›</div>
+        </div>
+        <div class="topic-card-progress-bar">
+          <div class="topic-card-progress-fill" style="width: ${pct}%;"></div>
+        </div>
       `;
 
       card.addEventListener('click', () => {
@@ -3379,7 +3386,7 @@
     });
   }
 
-  // Renders ONLY the stages for the currently selected topic (clean, uncluttered view)
+  // Renders the Topic view: Stages as Subtitles with Levels directly underneath!
   function renderBitmasterStagesGrid() {
     const grid = document.getElementById('bitmasterStagesGrid');
     if (!grid) return;
@@ -3391,15 +3398,65 @@
     // Identify active topic
     const activeTopic = BITMASTER_TOPICS.find(t => String(t.id) === String(currentFilter)) || BITMASTER_TOPICS[0];
 
-    // Update topic title in the Stages screen header
+    // Update topic title and tag in the Stages screen header
     const topicTitleEl = document.getElementById('bitmasterStagesTopicTitle');
+    const topicTagEl = document.getElementById('bitmasterStagesTopicTag');
     if (topicTitleEl) {
-      topicTitleEl.textContent = activeTopic.shortName;
+      topicTitleEl.textContent = activeTopic.name || activeTopic.shortName;
       topicTitleEl.style.textShadow = `0 0 20px ${activeTopic.glow}`;
     }
+    if (topicTagEl) {
+      topicTagEl.textContent = activeTopic.tag || 'TOPIC';
+      topicTagEl.style.color = activeTopic.accent;
+    }
 
-    // Render stages for ONLY this topic (clean 3-4 cards!)
+    // Attach Top Back Button handler (returns to Topic Selection / Title Screen)
+    const topBackBtn = document.getElementById('bitmasterTopicTopBackBtn');
+    if (topBackBtn && !topBackBtn.dataset.bmBound) {
+      topBackBtn.dataset.bmBound = 'true';
+      topBackBtn.addEventListener('click', () => {
+        playSynthSound('click');
+        showBitmasterScreen('title');
+      });
+    }
+
+    // Attach Mode Switchers (10Q vs 60s Speed Sprint)
+    const btn10Q = document.getElementById('bitmasterModeBtn10Q');
+    const btnSprint = document.getElementById('bitmasterModeBtnSprint');
+    if (btn10Q && !btn10Q.dataset.bmBound) {
+      btn10Q.dataset.bmBound = 'true';
+      btn10Q.addEventListener('click', () => {
+        bitmasterState.selectedGameMode = '10q';
+        playSynthSound('tap');
+        renderBitmasterStagesGrid();
+      });
+    }
+    if (btnSprint && !btnSprint.dataset.bmBound) {
+      btnSprint.dataset.bmBound = 'true';
+      btnSprint.addEventListener('click', () => {
+        bitmasterState.selectedGameMode = 'sprint';
+        playSynthSound('tap');
+        renderBitmasterStagesGrid();
+      });
+    }
+    if (btn10Q) btn10Q.classList.toggle('active', bitmasterState.selectedGameMode === '10q');
+    if (btnSprint) btnSprint.classList.toggle('active', bitmasterState.selectedGameMode === 'sprint');
+
+    // Attach Scoring Criteria Modal Trigger
+    const starCriteriaBtn = document.getElementById('bitmasterStarCriteriaBtn');
+    if (starCriteriaBtn && !starCriteriaBtn.dataset.bmBound) {
+      starCriteriaBtn.dataset.bmBound = 'true';
+      starCriteriaBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        const modal = document.getElementById('bitmasterStarModal');
+        if (modal) modal.style.display = 'flex';
+      });
+    }
+
+    // Render each stage as a subtitle section, followed directly by its levels!
     const topicStages = BITMASTER_STAGES.filter(s => s.topicId === activeTopic.id);
+    const isSprint = (bitmasterState.selectedGameMode === 'sprint');
+
     topicStages.forEach(stage => {
       let stageStars = 0;
       stage.levels.forEach(lvl => {
@@ -3407,30 +3464,69 @@
       });
       const maxStars = stage.levels.length * 3;
 
-      const card = document.createElement('div');
-      card.className = 'bitmaster-stage-card';
-      card.setAttribute('data-stage', stage.id);
-      card.innerHTML = `
-        <div class="stage-card-badge stage-badge-s${stage.id}">
-          <span class="stage-card-icon">${stage.svgIcon}</span>
-        </div>
-        <div class="stage-card-info">
-          <div class="stage-card-header-row">
-            <span class="stage-card-tag">STAGE ${String(stage.id).padStart(2, '0')}</span>
-            <span class="stage-card-stars">${stageStars}/${maxStars} ⭐</span>
-          </div>
-          <div class="stage-card-title">${stage.shortTitle}</div>
-          <div class="stage-card-subtitle">${stage.subtitle}</div>
-        </div>
-      `;
+      // Section Wrapper
+      const section = document.createElement('div');
+      section.className = 'bitmaster-stage-section';
 
-      card.addEventListener('click', () => {
-        bitmasterState.activeStage = stage.id;
-        playSynthSound('click');
-        showBitmasterScreen('levels');
+      // Section Header (Subtitle divider)
+      const header = document.createElement('div');
+      header.className = 'stage-section-header';
+      header.innerHTML = `
+        <div class="stage-section-left">
+          <span class="stage-section-badge stage-badge-s${stage.id}">${stage.svgIcon}</span>
+          <div class="stage-section-info">
+            <div class="stage-section-title">STAGE ${String(stage.id).padStart(2, '0')}: ${stage.shortTitle || stage.title}</div>
+            <div class="stage-section-desc">${stage.subtitle}</div>
+          </div>
+        </div>
+        <div class="stage-section-stars">${stageStars}/${maxStars} ⭐</div>
+      `;
+      section.appendChild(header);
+
+      // Group of Levels directly beneath this Stage subtitle
+      const levelsGroup = document.createElement('div');
+      levelsGroup.className = 'stage-levels-group';
+
+      stage.levels.forEach(lvl => {
+        const lvlKey = `s${stage.id}_l${lvl.id}`;
+        const stars = bitmasterState.stars[lvlKey] || 0;
+        const starIcons = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+        const record = bitmasterState.levelRecords[lvlKey] || {};
+        const metaText = isSprint 
+          ? (record.sprintSolved !== undefined ? `Best: ${record.sprintSolved} solved` : lvl.desc)
+          : (record.bestScore !== undefined ? `Best: ${record.bestScore} pts` : lvl.desc);
+
+        const row = document.createElement('div');
+        row.className = 'bitmaster-level-row';
+        row.setAttribute('data-stage', stage.id);
+        row.setAttribute('data-level', lvl.id);
+
+        row.innerHTML = `
+          <div class="level-row-left">
+            <span class="level-row-num">${lvl.id}</span>
+            <div class="level-row-info">
+              <div class="level-row-title">${lvl.name || lvl.title}</div>
+              <div class="level-row-desc">${metaText || ''}</div>
+            </div>
+          </div>
+          <div class="level-row-right">
+            <div class="level-row-stars ${stars > 0 ? 'has-stars' : ''}">${starIcons}</div>
+            <button type="button" class="level-row-play-btn">PLAY</button>
+          </div>
+        `;
+
+        row.addEventListener('click', () => {
+          bitmasterState.activeStage = stage.id;
+          bitmasterState.activeLevel = lvl.id;
+          playSynthSound('tap');
+          startBitmasterRound();
+        });
+
+        levelsGroup.appendChild(row);
       });
 
-      grid.appendChild(card);
+      section.appendChild(levelsGroup);
+      grid.appendChild(section);
     });
   }
 
@@ -6296,7 +6392,18 @@
   // ROUND MANAGEMENT & GAMEPLAY
   // =========================================================================
 
+  let bitmasterCountdownTimeouts = [];
+
+  function clearBitmasterCountdown() {
+    bitmasterCountdownTimeouts.forEach(t => clearTimeout(t));
+    bitmasterCountdownTimeouts = [];
+    const overlay = document.getElementById('bitmasterCountdownOverlay');
+    if (overlay) overlay.style.display = 'none';
+  }
+
   function startBitmasterRound() {
+    clearBitmasterCountdown();
+
     const stage = BITMASTER_STAGES.find(s => s.id === bitmasterState.activeStage);
     const level = stage.levels.find(l => l.id === bitmasterState.activeLevel);
     const isSprint = (bitmasterState.selectedGameMode === 'sprint');
@@ -6306,7 +6413,6 @@
     bitmasterState.mistakesThisRound = 0;
     bitmasterState.currentQuestionMistakes = 0;
     bitmasterState.correctThisRound = 0;
-    bitmasterState.startTime = Date.now();
     bitmasterState.elapsedSeconds = 0;
     bitmasterState.sprintTimeLeft = 60;
     bitmasterState.totalQuestions = isSprint ? 999 : 10;
@@ -6336,31 +6442,10 @@
       barEl.style.width = isSprint ? '0%' : '10%';
     }
 
-    if (bitmasterState.timerInterval) clearInterval(bitmasterState.timerInterval);
-    bitmasterState.timerInterval = setInterval(() => {
-      if (bitmasterState.isSprint) {
-        bitmasterState.sprintTimeLeft--;
-        const secs = Math.max(0, bitmasterState.sprintTimeLeft);
-        if (timerEl) {
-          timerEl.textContent = `⏱️ 0:${secs.toString().padStart(2, '0')}`;
-          if (secs <= 10) timerEl.classList.add('sprint-low');
-        }
-        if (barEl) {
-          barEl.style.width = `${Math.min(100, Math.round(((60 - secs) / 60) * 100))}%`;
-        }
-        if (bitmasterState.sprintTimeLeft <= 0) {
-          clearInterval(bitmasterState.timerInterval);
-          bitmasterState.timerInterval = null;
-          finishBitmasterRound();
-          return;
-        }
-      } else {
-        bitmasterState.elapsedSeconds = Math.floor((Date.now() - bitmasterState.startTime) / 1000);
-        const mins = Math.floor(bitmasterState.elapsedSeconds / 60);
-        const secs = (bitmasterState.elapsedSeconds % 60).toString().padStart(2, '0');
-        if (timerEl) timerEl.textContent = `⏱️ ${mins}:${secs}`;
-      }
-    }, 1000);
+    if (bitmasterState.timerInterval) {
+      clearInterval(bitmasterState.timerInterval);
+      bitmasterState.timerInterval = null;
+    }
 
     const badgeEl = document.getElementById('bitmasterActiveStageBadge');
     if (badgeEl) {
@@ -6370,7 +6455,74 @@
     }
 
     showBitmasterScreen('game');
-    loadNextBitmasterQuestion();
+
+    // Quick 3, 2, 1, GO Countdown Overlay before round begins!
+    const overlay = document.getElementById('bitmasterCountdownOverlay');
+    const numEl = document.getElementById('bitmasterCountdownNum');
+
+    function beginActualPlay() {
+      clearBitmasterCountdown();
+      bitmasterState.startTime = Date.now();
+      bitmasterState.timerInterval = setInterval(() => {
+        if (bitmasterState.isSprint) {
+          bitmasterState.sprintTimeLeft--;
+          const secs = Math.max(0, bitmasterState.sprintTimeLeft);
+          if (timerEl) {
+            timerEl.textContent = `⏱️ 0:${secs.toString().padStart(2, '0')}`;
+            if (secs <= 10) timerEl.classList.add('sprint-low');
+          }
+          if (barEl) {
+            barEl.style.width = `${Math.min(100, Math.round(((60 - secs) / 60) * 100))}%`;
+          }
+          if (bitmasterState.sprintTimeLeft <= 0) {
+            clearInterval(bitmasterState.timerInterval);
+            bitmasterState.timerInterval = null;
+            finishBitmasterRound();
+            return;
+          }
+        } else {
+          bitmasterState.elapsedSeconds = Math.floor((Date.now() - bitmasterState.startTime) / 1000);
+          const mins = Math.floor(bitmasterState.elapsedSeconds / 60);
+          const secs = (bitmasterState.elapsedSeconds % 60).toString().padStart(2, '0');
+          if (timerEl) timerEl.textContent = `⏱️ ${mins}:${secs}`;
+        }
+      }, 1000);
+
+      loadNextBitmasterQuestion();
+    }
+
+    if (overlay && numEl) {
+      overlay.style.display = 'flex';
+      numEl.textContent = '3';
+      numEl.className = 'countdown-num pop-anim';
+      playSynthSound('click');
+
+      const t1 = setTimeout(() => {
+        numEl.textContent = '2';
+        numEl.className = 'countdown-num pop-anim';
+        playSynthSound('click');
+      }, 380);
+
+      const t2 = setTimeout(() => {
+        numEl.textContent = '1';
+        numEl.className = 'countdown-num pop-anim';
+        playSynthSound('click');
+      }, 760);
+
+      const t3 = setTimeout(() => {
+        numEl.textContent = 'GO!';
+        numEl.className = 'countdown-num pop-anim countdown-go';
+        playSynthSound('correct');
+      }, 1140);
+
+      const t4 = setTimeout(() => {
+        beginActualPlay();
+      }, 1480);
+
+      bitmasterCountdownTimeouts = [t1, t2, t3, t4];
+    } else {
+      beginActualPlay();
+    }
   }
 
   function updateBitmasterMistakeCounter() {
@@ -6545,7 +6697,13 @@
     if (isCorrect) {
       const allButtons = document.querySelectorAll('.bitmaster-tile-btn');
       allButtons.forEach(b => b.style.pointerEvents = 'none');
-      clickedBtn.classList.add('correct');
+      clickedBtn.classList.add('correct', 'correct-flash');
+
+      const tick = document.createElement('span');
+      tick.className = 'bm-correct-tick-badge';
+      tick.innerHTML = '&#10003;';
+      clickedBtn.appendChild(tick);
+
       playSynthSound('correct');
       bitmasterState.correctThisRound++;
       const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 15 : 5;
@@ -7667,7 +7825,8 @@
     };
     if (contBtn) contBtn.onclick = () => {
       playSynthSound('tap');
-      showBitmasterScreen('levels');
+      renderBitmasterStagesGrid();
+      showBitmasterScreen('stages');
     };
   }
 
@@ -8619,7 +8778,8 @@
         playSynthSound('tap');
         hideBitmasterAbandonModal();
         if (bitmasterState.timerInterval) clearInterval(bitmasterState.timerInterval);
-        showBitmasterScreen('levels');
+        renderBitmasterStagesGrid();
+        showBitmasterScreen('stages');
       });
     }
 
@@ -8813,7 +8973,8 @@
       } else if (activeScreen && activeScreen.id === 'bitmasterScreenBitPop') {
         exitBitPop();
       } else if (activeScreen && activeScreen.id === 'bitmasterScreenSummary') {
-        showBitmasterScreen('levels');
+        renderBitmasterStagesGrid();
+        showBitmasterScreen('stages');
       } else if (activeScreen && activeScreen.id === 'bitmasterScreenLevels') {
         showBitmasterScreen('stages');
       } else if (activeScreen && activeScreen.id === 'bitmasterScreenStages') {
