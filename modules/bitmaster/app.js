@@ -394,10 +394,12 @@
       color: "#8b5cf6",
       levels: [
         { id: 1, name: "4-Bit Nibble (Assisted)", mode: "mc_nibble_bin2den_assisted", desc: "4-Bit Binary to Denary with weights (8 • 4 • 2 • 1) displayed above bits" },
-        { id: 2, name: "4-Bit Nibble (Unassisted Keypad)", mode: "mc_nibble_bin2den_unassisted", desc: "4-Bit Binary to Denary: type exact value on the numpad" },
-        { id: 3, name: "8-Bit Byte (Assisted)", mode: "mc_byte_bin2den_assisted", desc: "8-Bit Binary to Denary with weights (128..1) displayed above bits" },
-        { id: 4, name: "8-Bit Byte (Unassisted Keypad)", mode: "mc_byte_bin2den_unassisted", desc: "Full 8-Bit Binary to Denary: type exact value on the numpad" },
-        { id: 5, name: "Mixed Bi-Directional", mode: "mixed_bin_den", desc: "Rapid mix of Binary → Denary and Denary → Binary!" }
+        { id: 2, name: "4-Bit Nibble (Unassisted)", mode: "mc_nibble_bin2den_unassisted", desc: "4-Bit Binary to Denary with place values removed (Mental conversion)" },
+        { id: 3, name: "4-Bit Nibble (Keypad Challenge)", mode: "keypad_nibble_bin2den", desc: "4-Bit Binary to Denary: type exact value on the numpad" },
+        { id: 4, name: "8-Bit Byte (Assisted)", mode: "mc_byte_bin2den_assisted", desc: "8-Bit Binary to Denary with weights (128..1) displayed above bits" },
+        { id: 5, name: "8-Bit Byte (Unassisted)", mode: "mc_byte_bin2den_unassisted", desc: "Full 8-Bit Binary to Denary without scaffolding (Mental conversion)" },
+        { id: 6, name: "8-Bit Byte (Keypad Challenge)", mode: "keypad_byte_bin2den", desc: "Full 8-Bit Binary to Denary: type exact value on the numpad" },
+        { id: 7, name: "Mixed Bi-Directional", mode: "mixed_bin_den", desc: "Rapid mix of Binary → Denary and Denary → Binary!" }
       ]
     },
 
@@ -429,10 +431,13 @@
       color: "#f59e0b",
       levels: [
         { id: 1, name: "1-Digit Hex to Denary (Assisted)", mode: "mc_hex_nibble_to_den_assisted", desc: "Convert 0x0 to 0xF directly to Denary (0 to 15) with helper" },
-        { id: 2, name: "1-Digit Hex to Denary (Keypad)", mode: "mc_hex_nibble_to_den_unassisted", desc: "Convert 0x0 to 0xF directly: type exact Denary value on numpad" },
-        { id: 3, name: "2-Digit Hex to Denary (Assisted)", mode: "mc_hex_byte_assisted", desc: "Convert 0x00 to 0xFF to Denary with (16 × High + Low) helper" },
-        { id: 4, name: "2-Digit Hex to Denary (Keypad)", mode: "mc_hex_byte_unassisted", desc: "Convert 0x00 to 0xFF to Denary: type exact number on numpad" },
-        { id: 5, name: "Denary to Hex (Hexpad)", mode: "mc_den_to_hex", desc: "Convert Denary numbers to Hex: type exact 2-digit hex on hexpad" }
+        { id: 2, name: "1-Digit Hex to Denary (Unassisted)", mode: "mc_hex_nibble_to_den_unassisted", desc: "Convert 0x0 to 0xF directly to Denary (pure mental recall)" },
+        { id: 3, name: "1-Digit Hex to Denary (Keypad)", mode: "keypad_hex_nibble_to_den", desc: "Convert 0x0 to 0xF directly: type exact Denary value on numpad" },
+        { id: 4, name: "2-Digit Hex to Denary (Assisted)", mode: "mc_hex_byte_assisted", desc: "Convert 0x00 to 0xFF to Denary with (16 × High + Low) helper" },
+        { id: 5, name: "2-Digit Hex to Denary (Unassisted)", mode: "mc_hex_byte_unassisted", desc: "Convert 0x00 to 0xFF to Denary without assistance" },
+        { id: 6, name: "2-Digit Hex to Denary (Keypad)", mode: "keypad_hex_byte_to_den", desc: "Convert 0x00 to 0xFF to Denary: type exact number on numpad" },
+        { id: 7, name: "Denary to Hex", mode: "mc_den_to_hex", desc: "Convert Denary numbers back into Hexadecimal (e.g. 171 → 0xAB)" },
+        { id: 8, name: "Denary to Hex (Hexpad)", mode: "keypad_den_to_hex", desc: "Convert Denary numbers to Hex: type exact 2-digit hex on hexpad" }
       ]
     },
     {
@@ -445,8 +450,9 @@
       color: "#a855f7",
       levels: [
         { id: 1, name: "Hex ↔ Binary", mode: "hex_mixed_bin", desc: "Bi-directional Hex & Binary conversions (with 0x)" },
-        { id: 2, name: "Hex ↔ Denary (Keypad)", mode: "hex_mixed_den", desc: "Bi-directional Hex & Denary conversions: type exact values on keypad" },
-        { id: 3, name: "Tri-Directional Blitz", mode: "hex_tri_mixed", desc: "Master Blitz: Hex ↔ Binary ↔ Denary all mixed together!" }
+        { id: 2, name: "Hex ↔ Denary", mode: "hex_mixed_den", desc: "Bi-directional Hex & Denary conversions (with 0x)" },
+        { id: 3, name: "Hex ↔ Denary (Keypad)", mode: "keypad_hex_mixed_den", desc: "Bi-directional Hex & Denary conversions: type exact values on keypad" },
+        { id: 4, name: "Tri-Directional Blitz", mode: "hex_tri_mixed", desc: "Master Blitz: Hex ↔ Binary ↔ Denary all mixed together!" }
       ]
     },
 
@@ -542,10 +548,12 @@
       color: "#3b82f6",
       levels: [
         { id: 1, name: "4-Bit to Denary (Assisted)", mode: "mc_twos_comp_nibble_assisted", desc: "4-Bit Two's Comp to Denary with weights (−8 • 4 • 2 • 1) displayed above bits" },
-        { id: 2, name: "4-Bit to Denary (Signed Keypad)", mode: "mc_twos_comp_nibble_unassisted", desc: "4-Bit Two's Comp: type exact signed Denary with +/− on keypad" },
-        { id: 3, name: "8-Bit to Denary (Assisted)", mode: "mc_twos_comp_byte_assisted", desc: "8-Bit Two's Comp to Denary with weights (−128..1) displayed above bits" },
-        { id: 4, name: "8-Bit to Denary (Signed Keypad)", mode: "mc_twos_comp_byte_unassisted", desc: "8-Bit Two's Comp: type exact signed Denary with +/− on keypad" },
-        { id: 5, name: "Two's Complement Mastery", mode: "twos_comp_byte_mastery", desc: "Full 8-Bit Two's Complement mastery: mixed mental evaluation & switchboard construction!" }
+        { id: 2, name: "4-Bit to Denary (Unassisted)", mode: "mc_twos_comp_nibble_unassisted", desc: "4-Bit Two's Comp to Denary with weights hidden (Mental calculation)" },
+        { id: 3, name: "4-Bit to Denary (Signed Keypad)", mode: "keypad_twos_comp_nibble", desc: "4-Bit Two's Comp: type exact signed Denary with ± on keypad" },
+        { id: 4, name: "8-Bit to Denary (Assisted)", mode: "mc_twos_comp_byte_assisted", desc: "8-Bit Two's Comp to Denary with weights (−128..1) displayed above bits" },
+        { id: 5, name: "8-Bit to Denary (Unassisted)", mode: "mc_twos_comp_byte_unassisted", desc: "8-Bit Two's Comp to Denary with weights hidden (Mental calculation)" },
+        { id: 6, name: "8-Bit to Denary (Signed Keypad)", mode: "keypad_twos_comp_byte", desc: "8-Bit Two's Comp: type exact signed Denary with ± on keypad" },
+        { id: 7, name: "Two's Complement Mastery", mode: "twos_comp_byte_mastery", desc: "Full 8-Bit Two's Complement mastery: mixed mental evaluation & switchboard construction!" }
       ]
     },
     {
@@ -1865,6 +1873,25 @@
     if (effectiveMode === 'mc_nibble_bin2den_unassisted' || effectiveMode === 'mc_nibble_bin2den') {
       const val = Math.floor(Math.random() * 16);
       const binBits = val.toString(2).padStart(4, '0').split('').map(Number);
+      const dists = generateDistractors(val, 0, 15, 'denary');
+      const displayHTML = renderBitStripHTML({
+        bits: binBits,
+        showWeights: false
+      });
+      return {
+        type: 'mc',
+        prompt: "Convert 4-Bit Binary to Denary (Unassisted):",
+        display: binBits.join(' '),
+        displayHTML: displayHTML,
+        hint: "Mental calculation (8 • 4 • 2 • 1)",
+        correctAnswer: String(val),
+        options: shuffleArray([val, ...dists]).map(String)
+      };
+    }
+
+    if (effectiveMode === 'keypad_nibble_bin2den') {
+      const val = Math.floor(Math.random() * 16);
+      const binBits = val.toString(2).padStart(4, '0').split('').map(Number);
       const displayHTML = renderBitStripHTML({
         bits: binBits,
         showWeights: false
@@ -1872,7 +1899,7 @@
       return {
         type: 'keypad',
         keypadMode: 'denary',
-        prompt: "Type Denary Value for 4-Bit Binary (Unassisted):",
+        prompt: "Type Denary Value for 4-Bit Binary (Keypad Challenge):",
         display: binBits.join(' '),
         displayHTML: displayHTML,
         hint: "Mental calculation (8 • 4 • 2 • 1) — type exact value and press OK",
@@ -1903,6 +1930,25 @@
     if (effectiveMode === 'mc_byte_bin2den_unassisted') {
       const val = Math.floor(Math.random() * 256);
       const binBits = val.toString(2).padStart(8, '0').split('').map(Number);
+      const dists = generateDistractors(val, 0, 255, 'denary');
+      const displayHTML = renderBitStripHTML({
+        bits: binBits,
+        showWeights: false
+      });
+      return {
+        type: 'mc',
+        prompt: "Convert 8-Bit Binary to Denary (Unassisted):",
+        display: `${binBits.slice(0, 4).join('')} ${binBits.slice(4).join('')}`,
+        displayHTML: displayHTML,
+        hint: "Mental calculation (128 down to 1)",
+        correctAnswer: String(val),
+        options: shuffleArray([val, ...dists]).map(String)
+      };
+    }
+
+    if (effectiveMode === 'keypad_byte_bin2den') {
+      const val = Math.floor(Math.random() * 256);
+      const binBits = val.toString(2).padStart(8, '0').split('').map(Number);
       const displayHTML = renderBitStripHTML({
         bits: binBits,
         showWeights: false
@@ -1910,7 +1956,7 @@
       return {
         type: 'keypad',
         keypadMode: 'denary',
-        prompt: "Type Denary Value for 8-Bit Byte (Unassisted):",
+        prompt: "Type Denary Value for 8-Bit Byte (Keypad Challenge):",
         display: `${binBits.slice(0, 4).join('')} ${binBits.slice(4).join('')}`,
         displayHTML: displayHTML,
         hint: "Mental calculation (128 down to 1) — type exact value and press OK",
@@ -2052,10 +2098,25 @@
     if (effectiveMode === 'mc_hex_nibble_to_den_unassisted') {
       const val = Math.floor(Math.random() * 16);
       const hex = val.toString(16).toUpperCase();
+      const dists = generateDistractors(val, 0, 15, 'denary');
+      const options = shuffleArray([val, ...dists]);
+      return {
+        type: 'mc',
+        prompt: `Convert Hex 0x${hex} to Denary (Mental Recall):`,
+        display: `0x${hex}`,
+        hint: "Direct recall (0x0 to 0xF)",
+        correctAnswer: String(val),
+        options: options.map(String)
+      };
+    }
+
+    if (effectiveMode === 'keypad_hex_nibble_to_den') {
+      const val = Math.floor(Math.random() * 16);
+      const hex = val.toString(16).toUpperCase();
       return {
         type: 'keypad',
         keypadMode: 'denary',
-        prompt: `Convert Hex 0x${hex} to Denary (Mental Recall):`,
+        prompt: `Convert Hex 0x${hex} to Denary (Keypad):`,
         display: `0x${hex}`,
         hint: "Direct recall (0x0 to 0xF) — type exact denary number and press OK",
         correctAnswer: String(val)
@@ -2082,10 +2143,25 @@
     if (effectiveMode === 'mc_hex_byte_unassisted') {
       const val = Math.floor(Math.random() * 256);
       const hex = val.toString(16).toUpperCase().padStart(2, '0');
+      const dists = generateDistractors(val, 0, 255, 'denary');
+      const options = shuffleArray([val, ...dists]);
+      return {
+        type: 'mc',
+        prompt: `Convert Hex 0x${hex} to Denary (Unassisted):`,
+        display: `0x${hex}`,
+        hint: "High digit × 16 + Low digit",
+        correctAnswer: String(val),
+        options: options.map(String)
+      };
+    }
+
+    if (effectiveMode === 'keypad_hex_byte_to_den') {
+      const val = Math.floor(Math.random() * 256);
+      const hex = val.toString(16).toUpperCase().padStart(2, '0');
       return {
         type: 'keypad',
         keypadMode: 'denary',
-        prompt: `Convert Hex 0x${hex} to Denary (Unassisted):`,
+        prompt: `Convert Hex 0x${hex} to Denary (Keypad):`,
         display: `0x${hex}`,
         hint: "High digit × 16 + Low digit — type exact denary number and press OK",
         correctAnswer: String(val)
@@ -2095,10 +2171,25 @@
     if (effectiveMode === 'mc_den_to_hex') {
       const val = Math.floor(Math.random() * 256);
       const hex = '0x' + val.toString(16).toUpperCase().padStart(2, '0');
+      const dists = generateDistractors(val, 0, 255, 'hex');
+      const options = shuffleArray([val, ...dists]).map(v => '0x' + v.toString(16).toUpperCase().padStart(2, '0'));
+      return {
+        type: 'mc',
+        prompt: `Convert Denary ${val} to Hexadecimal (0x):`,
+        display: String(val),
+        hint: "Divide by 16 for high digit, remainder for low digit",
+        correctAnswer: hex,
+        options: options
+      };
+    }
+
+    if (effectiveMode === 'keypad_den_to_hex') {
+      const val = Math.floor(Math.random() * 256);
+      const hex = '0x' + val.toString(16).toUpperCase().padStart(2, '0');
       return {
         type: 'keypad',
         keypadMode: 'hex',
-        prompt: `Convert Denary ${val} to Hexadecimal (0x):`,
+        prompt: `Convert Denary ${val} to Hexadecimal (Hexpad):`,
         display: String(val),
         hint: "Divide by 16 for high digit, remainder for low digit — type hex digits and press OK",
         correctAnswer: hex
@@ -2175,10 +2266,40 @@
       if (isHexToDen) {
         const val = Math.floor(Math.random() * 256);
         const hex = '0x' + val.toString(16).toUpperCase().padStart(2, '0');
+        const dists = generateDistractors(val, 0, 255, 'denary');
+        return {
+          type: 'mc',
+          prompt: `Convert Hex ${hex} to Denary:`,
+          display: hex,
+          hint: "(High nibble × 16) + Low nibble",
+          correctAnswer: String(val),
+          options: shuffleArray([val, ...dists]).map(String)
+        };
+      } else {
+        const val = Math.floor(Math.random() * 256);
+        const hex = '0x' + val.toString(16).toUpperCase().padStart(2, '0');
+        const dists = generateDistractors(val.toString(16).toUpperCase().padStart(2, '0'), 0, 255, 'hex');
+        const hexDists = dists.map(h => '0x' + h.padStart(2, '0'));
+        return {
+          type: 'mc',
+          prompt: `Convert Denary ${val} to Hexadecimal (0x):`,
+          display: String(val),
+          hint: "Divide by 16 for high digit, remainder for low digit",
+          correctAnswer: hex,
+          options: shuffleArray([hex, ...hexDists]).map(String)
+        };
+      }
+    }
+
+    if (effectiveMode === 'keypad_hex_mixed_den') {
+      const isHexToDen = Math.random() > 0.5;
+      if (isHexToDen) {
+        const val = Math.floor(Math.random() * 256);
+        const hex = '0x' + val.toString(16).toUpperCase().padStart(2, '0');
         return {
           type: 'keypad',
           keypadMode: 'denary',
-          prompt: `Convert Hex ${hex} to Denary:`,
+          prompt: `Convert Hex ${hex} to Denary (Keypad):`,
           display: hex,
           hint: "(High nibble × 16) + Low nibble — type exact denary number and press OK",
           correctAnswer: String(val)
@@ -2189,7 +2310,7 @@
         return {
           type: 'keypad',
           keypadMode: 'hex',
-          prompt: `Convert Denary ${val} to Hexadecimal (0x):`,
+          prompt: `Convert Denary ${val} to Hexadecimal (Hexpad):`,
           display: String(val),
           hint: "Divide by 16 for high digit, remainder for low digit — type hex digits and press OK",
           correctAnswer: hex
@@ -2690,8 +2811,31 @@
       };
     }
 
-    // Level 2: 4-Bit to Denary (Unassisted, weights hidden)
+    // Level 2: 4-Bit to Denary (Unassisted, weights hidden, Multiple Choice)
     if (effectiveMode === 'mc_twos_comp_nibble_unassisted') {
+      const candidates = [-8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7];
+      const val = candidates[Math.floor(Math.random() * candidates.length)];
+      const rawBin = (val < 0 ? (16 + val) : val).toString(2).padStart(4, '0');
+      const bits = rawBin.split('').map(Number);
+      const dists = generateDistractors(val, -8, 7, 'denary');
+      const displayHTML = renderBitStripHTML({
+        bits: bits,
+        showWeights: false,
+        variant: 'twos'
+      });
+      return {
+        type: 'mc',
+        prompt: "Calculate Signed Denary Value (−8 • 4 • 2 • 1):",
+        display: bits.join(' '),
+        displayHTML: displayHTML,
+        hint: "Bit 3 is −8! Add positive weights (+4, +2, +1) if bits are active",
+        correctAnswer: String(val),
+        options: shuffleArray([val, ...dists]).map(String)
+      };
+    }
+
+    // Level 3: 4-Bit to Denary (Keypad Challenge)
+    if (effectiveMode === 'keypad_twos_comp_nibble') {
       const candidates = [-8, -7, -6, -5, -4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 7];
       const val = candidates[Math.floor(Math.random() * candidates.length)];
       const rawBin = (val < 0 ? (16 + val) : val).toString(2).padStart(4, '0');
@@ -2707,12 +2851,12 @@
         prompt: "Calculate Signed Denary Value (−8 • 4 • 2 • 1):",
         display: bits.join(' '),
         displayHTML: displayHTML,
-        hint: "Bit 3 is −8! Add positive weights — use '−' for negative answers and press OK",
+        hint: "Bit 3 is −8! Add positive weights — use '±' for negative answers and press OK",
         correctAnswer: String(val)
       };
     }
 
-    // Level 3: 8-Bit to Denary (Assisted, weights −128..1 shown above bits)
+    // Level 4: 8-Bit to Denary (Assisted, weights −128..1 shown above bits)
     if (effectiveMode === 'mc_twos_comp_byte_assisted') {
       const isNegative = Math.random() < 0.65;
       const val = isNegative ? -(Math.floor(Math.random() * 128) + 1) : Math.floor(Math.random() * 128);
@@ -2736,8 +2880,31 @@
       };
     }
 
-    // Level 4: 8-Bit to Denary (Unassisted, weights hidden)
+    // Level 5: 8-Bit to Denary (Unassisted, weights hidden, Multiple Choice)
     if (effectiveMode === 'mc_twos_comp_byte_unassisted') {
+      const isNegative = Math.random() < 0.7;
+      const val = isNegative ? -(Math.floor(Math.random() * 128) + 1) : Math.floor(Math.random() * 128);
+      const rawBin = (val < 0 ? (256 + val) : val).toString(2).padStart(8, '0');
+      const bits = rawBin.split('').map(Number);
+      const dists = generateDistractors(val, -128, 127, 'denary');
+      const displayHTML = renderBitStripHTML({
+        bits: bits,
+        showWeights: false,
+        variant: 'twos'
+      });
+      return {
+        type: 'mc',
+        prompt: "Calculate Signed 8-Bit Denary Value (−128 MSB):",
+        display: `${rawBin.slice(0, 4)} ${rawBin.slice(4)}`,
+        displayHTML: displayHTML,
+        hint: "Weight of Bit 7 is −128. Add active positive columns",
+        correctAnswer: String(val),
+        options: shuffleArray([val, ...dists]).map(String)
+      };
+    }
+
+    // Level 6: 8-Bit to Denary (Keypad Challenge)
+    if (effectiveMode === 'keypad_twos_comp_byte') {
       const isNegative = Math.random() < 0.7;
       const val = isNegative ? -(Math.floor(Math.random() * 128) + 1) : Math.floor(Math.random() * 128);
       const rawBin = (val < 0 ? (256 + val) : val).toString(2).padStart(8, '0');
@@ -2753,7 +2920,7 @@
         prompt: "Calculate Signed 8-Bit Denary Value (−128 MSB):",
         display: `${rawBin.slice(0, 4)} ${rawBin.slice(4)}`,
         displayHTML: displayHTML,
-        hint: "Bit 7 is −128. Add active positive columns — use '−' for negative answers and press OK",
+        hint: "Bit 7 is −128. Add active positive columns — use '±' for negative answers and press OK",
         correctAnswer: String(val)
       };
     }

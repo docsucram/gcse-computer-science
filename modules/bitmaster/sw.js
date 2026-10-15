@@ -1,16 +1,16 @@
-const CACHE_NAME = 'bitmaster-v2.8.0';
+const CACHE_NAME = 'bitmaster-v2.8.1';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './style.css',
-  './style.css?v=2.8.0',
+  './style.css?v=2.8.1',
   './app.js',
-  './app.js?v=2.8.0',
+  './app.js?v=2.8.1',
   './manifest.json',
   '../../shared/styles.css',
-  '../../shared/styles.css?v=2.8.0',
+  '../../shared/styles.css?v=2.8.1',
   '../../shared/nav.js',
-  '../../shared/nav.js?v=2.8.0',
+  '../../shared/nav.js?v=2.8.1',
   '../../favicon.svg'
 ];
 
