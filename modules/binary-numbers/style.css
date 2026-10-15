@@ -5401,6 +5401,29 @@ html.dark .converter-preset-btn:hover,
 /* =========================================================================
    AVATAR ZOOM LIGHTBOX MODAL
    ========================================================================= */
+#bitmasterAvatarZoomModal {
+  z-index: 20000 !important;
+}
+
+.level-row-sprint-score {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.level-row-sprint-score.has-score {
+  color: #38bdf8;
+  text-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+}
+
+.stage-section-stars.stage-section-sprint-score {
+  color: #38bdf8 !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  background: rgba(56, 189, 248, 0.12) !important;
+}
+
 .avatar-zoom-dialog {
   max-width: 360px !important;
   text-align: center !important;

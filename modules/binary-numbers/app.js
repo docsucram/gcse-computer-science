@@ -3456,11 +3456,16 @@
 
     // Render each stage as a subtitle section, followed directly by its levels!
     const topicStages = BITMASTER_STAGES.filter(s => s.topicId === activeTopic.id);
+    const isSprintMode = (bitmasterState.selectedGameMode === 'sprint');
 
     topicStages.forEach(stage => {
       let stageStars = 0;
+      let stageSprintTotal = 0;
       stage.levels.forEach(lvl => {
-        stageStars += (bitmasterState.stars[`s${stage.id}_l${lvl.id}`] || 0);
+        const lvlKey = `s${stage.id}_l${lvl.id}`;
+        stageStars += (bitmasterState.stars[lvlKey] || 0);
+        const rec = bitmasterState.levelRecords[lvlKey];
+        if (rec && rec.bestSprint) stageSprintTotal += rec.bestSprint;
       });
       const maxStars = stage.levels.length * 3;
 
@@ -3471,12 +3476,16 @@
       // Section Header (No subtitle description)
       const header = document.createElement('div');
       header.className = 'stage-section-header';
+      const headerScoreHTML = isSprintMode
+        ? `<div class="stage-section-stars stage-section-sprint-score">${stageSprintTotal > 0 ? stageSprintTotal.toLocaleString() + ' pts' : '—'} ⚡</div>`
+        : `<div class="stage-section-stars">${stageStars}/${maxStars} ⭐</div>`;
+
       header.innerHTML = `
         <div class="stage-section-left">
           <span class="stage-section-badge stage-badge-s${stage.id}">${stage.svgIcon}</span>
           <div class="stage-section-title">STAGE ${String(stage.id).padStart(2, '0')}: ${stage.shortTitle || stage.title}</div>
         </div>
-        <div class="stage-section-stars">${stageStars}/${maxStars} ⭐</div>
+        ${headerScoreHTML}
       `;
       section.appendChild(header);
 
@@ -3488,6 +3497,14 @@
         const lvlKey = `s${stage.id}_l${lvl.id}`;
         const stars = bitmasterState.stars[lvlKey] || 0;
         const starIcons = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+        const rec = bitmasterState.levelRecords[lvlKey];
+        const bestSprint = rec ? (rec.bestSprint || 0) : 0;
+
+        const levelScoreHTML = isSprintMode
+          ? (bestSprint > 0
+              ? `<div class="level-row-stars level-row-sprint-score has-score">⚡ ${bestSprint.toLocaleString()} pts</div>`
+              : `<div class="level-row-stars level-row-sprint-score">—</div>`)
+          : `<div class="level-row-stars ${stars > 0 ? 'has-stars' : ''}">${starIcons}</div>`;
 
         const row = document.createElement('div');
         row.className = 'bitmaster-level-row';
@@ -3500,7 +3517,7 @@
             <div class="level-row-title">${lvl.name || lvl.title}</div>
           </div>
           <div class="level-row-right">
-            <div class="level-row-stars ${stars > 0 ? 'has-stars' : ''}">${starIcons}</div>
+            ${levelScoreHTML}
             <button type="button" class="level-row-play-btn">PLAY</button>
           </div>
         `;
@@ -6889,7 +6906,7 @@
 
     const sumWrap = document.getElementById('bitmasterSwitchSumWrap');
     if (sumWrap) {
-      sumWrap.style.display = isBlind ? 'none' : 'block';
+      sumWrap.style.display = 'block';
     }
     updateBitmasterSwitchSum(weights, isBlind);
 
@@ -6952,11 +6969,11 @@
     });
     const sumWrap = document.getElementById('bitmasterSwitchSumWrap');
     if (sumWrap) {
-      sumWrap.style.display = isBlind ? 'none' : 'block';
+      sumWrap.style.display = 'block';
     }
     const sumEl = document.getElementById('bitmasterCurrentSwitchSum');
     if (sumEl) {
-      sumEl.textContent = isBlind ? '???' : sum;
+      sumEl.textContent = isBlind ? '?' : sum;
     }
   }
 
@@ -7809,6 +7826,20 @@
       renderBitmasterStagesGrid();
       showBitmasterScreen('stages');
     };
+
+    // Prevent accidental taps right as the round concludes
+    const summaryButtons = [retryBtn, contBtn, nextLvlBtn].filter(Boolean);
+    summaryButtons.forEach(btn => {
+      btn.style.pointerEvents = 'none';
+      btn.style.opacity = '0.6';
+      btn.style.transition = 'opacity 0.25s ease';
+    });
+    setTimeout(() => {
+      summaryButtons.forEach(btn => {
+        btn.style.pointerEvents = '';
+        btn.style.opacity = '';
+      });
+    }, 750);
   }
 
   // =========================================================================
@@ -8855,13 +8886,14 @@
       });
     }
 
-    // Front Menu Avatar & Stats Click -> Open Rank Progression Ladder
+    // Front Menu Avatar & Stats Click -> Open Avatar Zoom or Rank Progression Ladder
     const titleHeroChip = document.getElementById('bitmasterTitleHeroChip');
     const titleStatsPreview = document.getElementById('bitmasterTitleStatsPreview');
     if (titleHeroChip) {
-      titleHeroChip.addEventListener('click', () => {
+      titleHeroChip.addEventListener('click', (e) => {
+        e.stopPropagation();
         playSynthSound('tap');
-        showBitmasterRankModal();
+        openBitmasterAvatarZoom(getCurrentBitmasterRank(), true);
       });
     }
     if (titleStatsPreview) {
@@ -9267,11 +9299,24 @@
     if (curAvatar) {
       curAvatar.innerHTML = getBitmasterAvatarHTML(currentRank, 'modal-avatar');
       curAvatar.title = "Click to enlarge avatar";
-      curAvatar.onclick = () => {
+      curAvatar.style.cursor = 'pointer';
+      curAvatar.onclick = (e) => {
+        if (e) e.stopPropagation();
         playSynthSound('tap');
         openBitmasterAvatarZoom(currentRank, true);
       };
     }
+
+    const curRankBox = document.querySelector('.current-rank-box');
+    if (curRankBox) {
+      curRankBox.title = "Click to enlarge avatar";
+      curRankBox.onclick = (e) => {
+        if (e) e.stopPropagation();
+        playSynthSound('tap');
+        openBitmasterAvatarZoom(currentRank, true);
+      };
+    }
+
     if (curTitle) curTitle.textContent = currentRank.title;
     if (curXp) curXp.textContent = `${bitmasterState.xp.toLocaleString()} pts`;
 
@@ -9279,7 +9324,13 @@
       if (nextBadge) nextBadge.textContent = 'NEXT RANK';
       if (nextAvatar) {
         nextAvatar.innerHTML = getBitmasterAvatarHTML(nextRank, 'modal-avatar');
-        nextAvatar.title = "Next unlockable rank";
+        nextAvatar.title = "Click to preview next rank avatar";
+        nextAvatar.style.cursor = 'pointer';
+        nextAvatar.onclick = (e) => {
+          if (e) e.stopPropagation();
+          playSynthSound('tap');
+          openBitmasterAvatarZoom(nextRank, false);
+        };
       }
       if (nextTitle) nextTitle.textContent = nextRank.title;
       const diff = Math.max(0, nextRank.minXp - bitmasterState.xp);
@@ -9320,14 +9371,16 @@
       }).join('');
 
       ladderList.querySelectorAll('.rank-ladder-row.unlocked').forEach(row => {
-        row.addEventListener('click', () => {
+        row.style.cursor = 'pointer';
+        row.onclick = (e) => {
+          if (e) e.stopPropagation();
           const idx = parseInt(row.dataset.rankIdx, 10);
           const rank = BITMASTER_RANKS[idx];
           if (rank) {
             playSynthSound('tap');
             openBitmasterAvatarZoom(rank, true);
           }
-        });
+        };
       });
     }
   }
@@ -9372,6 +9425,8 @@
   window.hideBitmasterRankModal = hideBitmasterRankModal;
   window.showBitmasterLevelUpModal = showBitmasterLevelUpModal;
   window.hideBitmasterLevelUpModal = hideBitmasterLevelUpModal;
+  window.openBitmasterAvatarZoom = openBitmasterAvatarZoom;
+  window.hideBitmasterAvatarZoom = hideBitmasterAvatarZoom;
 
   // =========================================================================
   // 9. INITIALIZATION
