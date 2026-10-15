@@ -595,6 +595,7 @@
     if (
       document.body.classList.contains('bitmaster-standalone-mode') ||
       window.location.pathname.endsWith('bitmaster.html') ||
+      window.location.pathname.includes('/bitmaster/') ||
       window.location.search.includes('standalone=1')
     ) {
       return;
