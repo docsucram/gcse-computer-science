@@ -8880,18 +8880,72 @@
       });
     }
 
+    const rankModal = document.getElementById('bitmasterModalRank');
     const rankModalCloseBtn = document.getElementById('bitmasterRankModalCloseBtn');
     const rankModalDoneBtn = document.getElementById('bitmasterRankModalDoneBtn');
+
+    const closeRankModalToMain = () => {
+      playSynthSound('tap');
+      hideBitmasterRankModal();
+      showBitmasterScreen('title');
+    };
+
     if (rankModalCloseBtn) {
-      rankModalCloseBtn.addEventListener('click', () => {
-        playSynthSound('tap');
-        hideBitmasterRankModal();
-      });
+      rankModalCloseBtn.addEventListener('click', closeRankModalToMain);
     }
     if (rankModalDoneBtn) {
-      rankModalDoneBtn.addEventListener('click', () => {
+      rankModalDoneBtn.addEventListener('click', closeRankModalToMain);
+    }
+    if (rankModal) {
+      rankModal.addEventListener('click', (e) => {
+        if (e.target === rankModal) {
+          closeRankModalToMain();
+        }
+      });
+
+      // Swipe back gesture on Architecture Rank modal (swiping right or pulling down returns to main screen)
+      let rankTouchStartX = 0;
+      let rankTouchStartY = 0;
+      let rankTouchStartTime = 0;
+
+      rankModal.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          rankTouchStartX = e.touches[0].clientX;
+          rankTouchStartY = e.touches[0].clientY;
+          rankTouchStartTime = Date.now();
+        }
+      }, { passive: true });
+
+      rankModal.addEventListener('touchend', (e) => {
+        if (e.changedTouches.length === 1) {
+          const deltaX = e.changedTouches[0].clientX - rankTouchStartX;
+          const deltaY = e.changedTouches[0].clientY - rankTouchStartY;
+          const duration = Date.now() - rankTouchStartTime;
+          // Swipe Right (edge back gesture) or Swipe Down (modal pull-down)
+          const isSwipeRight = deltaX > 60 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2 && duration < 600;
+          const isSwipeDown = deltaY > 80 && Math.abs(deltaY) > Math.abs(deltaX) * 1.5 && duration < 600;
+          if (isSwipeRight || isSwipeDown) {
+            closeRankModalToMain();
+          }
+        }
+      }, { passive: true });
+    }
+
+    // Avatar Zoom Lightbox Modal handlers
+    const avatarZoomModal = document.getElementById('bitmasterAvatarZoomModal');
+    const avatarZoomCloseBtn = document.getElementById('bitmasterAvatarZoomCloseBtn');
+    if (avatarZoomCloseBtn) {
+      avatarZoomCloseBtn.addEventListener('click', () => {
         playSynthSound('tap');
-        hideBitmasterRankModal();
+        hideBitmasterAvatarZoom();
+      });
+    }
+    if (avatarZoomModal) {
+      avatarZoomModal.addEventListener('click', (e) => {
+        if (e.target === avatarZoomModal) {
+          playSynthSound('tap');
+          hideBitmasterAvatarZoom();
+        }
       });
     }
 
@@ -9143,6 +9197,55 @@
     showBitmasterScreen('title', true);
   }
 
+  const RANK_FLAVOR_DESCRIPTIONS = [
+    "First steps in computing architecture and binary transistor foundations.",
+    "Comfortable manipulating 4-bit nibbles and place values (8, 4, 2, 1).",
+    "Rapid mental conversion across binary powers and byte halves.",
+    "Fluent in full 8-bit byte structures and powers of 2 up to 128.",
+    "Effortless conversion between binary nibbles and hexadecimal digits.",
+    "Master of 2-digit hex bytes, address spaces, and color codes.",
+    "Master of binary addition, carry bits, and arithmetic circuits.",
+    "Flawless arithmetic shifts, division, and multiplication by powers of 2.",
+    "Guardian of sign bits and Two's Complement negative representations.",
+    "Master of computing storage capacities, file sizes, and sound metrics.",
+    "Elite architect capable of conquering any mixed exam challenge.",
+    "The apex of computing hardware and binary mastery."
+  ];
+
+  function openBitmasterAvatarZoom(rank, isUnlocked = true) {
+    const modal = document.getElementById('bitmasterAvatarZoomModal');
+    if (!modal || !rank) return;
+
+    const frameEl = document.getElementById('bitmasterAvatarZoomFrame');
+    const titleEl = document.getElementById('bitmasterAvatarZoomTitle');
+    const tierEl = document.getElementById('bitmasterAvatarZoomTier');
+    const descEl = document.getElementById('bitmasterAvatarZoomDesc');
+
+    const rankIdx = BITMASTER_RANKS.findIndex(r => r.title === rank.title);
+    const tierNum = rankIdx >= 0 ? rankIdx + 1 : (rank.id || 1);
+
+    if (frameEl) {
+      frameEl.innerHTML = getBitmasterAvatarHTML(rank, 'zoom-large-avatar');
+    }
+    if (titleEl) {
+      titleEl.textContent = rank.title;
+    }
+    if (tierEl) {
+      tierEl.textContent = `Architecture Tier ${tierNum} of 12 • ${isUnlocked ? 'Unlocked' : 'Locked'}`;
+    }
+    if (descEl) {
+      const flavor = RANK_FLAVOR_DESCRIPTIONS[rankIdx] || "Master of computing architecture and binary foundations.";
+      descEl.textContent = `${flavor} (${rank.minXp.toLocaleString()} pts required)`;
+    }
+
+    modal.style.display = 'flex';
+  }
+
+  function hideBitmasterAvatarZoom() {
+    const modal = document.getElementById('bitmasterAvatarZoomModal');
+    if (modal) modal.style.display = 'none';
+  }
+
   function renderBitmasterRankModal() {
     const currentRank = getCurrentBitmasterRank();
     const nextRank = getNextBitmasterRank();
@@ -9161,13 +9264,23 @@
     const progressPct = document.getElementById('bitmasterModalProgressPct');
     const ladderList = document.getElementById('bitmasterRankLadderList');
 
-    if (curAvatar) curAvatar.innerHTML = getBitmasterAvatarHTML(currentRank, 'modal-avatar');
+    if (curAvatar) {
+      curAvatar.innerHTML = getBitmasterAvatarHTML(currentRank, 'modal-avatar');
+      curAvatar.title = "Click to enlarge avatar";
+      curAvatar.onclick = () => {
+        playSynthSound('tap');
+        openBitmasterAvatarZoom(currentRank, true);
+      };
+    }
     if (curTitle) curTitle.textContent = currentRank.title;
     if (curXp) curXp.textContent = `${bitmasterState.xp.toLocaleString()} pts`;
 
     if (nextRank) {
       if (nextBadge) nextBadge.textContent = 'NEXT RANK';
-      if (nextAvatar) nextAvatar.innerHTML = getBitmasterAvatarHTML(nextRank, 'modal-avatar');
+      if (nextAvatar) {
+        nextAvatar.innerHTML = getBitmasterAvatarHTML(nextRank, 'modal-avatar');
+        nextAvatar.title = "Next unlockable rank";
+      }
       if (nextTitle) nextTitle.textContent = nextRank.title;
       const diff = Math.max(0, nextRank.minXp - bitmasterState.xp);
       if (nextReq) nextReq.textContent = `Need ${diff.toLocaleString()} more pts`;
@@ -9186,11 +9299,11 @@
     }
 
     if (ladderList) {
-      ladderList.innerHTML = BITMASTER_RANKS.map(r => {
+      ladderList.innerHTML = BITMASTER_RANKS.map((r, idx) => {
         const isCurrent = r.title === currentRank.title;
         const isUnlocked = bitmasterState.xp >= r.minXp;
         return `
-          <div class="rank-ladder-row ${isCurrent ? 'current-tier' : ''} ${isUnlocked ? 'unlocked' : 'locked'}">
+          <div class="rank-ladder-row ${isCurrent ? 'current-tier' : ''} ${isUnlocked ? 'unlocked' : 'locked'}" data-rank-idx="${idx}" ${isUnlocked ? 'title="Click to view avatar in full size"' : ''}>
             <div class="ladder-rank-avatar">${getBitmasterAvatarHTML(r, 'ladder-avatar')}</div>
             <div class="ladder-rank-info">
               <div class="ladder-rank-name">
@@ -9205,6 +9318,17 @@
           </div>
         `;
       }).join('');
+
+      ladderList.querySelectorAll('.rank-ladder-row.unlocked').forEach(row => {
+        row.addEventListener('click', () => {
+          const idx = parseInt(row.dataset.rankIdx, 10);
+          const rank = BITMASTER_RANKS[idx];
+          if (rank) {
+            playSynthSound('tap');
+            openBitmasterAvatarZoom(rank, true);
+          }
+        });
+      });
     }
   }
 

@@ -3238,12 +3238,13 @@ html.dark .converter-preset-btn:hover,
 .topic-levels-header-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   margin: 6px 0 10px;
   width: 100%;
   max-width: 620px;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
 }
 
 .bitmaster-top-back-btn {
@@ -3921,24 +3922,24 @@ html.dark .converter-preset-btn:hover,
   min-height: calc(100vh - 120px) !important;
   justify-content: space-between !important;
   box-sizing: border-box !important;
-  padding-bottom: 8px !important;
+  padding-bottom: 26px !important;
   position: relative !important;
 }
 
 /* Challenge Question Display Card */
 .bitmaster-challenge-card {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 190px;
+  min-height: 130px;
   background: #090d16;
   border: 2.5px solid #232c40;
   border-radius: 20px;
-  padding: 24px 20px;
+  padding: 20px 18px;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
   position: relative;
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6), 0 6px 20px rgba(0, 0, 0, 0.4);
 }
@@ -3949,6 +3950,7 @@ html.dark .converter-preset-btn:hover,
 #bitmasterMathGridZone,
 #bitmasterHexNibblesZone {
   margin-top: auto !important;
+  margin-bottom: 14px !important;
   width: 100% !important;
 }
 
@@ -4052,13 +4054,13 @@ html.dark .converter-preset-btn:hover,
   align-items: center;
   justify-content: center;
   width: 100%;
-  height: clamp(38px, 9vw, 54px);
+  height: clamp(50px, 12vw, 66px);
   background: linear-gradient(180deg, #131b2e 0%, #0b1120 100%);
   border: 2px solid #23304a;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 3px 6px rgba(0, 0, 0, 0.3);
   font-family: var(--font-mono, monospace);
-  font-size: clamp(14px, 4vw, 22px);
+  font-size: clamp(17px, 4.5vw, 24px);
   font-weight: 900;
   color: #64748b;
   user-select: none;
@@ -4067,8 +4069,9 @@ html.dark .converter-preset-btn:hover,
 }
 
 .bm-strip-4 .bm-bit-rect {
-  height: clamp(44px, 11vw, 60px);
-  font-size: clamp(16px, 5vw, 24px);
+  height: clamp(72px, 17vw, 92px);
+  font-size: clamp(24px, 6vw, 34px);
+  border-radius: 14px;
 }
 
 /* Active 1 Bit */
@@ -4134,24 +4137,30 @@ html.dark .converter-preset-btn:hover,
 
 @media (max-width: 480px) {
   .bitmaster-challenge-card {
-    padding: 16px 8px;
+    padding: 16px 10px;
   }
   .bm-bit-strip {
-    gap: 3px;
+    gap: 4px;
   }
   .bm-bit-rect {
-    height: 38px;
-    border-radius: 7px;
+    height: 52px;
+    border-radius: 9px;
     border-width: 1.5px;
-    font-size: 13px;
+    font-size: 16px;
   }
   .bm-strip-4 .bm-bit-rect {
-    height: 44px;
-    font-size: 17px;
+    height: 70px;
+    font-size: 26px;
+    border-radius: 12px;
   }
   .bm-bit-weight-label {
-    font-size: 8px;
-    margin-bottom: 3px;
+    font-size: 10.5px;
+    margin-bottom: 5px;
+    font-weight: 800;
+  }
+  .bm-strip-4 .bm-bit-weight-label {
+    font-size: 13.5px;
+    margin-bottom: 6px;
   }
 }
 
@@ -4192,11 +4201,11 @@ html.dark .converter-preset-btn:hover,
 }
 
 .bitmaster-tile-btn.bit-box-btn {
-  padding: 16px 8px !important;
-  font-size: 16px !important;
+  padding: 18px 8px !important;
+  font-size: 18px !important;
   letter-spacing: -0.01em !important;
-  border-radius: 12px !important;
-  min-height: 58px !important;
+  border-radius: 14px !important;
+  min-height: 68px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -4214,13 +4223,13 @@ html.dark .converter-preset-btn:hover,
 
 @media (max-width: 480px) {
   .bitmaster-tiles-grid.bitmaster-bit-boxes-row {
-    gap: 6px !important;
+    gap: 8px !important;
   }
   .bitmaster-tile-btn.bit-box-btn {
-    padding: 12px 4px !important;
-    font-size: 13.5px !important;
-    border-radius: 10px !important;
-    min-height: 48px !important;
+    padding: 14px 6px !important;
+    font-size: 16px !important;
+    border-radius: 12px !important;
+    min-height: 62px !important;
   }
 }
 
@@ -4452,19 +4461,61 @@ html.dark .converter-preset-btn:hover,
   box-sizing: border-box;
 }
 
+.switch-bits-flex.bits-4 {
+  gap: 8px;
+}
+
 .switch-bits-flex.bits-4 .bitmaster-switch-cell {
-  max-width: 76px;
+  max-width: 88px;
+  min-height: 125px;
+  border-radius: 16px;
+  border-width: 2.5px;
+  padding: 14px 6px 14px;
+}
+
+.switch-bits-flex.bits-4 .switch-cell-pv {
+  font-size: 15px;
+  font-weight: 800;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+.switch-bits-flex.bits-4 .switch-cell-val {
+  font-size: 34px;
+  font-weight: 900;
+  margin-bottom: 2px;
+}
+
+.switch-bits-flex.bits-8 {
+  gap: 4px;
+}
+
+.switch-bits-flex.bits-8 .bitmaster-switch-cell {
+  min-height: 82px;
+  border-radius: 10px;
+  padding: 8px 1px 10px;
+}
+
+.switch-bits-flex.bits-8 .switch-cell-pv {
+  font-size: clamp(9px, 2.4vw, 11px);
+  font-weight: 800;
+}
+
+.switch-bits-flex.bits-8 .switch-cell-val {
+  font-size: clamp(17px, 4.2vw, 22px);
+  font-weight: 900;
+  margin-bottom: 2px;
 }
 
 .bitmaster-switch-cell {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   flex: 1 1 0;
   min-width: 0;
   max-width: 100%;
-  padding: 8px 2px;
+  padding: 10px 2px;
   background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
   border: 2px solid #475569;
   border-radius: 10px;
@@ -4519,22 +4570,37 @@ html.dark .converter-preset-btn:hover,
 }
 
 @media (max-width: 480px) {
-  .switch-bits-flex {
+  .switch-bits-flex.bits-4 {
+    gap: 7px;
+  }
+  .switch-bits-flex.bits-4 .bitmaster-switch-cell {
+    min-height: 120px;
+    border-radius: 14px;
+    padding: 12px 4px 14px;
+    box-shadow: 0 4px 0 #090e18;
+  }
+  .switch-bits-flex.bits-4 .switch-cell-pv {
+    font-size: 14px;
+  }
+  .switch-bits-flex.bits-4 .switch-cell-val {
+    font-size: 32px;
+  }
+  .switch-bits-flex.bits-8 {
     gap: 3px;
   }
-  .bitmaster-switch-cell {
-    padding: 6px 1px;
+  .switch-bits-flex.bits-8 .bitmaster-switch-cell {
+    min-height: 76px;
     border-radius: 8px;
-    border-width: 1.5px;
+    padding: 6px 1px 8px;
   }
-  .switch-cell-pv {
-    font-size: 8px;
+  .switch-bits-flex.bits-8 .switch-cell-pv {
+    font-size: 8.5px;
   }
-  .switch-cell-val {
-    font-size: 13px;
+  .switch-bits-flex.bits-8 .switch-cell-val {
+    font-size: 17px;
   }
   .switchboard-footer {
-    padding: 8px 10px;
+    padding: 10px 14px;
   }
 }
 
@@ -5152,6 +5218,16 @@ html.dark .converter-preset-btn:hover,
 .current-rank-box .rank-box-avatar {
   border-color: #38bdf8;
   box-shadow: 0 8px 30px rgba(56, 189, 248, 0.45);
+  cursor: pointer;
+}
+
+.current-rank-box .rank-box-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 36px rgba(56, 189, 248, 0.65);
+}
+
+.current-rank-box .rank-box-avatar:active {
+  transform: scale(0.97);
 }
 
 .next-rank-box .rank-box-avatar {
@@ -5228,6 +5304,21 @@ html.dark .converter-preset-btn:hover,
   background: #111726;
   border: 1.5px solid #1e293b;
   border-radius: 10px;
+  transition: all 0.15s ease;
+}
+
+.rank-ladder-row.unlocked {
+  cursor: pointer;
+}
+
+.rank-ladder-row.unlocked:hover {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.45);
+  transform: translateX(2px);
+}
+
+.rank-ladder-row.unlocked .ladder-rank-avatar {
+  border-color: rgba(56, 189, 248, 0.4);
 }
 
 .rank-ladder-row.current-tier {
@@ -5305,6 +5396,96 @@ html.dark .converter-preset-btn:hover,
   justify-content: space-between;
   padding-top: 14px;
   border-top: 1px solid #1e293b;
+}
+
+/* =========================================================================
+   AVATAR ZOOM LIGHTBOX MODAL
+   ========================================================================= */
+.avatar-zoom-dialog {
+  max-width: 360px !important;
+  text-align: center !important;
+  padding: 24px 20px 20px !important;
+  border-radius: 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+.avatar-zoom-frame {
+  width: 170px;
+  height: 170px;
+  margin: 4px auto 14px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.22), rgba(236, 72, 153, 0.25));
+  border: 3px solid #38bdf8;
+  box-shadow: 0 0 35px rgba(56, 189, 248, 0.45), inset 0 2px 0 rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.avatar-zoom-frame .bitmaster-avatar-media {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-zoom-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-zoom-frame .bitmaster-avatar-fallback {
+  font-size: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-zoom-frame svg {
+  width: 80px;
+  height: 80px;
+}
+
+.avatar-zoom-title {
+  font-family: var(--font-sans);
+  font-size: 22px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0 0 6px 0;
+  letter-spacing: -0.02em;
+}
+
+.avatar-zoom-tier-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1.5px solid rgba(56, 189, 248, 0.35);
+  padding: 4px 12px;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.avatar-zoom-desc {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #94a3b8;
+  margin: 0 0 16px 0;
+  padding: 0 8px;
 }
 
 @keyframes modalScaleUp {

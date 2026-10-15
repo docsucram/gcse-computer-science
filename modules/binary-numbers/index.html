@@ -17,8 +17,8 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="../../shared/styles.css?v=2.5.1">
-  <link rel="stylesheet" href="./style.css?v=2.5.1">
+  <link rel="stylesheet" href="../../shared/styles.css?v=2.6.0">
+  <link rel="stylesheet" href="./style.css?v=2.6.0">
 
   <script>
     // Immediate theme initialization to prevent flash
@@ -281,15 +281,10 @@
         <!-- SCREEN 1: TOPIC LEVELS SELECTION (Stages as Subtitles) -->
         <div id="bitmasterScreenStages" class="bitmaster-screen">
           <div class="topic-levels-header-bar">
-            <button type="button" class="bitmaster-top-back-btn" id="bitmasterTopicTopBackBtn" title="Back to Topics">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-              <span>Topics</span>
-            </button>
             <div class="topic-levels-header-title-wrap">
               <span class="topic-levels-tag" id="bitmasterStagesTopicTag">TOPIC 01</span>
               <h2 class="stages-topic-title" id="bitmasterStagesTopicTitle">Binary</h2>
             </div>
-            <div class="topic-levels-header-spacer"></div>
           </div>
 
           <!-- Mode Switcher: 10 Questions vs 60s Speed Sprint -->
@@ -800,6 +795,19 @@
                 <span>Reset Scores</span>
               </button>
               <button id="bitmasterRankModalDoneBtn" class="control-btn control-btn-primary">Done</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- IN-ARENA MODAL: Avatar Zoom Lightbox -->
+        <div id="bitmasterAvatarZoomModal" class="bitmaster-modal-backdrop" style="display: none; z-index: 1200;">
+          <div class="bitmaster-modal-dialog avatar-zoom-dialog">
+            <div class="avatar-zoom-frame" id="bitmasterAvatarZoomFrame"></div>
+            <h3 class="avatar-zoom-title" id="bitmasterAvatarZoomTitle"></h3>
+            <div class="avatar-zoom-tier-badge" id="bitmasterAvatarZoomTier"></div>
+            <p class="avatar-zoom-desc" id="bitmasterAvatarZoomDesc"></p>
+            <div class="modal-dialog-actions" style="margin-top: 18px; width: 100%;">
+              <button type="button" class="control-btn control-btn-primary" id="bitmasterAvatarZoomCloseBtn" style="width: 100%; padding: 11px;">Close</button>
             </div>
           </div>
         </div>
@@ -2523,7 +2531,7 @@
   </footer>
 
   <!-- Shared & Module Scripts -->
-  <script src="../../shared/nav.js?v=2.5.1"></script>
-  <script src="./app.js?v=2.5.1"></script>
+  <script src="../../shared/nav.js?v=2.6.0"></script>
+  <script src="./app.js?v=2.6.0"></script>
 </body>
 </html>
