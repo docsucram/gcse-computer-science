@@ -17,8 +17,8 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- Stylesheet -->
-  <link rel="stylesheet" href="../../shared/styles.css?v=2.4.0">
-  <link rel="stylesheet" href="./style.css?v=2.4.0">
+  <link rel="stylesheet" href="../../shared/styles.css?v=2.5.0">
+  <link rel="stylesheet" href="./style.css?v=2.5.0">
 
   <script>
     // Immediate theme initialization to prevent flash
@@ -208,31 +208,30 @@
 
         <!-- SCREEN 0: TITLE SCREEN (ARCADE WELCOME) -->
         <div id="bitmasterScreenTitle" class="bitmaster-screen active">
-          <div class="bitmaster-title-hero">
-            <div class="title-hero-badge-wrap">
-              <div class="title-hero-chip" id="bitmasterTitleHeroChip">
-                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="4" y="4" width="16" height="16" rx="2"/>
-                  <rect x="9" y="9" width="6" height="6"/>
-                  <path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 15h3M1 9h3M1 15h3"/>
-                </svg>
-              </div>
-            </div>
-
             <h1 class="title-hero-heading">BitMaster</h1>
 
-            <div class="title-player-stats" id="bitmasterTitleStatsPreview">
-              <div class="title-stat-rank-box">
-                <span class="title-stat-label">RANK</span>
-                <span class="title-stat-value text-cyan" id="bitmasterTitleRankName">Logic Novice</span>
-              </div>
-              <div class="title-stat-pill-group">
-                <div class="title-stat-badge title-stat-stars">
-                  <span class="stat-badge-icon">⭐</span>
-                  <span id="bitmasterTitleStarsCount">0 / 219</span>
+            <!-- COMBINED PLAYER PROFILE CARD (Avatar on left, Rank & Stats on right in separate rows) -->
+            <div class="title-player-card" id="bitmasterTitleStatsPreview" title="Click to view rank progression">
+              <div class="player-card-avatar-wrap" id="bitmasterTitleHeroChip">
+                <div class="title-hero-chip">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/>
+                  </svg>
                 </div>
-                <div class="title-stat-badge title-stat-score">
-                  <span id="bitmasterTitleXpCount">0 pts</span>
+              </div>
+              <div class="player-card-body">
+                <div class="player-card-rank-group">
+                  <span class="title-stat-label">RANK</span>
+                  <div class="title-stat-value text-cyan" id="bitmasterTitleRankName">Logic Novice</div>
+                </div>
+                <div class="player-card-stats-row">
+                  <span class="player-card-stat-pill player-card-stars">
+                    <span class="stat-badge-icon">⭐</span>
+                    <span id="bitmasterTitleStarsCount">0 / 219</span>
+                  </span>
+                  <span class="player-card-stat-pill player-card-score">
+                    <span id="bitmasterTitleXpCount">0 pts</span>
+                  </span>
                 </div>
               </div>
             </div>
@@ -2523,7 +2522,7 @@
   </footer>
 
   <!-- Shared & Module Scripts -->
-  <script src="../../shared/nav.js?v=2.4.0"></script>
-  <script src="./app.js?v=2.4.0"></script>
+  <script src="../../shared/nav.js?v=2.5.0"></script>
+  <script src="./app.js?v=2.5.0"></script>
 </body>
 </html>

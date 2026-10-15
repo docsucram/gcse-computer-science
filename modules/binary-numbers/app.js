@@ -3147,7 +3147,7 @@
     if (titleHeroChip) titleHeroChip.innerHTML = getBitmasterAvatarHTML(rank, 'title-hero-avatar');
     if (titleRankEl) titleRankEl.textContent = rank.title;
     const maxPossibleStars = BITMASTER_STAGES.reduce((acc, s) => acc + s.levels.length * 3, 0);
-    if (titleStarsEl) titleStarsEl.textContent = `${totalStars} / ${maxPossibleStars} ⭐`;
+    if (titleStarsEl) titleStarsEl.textContent = `${totalStars} / ${maxPossibleStars}`;
     if (titleXpEl) titleXpEl.textContent = `${bitmasterState.xp.toLocaleString()} pts`;
     renderBitmasterFrontTopics();
     renderBitmasterSuggestedLevel();
@@ -3353,6 +3353,7 @@
       });
 
       const pct = topicMaxStars > 0 ? Math.round((topicEarnedStars / topicMaxStars) * 100) : 0;
+      const shortTopicName = (topic.id === 4) ? "Signed Numbers" : topic.shortName;
 
       const card = document.createElement('div');
       card.className = 'bitmaster-topic-card-btn bitmaster-topic-fullwidth-btn';
@@ -3363,7 +3364,7 @@
       card.innerHTML = `
         <div class="topic-card-hero-box">${topic.heroCode}</div>
         <div class="topic-card-body">
-          <div class="topic-card-name">${topic.name || topic.shortName}</div>
+          <div class="topic-card-name">${shortTopicName}</div>
           <div class="topic-card-meta">${topicStages.length} Stages • ${totalLevels} Levels</div>
         </div>
         <div class="topic-card-right">
@@ -3402,7 +3403,7 @@
     const topicTitleEl = document.getElementById('bitmasterStagesTopicTitle');
     const topicTagEl = document.getElementById('bitmasterStagesTopicTag');
     if (topicTitleEl) {
-      topicTitleEl.textContent = activeTopic.name || activeTopic.shortName;
+      topicTitleEl.textContent = (activeTopic.id === 4) ? "Signed Numbers" : activeTopic.shortName;
       topicTitleEl.style.textShadow = `0 0 20px ${activeTopic.glow}`;
     }
     if (topicTagEl) {
@@ -3455,7 +3456,6 @@
 
     // Render each stage as a subtitle section, followed directly by its levels!
     const topicStages = BITMASTER_STAGES.filter(s => s.topicId === activeTopic.id);
-    const isSprint = (bitmasterState.selectedGameMode === 'sprint');
 
     topicStages.forEach(stage => {
       let stageStars = 0;
@@ -3468,22 +3468,19 @@
       const section = document.createElement('div');
       section.className = 'bitmaster-stage-section';
 
-      // Section Header (Subtitle divider)
+      // Section Header (No subtitle description)
       const header = document.createElement('div');
       header.className = 'stage-section-header';
       header.innerHTML = `
         <div class="stage-section-left">
           <span class="stage-section-badge stage-badge-s${stage.id}">${stage.svgIcon}</span>
-          <div class="stage-section-info">
-            <div class="stage-section-title">STAGE ${String(stage.id).padStart(2, '0')}: ${stage.shortTitle || stage.title}</div>
-            <div class="stage-section-desc">${stage.subtitle}</div>
-          </div>
+          <div class="stage-section-title">STAGE ${String(stage.id).padStart(2, '0')}: ${stage.shortTitle || stage.title}</div>
         </div>
         <div class="stage-section-stars">${stageStars}/${maxStars} ⭐</div>
       `;
       section.appendChild(header);
 
-      // Group of Levels directly beneath this Stage subtitle
+      // Group of Levels directly beneath this Stage subtitle (No subtitle description)
       const levelsGroup = document.createElement('div');
       levelsGroup.className = 'stage-levels-group';
 
@@ -3491,10 +3488,6 @@
         const lvlKey = `s${stage.id}_l${lvl.id}`;
         const stars = bitmasterState.stars[lvlKey] || 0;
         const starIcons = '★'.repeat(stars) + '☆'.repeat(3 - stars);
-        const record = bitmasterState.levelRecords[lvlKey] || {};
-        const metaText = isSprint 
-          ? (record.sprintSolved !== undefined ? `Best: ${record.sprintSolved} solved` : lvl.desc)
-          : (record.bestScore !== undefined ? `Best: ${record.bestScore} pts` : lvl.desc);
 
         const row = document.createElement('div');
         row.className = 'bitmaster-level-row';
@@ -3504,10 +3497,7 @@
         row.innerHTML = `
           <div class="level-row-left">
             <span class="level-row-num">${lvl.id}</span>
-            <div class="level-row-info">
-              <div class="level-row-title">${lvl.name || lvl.title}</div>
-              <div class="level-row-desc">${metaText || ''}</div>
-            </div>
+            <div class="level-row-title">${lvl.name || lvl.title}</div>
           </div>
           <div class="level-row-right">
             <div class="level-row-stars ${stars > 0 ? 'has-stars' : ''}">${starIcons}</div>
@@ -6495,31 +6485,22 @@
       overlay.style.display = 'flex';
       numEl.textContent = '3';
       numEl.className = 'countdown-num pop-anim';
-      playSynthSound('click');
 
       const t1 = setTimeout(() => {
         numEl.textContent = '2';
         numEl.className = 'countdown-num pop-anim';
-        playSynthSound('click');
-      }, 380);
+      }, 550);
 
       const t2 = setTimeout(() => {
         numEl.textContent = '1';
         numEl.className = 'countdown-num pop-anim';
-        playSynthSound('click');
-      }, 760);
+      }, 1100);
 
       const t3 = setTimeout(() => {
-        numEl.textContent = 'GO!';
-        numEl.className = 'countdown-num pop-anim countdown-go';
-        playSynthSound('correct');
-      }, 1140);
-
-      const t4 = setTimeout(() => {
         beginActualPlay();
-      }, 1480);
+      }, 1650);
 
-      bitmasterCountdownTimeouts = [t1, t2, t3, t4];
+      bitmasterCountdownTimeouts = [t1, t2, t3];
     } else {
       beginActualPlay();
     }
