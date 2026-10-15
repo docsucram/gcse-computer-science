@@ -11,7 +11,8 @@ const STATIC_ASSETS = [
   '../../shared/styles.css?v=2.8.1',
   '../../shared/nav.js',
   '../../shared/nav.js?v=2.8.1',
-  '../../favicon.svg'
+  '../../favicon.svg',
+  './apple-touch-icon.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -60,7 +61,7 @@ self.addEventListener('fetch', (event) => {
       }
 
       return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
+        if (!networkResponse || networkResponse.status !== 200 || (networkResponse.type !== 'basic' && networkResponse.type !== 'cors')) {
           return networkResponse;
         }
         const responseToCache = networkResponse.clone();

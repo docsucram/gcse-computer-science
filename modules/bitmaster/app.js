@@ -843,6 +843,7 @@
     timerInterval: null,
     elapsedSeconds: 0,
     sprintTimeLeft: 60,
+    inRound: false,
     switchBits: [0, 0, 0, 0, 0, 0, 0, 0]
   };
   window.bitmasterState = bitmasterState;
@@ -1274,15 +1275,6 @@
     }
     if (btn10Q) btn10Q.classList.toggle('active', bitmasterState.selectedGameMode === '10q');
     if (btnSprint) btnSprint.classList.toggle('active', bitmasterState.selectedGameMode === 'sprint');
-
-    // Attach Scoring Criteria Modal Trigger
-    const starCriteriaBtn = document.getElementById('bitmasterStarCriteriaBtn');
-    if (starCriteriaBtn && !starCriteriaBtn.dataset.bmBound) {
-      starCriteriaBtn.dataset.bmBound = 'true';
-      starCriteriaBtn.addEventListener('click', () => {
-        showBitmasterStarCriteriaModal();
-      });
-    }
 
     // Render each stage as a subtitle section, followed directly by its levels!
     const topicStages = BITMASTER_STAGES.filter(s => s.topicId === activeTopic.id);
@@ -2134,7 +2126,7 @@
         type: 'mc',
         prompt: `Convert Hex 0x${hex} to Denary:`,
         display: `0x${hex}`,
-        hint: `Calculation: (${highVal} × 16) + ${lowVal} = ${val}`,
+        hint: `Assisted: (${highVal} × 16) + ${lowVal}`,
         correctAnswer: String(val),
         options: options.map(String)
       };
@@ -2171,15 +2163,15 @@
     if (effectiveMode === 'mc_den_to_hex') {
       const val = Math.floor(Math.random() * 256);
       const hex = '0x' + val.toString(16).toUpperCase().padStart(2, '0');
-      const dists = generateDistractors(val, 0, 255, 'hex');
-      const options = shuffleArray([val, ...dists]).map(v => '0x' + v.toString(16).toUpperCase().padStart(2, '0'));
+      const dists = generateDistractors(val.toString(16).toUpperCase().padStart(2, '0'), 0, 255, 'hex');
+      const hexDists = dists.map(h => '0x' + h.padStart(2, '0'));
       return {
         type: 'mc',
         prompt: `Convert Denary ${val} to Hexadecimal (0x):`,
         display: String(val),
         hint: "Divide by 16 for high digit, remainder for low digit",
         correctAnswer: hex,
-        options: options
+        options: shuffleArray([hex, ...hexDists]).map(String)
       };
     }
 
@@ -4095,8 +4087,8 @@
         let hintStr = '';
         if (totalBytes >= 1000 && totalBytes % 1000 === 0) {
           const kb = totalBytes / 1000;
-          ansStr = `${kb} KB (${totalBytes.toLocaleString()} bytes)`;
-          hintStr = `Formula: Width (${p.w}) × Height (${p.h}) × (${p.depth} bits ÷ 8). Total = ${totalBytes.toLocaleString()} bytes = ${kb} KB.`;
+          ansStr = `${kb} KB`;
+          hintStr = `Formula: Width (${p.w}) × Height (${p.h}) × (${p.depth} bits ÷ 8).`;
         } else {
           ansStr = `${totalBytes.toLocaleString()} bytes`;
           hintStr = `Formula: Width (${p.w}) × Height (${p.h}) × ${p.depth} bits ÷ 8 bits per byte.`;
@@ -4214,7 +4206,7 @@
               `${(Math.max(2, Math.round(coloursCount / 2))).toLocaleString()} colours`,
               `${chosenBits * 2} colours`
             ],
-            hint: `Formula: 2ⁿ colours, where n is the number of bits per pixel (2^${chosenBits} = ${coloursCount}).`
+            hint: `Formula: 2ⁿ colours, where n is the number of bits per pixel.`
           },
           {
             prompt: "Bitmap File Structure",
@@ -4275,7 +4267,7 @@
           prompt: "Transfer Speed vs File Size",
           display: `${mbps} Mbps ➔ ? MB/s`,
           isQuestionDisplay: true,
-          hint: `1 Byte = 8 bits. Divide network speed in Mbps (${mbps}) by 8 to convert to MB/s: ${mbps} ÷ 8 = ${mBps} MB/s.`,
+          hint: `1 Byte = 8 bits. Divide network speed in Mbps (${mbps}) by 8 to convert to MB/s.`,
           correctAnswer: correct,
           options: shuffleArray([correct, ...Array.from(distractors).slice(0, 3)])
         };
@@ -4297,7 +4289,7 @@
           prompt: "Transfer Speed vs File Size",
           display: `${mBps} MB/s ➔ ? Mbps`,
           isQuestionDisplay: true,
-          hint: `1 Byte = 8 bits. Multiply file transfer rate in MB/s (${mBps}) by 8 to convert to Mbps: ${mBps} × 8 = ${mbps} Mbps.`,
+          hint: `1 Byte = 8 bits. Multiply file transfer rate in MB/s (${mBps}) by 8 to convert to Mbps.`,
           correctAnswer: correct,
           options: shuffleArray([correct, ...Array.from(distractors).slice(0, 3)])
         };
@@ -4327,7 +4319,7 @@
           prompt: "Packet Payload Calculation",
           display: `${P.toLocaleString()} B Packet − ${H} B Headers = ? Payload`,
           isQuestionDisplay: true,
-          hint: `Formula: Payload = Total Packet Size − Protocol Headers (${P} − ${H} = ${payload} bytes).`,
+          hint: `Formula: Payload = Total Packet Size − Protocol Headers.`,
           correctAnswer: correct,
           options: shuffleArray([correct, ...Array.from(distractors).slice(0, 3)])
         };
@@ -4477,6 +4469,7 @@
     const isSprint = (bitmasterState.selectedGameMode === 'sprint');
 
     bitmasterState.isSprint = isSprint;
+    bitmasterState.inRound = true;
     bitmasterState.roundStartXp = bitmasterState.xp;
     bitmasterState.currentQuestionIndex = 0;
     bitmasterState.mistakesThisRound = 0;
@@ -4766,9 +4759,6 @@
 
       playSynthSound('correct');
       bitmasterState.correctThisRound++;
-      const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 15 : 5;
-      bitmasterState.xp += earnedXp;
-      updateBitmasterHUD();
       if (bitmasterState.isSprint) {
         const counterEl = document.getElementById('bitmasterQuestionCounter');
         if (counterEl) counterEl.textContent = `Solved: ${bitmasterState.correctThisRound}`;
@@ -5004,9 +4994,6 @@
         if (isCorrect) {
           playSynthSound('correct');
           bitmasterState.correctThisRound++;
-          const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 20 : 8;
-          bitmasterState.xp += earnedXp;
-          updateBitmasterHUD();
           loadNextBitmasterQuestion();
         } else {
           playSynthSound('wrong');
@@ -5175,9 +5162,6 @@
     if (isCorrect) {
       playSynthSound('correct');
       bitmasterState.correctThisRound++;
-      const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 20 : 8;
-      bitmasterState.xp += earnedXp;
-      updateBitmasterHUD();
       if (bitmasterState.isSprint) {
         const counterEl = document.getElementById('bitmasterQuestionCounter');
         if (counterEl) counterEl.textContent = `Solved: ${bitmasterState.correctThisRound}`;
@@ -5370,9 +5354,6 @@
     if (isCorrect) {
       playSynthSound('correct');
       bitmasterState.correctThisRound++;
-      const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 20 : 8;
-      bitmasterState.xp += earnedXp;
-      updateBitmasterHUD();
       if (bitmasterState.isSprint) {
         const counterEl = document.getElementById('bitmasterQuestionCounter');
         if (counterEl) counterEl.textContent = `Solved: ${bitmasterState.correctThisRound}`;
@@ -5525,9 +5506,6 @@
     if (isCorrect) {
       playSynthSound('correct');
       bitmasterState.correctThisRound++;
-      const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 20 : 8;
-      bitmasterState.xp += earnedXp;
-      updateBitmasterHUD();
       if (bitmasterState.isSprint) {
         const counterEl = document.getElementById('bitmasterQuestionCounter');
         if (counterEl) counterEl.textContent = `Solved: ${bitmasterState.correctThisRound}`;
@@ -5657,6 +5635,7 @@
   }
 
   function finishBitmasterRound() {
+    bitmasterState.inRound = false;
     if (bitmasterState.timerInterval) {
       clearInterval(bitmasterState.timerInterval);
       bitmasterState.timerInterval = null;
@@ -7002,6 +6981,7 @@
     if (abandonConfirmBtn) {
       abandonConfirmBtn.addEventListener('click', () => {
         playSynthSound('tap');
+        bitmasterState.inRound = false;
         hideBitmasterAbandonModal();
         if (bitmasterState.timerInterval) clearInterval(bitmasterState.timerInterval);
         renderBitmasterStagesGrid();
@@ -7044,7 +7024,7 @@
         const themeId = card.getAttribute('data-theme-id');
         if (themeId) {
           applyBitmasterTheme(themeId, true);
-          playSynthSound('celebrate');
+          playSynthSound('star');
         }
       };
       card.addEventListener('click', equip);
@@ -7057,7 +7037,8 @@
     });
 
     // Star Criteria Button in Levels Screen opens Star Criteria Modal
-    if (starCriteriaBtn) {
+    if (starCriteriaBtn && !starCriteriaBtn.dataset.bmBound) {
+      starCriteriaBtn.dataset.bmBound = 'true';
       starCriteriaBtn.addEventListener('click', () => {
         showBitmasterStarCriteriaModal();
       });
