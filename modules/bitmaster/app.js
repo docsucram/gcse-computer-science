@@ -816,6 +816,8 @@
 
   const bitmasterState = {
     xp: 0,
+    arcadeXp: 0,
+    roundStartXp: 0,
     stars: {}, // key: "s{stageId}_l{levelId}" -> number (1-3)
     levelRecords: {}, // key: "s{stageId}_l{levelId}" -> { best10Q, stars10Q, bestSprint, solvedSprint, medalSprint }
     selectedGameMode: '10q', // '10q' | 'sprint'
@@ -833,8 +835,7 @@
     timerInterval: null,
     elapsedSeconds: 0,
     sprintTimeLeft: 60,
-    switchBits: [0, 0, 0, 0, 0, 0, 0, 0],
-    keypadBuffer: ""
+    switchBits: [0, 0, 0, 0, 0, 0, 0, 0]
   };
   window.bitmasterState = bitmasterState;
 
@@ -845,7 +846,8 @@
         const data = JSON.parse(savedV2);
         bitmasterState.stars = data.stars || {};
         bitmasterState.levelRecords = data.levelRecords || {};
-        let totalXp = 0;
+        bitmasterState.arcadeXp = Number(data.arcadeXp) || 0;
+        let totalXp = bitmasterState.arcadeXp;
         Object.values(bitmasterState.levelRecords).forEach(rec => {
           totalXp += (Number(rec.best10Q) || 0) + (Number(rec.bestSprint) || 0);
         });
@@ -856,6 +858,7 @@
           const data = JSON.parse(savedV1);
           bitmasterState.stars = data.stars || {};
           bitmasterState.levelRecords = {};
+          bitmasterState.arcadeXp = 0;
           let migXp = 0;
           Object.entries(bitmasterState.stars).forEach(([k, s]) => {
             const starVal = Number(s) || 0;
@@ -879,7 +882,7 @@
 
   function saveBitmasterProgress() {
     try {
-      let totalXp = 0;
+      let totalXp = Number(bitmasterState.arcadeXp) || 0;
       Object.values(bitmasterState.levelRecords).forEach(rec => {
         totalXp += (Number(rec.best10Q) || 0) + (Number(rec.bestSprint) || 0);
       });
@@ -888,7 +891,8 @@
       localStorage.setItem('bitmaster_save_v2', JSON.stringify({
         xp: bitmasterState.xp,
         stars: bitmasterState.stars,
-        levelRecords: bitmasterState.levelRecords
+        levelRecords: bitmasterState.levelRecords,
+        arcadeXp: bitmasterState.arcadeXp || 0
       }));
     } catch (e) {
       console.warn("Could not write BitMaster save:", e);
@@ -1268,9 +1272,7 @@
     if (starCriteriaBtn && !starCriteriaBtn.dataset.bmBound) {
       starCriteriaBtn.dataset.bmBound = 'true';
       starCriteriaBtn.addEventListener('click', () => {
-        playSynthSound('tap');
-        const modal = document.getElementById('bitmasterStarModal');
-        if (modal) modal.style.display = 'flex';
+        showBitmasterStarCriteriaModal();
       });
     }
 
@@ -1571,8 +1573,25 @@
       distractors.add(arr2.join(''));
 
       const arr3 = correctVal.split('');
-      arr3[0] = arr3[0] === '1' ? '0' : '1';
+      const flipIdx3 = (flipIdx + 1) % bitLen;
+      arr3[flipIdx3] = arr3[flipIdx3] === '1' ? '0' : '1';
       distractors.add(arr3.join(''));
+
+      let safety = 0;
+      while (distractors.size < 3 && safety < 30) {
+        safety++;
+        const candidate = correctVal.split('');
+        const r1 = Math.floor(Math.random() * bitLen);
+        candidate[r1] = candidate[r1] === '1' ? '0' : '1';
+        if (Math.random() > 0.5) {
+          const r2 = Math.floor(Math.random() * bitLen);
+          candidate[r2] = candidate[r2] === '1' ? '0' : '1';
+        }
+        const candStr = candidate.join('');
+        if (candStr !== correctStr) {
+          distractors.add(candStr);
+        }
+      }
     }
 
     return Array.from(distractors).filter(d => String(d) !== correctStr).slice(0, 3);
@@ -1581,41 +1600,7 @@
   function createBitmasterQuestion() {
     const stage = BITMASTER_STAGES.find(s => s.id === bitmasterState.activeStage);
     const level = stage.levels.find(l => l.id === bitmasterState.activeLevel);
-    const mode = level.mode;
-    let effectiveMode = mode;
-    if (mode === 'sprint_60s') {
-      if (stage.id === 1) {
-        effectiveMode = Math.random() > 0.5 ? 'place_val_nibble_missing' : 'place_val_byte_missing';
-      } else if (stage.id === 2) {
-        effectiveMode = Math.random() > 0.5 ? 'mc_nibble_bin2den_assisted' : 'mc_byte_bin2den_unassisted';
-      } else if (stage.id === 3) {
-        effectiveMode = Math.random() > 0.5 ? 'switches_nibble' : 'mixed_bin_den';
-      } else if (stage.id === 4) {
-        effectiveMode = Math.random() > 0.5 ? 'mc_hex_nibble_to_den' : 'mc_hex_byte';
-      } else if (stage.id === 5) {
-        const r = Math.random();
-        effectiveMode = r < 0.33 ? 'hex_mixed_bin' : (r < 0.66 ? 'hex_mixed_den' : 'hex_tri_mixed');
-      } else if (stage.id === 6) {
-        effectiveMode = Math.random() > 0.5 ? 'math_add_simple' : 'math_add_8bit';
-      } else if (stage.id === 7) {
-        const r = Math.random();
-        effectiveMode = r < 0.25 ? 'mc_twos_comp_sign' : (r < 0.5 ? 'twos_comp_nibble_missing' : (r < 0.75 ? 'twos_comp_nibbles' : 'twos_comp_byte_mastery'));
-      } else if (stage.id === 8) {
-        const r = Math.random();
-        effectiveMode = r < 0.25
-          ? 'math_sub_no_borrow_4bit'
-          : (r < 0.5 ? 'math_sub_no_borrow_8bit' : (r < 0.75 ? 'sub_twos_comp_negate' : 'math_sub_twos_comp_grid'));
-      } else if (stage.id === 9) {
-        const r = Math.random();
-        effectiveMode = r < 0.33 ? 'math_shift_flip' : (r < 0.66 ? 'mc_shift_left' : 'mc_shift_right');
-      } else if (stage.id === 10) {
-        const r = Math.random();
-        effectiveMode = r < 0.33 ? 'units_fundamental' : (r < 0.66 ? 'units_conversions' : 'units_capacity');
-      } else if (stage.id === 11) {
-        const r = Math.random();
-        effectiveMode = r < 0.33 ? 'blitz_conversions' : (r < 0.66 ? 'blitz_maths' : 'units_transmission');
-      }
-    }
+    const effectiveMode = level.mode;
 
     const fmtBin = (val, len) => val.toString(2).padStart(len, '0').split('').join(' ');
 
@@ -4236,6 +4221,7 @@
     const isSprint = (bitmasterState.selectedGameMode === 'sprint');
 
     bitmasterState.isSprint = isSprint;
+    bitmasterState.roundStartXp = bitmasterState.xp;
     bitmasterState.currentQuestionIndex = 0;
     bitmasterState.mistakesThisRound = 0;
     bitmasterState.currentQuestionMistakes = 0;
@@ -4243,7 +4229,6 @@
     bitmasterState.elapsedSeconds = 0;
     bitmasterState.sprintTimeLeft = 60;
     bitmasterState.totalQuestions = isSprint ? 999 : 10;
-    bitmasterState.keypadBuffer = "";
 
     const timerEl = document.getElementById('bitmasterTimerDisplay');
     const counterEl = document.getElementById('bitmasterQuestionCounter');
@@ -4359,7 +4344,6 @@
     bitmasterState.currentQuestionIndex++;
     bitmasterState.currentQuestion = createBitmasterQuestion();
     bitmasterState.switchBits = [0, 0, 0, 0, 0, 0, 0, 0];
-    bitmasterState.keypadBuffer = "";
     bitmasterState.currentQuestionMistakes = 0;
 
     const counterEl = document.getElementById('bitmasterQuestionCounter');
@@ -4413,14 +4397,12 @@
 
     const tilesZone = document.getElementById('bitmasterTilesZone');
     const switchZone = document.getElementById('bitmasterSwitchboardZone');
-    const keypadZone = document.getElementById('bitmasterKeypadZone');
     const mathZone = document.getElementById('bitmasterMathGridZone');
     const hexZone = document.getElementById('bitmasterHexNibblesZone');
 
     if (bitmasterState.currentQuestion.type === 'mc') {
       if (tilesZone) tilesZone.style.display = 'grid';
       if (switchZone) switchZone.style.display = 'none';
-      if (keypadZone) keypadZone.style.display = 'none';
       if (mathZone) mathZone.style.display = 'none';
       if (hexZone) hexZone.style.display = 'none';
       renderBitmasterMCTiles(bitmasterState.currentQuestion.options, bitmasterState.currentQuestion.layout);
@@ -4436,31 +4418,19 @@
           bitmasterState.currentQuestion.referenceLabel
         );
       }
-      if (keypadZone) keypadZone.style.display = 'none';
       if (mathZone) mathZone.style.display = 'none';
       if (hexZone) hexZone.style.display = 'none';
     } else if (bitmasterState.currentQuestion.type === 'hex_nibbles') {
       if (tilesZone) tilesZone.style.display = 'none';
       if (switchZone) switchZone.style.display = 'none';
-      if (keypadZone) keypadZone.style.display = 'none';
       if (mathZone) mathZone.style.display = 'none';
       if (hexZone) {
         hexZone.style.display = 'flex';
         renderBitmasterHexNibbles(bitmasterState.currentQuestion);
       }
-    } else if (bitmasterState.currentQuestion.type === 'keypad') {
-      if (tilesZone) tilesZone.style.display = 'none';
-      if (switchZone) switchZone.style.display = 'none';
-      if (keypadZone) {
-        keypadZone.style.display = 'flex';
-        renderBitmasterKeypad();
-      }
-      if (mathZone) mathZone.style.display = 'none';
-      if (hexZone) hexZone.style.display = 'none';
     } else if (bitmasterState.currentQuestion.type === 'math_grid') {
       if (tilesZone) tilesZone.style.display = 'none';
       if (switchZone) switchZone.style.display = 'none';
-      if (keypadZone) keypadZone.style.display = 'none';
       if (hexZone) hexZone.style.display = 'none';
       if (mathZone) {
         mathZone.style.display = 'flex';
@@ -4658,6 +4628,22 @@
     }
   }
 
+  function showBitmasterStarCriteriaModal() {
+    const modal = document.getElementById('bitmasterModalStarCriteria');
+    if (modal) {
+      modal.style.display = 'flex';
+      playSynthSound('tap');
+    }
+  }
+
+  function hideBitmasterStarCriteriaModal() {
+    const modal = document.getElementById('bitmasterModalStarCriteria');
+    if (modal) {
+      modal.style.display = 'none';
+      playSynthSound('tap');
+    }
+  }
+
   function renderBitmasterSwitchboard(bitsCount = 8, isBlind = false, isTwosComp = false, referenceBits = null, referenceLabel = null) {
     // Handle Optional Reference Row (e.g. Stage 10 Two's Complement Negation where original +ve bits are shown directly above)
     const refRowEl = document.getElementById('bitmasterSwitchReferenceRow');
@@ -4794,78 +4780,6 @@
     const sumEl = document.getElementById('bitmasterCurrentSwitchSum');
     if (sumEl) {
       sumEl.textContent = isBlind ? '?' : sum;
-    }
-  }
-
-  function renderBitmasterKeypad() {
-    const dispEl = document.getElementById('bitmasterKeypadDisplay');
-    const gridEl = document.getElementById('bitmasterKeypadGrid');
-    if (dispEl) dispEl.textContent = bitmasterState.keypadBuffer || '_';
-    if (!gridEl) return;
-
-    gridEl.innerHTML = '';
-    const keys = ['1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '0', 'D', 'E', 'F', 'DEL', 'OK'];
-
-    keys.forEach(k => {
-      const btn = document.createElement('button');
-      btn.className = 'control-btn keypad-btn';
-      if (k === 'OK') btn.className += ' control-btn-primary';
-      btn.textContent = k;
-
-      btn.addEventListener('click', () => {
-        playSynthSound('tap');
-        if (k === 'DEL') {
-          bitmasterState.keypadBuffer = bitmasterState.keypadBuffer.slice(0, -1);
-        } else if (k === 'OK') {
-          handleBitmasterKeypadSubmit();
-          return;
-        } else {
-          if (bitmasterState.keypadBuffer.length < 4) {
-            bitmasterState.keypadBuffer += k;
-          }
-        }
-        if (dispEl) dispEl.textContent = bitmasterState.keypadBuffer || '_';
-      });
-
-      gridEl.appendChild(btn);
-    });
-  }
-
-  function handleBitmasterKeypadSubmit() {
-    const isCorrect = bitmasterState.keypadBuffer.toUpperCase() === String(bitmasterState.currentQuestion.correctAnswer).toUpperCase();
-    if (isCorrect) {
-      playSynthSound('correct');
-      bitmasterState.correctThisRound++;
-      const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 20 : 8;
-      bitmasterState.xp += earnedXp;
-      updateBitmasterHUD();
-      if (bitmasterState.isSprint) {
-        const counterEl = document.getElementById('bitmasterQuestionCounter');
-        if (counterEl) counterEl.textContent = `Solved: ${bitmasterState.correctThisRound}`;
-        setTimeout(() => loadNextBitmasterQuestion(), 200);
-      } else {
-        loadNextBitmasterQuestion();
-      }
-    } else {
-      playSynthSound('wrong');
-      bitmasterState.mistakesThisRound++;
-      bitmasterState.currentQuestionMistakes++;
-      updateBitmasterMistakeCounter();
-      const dispEl = document.getElementById('bitmasterKeypadDisplay');
-      if (dispEl) {
-        dispEl.classList.add('shake-wrong');
-        setTimeout(() => dispEl.classList.remove('shake-wrong'), 500);
-      }
-
-      if (bitmasterState.isSprint) {
-        showBitmasterToast(`Not quite! Expected ${bitmasterState.currentQuestion.correctAnswer}`, '❌', 850, () => {
-          loadNextBitmasterQuestion();
-        });
-      } else {
-        bitmasterState.keypadBuffer = "";
-        if (dispEl) dispEl.textContent = '_';
-        showBitmasterToast(`Not quite! Re-enter your answer and press OK.`, '❌', 1800);
-      }
     }
   }
 
@@ -5376,9 +5290,9 @@
     }
     bitmasterState.levelRecords[saveKey] = record;
 
-    const oldXp = bitmasterState.xp;
-    // Compute total XP across all levels
-    let totalXp = 0;
+    const oldXp = bitmasterState.roundStartXp || bitmasterState.xp;
+    // Compute total XP across all levels and arcade mini-games
+    let totalXp = Number(bitmasterState.arcadeXp) || 0;
     Object.values(bitmasterState.levelRecords).forEach(rec => {
       totalXp += (Number(rec.best10Q) || 0) + (Number(rec.bestSprint) || 0);
     });
@@ -5999,7 +5913,7 @@
     // Reward XP based on size
     const xpRewards = { 3: 150, 4: 300, 5: 500 };
     const earnedXp = xpRewards[bitcrossState.size] || 300;
-    bitmasterState.xp += earnedXp;
+    bitmasterState.arcadeXp = (bitmasterState.arcadeXp || 0) + earnedXp;
     saveBitmasterProgress();
     updateBitmasterHUD();
 
@@ -6526,7 +6440,7 @@
     const xpReward = Math.max(35, Math.round(bitpopState.score / 20) + (bitpopState.poppedCount * 5));
 
     // Award XP
-    bitmasterState.xp = (bitmasterState.xp || 0) + xpReward;
+    bitmasterState.arcadeXp = (bitmasterState.arcadeXp || 0) + xpReward;
     saveBitmasterProgress();
     updateBitmasterHUD();
 
@@ -6685,24 +6599,23 @@
       });
     });
 
-    // Star Criteria Button in Levels Screen opens Star Vault & Rules
+    // Star Criteria Button in Levels Screen opens Star Criteria Modal
     if (starCriteriaBtn) {
       starCriteriaBtn.addEventListener('click', () => {
-        showBitmasterStarVaultModal();
+        showBitmasterStarCriteriaModal();
       });
     }
 
-    if (closeStarCriteriaBtn && starCriteriaModal) {
+    if (closeStarCriteriaBtn) {
       closeStarCriteriaBtn.addEventListener('click', () => {
-        playSynthSound('tap');
-        starCriteriaModal.style.display = 'none';
+        hideBitmasterStarCriteriaModal();
       });
     }
 
     if (starCriteriaModal) {
       starCriteriaModal.addEventListener('click', (e) => {
         if (e.target === starCriteriaModal) {
-          starCriteriaModal.style.display = 'none';
+          hideBitmasterStarCriteriaModal();
         }
       });
     }
@@ -6862,12 +6775,18 @@
       confirmResetBtn.addEventListener('click', () => {
         playSynthSound('wrong');
         localStorage.removeItem('bitmaster_save_v1');
+        localStorage.removeItem('bitmaster_save_v2');
+        localStorage.removeItem('bitmaster_last_notified_rank');
         bitmasterState.xp = 0;
+        bitmasterState.arcadeXp = 0;
         bitmasterState.stars = {};
+        bitmasterState.levelRecords = {};
         saveBitmasterProgress();
         updateBitmasterHUD();
         renderBitmasterRankModal();
         renderBitmasterStagesGrid();
+        renderBitmasterFrontTopics();
+        renderBitmasterSuggestedLevel();
         resetConfirmModal.style.display = 'none';
       });
     }
@@ -7046,8 +6965,10 @@
       } else if (activeScreenId === 'bitmasterScreenBitPop') {
         exitBitPop();
       } else if (activeScreenId === 'bitmasterScreenSummary') {
-        showBitmasterScreen('levels', true);
+        renderBitmasterStagesGrid();
+        showBitmasterScreen('stages', true);
       } else if (activeScreenId === 'bitmasterScreenLevels') {
+        renderBitmasterStagesGrid();
         showBitmasterScreen('stages', true);
       } else if (activeScreenId === 'bitmasterScreenStages') {
         showBitmasterScreen('title', true);

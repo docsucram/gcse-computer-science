@@ -1807,7 +1807,6 @@ body.bitmaster-app-body {
 
 #bitmasterTilesZone,
 #bitmasterSwitchboardZone,
-#bitmasterKeypadZone,
 #bitmasterMathGridZone,
 #bitmasterHexNibblesZone {
   margin-top: auto !important;
@@ -2486,65 +2485,6 @@ body.bitmaster-app-body {
   color: #f472b6;
   font-size: 20px;
   margin-left: 6px;
-}
-
-/* Keypad Zone */
-.bitmaster-keypad-zone {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.keypad-input-display {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 16px;
-  background: #090d16;
-  border: 2.5px solid #232c40;
-  border-radius: 14px;
-  font-family: var(--font-mono);
-  font-size: 24px;
-  font-weight: 900;
-  color: #38bdf8;
-  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
-}
-
-.keypad-grid {
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 8px;
-}
-
-@media (max-width: 500px) {
-  .keypad-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.keypad-btn {
-  padding: 12px 6px;
-  font-weight: 900;
-  font-family: var(--font-mono);
-  font-size: 16px;
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-  border: 2px solid #475569;
-  border-radius: 12px;
-  box-shadow: 0 4px 0 #070b12;
-  color: #ffffff;
-  cursor: pointer;
-  transition: all 0.12s ease;
-}
-
-.keypad-btn:hover {
-  border-color: #38bdf8;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 #070b12;
-}
-
-.keypad-btn:active {
-  transform: translateY(3px);
-  box-shadow: 0 1px 0 #070b12;
 }
 
 /* Chunky Bevelled Primary Buttons */
@@ -5618,45 +5558,6 @@ body.bitmaster-standalone-mode .bitmaster-arena {
    THEME 1: NATURAL BREEZE (Light, Fresh, Airy Botanical)
    ========================================================================= */
 .bitmaster-arena[data-theme="natural-breeze"] {
-  background: #f8fafc !important;
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.12) 0%, transparent 65%),
-    linear-gradient(rgba(15, 23, 42, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px) !important;
-  border-color: #cbd5e1 !important;
-  box-shadow: 0 14px 44px rgba(15, 23, 42, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
-  color: #0f172a !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"]:fullscreen,
-.bitmaster-arena[data-theme="natural-breeze"].is-fullscreen {
-  background: #f1f5f9 !important;
-  background-image: radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.15) 0%, transparent 70%) !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-hud-bar {
-  border-bottom-color: #cbd5e1 !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-hud-btn,
-.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-hud-icon-btn {
-  background: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  color: #334155 !important;
-  box-shadow: 0 4px 0 #94a3b8 !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-hud-btn:hover,
-.bitmaster-arena[data-theme="natural-breeze"] .bitmaster-hud-icon-btn:hover {
-  border-color: #16a34a !important;
-  color: #16a34a !important;
-  box-shadow: 0 6px 0 #94a3b8, 0 0 12px rgba(22, 163, 74, 0.25) !important;
-}
-
-/* =========================================================================
-   THEME 1: NATURAL BREEZE (Light, Fresh, Airy Botanical)
-   ========================================================================= */
-.bitmaster-arena[data-theme="natural-breeze"] {
   background: #f4f7f4 !important;
   background-image: 
     radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.12) 0%, transparent 65%),
@@ -6069,24 +5970,6 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 
 .bitmaster-arena[data-theme="natural-breeze"] .switchboard-footer {
   color: #0f172a !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .keypad-input-display {
-  background: #ffffff !important;
-  border: 2px solid #cbd5e1 !important;
-  color: #0f172a !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .keypad-btn {
-  background: #ffffff !important;
-  border: 2px solid #cbd5e1 !important;
-  color: #0f172a !important;
-  box-shadow: 0 4px 0 #94a3b8 !important;
-}
-
-.bitmaster-arena[data-theme="natural-breeze"] .keypad-btn:hover {
-  border-color: #16a34a !important;
-  color: #15803d !important;
 }
 
 .bitmaster-arena[data-theme="natural-breeze"] .bitmaster-math-card {
