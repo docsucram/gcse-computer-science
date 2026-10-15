@@ -3305,7 +3305,10 @@
     cardContainer.innerHTML = `
       <div class="suggested-card-inner" style="--topic-accent: ${topic.accent}; --topic-glow: ${topic.glow};">
         <div class="suggested-card-left">
-          <div class="suggested-stage-label">${stage.shortTitle || stage.title}</div>
+          <div class="suggested-header-row">
+            <span class="suggested-kicker-pill">Recommended</span>
+            <span class="suggested-stage-label">${stage.shortTitle || stage.title}</span>
+          </div>
           <div class="suggested-level-name">${lvl.name || lvl.title || 'Start'}</div>
         </div>
         <div class="suggested-card-right">
@@ -7804,14 +7807,37 @@
 
     if (nextLvlBtn) {
       const stageLevelCount = stage ? stage.levels.length : 4;
-      if (starsEarned >= 1 && bitmasterState.activeLevel < stageLevelCount) {
-        nextLvlBtn.style.display = 'inline-flex';
-        nextLvlBtn.textContent = `Next Level (Level ${bitmasterState.activeLevel + 1}) \u2192`;
-        nextLvlBtn.onclick = () => {
-          bitmasterState.activeLevel++;
-          playSynthSound('tap');
-          startBitmasterRound();
-        };
+      const stageIdx = BITMASTER_STAGES.findIndex(s => s.id === bitmasterState.activeStage);
+
+      if (starsEarned >= 1) {
+        if (bitmasterState.activeLevel < stageLevelCount) {
+          nextLvlBtn.style.display = 'inline-flex';
+          nextLvlBtn.textContent = `Next Level (Level ${bitmasterState.activeLevel + 1}) \u2192`;
+          nextLvlBtn.onclick = () => {
+            bitmasterState.activeLevel++;
+            playSynthSound('tap');
+            startBitmasterRound();
+          };
+        } else if (stageIdx !== -1 && stageIdx + 1 < BITMASTER_STAGES.length) {
+          const nextStage = BITMASTER_STAGES[stageIdx + 1];
+          const isNewTopic = stage && nextStage.topicId !== stage.topicId;
+          const nextTopic = BITMASTER_TOPICS.find(t => t.id === nextStage.topicId);
+          nextLvlBtn.style.display = 'inline-flex';
+          if (isNewTopic && nextTopic) {
+            nextLvlBtn.textContent = `Next Topic: ${nextTopic.shortName || nextTopic.name} \u2192`;
+          } else {
+            nextLvlBtn.textContent = `Next Stage: ${nextStage.shortTitle || `Stage ${nextStage.id}`} \u2192`;
+          }
+          nextLvlBtn.onclick = () => {
+            bitmasterState.activeStage = nextStage.id;
+            bitmasterState.activeLevel = 1;
+            bitmasterState.selectedTopicFilter = String(nextStage.topicId);
+            playSynthSound('tap');
+            startBitmasterRound();
+          };
+        } else {
+          nextLvlBtn.style.display = 'none';
+        }
       } else {
         nextLvlBtn.style.display = 'none';
       }
@@ -8893,7 +8919,7 @@
       titleHeroChip.addEventListener('click', (e) => {
         e.stopPropagation();
         playSynthSound('tap');
-        openBitmasterAvatarZoom(getCurrentBitmasterRank(), true);
+        showBitmasterRankModal();
       });
     }
     if (titleStatsPreview) {
@@ -9267,7 +9293,7 @@
     }
     if (descEl) {
       const flavor = RANK_FLAVOR_DESCRIPTIONS[rankIdx] || "Master of computing architecture and binary foundations.";
-      descEl.textContent = `${flavor} (${rank.minXp.toLocaleString()} pts required)`;
+      descEl.textContent = flavor;
     }
 
     modal.style.display = 'flex';
@@ -9317,6 +9343,12 @@
       };
     }
 
+    const nextRankBox = document.querySelector('.next-rank-box');
+    if (nextRankBox) {
+      nextRankBox.title = "";
+      nextRankBox.onclick = null;
+    }
+
     if (curTitle) curTitle.textContent = currentRank.title;
     if (curXp) curXp.textContent = `${bitmasterState.xp.toLocaleString()} pts`;
 
@@ -9324,13 +9356,9 @@
       if (nextBadge) nextBadge.textContent = 'NEXT RANK';
       if (nextAvatar) {
         nextAvatar.innerHTML = getBitmasterAvatarHTML(nextRank, 'modal-avatar');
-        nextAvatar.title = "Click to preview next rank avatar";
-        nextAvatar.style.cursor = 'pointer';
-        nextAvatar.onclick = (e) => {
-          if (e) e.stopPropagation();
-          playSynthSound('tap');
-          openBitmasterAvatarZoom(nextRank, false);
-        };
+        nextAvatar.title = "";
+        nextAvatar.style.cursor = 'default';
+        nextAvatar.onclick = null;
       }
       if (nextTitle) nextTitle.textContent = nextRank.title;
       const diff = Math.max(0, nextRank.minXp - bitmasterState.xp);
