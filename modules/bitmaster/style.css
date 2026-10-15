@@ -1807,6 +1807,7 @@ body.bitmaster-app-body {
 
 #bitmasterTilesZone,
 #bitmasterSwitchboardZone,
+#bitmasterKeypadZone,
 #bitmasterMathGridZone,
 #bitmasterHexNibblesZone {
   margin-top: auto !important;
@@ -2485,6 +2486,101 @@ body.bitmaster-app-body {
   color: #f472b6;
   font-size: 20px;
   margin-left: 6px;
+}
+
+/* Keypad Zone */
+.bitmaster-keypad-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.keypad-input-display-wrap {
+  width: 100%;
+}
+
+.keypad-input-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 10px 16px;
+  background: #090d16;
+  border: 2.5px solid #232c40;
+  border-radius: 14px;
+  font-family: var(--font-mono, monospace);
+  font-size: 26px;
+  font-weight: 900;
+  color: #38bdf8;
+  letter-spacing: 0.05em;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
+  user-select: none;
+}
+
+.keypad-grid {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+}
+
+.keypad-grid.keypad-grid-hex {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.keypad-grid.keypad-grid-denary {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.keypad-btn {
+  padding: 13px 6px;
+  font-weight: 900;
+  font-family: var(--font-mono, monospace);
+  font-size: 18px;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 2px solid #475569;
+  border-radius: 12px;
+  box-shadow: 0 4px 0 #070b12;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  user-select: none;
+}
+
+.keypad-btn:hover {
+  border-color: #38bdf8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #070b12;
+}
+
+.keypad-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #070b12;
+}
+
+.keypad-btn.keypad-btn-del {
+  background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+  border-color: #64748b;
+  color: #fca5a5;
+}
+
+.keypad-btn.keypad-btn-ok {
+  background: linear-gradient(180deg, #ec4899 0%, #be185d 100%) !important;
+  border-color: #f472b6 !important;
+  box-shadow: 0 4px 0 #831843 !important;
+  color: #ffffff !important;
+}
+
+.keypad-btn.keypad-btn-ok:hover {
+  box-shadow: 0 6px 0 #831843, 0 0 14px rgba(236, 72, 153, 0.4) !important;
+}
+
+.keypad-btn.keypad-btn-wide {
+  grid-column: span 2;
+}
+
+.keypad-btn.keypad-btn-full {
+  grid-column: 1 / -1;
 }
 
 /* Chunky Bevelled Primary Buttons */
@@ -3668,6 +3764,7 @@ body.bitmaster-app-body {
 }
 
 .math-grid-header-row,
+.math-grid-carry-row,
 .math-grid-operand-row,
 .math-grid-result-row {
   display: grid;
@@ -3681,11 +3778,50 @@ body.bitmaster-app-body {
     padding: 12px 8px;
   }
   .math-grid-header-row,
+  .math-grid-carry-row,
   .math-grid-operand-row,
   .math-grid-result-row {
     grid-template-columns: 20px repeat(var(--math-cols, 8), 1fr);
     gap: 3px;
   }
+}
+
+.math-carry-cell {
+  font-family: var(--font-mono, monospace);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1.5px dashed #475569;
+  border-radius: 6px;
+  color: #64748b;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.12s ease;
+  padding: 0;
+}
+
+.math-carry-cell:hover {
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+
+.math-carry-cell.has-carry {
+  background: rgba(245, 158, 11, 0.22);
+  border: 1.5px solid #f59e0b;
+  color: #fbbf24;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.35);
+}
+
+.math-row-op.carry-label {
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  color: #f59e0b;
+  opacity: 0.8;
 }
 
 .math-row-op {
@@ -5987,6 +6123,36 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 .bitmaster-arena[data-theme="natural-breeze"] .math-grid-result-cell {
   background: #f8fafc !important;
   border: 2px solid #cbd5e1 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .math-carry-cell {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #64748b !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .math-carry-cell.has-carry {
+  background: #fef3c7 !important;
+  border-color: #f59e0b !important;
+  color: #b45309 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .keypad-input-display {
+  background: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .keypad-btn {
+  background: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 0 #94a3b8 !important;
+}
+
+.bitmaster-arena[data-theme="natural-breeze"] .keypad-btn:hover {
+  border-color: #16a34a !important;
+  color: #15803d !important;
 }
 
 /* Natural Breeze: BitCross */

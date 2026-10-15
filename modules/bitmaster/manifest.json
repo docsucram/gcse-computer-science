@@ -1,0 +1,19 @@
+{
+  "name": "BitMaster: Binary & Hex Trainer",
+  "short_name": "BitMaster",
+  "description": "Master GCSE Computer Science binary, hex, and data units conversions.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#070b14",
+  "theme_color": "#c8006b",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "../../favicon.svg",
+      "sizes": "64x64 192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

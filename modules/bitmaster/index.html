@@ -5,8 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="description" content="BitMaster: Binary & Hex Trainer — Master all stages of GCSE Computer Science binary, hex, and two's complement mental conversions.">
   <meta name="theme-color" content="#c8006b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BitMaster">
   <title>BitMaster: Binary &amp; Hex Trainer — GCSE Computer Science</title>
   <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+  <link rel="apple-touch-icon" href="../../favicon.svg">
+  <link rel="manifest" href="./manifest.json">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -271,11 +276,21 @@
             </div>
           </div>
 
+          <!-- Interaction Zone C: Dynamic NumPad / HexPad -->
+          <div id="bitmasterKeypadZone" class="bitmaster-keypad-zone" style="display: none;">
+            <div class="keypad-input-display-wrap">
+              <div class="keypad-input-display" id="bitmasterKeypadDisplay">_</div>
+            </div>
+            <div class="keypad-grid" id="bitmasterKeypadGrid"></div>
+          </div>
+
           <!-- Interaction Zone D: Lined-up Binary Calculation & Flip Grid (Stage 4 Addition / Subtraction / Logic) -->
           <div id="bitmasterMathGridZone" class="bitmaster-math-grid-zone" style="display: none;">
             <div class="bitmaster-math-card">
               <!-- Column place values row: 128 64 32 16 8 4 2 1 -->
               <div class="math-grid-header-row" id="bitmasterMathPlaceRow"></div>
+              <!-- Optional Carry/Borrow scratchpad row (not graded) -->
+              <div class="math-grid-carry-row" id="bitmasterMathCarryRow" style="display: none;"></div>
               <!-- Operand A row -->
               <div class="math-grid-operand-row" id="bitmasterMathRowA"></div>
               <!-- Operator & Operand B row -->
@@ -376,6 +391,7 @@
 
             <div class="victory-buttons">
               <button id="bitmasterSummaryRetryBtn" class="control-btn">Play Again</button>
+              <button id="bitmasterSummaryContinueBtn" class="control-btn">Back to Stages</button>
               <button id="bitmasterSummaryNextLevelBtn" class="control-btn control-btn-primary" style="display: none;">Next Level &rarr;</button>
             </div>
           </div>

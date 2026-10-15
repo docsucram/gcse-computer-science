@@ -394,9 +394,9 @@
       color: "#8b5cf6",
       levels: [
         { id: 1, name: "4-Bit Nibble (Assisted)", mode: "mc_nibble_bin2den_assisted", desc: "4-Bit Binary to Denary with weights (8 • 4 • 2 • 1) displayed above bits" },
-        { id: 2, name: "4-Bit Nibble (Unassisted)", mode: "mc_nibble_bin2den_unassisted", desc: "4-Bit Binary to Denary with place values removed (Mental conversion)" },
+        { id: 2, name: "4-Bit Nibble (Unassisted Keypad)", mode: "mc_nibble_bin2den_unassisted", desc: "4-Bit Binary to Denary: type exact value on the numpad" },
         { id: 3, name: "8-Bit Byte (Assisted)", mode: "mc_byte_bin2den_assisted", desc: "8-Bit Binary to Denary with weights (128..1) displayed above bits" },
-        { id: 4, name: "8-Bit Byte (Unassisted)", mode: "mc_byte_bin2den_unassisted", desc: "Full 8-Bit Binary to Denary without scaffolding (Mental conversion)" },
+        { id: 4, name: "8-Bit Byte (Unassisted Keypad)", mode: "mc_byte_bin2den_unassisted", desc: "Full 8-Bit Binary to Denary: type exact value on the numpad" },
         { id: 5, name: "Mixed Bi-Directional", mode: "mixed_bin_den", desc: "Rapid mix of Binary → Denary and Denary → Binary!" }
       ]
     },
@@ -429,10 +429,10 @@
       color: "#f59e0b",
       levels: [
         { id: 1, name: "1-Digit Hex to Denary (Assisted)", mode: "mc_hex_nibble_to_den_assisted", desc: "Convert 0x0 to 0xF directly to Denary (0 to 15) with helper" },
-        { id: 2, name: "1-Digit Hex to Denary (Unassisted)", mode: "mc_hex_nibble_to_den_unassisted", desc: "Convert 0x0 to 0xF directly to Denary (pure mental recall)" },
+        { id: 2, name: "1-Digit Hex to Denary (Keypad)", mode: "mc_hex_nibble_to_den_unassisted", desc: "Convert 0x0 to 0xF directly: type exact Denary value on numpad" },
         { id: 3, name: "2-Digit Hex to Denary (Assisted)", mode: "mc_hex_byte_assisted", desc: "Convert 0x00 to 0xFF to Denary with (16 × High + Low) helper" },
-        { id: 4, name: "2-Digit Hex to Denary (Unassisted)", mode: "mc_hex_byte_unassisted", desc: "Convert 0x00 to 0xFF to Denary without assistance" },
-        { id: 5, name: "Denary to Hex", mode: "mc_den_to_hex", desc: "Convert Denary numbers back into Hexadecimal (e.g. 171 → 0xAB)" }
+        { id: 4, name: "2-Digit Hex to Denary (Keypad)", mode: "mc_hex_byte_unassisted", desc: "Convert 0x00 to 0xFF to Denary: type exact number on numpad" },
+        { id: 5, name: "Denary to Hex (Hexpad)", mode: "mc_den_to_hex", desc: "Convert Denary numbers to Hex: type exact 2-digit hex on hexpad" }
       ]
     },
     {
@@ -445,7 +445,7 @@
       color: "#a855f7",
       levels: [
         { id: 1, name: "Hex ↔ Binary", mode: "hex_mixed_bin", desc: "Bi-directional Hex & Binary conversions (with 0x)" },
-        { id: 2, name: "Hex ↔ Denary", mode: "hex_mixed_den", desc: "Bi-directional Hex & Denary conversions (with 0x)" },
+        { id: 2, name: "Hex ↔ Denary (Keypad)", mode: "hex_mixed_den", desc: "Bi-directional Hex & Denary conversions: type exact values on keypad" },
         { id: 3, name: "Tri-Directional Blitz", mode: "hex_tri_mixed", desc: "Master Blitz: Hex ↔ Binary ↔ Denary all mixed together!" }
       ]
     },
@@ -542,9 +542,9 @@
       color: "#3b82f6",
       levels: [
         { id: 1, name: "4-Bit to Denary (Assisted)", mode: "mc_twos_comp_nibble_assisted", desc: "4-Bit Two's Comp to Denary with weights (−8 • 4 • 2 • 1) displayed above bits" },
-        { id: 2, name: "4-Bit to Denary (Unassisted)", mode: "mc_twos_comp_nibble_unassisted", desc: "4-Bit Two's Comp to Denary with weights hidden (Mental calculation)" },
+        { id: 2, name: "4-Bit to Denary (Signed Keypad)", mode: "mc_twos_comp_nibble_unassisted", desc: "4-Bit Two's Comp: type exact signed Denary with +/− on keypad" },
         { id: 3, name: "8-Bit to Denary (Assisted)", mode: "mc_twos_comp_byte_assisted", desc: "8-Bit Two's Comp to Denary with weights (−128..1) displayed above bits" },
-        { id: 4, name: "8-Bit to Denary (Unassisted)", mode: "mc_twos_comp_byte_unassisted", desc: "8-Bit Two's Comp to Denary with weights hidden (Mental calculation)" },
+        { id: 4, name: "8-Bit to Denary (Signed Keypad)", mode: "mc_twos_comp_byte_unassisted", desc: "8-Bit Two's Comp: type exact signed Denary with +/− on keypad" },
         { id: 5, name: "Two's Complement Mastery", mode: "twos_comp_byte_mastery", desc: "Full 8-Bit Two's Complement mastery: mixed mental evaluation & switchboard construction!" }
       ]
     },
@@ -1865,19 +1865,18 @@
     if (effectiveMode === 'mc_nibble_bin2den_unassisted' || effectiveMode === 'mc_nibble_bin2den') {
       const val = Math.floor(Math.random() * 16);
       const binBits = val.toString(2).padStart(4, '0').split('').map(Number);
-      const dists = generateDistractors(val, 0, 15, 'denary');
       const displayHTML = renderBitStripHTML({
         bits: binBits,
         showWeights: false
       });
       return {
-        type: 'mc',
-        prompt: "Convert 4-Bit Binary to Denary (Unassisted):",
+        type: 'keypad',
+        keypadMode: 'denary',
+        prompt: "Type Denary Value for 4-Bit Binary (Unassisted):",
         display: binBits.join(' '),
         displayHTML: displayHTML,
-        hint: "Mental conversion (8 • 4 • 2 • 1)",
-        correctAnswer: String(val),
-        options: shuffleArray([val, ...dists]).map(String)
+        hint: "Mental calculation (8 • 4 • 2 • 1) — type exact value and press OK",
+        correctAnswer: String(val)
       };
     }
 
@@ -1904,19 +1903,18 @@
     if (effectiveMode === 'mc_byte_bin2den_unassisted') {
       const val = Math.floor(Math.random() * 256);
       const binBits = val.toString(2).padStart(8, '0').split('').map(Number);
-      const dists = generateDistractors(val, 0, 255, 'denary');
       const displayHTML = renderBitStripHTML({
         bits: binBits,
         showWeights: false
       });
       return {
-        type: 'mc',
-        prompt: "Convert 8-Bit Byte to Denary (No Hints):",
+        type: 'keypad',
+        keypadMode: 'denary',
+        prompt: "Type Denary Value for 8-Bit Byte (Unassisted):",
         display: `${binBits.slice(0, 4).join('')} ${binBits.slice(4).join('')}`,
         displayHTML: displayHTML,
-        hint: "Mental calculation: 128 down to 1",
-        correctAnswer: String(val),
-        options: shuffleArray([val, ...dists]).map(String)
+        hint: "Mental calculation (128 down to 1) — type exact value and press OK",
+        correctAnswer: String(val)
       };
     }
 
@@ -2054,15 +2052,13 @@
     if (effectiveMode === 'mc_hex_nibble_to_den_unassisted') {
       const val = Math.floor(Math.random() * 16);
       const hex = val.toString(16).toUpperCase();
-      const dists = generateDistractors(val, 0, 15, 'denary');
-      const options = shuffleArray([val, ...dists]);
       return {
-        type: 'mc',
+        type: 'keypad',
+        keypadMode: 'denary',
         prompt: `Convert Hex 0x${hex} to Denary (Mental Recall):`,
         display: `0x${hex}`,
-        hint: "Direct recall (0x0 to 0xF)",
-        correctAnswer: String(val),
-        options: options.map(String)
+        hint: "Direct recall (0x0 to 0xF) — type exact denary number and press OK",
+        correctAnswer: String(val)
       };
     }
 
@@ -2086,30 +2082,26 @@
     if (effectiveMode === 'mc_hex_byte_unassisted') {
       const val = Math.floor(Math.random() * 256);
       const hex = val.toString(16).toUpperCase().padStart(2, '0');
-      const dists = generateDistractors(val, 0, 255, 'denary');
-      const options = shuffleArray([val, ...dists]);
       return {
-        type: 'mc',
+        type: 'keypad',
+        keypadMode: 'denary',
         prompt: `Convert Hex 0x${hex} to Denary (Unassisted):`,
         display: `0x${hex}`,
-        hint: "High digit × 16 + Low digit",
-        correctAnswer: String(val),
-        options: options.map(String)
+        hint: "High digit × 16 + Low digit — type exact denary number and press OK",
+        correctAnswer: String(val)
       };
     }
 
     if (effectiveMode === 'mc_den_to_hex') {
       const val = Math.floor(Math.random() * 256);
       const hex = '0x' + val.toString(16).toUpperCase().padStart(2, '0');
-      const rawDists = generateDistractors(val.toString(16).toUpperCase().padStart(2, '0'), 0, 255, 'hex');
-      const dists = rawDists.map(h => '0x' + h.padStart(2, '0'));
       return {
-        type: 'mc',
-        prompt: `Convert Denary ${val} to Hexadecimal:`,
+        type: 'keypad',
+        keypadMode: 'hex',
+        prompt: `Convert Denary ${val} to Hexadecimal (0x):`,
         display: String(val),
-        hint: "Divide by 16 for high digit, remainder is low digit",
-        correctAnswer: hex,
-        options: shuffleArray([hex, ...dists]).map(String)
+        hint: "Divide by 16 for high digit, remainder for low digit — type hex digits and press OK",
+        correctAnswer: hex
       };
     }
 
@@ -2183,27 +2175,24 @@
       if (isHexToDen) {
         const val = Math.floor(Math.random() * 256);
         const hex = '0x' + val.toString(16).toUpperCase().padStart(2, '0');
-        const dists = generateDistractors(val, 0, 255, 'denary');
         return {
-          type: 'mc',
+          type: 'keypad',
+          keypadMode: 'denary',
           prompt: `Convert Hex ${hex} to Denary:`,
           display: hex,
-          hint: "(High nibble × 16) + Low nibble",
-          correctAnswer: String(val),
-          options: shuffleArray([val, ...dists]).map(String)
+          hint: "(High nibble × 16) + Low nibble — type exact denary number and press OK",
+          correctAnswer: String(val)
         };
       } else {
         const val = Math.floor(Math.random() * 256);
         const hex = '0x' + val.toString(16).toUpperCase().padStart(2, '0');
-        const rawDists = generateDistractors(val.toString(16).toUpperCase().padStart(2, '0'), 0, 255, 'hex');
-        const dists = rawDists.map(h => '0x' + h.padStart(2, '0'));
         return {
-          type: 'mc',
-          prompt: `Convert Denary ${val} to Hexadecimal:`,
+          type: 'keypad',
+          keypadMode: 'hex',
+          prompt: `Convert Denary ${val} to Hexadecimal (0x):`,
           display: String(val),
-          hint: "Divide by 16 for high digit, remainder for low digit",
-          correctAnswer: hex,
-          options: shuffleArray([hex, ...dists]).map(String)
+          hint: "Divide by 16 for high digit, remainder for low digit — type hex digits and press OK",
+          correctAnswer: hex
         };
       }
     }
@@ -2707,20 +2696,19 @@
       const val = candidates[Math.floor(Math.random() * candidates.length)];
       const rawBin = (val < 0 ? (16 + val) : val).toString(2).padStart(4, '0');
       const bits = rawBin.split('').map(Number);
-      const dists = generateDistractors(val, -8, 7, 'denary');
       const displayHTML = renderBitStripHTML({
         bits: bits,
         showWeights: false,
         variant: 'twos'
       });
       return {
-        type: 'mc',
-        prompt: "Convert 4-Bit Two's Complement to Denary (Mental Calculation):",
+        type: 'keypad',
+        keypadMode: 'signed_denary',
+        prompt: "Calculate Signed Denary Value (−8 • 4 • 2 • 1):",
         display: bits.join(' '),
         displayHTML: displayHTML,
-        hint: "Recall the 4-bit Two's Comp weights: −8 • 4 • 2 • 1",
-        correctAnswer: String(val),
-        options: shuffleArray([val, ...dists]).map(String)
+        hint: "Bit 3 is −8! Add positive weights — use '−' for negative answers and press OK",
+        correctAnswer: String(val)
       };
     }
 
@@ -2754,20 +2742,19 @@
       const val = isNegative ? -(Math.floor(Math.random() * 128) + 1) : Math.floor(Math.random() * 128);
       const rawBin = (val < 0 ? (256 + val) : val).toString(2).padStart(8, '0');
       const bits = rawBin.split('').map(Number);
-      const dists = generateDistractors(val, -128, 127, 'denary');
       const displayHTML = renderBitStripHTML({
         bits: bits,
         showWeights: false,
         variant: 'twos'
       });
       return {
-        type: 'mc',
-        prompt: "Convert 8-Bit Two's Complement to Denary (Mental Calculation):",
+        type: 'keypad',
+        keypadMode: 'signed_denary',
+        prompt: "Calculate Signed 8-Bit Denary Value (−128 MSB):",
         display: `${rawBin.slice(0, 4)} ${rawBin.slice(4)}`,
         displayHTML: displayHTML,
-        hint: "Bit 7 is −128. Add active positive columns (64, 32, 16, 8, 4, 2, 1)",
-        correctAnswer: String(val),
-        options: shuffleArray([val, ...dists]).map(String)
+        hint: "Bit 7 is −128. Add active positive columns — use '−' for negative answers and press OK",
+        correctAnswer: String(val)
       };
     }
 
@@ -3285,193 +3272,180 @@
     }
 
     if (effectiveMode === 'units_conversions') {
-      const qPool = [
+      const jumps = [
         {
-          prompt: "Storage Unit Conversion",
-          display: "2.3 MB ➔ ? KB",
-          hint: "1 MB = 1,000 KB. Multiply by 1,000 to convert down to KB.",
-          correctAnswer: "2,300 KB",
-          options: ["2,300 KB", "230 KB", "23,000 KB", "235 KB"]
+          fromUnit: 'MB', toUnit: 'bytes',
+          vals: [1, 1.5, 2, 2.5, 3, 4, 5],
+          calc: (v) => ({
+            from: `${v} MB`,
+            to: 'bytes',
+            ans: `${Math.round(v * 1000000).toLocaleString()} bytes`,
+            hint: '1 MB = 1,000,000 bytes (1,000 × 1,000). Multiply by 1,000,000.',
+            dists: [`${Math.round(v * 1000).toLocaleString()} bytes`, `${Math.round(v * 10000000).toLocaleString()} bytes`, `${Math.round(v * 100000).toLocaleString()} bytes`]
+          })
         },
         {
-          prompt: "Storage Unit Conversion",
-          display: "4 GB ➔ ? MB",
-          hint: "1 GB = 1,000 MB. Multiply by 1,000 to convert down to MB.",
-          correctAnswer: "4,000 MB",
-          options: ["4,000 MB", "400 MB", "40,000 MB", "4 MB"]
+          fromUnit: 'GB', toUnit: 'KB',
+          vals: [1, 2, 3, 4, 5, 8],
+          calc: (v) => ({
+            from: `${v} GB`,
+            to: 'KB',
+            ans: `${Math.round(v * 1000000).toLocaleString()} KB`,
+            hint: '1 GB = 1,000,000 KB (1,000 × 1,000). Multiply by 1,000,000.',
+            dists: [`${Math.round(v * 1000).toLocaleString()} KB`, `${Math.round(v * 10000000).toLocaleString()} KB`, `${Math.round(v * 100).toLocaleString()} KB`]
+          })
         },
         {
-          prompt: "Storage Unit Conversion",
-          display: "3.5 KB ➔ ? bytes",
-          hint: "1 KB = 1,000 bytes. Multiply by 1,000 to convert down to bytes.",
-          correctAnswer: "3,500 bytes",
-          options: ["3,500 bytes", "350 bytes", "35,000 bytes", "35 bytes"]
+          fromUnit: 'bytes', toUnit: 'MB',
+          vals: [2000000, 3500000, 5000000, 8000000, 10000000, 25000000],
+          calc: (v) => ({
+            from: `${v.toLocaleString()} bytes`,
+            to: 'MB',
+            ans: `${(v / 1000000).toLocaleString()} MB`,
+            hint: '1 MB = 1,000,000 bytes. Divide by 1,000 twice (÷ 1,000,000).',
+            dists: [`${(v / 100000).toLocaleString()} MB`, `${(v / 10000000).toLocaleString()} MB`, `${(v / 1000).toLocaleString()} MB`]
+          })
         },
         {
-          prompt: "Storage Unit Conversion",
-          display: "5,000 MB ➔ ? GB",
-          hint: "1 GB = 1,000 MB. Divide by 1,000 to convert up to GB.",
-          correctAnswer: "5 GB",
-          options: ["5 GB", "50 GB", "0.5 GB", "500 GB"]
+          fromUnit: 'KB', toUnit: 'GB',
+          vals: [4000000, 5000000, 10000000, 15000000, 20000000],
+          calc: (v) => ({
+            from: `${v.toLocaleString()} KB`,
+            to: 'GB',
+            ans: `${(v / 1000000).toLocaleString()} GB`,
+            hint: '1 GB = 1,000,000 KB. Divide by 1,000 twice (÷ 1,000,000).',
+            dists: [`${(v / 100000).toLocaleString()} GB`, `${(v / 10000000).toLocaleString()} GB`, `${(v / 1000).toLocaleString()} GB`]
+          })
         },
         {
-          prompt: "Storage Unit Conversion",
-          display: "1 MB ➔ ? bytes",
-          hint: "1 MB = 1,000 KB, and 1 KB = 1,000 bytes. Multiply by 1,000 twice (× 1,000,000).",
-          correctAnswer: "1,000,000 bytes",
-          options: ["1,000,000 bytes", "1,000 bytes", "10,000,000 bytes", "100,000 bytes"]
-        },
-        {
-          prompt: "Storage Unit Conversion",
-          display: "2 TB ➔ ? GB",
-          hint: "1 TB = 1,000 GB. Multiply by 1,000 to convert down to GB.",
-          correctAnswer: "2,000 GB",
-          options: ["2,000 GB", "200 GB", "20,000 GB", "20 GB"]
-        },
-        {
-          prompt: "Storage Unit Conversion",
-          display: "750 KB ➔ ? MB",
-          hint: "1 MB = 1,000 KB. Divide by 1,000 to convert up to MB.",
-          correctAnswer: "0.75 MB",
-          options: ["0.75 MB", "7.5 MB", "0.075 MB", "75 MB"]
+          fromUnit: 'TB', toUnit: 'MB',
+          vals: [1, 1.5, 2, 3, 4, 8],
+          calc: (v) => ({
+            from: `${v} TB`,
+            to: 'MB',
+            ans: `${Math.round(v * 1000000).toLocaleString()} MB`,
+            hint: '1 TB = 1,000,000 MB (1,000 × 1,000). Multiply by 1,000,000.',
+            dists: [`${Math.round(v * 1000).toLocaleString()} MB`, `${Math.round(v * 10000000).toLocaleString()} MB`, `${Math.round(v * 100).toLocaleString()} MB`]
+          })
         }
       ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      const jump = jumps[Math.floor(Math.random() * jumps.length)];
+      const chosenVal = jump.vals[Math.floor(Math.random() * jump.vals.length)];
+      const res = jump.calc(chosenVal);
       return {
         type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
+        prompt: "Multi-Step Storage Unit Conversion",
+        display: `${res.from} ➔ ? ${res.to}`,
+        hint: res.hint,
+        correctAnswer: res.ans,
+        options: shuffleArray([res.ans, ...res.dists])
       };
     }
 
     if (effectiveMode === 'units_capacity') {
-      const qPool = [
-        {
-          prompt: "How many 500 KB image files can fit into a 2 MB USB partition?",
-          display: "2 MB ÷ 500 KB",
-          hint: "First convert MB to KB (× 1,000) so units match, then divide by file size.",
-          correctAnswer: "4 files",
-          options: ["4 files", "2 files", "8 files", "10 files"]
-        },
-        {
-          prompt: "How many 250 MB video clips can fit on a 4 GB memory card?",
-          display: "4 GB ÷ 250 MB",
-          hint: "First convert GB to MB (× 1,000) so units match, then divide by file size.",
-          correctAnswer: "16 videos",
-          options: ["16 videos", "8 videos", "12 videos", "20 videos"]
-        },
-        {
-          prompt: "A text file is 100 KB. How many can fit into 1 MB of cache?",
-          display: "1 MB ÷ 100 KB",
-          hint: "First convert MB to KB (× 1,000) so units match, then divide by file size.",
-          correctAnswer: "10 files",
-          options: ["10 files", "5 files", "100 files", "1 file"]
-        },
-        {
-          prompt: "A music track is 4 MB. How many tracks can be stored on a 16 GB phone drive?",
-          display: "16 GB ÷ 4 MB",
-          hint: "First convert GB to MB (× 1,000) so units match, then divide by file size.",
-          correctAnswer: "4,000 songs",
-          options: ["4,000 songs", "400 songs", "40,000 songs", "2,000 songs"]
-        },
-        {
-          prompt: "How many 200 KB document scans can fit into 3 MB of free drive space?",
-          display: "3 MB ÷ 200 KB",
-          hint: "First convert MB to KB (× 1,000) so units match, then divide by file size.",
-          correctAnswer: "15 scans",
-          options: ["15 scans", "12 scans", "18 scans", "30 scans"]
-        },
-        {
-          prompt: "A high-res photo is 5 MB. How many photos can fit on an 8 GB flash drive?",
-          display: "8 GB ÷ 5 MB",
-          hint: "First convert GB to MB (× 1,000) so units match, then divide by file size.",
-          correctAnswer: "1,600 photos",
-          options: ["1,600 photos", "160 photos", "16,000 photos", "800 photos"]
-        }
+      const presets = [
+        { fileType: 'photos', fileUnit: 'MB', driveUnit: 'GB', fileSize: [2, 4, 5, 8, 10], counts: [100, 200, 400, 500, 1000, 1600, 2000] },
+        { fileType: 'songs', fileUnit: 'MB', driveUnit: 'GB', fileSize: [3, 4, 5, 8], counts: [200, 500, 1000, 2000, 4000] },
+        { fileType: 'video clips', fileUnit: 'MB', driveUnit: 'GB', fileSize: [125, 200, 250, 500], counts: [4, 8, 12, 16, 20, 32] },
+        { fileType: 'document scans', fileUnit: 'KB', driveUnit: 'MB', fileSize: [100, 200, 250, 400, 500], counts: [4, 5, 8, 10, 12, 15, 16, 20, 25] },
+        { fileType: 'icons', fileUnit: 'KB', driveUnit: 'MB', fileSize: [50, 100, 200, 250], counts: [10, 20, 40, 50, 100] }
       ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      const p = presets[Math.floor(Math.random() * presets.length)];
+      const fSize = p.fileSize[Math.floor(Math.random() * p.fileSize.length)];
+      const count = p.counts[Math.floor(Math.random() * p.counts.length)];
+      const totalInFileUnit = count * fSize;
+      const driveSize = totalInFileUnit / 1000;
+      const ansStr = `${count.toLocaleString()} ${p.fileType}`;
+      const dist1 = `${Math.round(count / 2).toLocaleString()} ${p.fileType}`;
+      const dist2 = `${Math.round(count * 2).toLocaleString()} ${p.fileType}`;
+      const dist3 = `${Math.round(count / 10).toLocaleString()} ${p.fileType}`;
+      const dist4 = `${Math.round(count * 10).toLocaleString()} ${p.fileType}`;
+      const options = shuffleArray([ansStr, dist1, dist2, (Math.random() > 0.5 ? dist3 : dist4)]);
       return {
         type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
+        prompt: `How many ${fSize} ${p.fileUnit} ${p.fileType} can fit on a ${driveSize.toLocaleString()} ${p.driveUnit} partition?`,
+        display: `${driveSize.toLocaleString()} ${p.driveUnit} ÷ ${fSize} ${p.fileUnit}`,
+        hint: `First convert ${driveSize} ${p.driveUnit} to ${p.fileUnit} (× 1,000 = ${totalInFileUnit.toLocaleString()} ${p.fileUnit}), then divide by ${fSize} ${p.fileUnit}.`,
+        correctAnswer: ansStr,
+        options: options
       };
     }
 
     if (effectiveMode === 'units_transmission') {
-      const qPool = [
-        {
-          prompt: "Data Transmission: Bits vs Bytes",
-          display: "50 MB ➔ ? Mb",
-          hint: "1 Byte = 8 bits. Multiply Bytes by 8 to convert to bits (Mb).",
-          correctAnswer: "400 Mb",
-          options: ["400 Mb", "50 Mb", "25 Mb", "800 Mb"]
-        },
-        {
-          prompt: "Data Transmission: Transfer Speed",
-          display: "40 Mbps ➔ ? MB/s",
-          hint: "1 Byte = 8 bits. Divide Mbps by 8 to convert speed to MB/s.",
-          correctAnswer: "5 MB/s",
-          options: ["5 MB/s", "4 MB/s", "8 MB/s", "10 MB/s"]
-        },
-        {
+      const qKind = Math.floor(Math.random() * 3);
+      if (qKind === 0) {
+        // Download Time Calculation: T seconds = (FileMB * 8) / SpeedMbps
+        const validPairs = [
+          { mbps: 40, sec: 20 },
+          { mbps: 40, sec: 40 },
+          { mbps: 40, sec: 60 },
+          { mbps: 30, sec: 80 },
+          { mbps: 20, sec: 40 },
+          { mbps: 20, sec: 80 },
+          { mbps: 16, sec: 40 },
+          { mbps: 16, sec: 50 },
+          { mbps: 50, sec: 32 },
+          { mbps: 80, sec: 20 },
+          { mbps: 100, sec: 16 },
+          { mbps: 100, sec: 24 }
+        ];
+        const pair = validPairs[Math.floor(Math.random() * validPairs.length)];
+        const fileSizeMB = Math.round((pair.mbps * pair.sec) / 8);
+        const ansStr = `${pair.sec} seconds`;
+        const dist1 = `${Math.round(pair.sec / 2)} seconds`;
+        const dist2 = `${pair.sec * 2} seconds`;
+        const dist3 = `${Math.round(fileSizeMB / pair.mbps)} seconds`;
+        return {
+          type: 'mc',
           prompt: "Download Time Calculation",
-          display: "300 MB @ 30 Mbps = ? seconds",
+          display: `${fileSizeMB} MB @ ${pair.mbps} Mbps = ? seconds`,
           hint: "Formula: Convert file size to bits (MB × 8 = Mb), then divide by speed in Mbps.",
-          correctAnswer: "80 seconds",
-          options: ["80 seconds", "10 seconds", "40 seconds", "100 seconds"]
-        },
-        {
-          prompt: "Download Time Calculation",
-          display: "100 MB @ 40 Mbps = ? seconds",
-          hint: "Formula: Convert file size to bits (MB × 8 = Mb), then divide by speed in Mbps.",
-          correctAnswer: "20 seconds",
-          options: ["20 seconds", "2.5 seconds", "40 seconds", "80 seconds"]
-        },
-        {
-          prompt: "Download Time Calculation",
-          display: "80 MB @ 16 Mbps = ? seconds",
-          hint: "Formula: Convert file size to bits (MB × 8 = Mb), then divide by speed in Mbps.",
-          correctAnswer: "40 seconds",
-          options: ["40 seconds", "5 seconds", "20 seconds", "80 seconds"]
-        },
-        {
-          prompt: "Data Transmission: Bits to Bytes",
-          display: "240 Mb ➔ ? MB",
-          hint: "1 Byte = 8 bits. Divide bits (Mb) by 8 to convert to Bytes (MB).",
-          correctAnswer: "30 MB",
-          options: ["30 MB", "1,920 MB", "60 MB", "15 MB"]
-        },
-        {
-          prompt: "Network Notation Rules",
-          display: "What is the difference between capital 'B' and lowercase 'b'?",
-          isQuestionDisplay: true,
-          hint: "Capital B denotes Bytes (8 bits); lowercase b denotes bits",
-          correctAnswer: "B = Byte (8 bits), b = bit (1 binary digit)",
-          options: [
-            "B = Byte (8 bits), b = bit (1 binary digit)",
-            "B = bit (1 binary digit), b = Byte (8 bits)",
-            "B = Base 10, b = Base 2",
-            "B = Broadband, b = Buffer"
-          ]
+          correctAnswer: ansStr,
+          options: shuffleArray([ansStr, dist1, dist2, dist3])
+        };
+      } else if (qKind === 1) {
+        // Bits to Bytes conversion
+        const isByteToBit = Math.random() > 0.5;
+        if (isByteToBit) {
+          const valMB = [25, 40, 50, 75, 80, 100, 120, 200][Math.floor(Math.random() * 8)];
+          const ansMb = valMB * 8;
+          const ansStr = `${ansMb} Mb`;
+          return {
+            type: 'mc',
+            prompt: "Data Transmission: Bytes to Bits",
+            display: `${valMB} MB ➔ ? Mb`,
+            hint: "1 Byte = 8 bits. Multiply Bytes by 8 to convert to bits (Mb).",
+            correctAnswer: ansStr,
+            options: shuffleArray([ansStr, `${valMB} Mb`, `${Math.round(valMB / 2)} Mb`, `${ansMb * 2} Mb`])
+          };
+        } else {
+          const valMB = [15, 20, 30, 40, 50, 60, 80][Math.floor(Math.random() * 7)];
+          const valMb = valMB * 8;
+          const ansStr = `${valMB} MB`;
+          return {
+            type: 'mc',
+            prompt: "Data Transmission: Bits to Bytes",
+            display: `${valMb} Mb ➔ ? MB`,
+            hint: "1 Byte = 8 bits. Divide bits (Mb) by 8 to convert to Bytes (MB).",
+            correctAnswer: ansStr,
+            options: shuffleArray([ansStr, `${valMb * 8} MB`, `${valMB * 2} MB`, `${Math.round(valMB / 2)} MB`])
+          };
         }
-      ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
-      return {
-        type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
-      };
+      } else {
+        // Transfer Speed conversion (Mbps <-> MB/s)
+        const speeds = [16, 24, 32, 40, 48, 64, 80, 120, 160, 200];
+        const mbps = speeds[Math.floor(Math.random() * speeds.length)];
+        const mbs = mbps / 8;
+        const ansStr = `${mbs} MB/s`;
+        return {
+          type: 'mc',
+          prompt: "Data Transmission: Transfer Speed",
+          display: `${mbps} Mbps ➔ ? MB/s`,
+          hint: "1 Byte = 8 bits. Divide Mbps by 8 to convert network speed to file storage speed (MB/s).",
+          correctAnswer: ansStr,
+          options: shuffleArray([ansStr, `${Math.round(mbps / 10)} MB/s`, `${mbs * 2} MB/s`, `${mbps} MB/s`])
+        };
+      }
     }
 
     // Level 2: Decimal vs Binary Prefixes (KB vs KiB)
@@ -3674,89 +3648,53 @@
 
     // Step-Up Conversions (÷1,000)
     if (effectiveMode === 'units_conversions_up') {
-      const qPool = [
-        {
-          prompt: "Step-Up Conversion (÷1,000)",
-          display: "8,000 KB ➔ ? MB",
-          hint: "1 MB = 1,000 KB. Divide by 1,000 to step up from KB to MB.",
-          correctAnswer: "8 MB",
-          options: ["8 MB", "80 MB", "0.8 MB", "800 MB"]
-        },
-        {
-          prompt: "Step-Up Conversion (÷1,000)",
-          display: "12,000 MB ➔ ? GB",
-          hint: "1 GB = 1,000 MB. Divide by 1,000 to step up from MB to GB.",
-          correctAnswer: "12 GB",
-          options: ["12 GB", "1.2 GB", "120 GB", "12,000 GB"]
-        },
-        {
-          prompt: "Step-Up Conversion (÷1,000)",
-          display: "4,500 bytes ➔ ? KB",
-          hint: "1 KB = 1,000 bytes. Divide by 1,000 to step up from bytes to KB.",
-          correctAnswer: "4.5 KB",
-          options: ["4.5 KB", "45 KB", "0.45 KB", "450 KB"]
-        },
-        {
-          prompt: "Step-Up Conversion (÷1,000)",
-          display: "25,000 KB ➔ ? MB",
-          hint: "1 MB = 1,000 KB. Divide by 1,000 to step up from KB to MB.",
-          correctAnswer: "25 MB",
-          options: ["25 MB", "2.5 MB", "250 MB", "2500 MB"]
-        }
+      const tiers = [
+        { from: 'bytes', to: 'KB', mul: 1000, vals: [1000, 2500, 3500, 4000, 4500, 6000, 8000, 12000, 15000, 24000, 50000] },
+        { from: 'KB', to: 'MB', mul: 1000, vals: [2000, 4000, 5000, 8000, 12000, 15000, 25000, 40000, 80000, 125000, 250000] },
+        { from: 'MB', to: 'GB', mul: 1000, vals: [1500, 2000, 3000, 4000, 5000, 6000, 8000, 12000, 16000, 24000, 32000] },
+        { from: 'GB', to: 'TB', mul: 1000, vals: [2000, 3000, 4000, 5000, 8000, 10000, 12000, 16000, 20000] }
       ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      const tier = tiers[Math.floor(Math.random() * tiers.length)];
+      const val = tier.vals[Math.floor(Math.random() * tier.vals.length)];
+      const ansNum = val / tier.mul;
+      const ansStr = `${ansNum.toLocaleString()} ${tier.to}`;
+      const dist1 = `${(ansNum * 10).toLocaleString()} ${tier.to}`;
+      const dist2 = `${(ansNum / 10).toLocaleString()} ${tier.to}`;
+      const dist3 = `${(ansNum * 100).toLocaleString()} ${tier.to}`;
+      const options = shuffleArray([ansStr, dist1, dist2, dist3]);
       return {
         type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
+        prompt: "Step-Up Conversion (÷1,000)",
+        display: `${val.toLocaleString()} ${tier.from} ➔ ? ${tier.to}`,
+        hint: `1 ${tier.to} = 1,000 ${tier.from}. Divide by 1,000 to step up from ${tier.from} to ${tier.to}.`,
+        correctAnswer: ansStr,
+        options: options
       };
     }
 
     // Step-Down Conversions (×1,000)
     if (effectiveMode === 'units_conversions_down') {
-      const qPool = [
-        {
-          prompt: "Step-Down Conversion (×1,000)",
-          display: "6 GB ➔ ? MB",
-          hint: "1 GB = 1,000 MB. Multiply by 1,000 to step down from GB to MB.",
-          correctAnswer: "6,000 MB",
-          options: ["6,000 MB", "600 MB", "60,000 MB", "6 MB"]
-        },
-        {
-          prompt: "Step-Down Conversion (×1,000)",
-          display: "1.5 TB ➔ ? GB",
-          hint: "1 TB = 1,000 GB. Multiply by 1,000 to step down from TB to GB.",
-          correctAnswer: "1,500 GB",
-          options: ["1,500 GB", "150 GB", "15,000 GB", "15 GB"]
-        },
-        {
-          prompt: "Step-Down Conversion (×1,000)",
-          display: "3.2 MB ➔ ? KB",
-          hint: "1 MB = 1,000 KB. Multiply by 1,000 to step down from MB to KB.",
-          correctAnswer: "3,200 KB",
-          options: ["3,200 KB", "320 KB", "32,000 KB", "32 KB"]
-        },
-        {
-          prompt: "Step-Down Conversion (×1,000)",
-          display: "0.5 GB ➔ ? MB",
-          hint: "1 GB = 1,000 MB. Multiply by 1,000 to step down from GB to MB.",
-          correctAnswer: "500 MB",
-          options: ["500 MB", "50 MB", "5,000 MB", "0.05 MB"]
-        }
+      const tiers = [
+        { from: 'TB', to: 'GB', mul: 1000, vals: [1, 1.5, 2, 2.5, 3, 4, 5, 8, 10, 12, 16] },
+        { from: 'GB', to: 'MB', mul: 1000, vals: [0.5, 1, 1.5, 2, 2.5, 3, 4, 6, 8, 12, 16, 32] },
+        { from: 'MB', to: 'KB', mul: 1000, vals: [0.5, 1, 1.5, 2, 2.4, 3.2, 4, 5, 8, 10, 15, 20, 25] },
+        { from: 'KB', to: 'bytes', mul: 1000, vals: [1, 2, 2.5, 3.5, 4, 5, 8, 10, 12, 16, 25, 40] }
       ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
+      const tier = tiers[Math.floor(Math.random() * tiers.length)];
+      const val = tier.vals[Math.floor(Math.random() * tier.vals.length)];
+      const ansNum = Math.round(val * tier.mul);
+      const ansStr = `${ansNum.toLocaleString()} ${tier.to}`;
+      const dist1 = `${Math.round(ansNum / 10).toLocaleString()} ${tier.to}`;
+      const dist2 = `${Math.round(ansNum * 10).toLocaleString()} ${tier.to}`;
+      const dist3 = `${val} ${tier.to}`;
+      const options = shuffleArray([ansStr, dist1, dist2, dist3]);
       return {
         type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
+        prompt: "Step-Down Conversion (×1,000)",
+        display: `${val} ${tier.from} ➔ ? ${tier.to}`,
+        hint: `1 ${tier.from} = 1,000 ${tier.to}. Multiply by 1,000 to step down from ${tier.from} to ${tier.to}.`,
+        correctAnswer: ansStr,
+        options: options
       };
     }
 
@@ -3765,94 +3703,138 @@
       const qKind = Math.floor(Math.random() * 3);
 
       if (qKind === 0) {
-        // Space for 1 second of audio
-        const secQuestions = [
-          {
-            display: "8,000 Hz sample rate × 8-bit depth (1 second)",
-            ans: "8 KB",
-            opts: ["8 KB", "64 KB", "1 KB", "80 KB"],
-            hint: "Formula: (Sample rate × Bit depth) ÷ 8 bits per byte. 8 bits = 1 byte per sample."
-          },
-          {
-            display: "44,000 Hz sample rate × 16-bit depth (1 second)",
-            ans: "88 KB",
-            opts: ["88 KB", "44 KB", "176 KB", "704 KB"],
-            hint: "16 bits = 2 bytes per sample. Multiply sample rate by 2 bytes."
-          },
-          {
-            display: "10,000 Hz sample rate × 16-bit depth (1 second)",
-            ans: "20 KB",
-            opts: ["20 KB", "10 KB", "160 KB", "40 KB"],
-            hint: "16 bits = 2 bytes per sample. Multiply sample rate by 2 bytes."
-          },
-          {
-            display: "20,000 Hz sample rate × 8-bit depth (1 second)",
-            ans: "20 KB",
-            opts: ["20 KB", "160 KB", "2 KB", "40 KB"],
-            hint: "8 bits = 1 byte per sample. Multiply sample rate by 1 byte."
-          }
-        ];
-        const item = secQuestions[Math.floor(Math.random() * secQuestions.length)];
+        // Space calculation with randomized sample rates, bit depths, and durations
+        const sampleRates = [8000, 10000, 11025, 20000, 22050, 44000, 48000];
+        const bitDepths = [8, 16, 24]; // 1, 2, or 3 bytes
+        const durations = [1, 2, 5, 10]; // seconds
+        const rate = sampleRates[Math.floor(Math.random() * sampleRates.length)];
+        const depth = bitDepths[Math.floor(Math.random() * bitDepths.length)];
+        const dur = (Math.random() < 0.6) ? 1 : durations[Math.floor(Math.random() * durations.length)];
+        const ch = (dur === 1 && Math.random() < 0.3) ? 2 : 1; // sometimes stereo
+
+        // Total bytes = rate * (depth / 8) * dur * ch
+        const totalBytes = rate * (depth / 8) * dur * ch;
+        let ansStr = '';
+        let hintStr = '';
+
+        if (totalBytes % 1000 === 0) {
+          const kb = totalBytes / 1000;
+          ansStr = `${kb.toLocaleString()} KB`;
+          hintStr = `Formula: (Sample rate [${rate.toLocaleString()} Hz] × Bit depth [${depth}-bit] ÷ 8) × ${dur}s${ch === 2 ? ' × 2 channels' : ''}. Divide bytes by 1,000 for KB.`;
+        } else {
+          ansStr = `${totalBytes.toLocaleString()} bytes`;
+          hintStr = `Formula: Sample rate (${rate.toLocaleString()} Hz) × (${depth} bits ÷ 8 bytes/sample) × ${dur}s${ch === 2 ? ' × 2 channels' : ''}.`;
+        }
+
+        const channelLabel = ch === 2 ? ', Stereo' : (dur > 1 ? ', Mono' : '');
+        const durationLabel = dur === 1 ? '1 second' : `${dur} seconds`;
+        const displayStr = `${rate.toLocaleString()} Hz × ${depth}-bit depth (${durationLabel}${channelLabel})`;
+
+        // Realistic distractors
+        const distractors = new Set();
+        const noDiv8 = totalBytes * 8;
+        if (totalBytes % 1000 === 0) {
+          distractors.add(`${(noDiv8 / 1000).toLocaleString()} KB`);
+        } else {
+          distractors.add(`${noDiv8.toLocaleString()} bytes`);
+        }
+        if (ch === 2) {
+          const half = totalBytes / 2;
+          distractors.add(totalBytes % 1000 === 0 ? `${(half / 1000).toLocaleString()} KB` : `${half.toLocaleString()} bytes`);
+        } else {
+          const dbl = totalBytes * 2;
+          distractors.add(totalBytes % 1000 === 0 ? `${(dbl / 1000).toLocaleString()} KB` : `${dbl.toLocaleString()} bytes`);
+        }
+        if (totalBytes % 1000 === 0) {
+          distractors.add(`${(rate / 1000).toLocaleString()} KB`);
+          distractors.add(`${((rate * depth) / 1000).toLocaleString()} KB`);
+        } else {
+          distractors.add(`${rate.toLocaleString()} bytes`);
+          distractors.add(`${(totalBytes / 2).toLocaleString()} bytes`);
+        }
+
+        distractors.delete(ansStr);
+        const distArr = Array.from(distractors).slice(0, 3);
+        while (distArr.length < 3) {
+          distArr.push(`${(totalBytes + 1000 * (distArr.length + 1)).toLocaleString()} bytes`);
+        }
+
         return {
           type: 'mc',
-          prompt: "Sound Data per Second",
-          display: item.display,
+          prompt: "Sound Data Calculation",
+          display: displayStr,
           isQuestionDisplay: true,
-          hint: item.hint,
-          correctAnswer: item.ans,
-          options: shuffleArray(item.opts)
+          hint: hintStr,
+          correctAnswer: ansStr,
+          options: shuffleArray([ansStr, ...distArr])
         };
       } else if (qKind === 1) {
-        // Proportional adjustments (downsampling, stereo, duration)
-        const propQuestions = [
-          {
+        // Proportional adjustments (downsampling, stereo, duration, bit depth)
+        const subType = Math.floor(Math.random() * 4);
+        if (subType === 0) {
+          const baseRates = [44000, 48000, 40000, 32000, 24000];
+          const origRate = baseRates[Math.floor(Math.random() * baseRates.length)];
+          const newRate = origRate / 2;
+          const origSize = (Math.floor(Math.random() * 6) + 3) * 10;
+          const newSize = origSize / 2;
+          return {
+            type: 'mc',
             prompt: "Audio Downsampling",
-            display: "A 40,000 Hz audio clip is 60 MB. If downsampled to 20,000 Hz (half the rate), what is the new size?",
-            ans: "30 MB",
-            opts: ["30 MB", "120 MB", "15 MB", "60 MB"],
-            hint: "Sample rate is directly proportional to file size. Halving the rate halves the file size."
-          },
-          {
-            prompt: "Audio Downsampling",
-            display: "A 44,000 Hz audio track is 80 MB. If downsampled to 22,000 Hz, what is the new size?",
-            ans: "40 MB",
-            opts: ["40 MB", "160 MB", "20 MB", "80 MB"],
-            hint: "Halving the sample rate halves the total recorded samples and file size."
-          },
-          {
+            display: `A ${origRate.toLocaleString()} Hz audio track is ${origSize} MB. If downsampled to ${newRate.toLocaleString()} Hz (half rate), what is the new file size?`,
+            isQuestionDisplay: true,
+            hint: "Sample rate is directly proportional to file size. Halving the rate halves the total samples and file size.",
+            correctAnswer: `${newSize} MB`,
+            options: shuffleArray([`${newSize} MB`, `${origSize * 2} MB`, `${Math.round(newSize / 2)} MB`, `${origSize} MB`])
+          };
+        } else if (subType === 1) {
+          const origSizes = [12, 16, 20, 24, 30, 40, 60];
+          const origSize = origSizes[Math.floor(Math.random() * origSizes.length)];
+          const isHalving = Math.random() < 0.6;
+          const fromDepth = isHalving ? 16 : 8;
+          const toDepth = isHalving ? 8 : 16;
+          const newSize = isHalving ? origSize / 2 : origSize * 2;
+          return {
+            type: 'mc',
             prompt: "Bit Depth Adjustment",
-            display: "A 10 MB audio track is reduced from 16-bit depth to 8-bit depth. What is the new size?",
-            ans: "5 MB",
-            opts: ["5 MB", "20 MB", "2.5 MB", "10 MB"],
-            hint: "Halving the bit depth halves the number of bits stored per sample."
-          },
-          {
+            display: `A ${origSize} MB audio track is converted from ${fromDepth}-bit depth to ${toDepth}-bit depth. What is the new size?`,
+            isQuestionDisplay: true,
+            hint: `${toDepth > fromDepth ? 'Doubling' : 'Halving'} the bit depth ${toDepth > fromDepth ? 'doubles' : 'halves'} the number of bits stored per sample.`,
+            correctAnswer: `${newSize} MB`,
+            options: shuffleArray([`${newSize} MB`, `${isHalving ? origSize * 2 : Math.round(origSize / 2)} MB`, `${origSize} MB`, `${Math.round(newSize * 1.5)} MB`])
+          };
+        } else if (subType === 2) {
+          const origSize = (Math.floor(Math.random() * 8) + 2) * 5;
+          const toStereo = Math.random() < 0.5;
+          const newSize = toStereo ? origSize * 2 : origSize / 2;
+          return {
+            type: 'mc',
             prompt: "Mono vs Stereo Channels",
-            display: "A 15 MB audio recording is recorded in Stereo (2 channels) instead of Mono (1 channel). What is the file size?",
-            ans: "30 MB",
-            opts: ["30 MB", "15 MB", "60 MB", "7.5 MB"],
-            hint: "Stereo doubles the audio stream by recording separate left and right channels."
-          },
-          {
+            display: toStereo 
+              ? `A ${origSize} MB Mono audio recording is converted to Stereo (2 channels). What is the new file size?`
+              : `A ${origSize} MB Stereo audio recording is converted to Mono (1 channel). What is the new file size?`,
+            isQuestionDisplay: true,
+            hint: toStereo ? "Stereo records 2 distinct channels (left and right), doubling the file size." : "Mono uses a single audio channel, halving the file size compared to Stereo.",
+            correctAnswer: `${newSize} MB`,
+            options: shuffleArray([`${newSize} MB`, `${origSize} MB`, `${toStereo ? origSize * 4 : origSize * 2} MB`, `${Math.round(origSize / 4)} MB`])
+          };
+        } else {
+          const baseMins = [2, 3, 4, 5];
+          const m1 = baseMins[Math.floor(Math.random() * baseMins.length)];
+          const mult = (Math.random() < 0.5) ? 2 : 3;
+          const m2 = m1 * mult;
+          const baseSize = (Math.floor(Math.random() * 5) + 2) * 4;
+          const newSize = baseSize * mult;
+          return {
+            type: 'mc',
             prompt: "Recording Duration",
-            display: "A 3-minute recording is 12 MB. How large would a 6-minute recording be at identical quality?",
-            ans: "24 MB",
-            opts: ["24 MB", "36 MB", "6 MB", "12 MB"],
-            hint: "Duration is directly proportional to file size. Doubling the time doubles the file size."
-          }
-        ];
-        const item = propQuestions[Math.floor(Math.random() * propQuestions.length)];
-        return {
-          type: 'mc',
-          prompt: item.prompt,
-          display: item.display,
-          isQuestionDisplay: true,
-          hint: item.hint,
-          correctAnswer: item.ans,
-          options: shuffleArray(item.opts)
-        };
+            display: `A ${m1}-minute recording is ${baseSize} MB. How large would a ${m2}-minute recording be at identical quality?`,
+            isQuestionDisplay: true,
+            hint: `Duration is directly proportional to file size. Increasing time by ${mult}× multiplies the file size by ${mult}.`,
+            correctAnswer: `${newSize} MB`,
+            options: shuffleArray([`${newSize} MB`, `${baseSize * (mult + 1)} MB`, `${Math.round(baseSize / mult)} MB`, `${baseSize} MB`])
+          };
+        }
       } else {
-        // Conceptual sound formulas & definitions
         const conceptQuestions = [
           {
             prompt: "Sound File Size Formula",
@@ -3891,6 +3873,18 @@
               "The physical length of the sound wave"
             ],
             hint: "Measured in Hertz (Hz): 44.1 kHz = 44,100 samples per second."
+          },
+          {
+            prompt: "Audio Sampling",
+            display: "What is sound bit depth (sample resolution)?",
+            ans: "The number of bits allocated to store the amplitude of each sample",
+            opts: [
+              "The number of bits allocated to store the amplitude of each sample",
+              "The frequency range of the microphone",
+              "The speed at which sound travels through the speaker",
+              "The duration of the audio recording in seconds"
+            ],
+            hint: "Higher bit depth allows a greater dynamic range and more accurate representation of sound levels."
           }
         ];
         const item = conceptQuestions[Math.floor(Math.random() * conceptQuestions.length)];
@@ -3911,120 +3905,173 @@
       const qKind = Math.floor(Math.random() * 3);
 
       if (qKind === 0) {
-        // Simple pixel calculations (clean numbers, NO spoiler hints)
-        const imgQuestions = [
-          {
-            display: "10 × 10 pixel icon @ 8-bit colour depth",
-            ans: "100 bytes",
-            opts: ["100 bytes", "800 bytes", "10 bytes", "1,000 bytes"],
-            hint: "Formula: Width × Height × (Colour depth ÷ 8). 8 bits = 1 byte per pixel."
-          },
-          {
-            display: "100 × 50 pixel image @ 8-bit colour depth",
-            ans: "5 KB (5,000 bytes)",
-            opts: ["5 KB (5,000 bytes)", "50 KB", "40 KB", "500 bytes"],
-            hint: "Total pixels = Width × Height. 8 bits = 1 byte per pixel."
-          },
-          {
-            display: "200 × 100 monochrome image (1 bit per pixel)",
-            ans: "2,500 bytes",
-            opts: ["2,500 bytes", "20,000 bytes", "200 bytes", "5,000 bytes"],
-            hint: "Calculate total pixels (Width × Height), then divide by 8 to convert bits to bytes."
-          },
-          {
-            display: "20 × 20 pixel sprite @ 16-bit colour depth",
-            ans: "800 bytes",
-            opts: ["800 bytes", "400 bytes", "6,400 bytes", "1,600 bytes"],
-            hint: "16 bits = 2 bytes per pixel. Multiply total pixels by 2 bytes."
-          }
+        // Simple pixel calculations with clean numbers
+        const presets = [
+          { w: 10, h: 10, depth: 8 },
+          { w: 20, h: 20, depth: 16 },
+          { w: 50, h: 40, depth: 8 },
+          { w: 100, h: 50, depth: 8 },
+          { w: 200, h: 100, depth: 1 },
+          { w: 400, h: 200, depth: 1 },
+          { w: 100, h: 50, depth: 16 },
+          { w: 100, h: 50, depth: 24 },
+          { w: 200, h: 100, depth: 8 },
+          { w: 300, h: 200, depth: 8 },
+          { w: 50, h: 50, depth: 4 }
         ];
-        const item = imgQuestions[Math.floor(Math.random() * imgQuestions.length)];
+        const p = presets[Math.floor(Math.random() * presets.length)];
+        const totalPixels = p.w * p.h;
+        const totalBits = totalPixels * p.depth;
+        const totalBytes = totalBits / 8;
+
+        let ansStr = '';
+        let hintStr = '';
+        if (totalBytes >= 1000 && totalBytes % 1000 === 0) {
+          const kb = totalBytes / 1000;
+          ansStr = `${kb} KB (${totalBytes.toLocaleString()} bytes)`;
+          hintStr = `Formula: Width (${p.w}) × Height (${p.h}) × (${p.depth} bits ÷ 8). Total = ${totalBytes.toLocaleString()} bytes = ${kb} KB.`;
+        } else {
+          ansStr = `${totalBytes.toLocaleString()} bytes`;
+          hintStr = `Formula: Width (${p.w}) × Height (${p.h}) × ${p.depth} bits ÷ 8 bits per byte.`;
+        }
+
+        let descDepth = `${p.depth}-bit colour depth`;
+        if (p.depth === 1) descDepth = `monochrome (1 bit per pixel)`;
+        if (p.depth === 24) descDepth = `24-bit True Colour (3 bytes/pixel)`;
+        const displayStr = `${p.w} × ${p.h} pixel image @ ${descDepth}`;
+
+        const distractors = new Set();
+        if (totalBytes >= 1000 && totalBytes % 1000 === 0) {
+          const kb = totalBytes / 1000;
+          distractors.add(`${kb * 8} KB`);
+          distractors.add(`${Math.round(kb / 2)} KB`);
+          distractors.add(`${kb * 10} KB`);
+          distractors.add(`${totalBytes / 10} bytes`);
+        } else {
+          distractors.add(`${(totalBytes * 8).toLocaleString()} bytes`);
+          distractors.add(`${(totalBytes / 2).toLocaleString()} bytes`);
+          distractors.add(`${(totalBytes * 2).toLocaleString()} bytes`);
+          distractors.add(`${(p.w * p.h).toLocaleString()} bytes`);
+        }
+        distractors.delete(ansStr);
+        const distArr = Array.from(distractors).slice(0, 3);
+        while (distArr.length < 3) {
+          distArr.push(`${(totalBytes * 2).toLocaleString()} bytes`);
+        }
+
         return {
           type: 'mc',
           prompt: "Bitmap Image File Size",
-          display: item.display,
+          display: displayStr,
           isQuestionDisplay: true,
-          hint: item.hint,
-          correctAnswer: item.ans,
-          options: shuffleArray(item.opts)
+          hint: hintStr,
+          correctAnswer: ansStr,
+          options: shuffleArray([ansStr, ...distArr])
         };
       } else if (qKind === 1) {
         // Proportional adjustments (resolution & depth)
-        const propQuestions = [
-          {
+        const subType = Math.floor(Math.random() * 4);
+        if (subType === 0) {
+          const baseSizes = [6, 9, 12, 15, 18, 24];
+          const isUp = Math.random() < 0.5;
+          const origSize = baseSizes[Math.floor(Math.random() * baseSizes.length)];
+          const newSize = isUp ? origSize * 3 : origSize / 3;
+          const promptDesc = isUp 
+            ? `An uncompressed ${origSize} MB image has its colour depth increased from 8-bit to 24-bit (True Colour). What is the new size?`
+            : `An uncompressed ${origSize} MB image is reduced from 24-bit True Colour to 8-bit colour depth. What is the new size?`;
+          return {
+            type: 'mc',
+            prompt: isUp ? "Colour Depth Expansion" : "Colour Depth Reduction",
+            display: promptDesc,
+            isQuestionDisplay: true,
+            hint: isUp ? "Colour depth triples (8 bits ➔ 24 bits), so the uncompressed file size triples (3×)." : "Colour depth is reduced by a factor of 3 (24 ÷ 8 = 3), dividing file size by 3.",
+            correctAnswer: `${newSize} MB`,
+            options: shuffleArray([`${newSize} MB`, `${origSize * 2} MB`, `${Math.round(origSize / 2)} MB`, `${origSize * 4} MB`])
+          };
+        } else if (subType === 1) {
+          const origSizes = [2, 4, 5, 8, 10, 16];
+          const origSize = origSizes[Math.floor(Math.random() * origSizes.length)];
+          const newSize = origSize * 4;
+          return {
+            type: 'mc',
+            prompt: "Image Resolution Scaling",
+            display: `A ${origSize} MB image has both its width and height doubled. What is the new file size?`,
+            isQuestionDisplay: true,
+            hint: "Total pixels = Width × Height. Doubling both dimensions quadruples total pixels: 2 × 2 = 4×.",
+            correctAnswer: `${newSize} MB`,
+            options: shuffleArray([`${newSize} MB`, `${origSize * 2} MB`, `${origSize * 8} MB`, `${origSize} MB`])
+          };
+        } else if (subType === 2) {
+          const origSizes = [16, 24, 32, 40, 48, 64];
+          const origSize = origSizes[Math.floor(Math.random() * origSizes.length)];
+          const newSize = origSize / 4;
+          return {
+            type: 'mc',
+            prompt: "Image Resolution Scaling",
+            display: `A ${origSize} MB image has both its width and height halved. What is the new file size?`,
+            isQuestionDisplay: true,
+            hint: "Halving both dimensions reduces total pixels to one quarter: 1/2 × 1/2 = 1/4 of original size.",
+            correctAnswer: `${newSize} MB`,
+            options: shuffleArray([`${newSize} MB`, `${origSize / 2} MB`, `${origSize / 8} MB`, `${origSize} MB`])
+          };
+        } else {
+          const origSizes = [8, 10, 14, 16, 20];
+          const origSize = origSizes[Math.floor(Math.random() * origSizes.length)];
+          const isUp = Math.random() < 0.5;
+          const newSize = isUp ? origSize * 2 : origSize / 2;
+          return {
+            type: 'mc',
             prompt: "Colour Depth Adjustment",
-            display: "An 8 MB image has its colour depth increased from 8-bit to 24-bit (True Colour). What is the new size?",
-            ans: "24 MB",
-            opts: ["24 MB", "16 MB", "32 MB", "64 MB"],
-            hint: "Colour depth triples (8 bits ➔ 24 bits), so the uncompressed file size triples."
-          },
-          {
-            prompt: "Image Resolution Scaling",
-            display: "If you double both the width and the height of an image, what happens to its file size?",
-            ans: "File size quadruples (4×)",
-            opts: ["File size quadruples (4×)", "File size doubles (2×)", "File size triples (3×)", "File size stays the same"],
-            hint: "Area = Width × Height. Doubling both dimensions quadruples total pixels (2 × 2 = 4)."
-          },
-          {
-            prompt: "Image Resolution Scaling",
-            display: "A 16 MB image has both its width and height halved. What is the new file size?",
-            ans: "4 MB",
-            opts: ["4 MB", "8 MB", "2 MB", "1 MB"],
-            hint: "Halving both dimensions reduces total pixels to one quarter (1/2 × 1/2 = 1/4)."
-          },
-          {
-            prompt: "Colour Depth Reduction",
-            display: "A 12 MB image is converted from 24-bit True Colour to 8-bit colour. What is the new size?",
-            ans: "4 MB",
-            opts: ["4 MB", "6 MB", "3 MB", "8 MB"],
-            hint: "Colour depth is reduced by a factor of 3 (24 ÷ 8 = 3), so file size is divided by 3."
-          }
-        ];
-        const item = propQuestions[Math.floor(Math.random() * propQuestions.length)];
-        return {
-          type: 'mc',
-          prompt: item.prompt,
-          display: item.display,
-          isQuestionDisplay: true,
-          hint: item.hint,
-          correctAnswer: item.ans,
-          options: shuffleArray(item.opts)
-        };
+            display: isUp
+              ? `A ${origSize} MB image has its colour depth increased from 8-bit to 16-bit. What is the new size?`
+              : `A ${origSize} MB image has its colour depth reduced from 16-bit to 8-bit. What is the new size?`,
+            isQuestionDisplay: true,
+            hint: isUp ? "Doubling the bit depth doubles the number of bits per pixel." : "Halving the bit depth halves the file size.",
+            correctAnswer: `${newSize} MB`,
+            options: shuffleArray([`${newSize} MB`, `${isUp ? origSize * 4 : origSize * 2} MB`, `${origSize} MB`, `${Math.round(origSize / 4)} MB`])
+          };
+        }
       } else {
-        // Colour depth & metadata concepts
+        const bitsPool = [1, 2, 4, 8, 16];
+        const chosenBits = bitsPool[Math.floor(Math.random() * bitsPool.length)];
+        const coloursCount = Math.pow(2, chosenBits);
+        const superscriptExp = String(chosenBits).split('').map(d => '⁰¹²³⁴⁵⁶⁷⁸⁹'[parseInt(d)]).join('');
         const conceptQuestions = [
           {
             prompt: "Colour Depth Calculation",
-            display: "How many unique colours can be represented with 8-bit colour depth?",
-            ans: "256 colours (2⁸)",
-            opts: ["256 colours (2⁸)", "64 colours", "128 colours", "16 colours"],
-            hint: "Formula: 2ⁿ colours, where n is the number of bits per pixel."
-          },
-          {
-            prompt: "Colour Depth Calculation",
-            display: "How many unique colours can be represented with 4-bit colour depth?",
-            ans: "16 colours (2⁴)",
-            opts: ["16 colours (2⁴)", "8 colours", "32 colours", "64 colours"],
-            hint: "Formula: 2ⁿ colours, where n = 4 bits per pixel."
-          },
-          {
-            prompt: "Colour Depth Calculation",
-            display: "How many unique colours can be represented with 1-bit colour depth?",
-            ans: "2 colours (Monochrome: Black & White)",
-            opts: ["2 colours (Monochrome: Black & White)", "1 colour", "4 colours", "8 colours"],
-            hint: "1 bit has 2 possible binary states: 0 or 1."
+            display: `How many unique colours can be represented with ${chosenBits}-bit colour depth?`,
+            ans: `${coloursCount.toLocaleString()} colours (2${superscriptExp})`,
+            opts: [
+              `${coloursCount.toLocaleString()} colours (2${superscriptExp})`,
+              `${(coloursCount * 2).toLocaleString()} colours`,
+              `${(Math.max(2, Math.round(coloursCount / 2))).toLocaleString()} colours`,
+              `${chosenBits * 2} colours`
+            ],
+            hint: `Formula: 2ⁿ colours, where n is the number of bits per pixel (2^${chosenBits} = ${coloursCount}).`
           },
           {
             prompt: "Bitmap File Structure",
-            display: "What extra data is stored in an image file alongside pixel colours?",
-            ans: "Metadata (dimensions, colour profile, resolution)",
+            display: "What extra data is stored in an image file alongside raw pixel colours?",
+            ans: "Metadata (dimensions, colour profile, resolution, timestamp)",
             opts: [
-              "Metadata (dimensions, colour profile, resolution)",
+              "Metadata (dimensions, colour profile, resolution, timestamp)",
               "Screen refresh rate instructions",
               "Audio channel frequencies",
               "Electric voltage requirements"
             ],
-            hint: "Metadata contains information about the file itself (dimensions, date, camera settings)."
+            hint: "Metadata contains information about the file itself (dimensions, resolution, colour depth, date)."
+          },
+          {
+            prompt: "Image Resolution Definition",
+            display: "What is image resolution?",
+            ans: "The total number of pixels in an image (Width × Height)",
+            opts: [
+              "The total number of pixels in an image (Width × Height)",
+              "The physical weight of the monitor display",
+              "The number of bits allocated to each colour channel",
+              "The speed at which the image downloads over Wi-Fi"
+            ],
+            hint: "Resolution is expressed as dimensions (e.g. 1920 × 1080) or total pixel count."
           }
         ];
         const item = conceptQuestions[Math.floor(Math.random() * conceptQuestions.length)];
@@ -4042,89 +4089,131 @@
 
     // Megabits vs Megabytes
     if (effectiveMode === 'units_mb_vs_mb') {
-      const qPool = [
-        {
+      const isMbpsToMBs = Math.random() < 0.5;
+      if (isMbpsToMBs) {
+        const mBpsValues = [2, 4, 5, 6, 8, 10, 12, 15, 16, 20, 25, 30, 40, 50, 100];
+        const mBps = mBpsValues[Math.floor(Math.random() * mBpsValues.length)];
+        const mbps = mBps * 8;
+        const correct = `${mBps} MB/s`;
+        const distractors = new Set([
+          `${mbps} MB/s`,
+          `${mbps * 8} MB/s`,
+          `${mBps * 2} MB/s`,
+          `${Math.max(1, Math.round(mBps / 2))} MB/s`,
+          `${Math.round(mbps / 10)} MB/s`
+        ]);
+        distractors.delete(correct);
+        return {
+          type: 'mc',
           prompt: "Transfer Speed vs File Size",
-          display: "80 Mbps ➔ ? MB/s",
-          hint: "1 Byte = 8 bits. Divide network speed in Mbps by 8 to convert to MB/s.",
-          correctAnswer: "10 MB/s",
-          options: ["10 MB/s", "8 MB/s", "80 MB/s", "640 MB/s"]
-        },
-        {
+          display: `${mbps} Mbps ➔ ? MB/s`,
+          isQuestionDisplay: true,
+          hint: `1 Byte = 8 bits. Divide network speed in Mbps (${mbps}) by 8 to convert to MB/s: ${mbps} ÷ 8 = ${mBps} MB/s.`,
+          correctAnswer: correct,
+          options: shuffleArray([correct, ...Array.from(distractors).slice(0, 3)])
+        };
+      } else {
+        const mBpsValues = [2, 3, 4, 5, 6, 8, 10, 12, 15, 20, 25];
+        const mBps = mBpsValues[Math.floor(Math.random() * mBpsValues.length)];
+        const mbps = mBps * 8;
+        const correct = `${mbps} Mbps`;
+        const distractors = new Set([
+          `${mBps} Mbps`,
+          `${Math.round(mbps / 2)} Mbps`,
+          `${mbps * 2} Mbps`,
+          `${Math.round(mBps / 8)} Mbps`,
+          `${mBps * 10} Mbps`
+        ]);
+        distractors.delete(correct);
+        return {
+          type: 'mc',
           prompt: "Transfer Speed vs File Size",
-          display: "6 MB/s ➔ ? Mbps",
-          hint: "1 Byte = 8 bits. Multiply file transfer speed in MB/s by 8 to convert to Mbps.",
-          correctAnswer: "48 Mbps",
-          options: ["48 Mbps", "6 Mbps", "24 Mbps", "36 Mbps"]
-        },
-        {
-          prompt: "Transfer Speed vs File Size",
-          display: "120 Mbps ➔ ? MB/s",
-          hint: "1 Byte = 8 bits. Divide Mbps by 8 to convert to MB/s.",
-          correctAnswer: "15 MB/s",
-          options: ["15 MB/s", "12 MB/s", "120 MB/s", "960 MB/s"]
-        },
-        {
-          prompt: "Transfer Speed vs File Size",
-          display: "25 MB/s ➔ ? Mbps",
-          hint: "1 Byte = 8 bits. Multiply MB/s by 8 to convert to Mbps.",
-          correctAnswer: "200 Mbps",
-          options: ["200 Mbps", "25 Mbps", "100 Mbps", "3.125 Mbps"]
-        }
-      ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
-      return {
-        type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
-      };
+          display: `${mBps} MB/s ➔ ? Mbps`,
+          isQuestionDisplay: true,
+          hint: `1 Byte = 8 bits. Multiply file transfer rate in MB/s (${mBps}) by 8 to convert to Mbps: ${mBps} × 8 = ${mbps} Mbps.`,
+          correctAnswer: correct,
+          options: shuffleArray([correct, ...Array.from(distractors).slice(0, 3)])
+        };
+      }
     }
 
     // Payload & Protocol Overhead
     if (effectiveMode === 'units_payload_overhead') {
-      const qPool = [
-        {
-          prompt: "Network Protocol Overhead",
-          display: "Why is real download speed lower than theoretical Mbps?",
+      const isCalc = Math.random() < 0.65;
+      if (isCalc) {
+        const packetSizes = [500, 800, 1000, 1200, 1400, 1500, 2000];
+        const headerSizes = [20, 32, 40, 50, 60, 64, 80];
+        const P = packetSizes[Math.floor(Math.random() * packetSizes.length)];
+        const H = headerSizes[Math.floor(Math.random() * headerSizes.length)];
+        const payload = P - H;
+        const correct = `${payload.toLocaleString()} bytes`;
+        const distractors = new Set([
+          `${(P + H).toLocaleString()} bytes`,
+          `${(payload - 40).toLocaleString()} bytes`,
+          `${(P / 2).toLocaleString()} bytes`,
+          `${(payload + 20).toLocaleString()} bytes`,
+          `${P.toLocaleString()} bytes`
+        ]);
+        distractors.delete(correct);
+        return {
+          type: 'mc',
+          prompt: "Packet Payload Calculation",
+          display: `${P.toLocaleString()} B Packet − ${H} B Headers = ? Payload`,
           isQuestionDisplay: true,
-          hint: "Network protocols (TCP/IP, Ethernet) require packet headers containing IP addresses, sequence numbers & checksums",
-          correctAnswer: "Packet headers and protocol metadata consume a portion of the bandwidth",
-          options: [
-            "Packet headers and protocol metadata consume a portion of the bandwidth",
-            "Broadband wires absorb binary electrons over distance",
-            "The computer CPU slows down internet packets to inspect syntax",
-            "Binary digits shrink during transmission"
-          ]
-        },
-        {
-          prompt: "Packet Payload Calculation",
-          display: "1,500 B Packet − 40 B Headers = ? Payload",
-          hint: "Formula: Payload = Total Packet Size − Protocol Headers.",
-          correctAnswer: "1,460 bytes",
-          options: ["1,460 bytes", "1,540 bytes", "1,400 bytes", "750 bytes"]
-        },
-        {
-          prompt: "Packet Payload Calculation",
-          display: "1,000 B Packet − 60 B Headers = ? Payload",
-          hint: "Formula: Payload = Total Packet Size − Protocol Headers.",
-          correctAnswer: "940 bytes",
-          options: ["940 bytes", "1,060 bytes", "900 bytes", "500 bytes"]
-        }
-      ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
-      return {
-        type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
-      };
+          hint: `Formula: Payload = Total Packet Size − Protocol Headers (${P} − ${H} = ${payload} bytes).`,
+          correctAnswer: correct,
+          options: shuffleArray([correct, ...Array.from(distractors).slice(0, 3)])
+        };
+      } else {
+        const conceptPool = [
+          {
+            prompt: "Network Protocol Overhead",
+            display: "Why is real-world download speed noticeably lower than theoretical line speed (Mbps)?",
+            ans: "Packet headers and protocol metadata consume a portion of the bandwidth",
+            opts: [
+              "Packet headers and protocol metadata consume a portion of the bandwidth",
+              "Broadband cables absorb binary electrons over distance",
+              "The computer CPU slows down incoming packets to recompile bytecode",
+              "Binary digits shrink during transmission through glass fibre"
+            ],
+            hint: "Protocols like TCP, IP, and Ethernet add headers and footers containing IP addresses, sequence numbers, and CRC checksums to every packet."
+          },
+          {
+            prompt: "Network Packet Structure",
+            display: "What is the difference between packet payload and packet header?",
+            ans: "Payload is the actual user data; header contains routing and control metadata",
+            opts: [
+              "Payload is the actual user data; header contains routing and control metadata",
+              "Payload is the password encryption key; header is the file size",
+              "Payload is discarded after arrival; header is saved to the hard disk",
+              "Payload contains IP addresses; header contains the raw downloaded media"
+            ],
+            hint: "The header guides the packet to its destination (IP addresses, port, sequence); the payload is the actual cargo data (e.g. part of an image or message)."
+          },
+          {
+            prompt: "Protocol Efficiency",
+            display: "If a 1,000-byte packet has 100 bytes of headers, what percentage is payload efficiency?",
+            ans: "90% (900 bytes payload ÷ 1,000 bytes total)",
+            opts: [
+              "90% (900 bytes payload ÷ 1,000 bytes total)",
+              "10%",
+              "80%",
+              "99%"
+            ],
+            hint: "Payload = 1,000 − 100 = 900 bytes. Efficiency = (900 ÷ 1,000) × 100% = 90%."
+          }
+        ];
+        const item = conceptPool[Math.floor(Math.random() * conceptPool.length)];
+        return {
+          type: 'mc',
+          prompt: item.prompt,
+          display: item.display,
+          isQuestionDisplay: true,
+          hint: item.hint,
+          correctAnswer: item.ans,
+          options: shuffleArray(item.opts)
+        };
+      }
     }
 
     // =========================================================================
@@ -4229,6 +4318,7 @@
     bitmasterState.elapsedSeconds = 0;
     bitmasterState.sprintTimeLeft = 60;
     bitmasterState.totalQuestions = isSprint ? 999 : 10;
+    bitmasterState.keypadBuffer = "";
 
     const timerEl = document.getElementById('bitmasterTimerDisplay');
     const counterEl = document.getElementById('bitmasterQuestionCounter');
@@ -4344,6 +4434,7 @@
     bitmasterState.currentQuestionIndex++;
     bitmasterState.currentQuestion = createBitmasterQuestion();
     bitmasterState.switchBits = [0, 0, 0, 0, 0, 0, 0, 0];
+    bitmasterState.keypadBuffer = "";
     bitmasterState.currentQuestionMistakes = 0;
 
     const counterEl = document.getElementById('bitmasterQuestionCounter');
@@ -4397,17 +4488,20 @@
 
     const tilesZone = document.getElementById('bitmasterTilesZone');
     const switchZone = document.getElementById('bitmasterSwitchboardZone');
+    const keypadZone = document.getElementById('bitmasterKeypadZone');
     const mathZone = document.getElementById('bitmasterMathGridZone');
     const hexZone = document.getElementById('bitmasterHexNibblesZone');
 
     if (bitmasterState.currentQuestion.type === 'mc') {
       if (tilesZone) tilesZone.style.display = 'grid';
       if (switchZone) switchZone.style.display = 'none';
+      if (keypadZone) keypadZone.style.display = 'none';
       if (mathZone) mathZone.style.display = 'none';
       if (hexZone) hexZone.style.display = 'none';
       renderBitmasterMCTiles(bitmasterState.currentQuestion.options, bitmasterState.currentQuestion.layout);
     } else if (bitmasterState.currentQuestion.type === 'switches') {
       if (tilesZone) tilesZone.style.display = 'none';
+      if (keypadZone) keypadZone.style.display = 'none';
       if (switchZone) {
         switchZone.style.display = 'flex';
         renderBitmasterSwitchboard(
@@ -4420,9 +4514,19 @@
       }
       if (mathZone) mathZone.style.display = 'none';
       if (hexZone) hexZone.style.display = 'none';
+    } else if (bitmasterState.currentQuestion.type === 'keypad') {
+      if (tilesZone) tilesZone.style.display = 'none';
+      if (switchZone) switchZone.style.display = 'none';
+      if (mathZone) mathZone.style.display = 'none';
+      if (hexZone) hexZone.style.display = 'none';
+      if (keypadZone) {
+        keypadZone.style.display = 'flex';
+        renderBitmasterKeypad(bitmasterState.currentQuestion);
+      }
     } else if (bitmasterState.currentQuestion.type === 'hex_nibbles') {
       if (tilesZone) tilesZone.style.display = 'none';
       if (switchZone) switchZone.style.display = 'none';
+      if (keypadZone) keypadZone.style.display = 'none';
       if (mathZone) mathZone.style.display = 'none';
       if (hexZone) {
         hexZone.style.display = 'flex';
@@ -4431,6 +4535,7 @@
     } else if (bitmasterState.currentQuestion.type === 'math_grid') {
       if (tilesZone) tilesZone.style.display = 'none';
       if (switchZone) switchZone.style.display = 'none';
+      if (keypadZone) keypadZone.style.display = 'none';
       if (hexZone) hexZone.style.display = 'none';
       if (mathZone) {
         mathZone.style.display = 'flex';
@@ -4784,11 +4889,168 @@
   }
 
   // =========================================================================
+  // INTERACTION ZONE C: DYNAMIC NUMPAD / HEXPAD
+  // =========================================================================
+
+  function renderBitmasterKeypad(question) {
+    const dispEl = document.getElementById('bitmasterKeypadDisplay');
+    const gridEl = document.getElementById('bitmasterKeypadGrid');
+    bitmasterState.keypadBuffer = "";
+
+    const mode = question.keypadMode || 'denary';
+    const isHex = (mode === 'hex');
+    const isSigned = (mode === 'signed_denary');
+
+    const updateDisplay = () => {
+      if (!dispEl) return;
+      if (!bitmasterState.keypadBuffer) {
+        dispEl.textContent = isHex ? '0x_' : '_';
+        dispEl.style.color = '#64748b';
+      } else {
+        dispEl.textContent = isHex ? `0x${bitmasterState.keypadBuffer}` : bitmasterState.keypadBuffer;
+        dispEl.style.color = '#38bdf8';
+      }
+    };
+
+    updateDisplay();
+    if (!gridEl) return;
+    gridEl.innerHTML = '';
+    gridEl.className = 'keypad-grid ' + (isHex ? 'keypad-grid-hex' : 'keypad-grid-denary');
+
+    let keys = [];
+    if (isHex) {
+      keys = [
+        '1', '2', '3', 'A',
+        '4', '5', '6', 'B',
+        '7', '8', '9', 'C',
+        '0', 'E', 'F', 'D',
+        'DEL', 'OK'
+      ];
+    } else if (isSigned) {
+      keys = [
+        '1', '2', '3',
+        '4', '5', '6',
+        '7', '8', '9',
+        '−', '0', 'DEL',
+        'OK'
+      ];
+    } else {
+      keys = [
+        '1', '2', '3',
+        '4', '5', '6',
+        '7', '8', '9',
+        'C', '0', 'DEL',
+        'OK'
+      ];
+    }
+
+    keys.forEach(k => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'keypad-btn';
+      if (k === 'DEL') btn.className += ' keypad-btn-del';
+      if (k === 'OK') {
+        btn.className += ' keypad-btn-ok';
+        if (!isHex) btn.className += ' keypad-btn-full';
+        else btn.className += ' keypad-btn-wide';
+      }
+      if (isHex && k === 'DEL') {
+        btn.className += ' keypad-btn-wide';
+      }
+      btn.textContent = k;
+
+      btn.addEventListener('click', () => {
+        playSynthSound('tap');
+        if (k === 'DEL') {
+          bitmasterState.keypadBuffer = bitmasterState.keypadBuffer.slice(0, -1);
+        } else if (k === 'C') {
+          bitmasterState.keypadBuffer = '';
+        } else if (k === '−') {
+          if (bitmasterState.keypadBuffer.startsWith('-')) {
+            bitmasterState.keypadBuffer = bitmasterState.keypadBuffer.slice(1);
+          } else {
+            bitmasterState.keypadBuffer = '-' + bitmasterState.keypadBuffer;
+          }
+        } else if (k === 'OK') {
+          handleBitmasterKeypadSubmit();
+          return;
+        } else {
+          const maxLen = isHex ? 2 : 4;
+          const effectiveLen = bitmasterState.keypadBuffer.replace('-', '').length;
+          if (effectiveLen < maxLen) {
+            bitmasterState.keypadBuffer += k;
+          }
+        }
+        updateDisplay();
+      });
+
+      gridEl.appendChild(btn);
+    });
+  }
+
+  function handleBitmasterKeypadSubmit() {
+    const q = bitmasterState.currentQuestion;
+    const dispEl = document.getElementById('bitmasterKeypadDisplay');
+    const userRaw = (bitmasterState.keypadBuffer || '').trim();
+
+    if (!userRaw) {
+      if (dispEl) {
+        dispEl.classList.add('shake-wrong');
+        setTimeout(() => dispEl.classList.remove('shake-wrong'), 500);
+      }
+      showBitmasterToast('Type your answer before pressing OK', 'ℹ️', 1200);
+      return;
+    }
+
+    const norm = (s) => String(s).toUpperCase().replace(/^0X/, '').trim();
+    const isCorrect = norm(userRaw) === norm(q.correctAnswer);
+
+    if (isCorrect) {
+      playSynthSound('correct');
+      bitmasterState.correctThisRound++;
+      const earnedXp = bitmasterState.currentQuestionMistakes === 0 ? 20 : 8;
+      bitmasterState.xp += earnedXp;
+      updateBitmasterHUD();
+      if (bitmasterState.isSprint) {
+        const counterEl = document.getElementById('bitmasterQuestionCounter');
+        if (counterEl) counterEl.textContent = `Solved: ${bitmasterState.correctThisRound}`;
+        setTimeout(() => loadNextBitmasterQuestion(), 200);
+      } else {
+        setTimeout(() => loadNextBitmasterQuestion(), 350);
+      }
+    } else {
+      playSynthSound('wrong');
+      bitmasterState.mistakesThisRound++;
+      bitmasterState.currentQuestionMistakes++;
+      updateBitmasterMistakeCounter();
+      if (dispEl) {
+        dispEl.classList.add('shake-wrong');
+        setTimeout(() => dispEl.classList.remove('shake-wrong'), 500);
+      }
+
+      if (bitmasterState.isSprint) {
+        showBitmasterToast(`Incorrect! Expected ${q.correctAnswer}`, '❌', 850, () => {
+          loadNextBitmasterQuestion();
+        });
+      } else {
+        bitmasterState.keypadBuffer = "";
+        const isHex = (q.keypadMode === 'hex');
+        if (dispEl) {
+          dispEl.textContent = isHex ? '0x_' : '_';
+          dispEl.style.color = '#64748b';
+        }
+        showBitmasterToast(`Not quite! Try entering the value again.`, '❌', 1600);
+      }
+    }
+  }
+
+  // =========================================================================
   // INTERACTION ZONE D: PIXEL-PERFECT LINED-UP CALCULATION & BIT FLIP
   // =========================================================================
 
   function renderBitmasterMathGrid(question) {
     const placeRow = document.getElementById('bitmasterMathPlaceRow');
+    const carryRow = document.getElementById('bitmasterMathCarryRow');
     const rowA = document.getElementById('bitmasterMathRowA');
     const rowB = document.getElementById('bitmasterMathRowB');
     const resultRow = document.getElementById('bitmasterMathResultRow');
@@ -4800,13 +5062,41 @@
     const numBits = question.numBits || 8;
     bitmasterState.mathResultBits = new Array(numBits).fill(0);
     bitmasterState.mathRowBBits = new Array(numBits).fill(0);
+    bitmasterState.mathCarryBits = new Array(numBits).fill(0);
 
-    const rows = [placeRow, rowA, rowB, resultRow];
+    const rows = [placeRow, carryRow, rowA, rowB, resultRow].filter(Boolean);
     rows.forEach(r => r.style.setProperty('--math-cols', numBits));
 
     // 1. Header Place Values Row
     placeRow.innerHTML = `<span class="math-row-op"></span>` + 
       question.placeValues.map(pv => `<span class="math-pv-cell">${pv}</span>`).join('');
+
+    // Optional Carry / Borrow Scratchpad Row (Stages 8, 9, 14 column addition & subtraction)
+    if (carryRow) {
+      if (question.isShiftGrid) {
+        carryRow.style.display = 'none';
+      } else {
+        carryRow.style.display = 'grid';
+        carryRow.innerHTML = `<span class="math-row-op carry-label" title="Carry / Borrow scratchpad (optional)">C</span>`;
+        for (let i = 0; i < numBits; i++) {
+          const carryCell = document.createElement('button');
+          carryCell.type = 'button';
+          carryCell.className = 'math-carry-cell';
+          carryCell.textContent = '';
+          carryCell.setAttribute('data-idx', i);
+          carryCell.setAttribute('aria-label', `Carry scratchpad for column ${question.placeValues[i]}`);
+          carryCell.addEventListener('click', () => {
+            const cur = bitmasterState.mathCarryBits[i] || 0;
+            const next = cur === 1 ? 0 : 1;
+            bitmasterState.mathCarryBits[i] = next;
+            carryCell.textContent = next === 1 ? '1' : '';
+            carryCell.classList.toggle('has-carry', next === 1);
+            playSynthSound('tap');
+          });
+          carryRow.appendChild(carryCell);
+        }
+      }
+    }
 
     // 2. Operand Row A
     rowA.innerHTML = `<span class="math-row-op"></span>` + 
@@ -7210,6 +7500,15 @@
     };
     window.addEventListener('pointerdown', unlockAudio, { passive: true });
     window.addEventListener('keydown', unlockAudio, { passive: true });
+
+    // Register Service Worker for offline play & PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch((err) => {
+          console.warn('BitMaster SW registration failed:', err);
+        });
+      });
+    }
   }
 
   if (document.readyState === 'loading') {
