@@ -4303,6 +4303,17 @@ body.bitmaster-standalone-mode #standaloneNavBar {
   display: flex !important;
 }
 
+/* Hide external website top bar in PWA installed app mode and fullscreen mode */
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  body.bitmaster-standalone-mode #standaloneNavBar {
+    display: none !important;
+  }
+}
+:fullscreen #standaloneNavBar,
+body.is-fullscreen #standaloneNavBar {
+  display: none !important;
+}
+
 body.bitmaster-standalone-mode .module-container {
   max-width: 100% !important;
   width: 100% !important;
@@ -6559,3 +6570,12 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   background: rgba(100, 116, 139, 0.15);
   border: 1px solid rgba(100, 116, 139, 0.3);
 }
+
+/* Suppress generic course topic drawer triggers in BitMaster */
+.bitmaster-app-body .mobile-section-switcher,
+.bitmaster-app-body .header-topics-btn,
+.bitmaster-standalone-mode .mobile-section-switcher,
+.bitmaster-standalone-mode .header-topics-btn {
+  display: none !important;
+}
+

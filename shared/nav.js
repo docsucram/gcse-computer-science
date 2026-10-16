@@ -174,6 +174,17 @@
   }
 
   function initUniversalNav() {
+    // Do not inject on standalone BitMaster or bitmaster.html
+    if (
+      document.body.classList.contains('bitmaster-standalone-mode') ||
+      document.body.classList.contains('bitmaster-app-body') ||
+      window.location.pathname.endsWith('bitmaster.html') ||
+      window.location.pathname.includes('/bitmaster/') ||
+      window.location.search.includes('standalone=1')
+    ) {
+      return;
+    }
+
     // 1. Locate the header container
     const headerInner = document.querySelector(
       '.module-header:not(#standaloneNavBar) .module-header-inner, ' +

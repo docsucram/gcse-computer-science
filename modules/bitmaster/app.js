@@ -2000,7 +2000,8 @@
       const binBits = val.toString(2).padStart(4, '0').split('').map(Number);
       const displayHTML = renderBitStripHTML({
         bits: binBits,
-        showWeights: false
+        weights: [8, 4, 2, 1],
+        showWeights: true
       });
       return {
         type: 'keypad',
@@ -2008,7 +2009,7 @@
         prompt: "Type Denary Value for 4-Bit Binary (Keypad Challenge):",
         display: binBits.join(' '),
         displayHTML: displayHTML,
-        hint: "Mental calculation (8 • 4 • 2 • 1) — type exact value and press OK",
+        hint: "Sum active place values (8 • 4 • 2 • 1) — type exact value and press OK",
         correctAnswer: String(val)
       };
     }
@@ -2057,7 +2058,8 @@
       const binBits = val.toString(2).padStart(8, '0').split('').map(Number);
       const displayHTML = renderBitStripHTML({
         bits: binBits,
-        showWeights: false
+        weights: [128, 64, 32, 16, 8, 4, 2, 1],
+        showWeights: true
       });
       return {
         type: 'keypad',
@@ -2065,7 +2067,7 @@
         prompt: "Type Denary Value for 8-Bit Byte (Keypad Challenge):",
         display: `${binBits.slice(0, 4).join('')} ${binBits.slice(4).join('')}`,
         displayHTML: displayHTML,
-        hint: "Mental calculation (128 down to 1) — type exact value and press OK",
+        hint: "Sum active place values (128..1) — type exact value and press OK",
         correctAnswer: String(val)
       };
     }
@@ -2949,7 +2951,8 @@
       const bits = rawBin.split('').map(Number);
       const displayHTML = renderBitStripHTML({
         bits: bits,
-        showWeights: false,
+        weights: [-8, 4, 2, 1],
+        showWeights: true,
         variant: 'twos'
       });
       return {
@@ -3018,7 +3021,8 @@
       const bits = rawBin.split('').map(Number);
       const displayHTML = renderBitStripHTML({
         bits: bits,
-        showWeights: false,
+        weights: [-128, 64, 32, 16, 8, 4, 2, 1],
+        showWeights: true,
         variant: 'twos'
       });
       return {
@@ -5210,7 +5214,7 @@
     }
   }
 
-  function showBitmasterToast(message, icon = '❌', durationMs = 1800, callback = null) {
+  function showBitmasterToast(message, icon = '❌', durationMs = 3500, callback = null) {
     const toast = document.getElementById('bitmasterInlineFeedback');
     const iconEl = document.getElementById('bitmasterFeedbackIcon');
     const textEl = document.getElementById('bitmasterFeedbackText');
@@ -5218,11 +5222,26 @@
       if (callback) callback();
       return;
     }
+    if (bitmasterState.toastTimeout) {
+      clearTimeout(bitmasterState.toastTimeout);
+      bitmasterState.toastTimeout = null;
+    }
     if (iconEl) iconEl.textContent = icon;
     if (textEl) textEl.textContent = message;
     toast.style.display = 'flex';
-    setTimeout(() => {
+    toast.style.cursor = 'pointer';
+    toast.onclick = () => {
       toast.style.display = 'none';
+      if (bitmasterState.toastTimeout) {
+        clearTimeout(bitmasterState.toastTimeout);
+        bitmasterState.toastTimeout = null;
+      }
+      if (callback) callback();
+    };
+
+    bitmasterState.toastTimeout = setTimeout(() => {
+      toast.style.display = 'none';
+      bitmasterState.toastTimeout = null;
       if (callback) callback();
     }, durationMs);
   }
@@ -5418,20 +5437,20 @@
           if (bitmasterState.isSprint) {
             if (q.targetBinary) {
               const expectedFmt = bitsCount === 8 ? `${q.targetBinary.slice(0, 4)} ${q.targetBinary.slice(4)}` : q.targetBinary;
-              showBitmasterToast(`Target was ${expectedFmt}`, '❌', 850, () => {
+              showBitmasterToast(`Target was ${expectedFmt}`, '❌', 1600, () => {
                 loadNextBitmasterQuestion();
               });
             } else {
-              showBitmasterToast(`Target was ${q.correctAnswer}`, '❌', 850, () => {
+              showBitmasterToast(`Target was ${q.correctAnswer}`, '❌', 1600, () => {
                 loadNextBitmasterQuestion();
               });
             }
           } else {
             if (q.targetBinary) {
               const currentFmt = bitsCount === 8 ? `${currentBin.slice(0, 4)} ${currentBin.slice(4)}` : currentBin;
-              showBitmasterToast(`Switches make ${currentFmt} (${currentTotal}). Adjust the bits and try again!`, '❌', 2200);
+              showBitmasterToast(`Switches make ${currentFmt} (${currentTotal}). Adjust the bits and try again!`, '❌', 4500);
             } else {
-              showBitmasterToast(`Switches sum to ${currentTotal}, target is ${q.correctAnswer}. Adjust bits and try again!`, '❌', 2000);
+              showBitmasterToast(`Switches sum to ${currentTotal}, target is ${q.correctAnswer}. Adjust bits and try again!`, '❌', 4500);
             }
           }
         }
@@ -5592,7 +5611,7 @@
       }
 
       if (bitmasterState.isSprint) {
-        showBitmasterToast(`Incorrect! Expected ${q.correctAnswer}`, '❌', 850, () => {
+        showBitmasterToast(`Incorrect! Expected ${q.correctAnswer}`, '❌', 1600, () => {
           loadNextBitmasterQuestion();
         });
       } else {
@@ -5602,7 +5621,7 @@
           dispEl.textContent = isHex ? '0x_' : '_';
           dispEl.style.color = '#64748b';
         }
-        showBitmasterToast(`Not quite! Try entering the value again.`, '❌', 1600);
+        showBitmasterToast(`Not quite! Check your calculation and try entering the value again.`, '❌', 3800);
       }
     }
   }
@@ -5784,18 +5803,18 @@
       }
 
       if (bitmasterState.isSprint) {
-        showBitmasterToast(`Incorrect! Expected: ${q.correctAnswer}`, '❌', 850, () => {
+        showBitmasterToast(`Incorrect! Expected: ${q.correctAnswer}`, '❌', 1600, () => {
           loadNextBitmasterQuestion();
         });
       } else {
         if (q.interactiveRowB) {
-          showBitmasterToast(`Row B is correct (−${q.valB}), but check your addition in the Result row! Try again.`, '❌', 2400);
+          showBitmasterToast(`Row B is correct (−${q.valB}), but check your addition in the Result row! Try again.`, '❌', 3800);
         } else if (q.isShiftGrid) {
-          showBitmasterToast(`Not quite! Shift all bits by ${q.valB} and check zeros. Try again!`, '❌', 2200);
+          showBitmasterToast(`Not quite! Shift all bits by ${q.valB} and check zeros. Try again!`, '❌', 3800);
         } else if (q.operator === '−') {
-          showBitmasterToast(`Not quite! Subtract each column (1−0=1, 1−1=0, 0−0=0) and try again.`, '❌', 2200);
+          showBitmasterToast(`Not quite! Subtract each column (1−0=1, 1−1=0, 0−0=0) and try again.`, '❌', 3800);
         } else {
-          showBitmasterToast(`Not quite! Check each binary addition column (1+1=0 carry 1) and try again.`, '❌', 2200);
+          showBitmasterToast(`Not quite! Check each binary addition column (1+1=0 carry 1) and try again.`, '❌', 3800);
         }
       }
     }
@@ -5943,11 +5962,11 @@
         : userAns;
 
       if (bitmasterState.isSprint) {
-        showBitmasterToast(`Incorrect! Expected: ${expectedFormatted}`, '❌', 850, () => {
+        showBitmasterToast(`Incorrect! Expected: ${expectedFormatted}`, '❌', 1600, () => {
           loadNextBitmasterQuestion();
         });
       } else {
-        showBitmasterToast(`Not quite! Each hex digit equals 4 bits (8 4 2 1). Flip bits and try again!`, '❌', 2200);
+        showBitmasterToast(`Not quite! Each hex digit equals 4 bits (8 4 2 1). Flip bits and try again!`, '❌', 3800);
       }
     }
   }
@@ -7376,15 +7395,22 @@
 
     function toggleFullscreen() {
       playSynthSound('tap');
-      if (!document.fullscreenElement) {
-        if (arena.requestFullscreen) {
+      const docEl = document.documentElement;
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        if (docEl.requestFullscreen) {
+          docEl.requestFullscreen().catch(() => {
+            if (arena && arena.requestFullscreen) arena.requestFullscreen();
+          });
+        } else if (docEl.webkitRequestFullscreen) {
+          docEl.webkitRequestFullscreen();
+        } else if (arena && arena.requestFullscreen) {
           arena.requestFullscreen();
-        } else if (arena.webkitRequestFullscreen) {
-          arena.webkitRequestFullscreen();
         }
       } else {
         if (document.exitFullscreen) {
-          document.exitFullscreen();
+          document.exitFullscreen().catch(() => {});
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
         }
       }
     }
@@ -7396,8 +7422,8 @@
       hudFsToggleBtn.addEventListener('click', toggleFullscreen);
     }
 
-    document.addEventListener('fullscreenchange', () => {
-      const isFs = !!document.fullscreenElement;
+    const handleFsChange = () => {
+      const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
       if (fsText) fsText.textContent = isFs ? 'Exit Fullscreen' : 'Fullscreen Mode';
       if (fsEnterIcon) fsEnterIcon.style.display = isFs ? 'none' : 'block';
       if (fsExitIcon) fsExitIcon.style.display = isFs ? 'block' : 'none';
@@ -7405,8 +7431,12 @@
         hudFsToggleBtn.title = isFs ? 'Exit Fullscreen' : 'Toggle Fullscreen';
         hudFsToggleBtn.setAttribute('aria-label', isFs ? 'Exit Fullscreen' : 'Toggle Fullscreen');
       }
-      arena.classList.toggle('is-fullscreen', isFs);
-    });
+      if (arena) arena.classList.toggle('is-fullscreen', isFs);
+      document.body.classList.toggle('is-fullscreen', isFs);
+      document.documentElement.classList.toggle('is-fullscreen', isFs);
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    document.addEventListener('webkitfullscreenchange', handleFsChange);
 
     // In-Arena Modal Actions (Abandon Current Trial)
     const keepPlayingBtn = document.getElementById('bitmasterModalKeepPlayingBtn');
