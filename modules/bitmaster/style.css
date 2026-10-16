@@ -7161,8 +7161,287 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 .bitmaster-arena[data-theme="retro-gameboy"] .text-cyan,
 .bitmaster-arena[data-theme="retro-gameboy"] .text-purple,
 .bitmaster-arena[data-theme="retro-gameboy"] .text-pink,
-.bitmaster-arena[data-theme="retro-gameboy"] .text-red {
+.bitmaster-arena[data-theme="retro-gameboy"] .text-red,
+.bitmaster-arena[data-theme="retro-handheld"] .text-blue,
+.bitmaster-arena[data-theme="retro-handheld"] .text-green,
+.bitmaster-arena[data-theme="retro-handheld"] .text-amber,
+.bitmaster-arena[data-theme="retro-handheld"] .text-cyan,
+.bitmaster-arena[data-theme="retro-handheld"] .text-purple,
+.bitmaster-arena[data-theme="retro-handheld"] .text-pink,
+.bitmaster-arena[data-theme="retro-handheld"] .text-red {
   color: #12200f !important;
+}
+
+/* Star Vault Modal in Retro Handheld (Crisp monochrome typography & zero grey/blue text) */
+.bitmaster-arena[data-theme="retro-gameboy"] .star-vault-badge,
+.bitmaster-arena[data-theme="retro-handheld"] .star-vault-badge {
+  background: #788656 !important;
+  border: 2.5px solid #12200f !important;
+  box-shadow: 2px 2px 0 #12200f !important;
+  border-radius: 0 !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .star-vault-badge svg,
+.bitmaster-arena[data-theme="retro-handheld"] .star-vault-badge svg {
+  fill: #12200f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .star-vault-wallets,
+.bitmaster-arena[data-theme="retro-gameboy"] .vault-wallet-item,
+.bitmaster-arena[data-theme="retro-gameboy"] .vault-wallet-sep,
+.bitmaster-arena[data-theme="retro-handheld"] .star-vault-wallets,
+.bitmaster-arena[data-theme="retro-handheld"] .vault-wallet-item,
+.bitmaster-arena[data-theme="retro-handheld"] .vault-wallet-sep {
+  color: #30441e !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 8.5px !important;
+  letter-spacing: -0.3px !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .vault-wallet-item strong,
+.bitmaster-arena[data-theme="retro-handheld"] .vault-wallet-item strong {
+  color: #12200f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .star-vault-section-title,
+.bitmaster-arena[data-theme="retro-handheld"] .star-vault-section-title {
+  color: #12200f !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 9.5px !important;
+  font-weight: 900 !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .star-vault-upgrade-tag,
+.bitmaster-arena[data-theme="retro-gameboy"] .star-vault-free-tag,
+.bitmaster-arena[data-theme="retro-handheld"] .star-vault-upgrade-tag,
+.bitmaster-arena[data-theme="retro-handheld"] .star-vault-free-tag {
+  background: #788656 !important;
+  border: 1.5px solid #12200f !important;
+  color: #12200f !important;
+  border-radius: 0 !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 8px !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .star-upgrade-card,
+.bitmaster-arena[data-theme="retro-handheld"] .star-upgrade-card {
+  background: #9aa67a !important;
+  border: 2.5px solid #12200f !important;
+  box-shadow: 3px 3px 0 #12200f !important;
+  border-radius: 0 !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-card-icon,
+.bitmaster-arena[data-theme="retro-handheld"] .upgrade-card-icon {
+  background: #788656 !important;
+  border: 2px solid #12200f !important;
+  color: #12200f !important;
+  border-radius: 0 !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-card-title,
+.bitmaster-arena[data-theme="retro-handheld"] .upgrade-card-title {
+  color: #12200f !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 11px !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-card-desc,
+.bitmaster-arena[data-theme="retro-handheld"] .upgrade-card-desc {
+  color: #30441e !important;
+  font-family: 'Silkscreen', monospace !important;
+  font-size: 9.5px !important;
+  line-height: 1.4 !important;
+}
+
+/* Explicitly overrides the cyan/blue upgrade-card-meta to dark high-contrast DMG ink */
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-card-meta,
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-card-meta strong,
+.bitmaster-arena[data-theme="retro-handheld"] .upgrade-card-meta,
+.bitmaster-arena[data-theme="retro-handheld"] .upgrade-card-meta strong {
+  color: #12200f !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 9px !important;
+  font-weight: 900 !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-buy-btn,
+.bitmaster-arena[data-theme="retro-handheld"] .upgrade-buy-btn {
+  background: #788656 !important;
+  border: 2px solid #12200f !important;
+  color: #12200f !important;
+  box-shadow: 2px 2px 0 #12200f !important;
+  border-radius: 0 !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 9px !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-buy-btn:hover:not(:disabled):not(.is-disabled),
+.bitmaster-arena[data-theme="retro-handheld"] .upgrade-buy-btn:hover:not(:disabled):not(.is-disabled) {
+  background: #869462 !important;
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 3px 3px 0 #12200f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-buy-btn:active:not(:disabled):not(.is-disabled),
+.bitmaster-arena[data-theme="retro-handheld"] .upgrade-buy-btn:active:not(:disabled):not(.is-disabled) {
+  transform: translate(1px, 1px) !important;
+  box-shadow: 1px 1px 0 #12200f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-buy-btn:disabled,
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-buy-btn.is-disabled,
+.bitmaster-arena[data-theme="retro-handheld"] .upgrade-buy-btn:disabled,
+.bitmaster-arena[data-theme="retro-handheld"] .upgrade-buy-btn.is-disabled {
+  background: #889569 !important;
+  border: 2px solid #30441e !important;
+  color: #30441e !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-cost-badge,
+.bitmaster-arena[data-theme="retro-handheld"] .upgrade-cost-badge {
+  color: #12200f !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 9px !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .star-theme-card .theme-card-status,
+.bitmaster-arena[data-theme="retro-handheld"] .star-theme-card .theme-card-status {
+  background: #889569 !important;
+  border: 1.5px solid #12200f !important;
+  color: #12200f !important;
+  border-radius: 0 !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 8px !important;
+}
+
+/* =========================================================================
+   BIT POP: AUTHENTIC 8-BIT RETRO HANDHELD PIXEL TILES (NO GEL/GLOSSY BUBBLES)
+   ========================================================================= */
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-wrap-container,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-wrap-container {
+  background: #889569 !important;
+  border: 3.5px solid #12200f !important;
+  border-radius: 0 !important;
+  box-shadow: 4px 4px 0 #12200f !important;
+}
+
+/* Remove 3D specular shine reflections completely */
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-wrap-cell::before,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-wrap-cell::before {
+  display: none !important;
+}
+
+/* Transform jelly bubbles into authentic 8-bit chunky pixel bricks */
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-wrap-cell,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-wrap-cell {
+  background: #788656 !important;
+  background-image: none !important;
+  border: 2.5px solid #12200f !important;
+  border-radius: 0 !important;
+  box-shadow: 3px 3px 0 #12200f !important;
+  filter: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-wrap-cell:hover:not(.is-popped),
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-wrap-cell:hover:not(.is-popped) {
+  background: #869462 !important;
+  border-color: #12200f !important;
+  box-shadow: 4px 4px 0 #12200f !important;
+  transform: translate(-1px, -1px) !important;
+  filter: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-wrap-cell:active:not(.is-popped),
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-wrap-cell:active:not(.is-popped) {
+  transform: translate(2px, 2px) !important;
+  box-shadow: 1px 1px 0 #12200f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-wrap-text,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-wrap-text {
+  color: #12200f !important;
+  font-family: 'Press Start 2P', monospace !important;
+  text-shadow: none !important;
+  letter-spacing: -0.5px !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-wrap-cell.is-popped,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-wrap-cell.is-popped {
+  background: #12200f !important;
+  border-color: #12200f !important;
+  box-shadow: inset 2px 2px 0 #30441e !important;
+  opacity: 0.3 !important;
+  transform: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-wrap-cell.is-popped .bitpop-wrap-text,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-wrap-cell.is-popped .bitpop-wrap-text {
+  color: #889569 !important;
+  text-decoration: line-through !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-wrap-cell.is-wrong,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-wrap-cell.is-wrong {
+  border-color: #12200f !important;
+  filter: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-target-banner,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-target-banner {
+  background: #9aa67a !important;
+  border: 2.5px solid #12200f !important;
+  border-radius: 0 !important;
+  box-shadow: 3px 3px 0 #12200f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-target-prompt,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-target-prompt {
+  color: #30441e !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 10px !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-target-value,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-target-value {
+  color: #12200f !important;
+  font-family: 'Press Start 2P', monospace !important;
+  text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-target-hint-tag,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-target-hint-tag {
+  background: #788656 !important;
+  border: 1.5px solid #12200f !important;
+  color: #12200f !important;
+  border-radius: 0 !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 8px !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-compact-stats,
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-stat-chip,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-compact-stats,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-stat-chip {
+  background: #788656 !important;
+  border: 1.5px solid #12200f !important;
+  color: #12200f !important;
+  border-radius: 0 !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 8px !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitpop-restart-btn,
+.bitmaster-arena[data-theme="retro-handheld"] .bitpop-restart-btn {
+  background: #788656 !important;
+  border: 2px solid #12200f !important;
+  color: #12200f !important;
+  border-radius: 0 !important;
+  box-shadow: 2px 2px 0 #12200f !important;
+  font-family: 'Press Start 2P', monospace !important;
+  font-size: 9px !important;
 }
 
 

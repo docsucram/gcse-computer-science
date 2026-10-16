@@ -5313,7 +5313,8 @@
       'green-motherboard',
       'amber-terminal'
     ];
-    const chosenTheme = validThemes.includes(themeId) ? themeId : 'cyber-neon';
+    const normalized = (themeId === 'retro-handheld') ? 'retro-gameboy' : themeId;
+    const chosenTheme = validThemes.includes(normalized) ? normalized : 'cyber-neon';
 
     const arena = document.getElementById('bitmasterArena');
     if (arena) {
