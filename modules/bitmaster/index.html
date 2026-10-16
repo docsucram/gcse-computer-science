@@ -22,8 +22,8 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Newsreader:ital,opsz,wght@0,6..72,400..700;1,6..72,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="../../shared/styles.css?v=2.8.5">
-  <link rel="stylesheet" href="./style.css?v=2.8.5">
+  <link rel="stylesheet" href="../../shared/styles.css?v=2.8.6">
+  <link rel="stylesheet" href="./style.css?v=2.8.6">
 </head>
 <body class="bitmaster-standalone-mode bitmaster-app-body">
 
@@ -239,10 +239,6 @@
               <span id="bitmasterTimerDisplay" class="game-timer">⏱️ 0:00</span>
               <span id="bitmasterMistakeCounter" class="game-counter" style="color: #f87171; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25);">⚠️ 0 Mistakes</span>
               <span id="bitmasterQuestionCounter" class="game-counter">Q 1/10</span>
-              <button type="button" class="game-counter game-skip-btn" id="bitmasterSwapBtn" title="Swap this question for a fresh one">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                <span id="bitmasterSwapBtnText">Swap (0)</span>
-              </button>
             </div>
           </div>
           <div class="game-progress-track">
@@ -251,6 +247,10 @@
 
           <!-- Challenge Question Card -->
           <div class="bitmaster-challenge-card" id="bitmasterChallengeCard">
+            <button type="button" class="challenge-swap-btn" id="bitmasterSwapBtn" title="Swap this question for a fresh one" style="display: none;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              <span id="bitmasterSwapBtnText">Swap (0)</span>
+            </button>
             <div class="challenge-prompt" id="bitmasterPromptLabel">Convert Binary to Denary:</div>
             <div class="challenge-display" id="bitmasterMainDisplay">0 1 0 1</div>
             <div class="challenge-hint" id="bitmasterHintSubtext">4-bit value</div>
@@ -949,7 +949,7 @@
   </main>
 
   <!-- Shared & Module Scripts -->
-  <script src="../../shared/nav.js?v=2.8.5"></script>
-  <script src="./app.js?v=2.8.5"></script>
+  <script src="../../shared/nav.js?v=2.8.6"></script>
+  <script src="./app.js?v=2.8.6"></script>
 </body>
 </html>

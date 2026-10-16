@@ -1777,40 +1777,49 @@ body.bitmaster-app-body {
   color: #94a3b8;
 }
 
+.challenge-swap-btn,
 .game-skip-btn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: rgba(59, 130, 246, 0.15);
-  border: 1.5px solid rgba(59, 130, 246, 0.35);
+  background: rgba(59, 130, 246, 0.18);
+  border: 1.5px solid rgba(59, 130, 246, 0.4);
   color: #60a5fa;
   font-family: var(--font-sans, system-ui);
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
-  padding: 3px 10px;
+  padding: 4px 10px;
   border-radius: 999px;
   cursor: pointer;
   transition: all 0.15s ease;
   user-select: none;
+  z-index: 5;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
+.challenge-swap-btn:hover:not(:disabled):not(.is-depleted),
 .game-skip-btn:hover:not(:disabled):not(.is-depleted) {
-  background: rgba(59, 130, 246, 0.3);
+  background: rgba(59, 130, 246, 0.35);
   border-color: #3b82f6;
   color: #93c5fd;
   transform: translateY(-1px);
 }
 
+.challenge-swap-btn:active:not(:disabled):not(.is-depleted),
 .game-skip-btn:active:not(:disabled):not(.is-depleted) {
   transform: translateY(1px);
 }
 
+.challenge-swap-btn.is-depleted,
 .game-skip-btn.is-depleted {
-  opacity: 0.5;
-  background: rgba(100, 116, 139, 0.1);
+  opacity: 0.55;
+  background: rgba(100, 116, 139, 0.12);
   border-color: rgba(100, 116, 139, 0.25);
   color: #94a3b8;
-  cursor: pointer;
+  cursor: default;
   transform: none;
 }
 
@@ -1876,6 +1885,7 @@ body.bitmaster-app-body {
   text-transform: uppercase;
   letter-spacing: 0.8px;
   margin-bottom: 8px;
+  padding: 0 45px;
 }
 
 .challenge-display {
@@ -6762,7 +6772,7 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 }
 
 /* =========================================================================
-   THEME 3: RETRO GAME BOY (Authentic 1989 DMG-01 Olive LCD Matrix)
+   THEME 3: RETRO GAME BOY (Authentic Muted DMG-01 Olive LCD Matrix)
    ========================================================================= */
 .bitmaster-arena[data-theme="retro-gameboy"],
 .bitmaster-arena[data-theme="retro-gameboy"] * {
@@ -6787,32 +6797,35 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 .bitmaster-arena[data-theme="retro-gameboy"] .level-card-name,
 .bitmaster-arena[data-theme="retro-gameboy"] .rank-card-title,
 .bitmaster-arena[data-theme="retro-gameboy"] .stat-value,
-.bitmaster-arena[data-theme="retro-gameboy"] .sprint-summary-medal {
+.bitmaster-arena[data-theme="retro-gameboy"] .sprint-summary-medal,
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-code-hero,
+.bitmaster-arena[data-theme="retro-gameboy"] .title-player-rank {
   font-family: 'Press Start 2P', monospace, sans-serif !important;
   letter-spacing: -0.5px !important;
 }
 
+/* Base Arena: Muted, desaturated olive-grey LCD background (Zero eye-strain, non-garish) */
 .bitmaster-arena[data-theme="retro-gameboy"] {
-  background: #8bac0f !important;
+  background: #889569 !important;
   background-image: 
-    repeating-linear-gradient(0deg, rgba(15, 56, 15, 0.08) 0px, rgba(15, 56, 15, 0.08) 1px, transparent 1px, transparent 4px),
-    repeating-linear-gradient(90deg, rgba(15, 56, 15, 0.08) 0px, rgba(15, 56, 15, 0.08) 1px, transparent 1px, transparent 4px) !important;
-  border: 4px solid #0f380f !important;
+    repeating-linear-gradient(0deg, rgba(18, 32, 15, 0.07) 0px, rgba(18, 32, 15, 0.07) 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(90deg, rgba(18, 32, 15, 0.07) 0px, rgba(18, 32, 15, 0.07) 1px, transparent 1px, transparent 4px) !important;
+  border: 4px solid #12200f !important;
   border-radius: 0 !important;
-  box-shadow: 6px 6px 0 #0f380f !important;
-  color: #0f380f !important;
+  box-shadow: 6px 6px 0 #12200f !important;
+  color: #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"]:fullscreen,
 .bitmaster-arena[data-theme="retro-gameboy"].is-fullscreen {
-  background: #8bac0f !important;
+  background: #889569 !important;
   background-image: 
-    repeating-linear-gradient(0deg, rgba(15, 56, 15, 0.08) 0px, rgba(15, 56, 15, 0.08) 1px, transparent 1px, transparent 4px),
-    repeating-linear-gradient(90deg, rgba(15, 56, 15, 0.08) 0px, rgba(15, 56, 15, 0.08) 1px, transparent 1px, transparent 4px) !important;
+    repeating-linear-gradient(0deg, rgba(18, 32, 15, 0.07) 0px, rgba(18, 32, 15, 0.07) 1px, transparent 1px, transparent 4px),
+    repeating-linear-gradient(90deg, rgba(18, 32, 15, 0.07) 0px, rgba(18, 32, 15, 0.07) 1px, transparent 1px, transparent 4px) !important;
   border-radius: 0 !important;
 }
 
-/* Sharp pixel corners across all components in Retro Game Boy mode */
+/* Sharp block geometry - NO rounded curves in 8-bit DMG mode */
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-hud-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-hud-icon-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .hud-stat-pill,
@@ -6829,6 +6842,7 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-tile-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .keypad-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .switch-toggle-btn,
+.bitmaster-arena[data-theme="retro-gameboy"] .challenge-swap-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .game-swap-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .game-skip-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .game-hint-btn,
@@ -6843,46 +6857,57 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 .bitmaster-arena[data-theme="retro-gameboy"] .hardware-sub-cell,
 .bitmaster-arena[data-theme="retro-gameboy"] .game-progress-track,
 .bitmaster-arena[data-theme="retro-gameboy"] .game-progress-fill,
-.bitmaster-arena[data-theme="retro-gameboy"] .badge {
+.bitmaster-arena[data-theme="retro-gameboy"] .badge,
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-hero-box,
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-stars-pill,
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-progress-bar,
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-progress-fill,
+.bitmaster-arena[data-theme="retro-gameboy"] .suggested-tag-pill,
+.bitmaster-arena[data-theme="retro-gameboy"] .suggested-kicker-pill,
+.bitmaster-arena[data-theme="retro-gameboy"] .suggested-reason-pill,
+.bitmaster-arena[data-theme="retro-gameboy"] .suggested-action-btn,
+.bitmaster-arena[data-theme="retro-gameboy"] .title-player-rank-badge,
+.bitmaster-arena[data-theme="retro-gameboy"] .title-stat-pill {
   border-radius: 0 !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-hud-bar {
-  border-bottom: 3px solid #0f380f !important;
+  border-bottom: 3px solid #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-hud-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-hud-icon-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .hud-stat-pill {
-  background: #9bbc0f !important;
-  border: 2px solid #0f380f !important;
-  color: #0f380f !important;
-  box-shadow: 2px 2px 0 #0f380f !important;
+  background: #9aa67a !important;
+  border: 2px solid #12200f !important;
+  color: #12200f !important;
+  box-shadow: 2px 2px 0 #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-hud-btn:hover,
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-hud-icon-btn:hover {
-  background: #8bac0f !important;
-  color: #0f380f !important;
+  background: #788656 !important;
+  color: #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .title-hero-heading {
-  color: #0f380f !important;
+  color: #12200f !important;
   text-shadow: none !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .title-hero-subheading,
 .bitmaster-arena[data-theme="retro-gameboy"] .front-topics-eyebrow {
-  color: #306230 !important;
+  color: #30441e !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .title-hero-chip {
-  background: #306230 !important;
-  border: 2px solid #0f380f !important;
-  color: #9bbc0f !important;
-  box-shadow: 2px 2px 0 #0f380f !important;
+  background: #30441e !important;
+  border: 2px solid #12200f !important;
+  color: #9aa67a !important;
+  box-shadow: 2px 2px 0 #12200f !important;
 }
 
+/* Cards: Reflective lighter olive LCD surface with high-contrast borders and text */
 .bitmaster-arena[data-theme="retro-gameboy"] .title-player-card,
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-suggested-card,
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-topic-card-btn,
@@ -6890,28 +6915,33 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-level-card,
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-rank-card,
 .bitmaster-arena[data-theme="retro-gameboy"] .stage-section-header,
-.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-victory-card {
-  background: #9bbc0f !important;
-  border: 3px solid #0f380f !important;
-  box-shadow: 4px 4px 0 #0f380f !important;
-  color: #0f380f !important;
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-victory-card,
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-challenge-card {
+  background: #9aa67a !important;
+  border: 3px solid #12200f !important;
+  box-shadow: 4px 4px 0 #12200f !important;
+  color: #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-topic-card-btn:hover,
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-stage-card:hover,
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-level-card:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 #0f380f !important;
-  border-color: #0f380f !important;
+  box-shadow: 5px 5px 0 #12200f !important;
+  border-color: #12200f !important;
 }
 
+/* Strict monochrome text & badge rules — Eliminates unreadable cyan, pink, and yellow text */
 .bitmaster-arena[data-theme="retro-gameboy"] .topic-card-name,
 .bitmaster-arena[data-theme="retro-gameboy"] .stage-card-title,
 .bitmaster-arena[data-theme="retro-gameboy"] .level-card-name,
 .bitmaster-arena[data-theme="retro-gameboy"] .rank-card-title,
 .bitmaster-arena[data-theme="retro-gameboy"] .title-stat-value,
-.bitmaster-arena[data-theme="retro-gameboy"] .front-topics-title {
-  color: #0f380f !important;
+.bitmaster-arena[data-theme="retro-gameboy"] .front-topics-title,
+.bitmaster-arena[data-theme="retro-gameboy"] .suggested-level-name,
+.bitmaster-arena[data-theme="retro-gameboy"] .title-player-rank,
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-code-hero {
+  color: #12200f !important;
   text-shadow: none !important;
 }
 
@@ -6920,236 +6950,310 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 .bitmaster-arena[data-theme="retro-gameboy"] .rank-card-meta,
 .bitmaster-arena[data-theme="retro-gameboy"] .rank-xp-label,
 .bitmaster-arena[data-theme="retro-gameboy"] .title-stat-label,
-.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-desc {
-  color: #306230 !important;
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-desc,
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-body .topic-card-meta,
+.bitmaster-arena[data-theme="retro-gameboy"] .suggested-stage-label,
+.bitmaster-arena[data-theme="retro-gameboy"] .challenge-prompt,
+.bitmaster-arena[data-theme="retro-gameboy"] .challenge-hint,
+.bitmaster-arena[data-theme="retro-gameboy"] .stat-label {
+  color: #30441e !important;
+  text-shadow: none !important;
+}
+
+/* Topic Card Hero Boxes & Pills */
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-hero-box {
+  background: #788656 !important;
+  border: 2px solid #12200f !important;
+  color: #12200f !important;
+  box-shadow: 2px 2px 0 #12200f !important;
+  text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-stars-pill,
+.bitmaster-arena[data-theme="retro-gameboy"] .suggested-tag-pill,
+.bitmaster-arena[data-theme="retro-gameboy"] .suggested-kicker-pill,
+.bitmaster-arena[data-theme="retro-gameboy"] .suggested-reason-pill,
+.bitmaster-arena[data-theme="retro-gameboy"] .title-player-rank-badge,
+.bitmaster-arena[data-theme="retro-gameboy"] .title-stat-pill {
+  background: #788656 !important;
+  border: 1.5px solid #12200f !important;
+  color: #12200f !important;
+  text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-chevron,
+.bitmaster-arena[data-theme="retro-gameboy"] .suggested-stars-badge,
+.bitmaster-arena[data-theme="retro-gameboy"] .level-row-stars.has-stars,
+.bitmaster-arena[data-theme="retro-gameboy"] .level-card-stars {
+  color: #12200f !important;
+  text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-progress-bar,
+.bitmaster-arena[data-theme="retro-gameboy"] .game-progress-track {
+  background: #788656 !important;
+  border: 2px solid #12200f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-progress-fill,
+.bitmaster-arena[data-theme="retro-gameboy"] .game-progress-fill {
+  background: #12200f !important;
+  box-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .suggested-action-btn {
+  background: #788656 !important;
+  border: 2px solid #12200f !important;
+  color: #12200f !important;
+  box-shadow: 2px 2px 0 #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-topic-tab-btn {
-  background: #8bac0f !important;
-  border: 2px solid #0f380f !important;
-  color: #0f380f !important;
-  box-shadow: 2px 2px 0 #0f380f !important;
+  background: #788656 !important;
+  border: 2px solid #12200f !important;
+  color: #12200f !important;
+  box-shadow: 2px 2px 0 #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-topic-tab-btn.active {
-  background: #0f380f !important;
-  color: #9bbc0f !important;
-  border-color: #0f380f !important;
+  background: #12200f !important;
+  color: #9aa67a !important;
+  border-color: #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .badge.badge-paper1 {
-  background: #306230 !important;
-  color: #9bbc0f !important;
-  border: 1.5px solid #0f380f !important;
+  background: #30441e !important;
+  color: #9aa67a !important;
+  border: 1.5px solid #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .game-timer,
 .bitmaster-arena[data-theme="retro-gameboy"] .game-counter {
-  color: #0f380f !important;
+  color: #12200f !important;
 }
 
-.bitmaster-arena[data-theme="retro-gameboy"] .game-progress-track {
-  background: #8bac0f !important;
-  border: 2px solid #0f380f !important;
-}
-
-.bitmaster-arena[data-theme="retro-gameboy"] .game-progress-fill {
-  background: #0f380f !important;
-  box-shadow: none !important;
-}
-
-.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-challenge-card {
-  background: #9bbc0f !important;
-  border: 3px solid #0f380f !important;
-  box-shadow: 4px 4px 0 #0f380f !important;
-}
-
-.bitmaster-arena[data-theme="retro-gameboy"] .challenge-prompt,
-.bitmaster-arena[data-theme="retro-gameboy"] .challenge-hint {
-  color: #306230 !important;
+.bitmaster-arena[data-theme="retro-gameboy"] #bitmasterMistakeCounter {
+  background: #788656 !important;
+  border: 1.5px solid #12200f !important;
+  color: #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .challenge-display {
-  color: #0f380f !important;
+  color: #12200f !important;
   text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .challenge-swap-btn,
+.bitmaster-arena[data-theme="retro-gameboy"] .game-swap-btn,
+.bitmaster-arena[data-theme="retro-gameboy"] .game-skip-btn {
+  background: #788656 !important;
+  border: 2px solid #12200f !important;
+  color: #12200f !important;
+  box-shadow: 2px 2px 0 #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-tile-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .keypad-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .switch-toggle-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .control-btn,
-.bitmaster-arena[data-theme="retro-gameboy"] .game-swap-btn,
-.bitmaster-arena[data-theme="retro-gameboy"] .game-skip-btn,
 .bitmaster-arena[data-theme="retro-gameboy"] .game-hint-btn {
-  background: #8bac0f !important;
-  border: 2.5px solid #0f380f !important;
-  color: #0f380f !important;
-  box-shadow: 3px 3px 0 #0f380f !important;
+  background: #788656 !important;
+  border: 2.5px solid #12200f !important;
+  color: #12200f !important;
+  box-shadow: 3px 3px 0 #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-tile-btn:hover,
 .bitmaster-arena[data-theme="retro-gameboy"] .keypad-btn:hover,
 .bitmaster-arena[data-theme="retro-gameboy"] .switch-toggle-btn:hover,
 .bitmaster-arena[data-theme="retro-gameboy"] .control-btn:hover,
+.bitmaster-arena[data-theme="retro-gameboy"] .challenge-swap-btn:hover,
 .bitmaster-arena[data-theme="retro-gameboy"] .game-swap-btn:hover {
-  background: #9bbc0f !important;
-  color: #0f380f !important;
+  background: #869462 !important;
+  color: #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-tile-btn:active,
 .bitmaster-arena[data-theme="retro-gameboy"] .keypad-btn:active,
 .bitmaster-arena[data-theme="retro-gameboy"] .switch-toggle-btn:active,
 .bitmaster-arena[data-theme="retro-gameboy"] .control-btn:active,
+.bitmaster-arena[data-theme="retro-gameboy"] .challenge-swap-btn:active,
 .bitmaster-arena[data-theme="retro-gameboy"] .game-swap-btn:active {
   transform: translate(2px, 2px) !important;
-  box-shadow: 1px 1px 0 #0f380f !important;
+  box-shadow: 1px 1px 0 #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-tile-btn.correct,
 .bitmaster-arena[data-theme="retro-gameboy"] .switch-toggle-btn.active,
 .bitmaster-arena[data-theme="retro-gameboy"] .bitcross-cell.active {
-  background: #0f380f !important;
-  color: #9bbc0f !important;
-  border-color: #0f380f !important;
-  box-shadow: 3px 3px 0 #306230 !important;
+  background: #12200f !important;
+  color: #9aa67a !important;
+  border-color: #12200f !important;
+  box-shadow: 3px 3px 0 #30441e !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bm-bit-rect {
-  border: 2.5px solid #0f380f !important;
-  background: #9bbc0f !important;
-  color: #0f380f !important;
-  box-shadow: 2px 2px 0 #0f380f !important;
+  border: 2.5px solid #12200f !important;
+  background: #9aa67a !important;
+  color: #12200f !important;
+  box-shadow: 2px 2px 0 #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bm-bit-rect.is-target {
-  background: #0f380f !important;
-  color: #9bbc0f !important;
+  background: #12200f !important;
+  color: #9aa67a !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bm-weight-lbl,
 .bitmaster-arena[data-theme="retro-gameboy"] .bm-bit-num {
-  color: #0f380f !important;
+  color: #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .stat-card {
-  background: #8bac0f !important;
-  border: 2.5px solid #0f380f !important;
-  box-shadow: 3px 3px 0 #0f380f !important;
-  color: #0f380f !important;
-}
-
-.bitmaster-arena[data-theme="retro-gameboy"] .stat-label {
-  color: #306230 !important;
+  background: #788656 !important;
+  border: 2.5px solid #12200f !important;
+  box-shadow: 3px 3px 0 #12200f !important;
+  color: #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-modal-dialog {
-  background: #9bbc0f !important;
-  border: 4px solid #0f380f !important;
-  color: #0f380f !important;
-  box-shadow: 8px 8px 0 #0f380f !important;
+  background: #9aa67a !important;
+  border: 4px solid #12200f !important;
+  color: #12200f !important;
+  box-shadow: 8px 8px 0 #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .star-theme-card,
 .bitmaster-arena[data-theme="retro-gameboy"] .star-upgrade-card {
-  background: #8bac0f !important;
-  border: 2.5px solid #0f380f !important;
-  color: #0f380f !important;
-  box-shadow: 3px 3px 0 #0f380f !important;
+  background: #788656 !important;
+  border: 2.5px solid #12200f !important;
+  color: #12200f !important;
+  box-shadow: 3px 3px 0 #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .star-theme-card.active {
-  background: #0f380f !important;
-  color: #9bbc0f !important;
-  border-color: #0f380f !important;
+  background: #12200f !important;
+  color: #9aa67a !important;
+  border-color: #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .star-theme-card.active .theme-card-name,
 .bitmaster-arena[data-theme="retro-gameboy"] .star-theme-card.active .theme-card-desc {
-  color: #9bbc0f !important;
+  color: #9aa67a !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .theme-card-name,
 .bitmaster-arena[data-theme="retro-gameboy"] .upgrade-card-title,
 .bitmaster-arena[data-theme="retro-gameboy"] .modal-dialog-title {
-  color: #0f380f !important;
+  color: #12200f !important;
 }
 
 .bitmaster-arena[data-theme="retro-gameboy"] .theme-card-desc,
 .bitmaster-arena[data-theme="retro-gameboy"] .upgrade-card-desc,
 .bitmaster-arena[data-theme="retro-gameboy"] .star-rules-details {
-  color: #306230 !important;
+  color: #30441e !important;
 }
 
+/* Fallback override for any remaining standard utility text colors */
+.bitmaster-arena[data-theme="retro-gameboy"] .text-blue,
+.bitmaster-arena[data-theme="retro-gameboy"] .text-green,
+.bitmaster-arena[data-theme="retro-gameboy"] .text-amber,
+.bitmaster-arena[data-theme="retro-gameboy"] .text-cyan,
+.bitmaster-arena[data-theme="retro-gameboy"] .text-purple,
+.bitmaster-arena[data-theme="retro-gameboy"] .text-pink,
+.bitmaster-arena[data-theme="retro-gameboy"] .text-red {
+  color: #12200f !important;
+}
+
+
 /* =========================================================================
-   THEME 4: GREEN MOTHERBOARD (Emerald PCB & Gold Logic Traces)
+   THEME 4: GREEN MOTHERBOARD (Authentic Emerald PCB, Copper Traces & Vias)
    ========================================================================= */
 .bitmaster-arena[data-theme="green-motherboard"] {
-  background: #051f15 !important;
+  background: #03170e !important;
   background-image: 
-    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.16) 0%, transparent 65%),
-    radial-gradient(circle at 80% 100%, rgba(234, 179, 8, 0.12) 0%, transparent 60%),
-    linear-gradient(rgba(34, 197, 94, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 197, 94, 0.05) 1px, transparent 1px) !important;
-  border-color: #166534 !important;
-  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(74, 222, 128, 0.15) !important;
+    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.18) 0%, transparent 65%),
+    radial-gradient(circle at 85% 100%, rgba(234, 179, 8, 0.14) 0%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cpath d='M10 0v40l20 20h50l20-20V0' stroke='%2310b981' stroke-width='1.5' stroke-opacity='0.16' fill='none'/%3E%3Cpath d='M25 0v35l15 15h40' stroke='%23eab308' stroke-width='1.5' stroke-opacity='0.22' fill='none'/%3E%3Cpath d='M0 80h40l25 25v55' stroke='%2310b981' stroke-width='1.5' stroke-opacity='0.16' fill='none'/%3E%3Cpath d='M0 95h35l20 20v45' stroke='%23eab308' stroke-width='1.2' stroke-opacity='0.2' fill='none'/%3E%3Cpath d='M160 60h-35l-25 25v40l15 15h45' stroke='%23eab308' stroke-width='1.5' stroke-opacity='0.22' fill='none'/%3E%3Cpath d='M160 75h-25l-20 20v30' stroke='%2310b981' stroke-width='1.2' stroke-opacity='0.16' fill='none'/%3E%3Cpath d='M80 60l15 15h25' stroke='%23eab308' stroke-width='1.2' stroke-opacity='0.22' fill='none'/%3E%3Ccircle cx='80' cy='60' r='3.5' fill='%2303170e' stroke='%23eab308' stroke-width='1.5' stroke-opacity='0.5'/%3E%3Ccircle cx='120' cy='75' r='3' fill='%2303170e' stroke='%2334d399' stroke-width='1.2' stroke-opacity='0.4'/%3E%3Ccircle cx='30' cy='60' r='3.5' fill='%2303170e' stroke='%23eab308' stroke-width='1.5' stroke-opacity='0.5'/%3E%3Ccircle cx='65' cy='105' r='3' fill='%2303170e' stroke='%2334d399' stroke-width='1.2' stroke-opacity='0.4'/%3E%3Ccircle cx='100' cy='85' r='3.5' fill='%2303170e' stroke='%23eab308' stroke-width='1.5' stroke-opacity='0.5'/%3E%3Ccircle cx='55' cy='115' r='2.5' fill='%2303170e' stroke='%23eab308' stroke-width='1' stroke-opacity='0.4'/%3E%3Ctext x='84' y='55' fill='rgba(255,255,255,0.2)' font-size='6.5' font-family='monospace' font-weight='bold'%3ECLK%3C/text%3E%3Ctext x='8' y='75' fill='rgba(234,179,8,0.25)' font-size='6.5' font-family='monospace' font-weight='bold'%3EBUS[8]%3C/text%3E%3Ctext x='125' y='55' fill='rgba(255,255,255,0.2)' font-size='6.5' font-family='monospace' font-weight='bold'%3ETP2%3C/text%3E%3Ctext x='115' y='150' fill='rgba(234,179,8,0.25)' font-size='6.5' font-family='monospace' font-weight='bold'%3EVCC%3C/text%3E%3C/svg%3E") !important;
+  border-color: #15803d !important;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.9), inset 0 2px 0 #ca8a04 !important;
   color: #dcfce7 !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"]:fullscreen,
 .bitmaster-arena[data-theme="green-motherboard"].is-fullscreen {
-  background: #03170f !important;
-  background-image: radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.2) 0%, transparent 70%) !important;
+  background: #02120a !important;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.22) 0%, transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cpath d='M10 0v40l20 20h50l20-20V0' stroke='%2310b981' stroke-width='1.5' stroke-opacity='0.16' fill='none'/%3E%3Cpath d='M25 0v35l15 15h40' stroke='%23eab308' stroke-width='1.5' stroke-opacity='0.22' fill='none'/%3E%3Cpath d='M0 80h40l25 25v55' stroke='%2310b981' stroke-width='1.5' stroke-opacity='0.16' fill='none'/%3E%3Cpath d='M0 95h35l20 20v45' stroke='%23eab308' stroke-width='1.2' stroke-opacity='0.2' fill='none'/%3E%3Cpath d='M160 60h-35l-25 25v40l15 15h45' stroke='%23eab308' stroke-width='1.5' stroke-opacity='0.22' fill='none'/%3E%3Cpath d='M160 75h-25l-20 20v30' stroke='%2310b981' stroke-width='1.2' stroke-opacity='0.16' fill='none'/%3E%3Cpath d='M80 60l15 15h25' stroke='%23eab308' stroke-width='1.2' stroke-opacity='0.22' fill='none'/%3E%3Ccircle cx='80' cy='60' r='3.5' fill='%2303170e' stroke='%23eab308' stroke-width='1.5' stroke-opacity='0.5'/%3E%3Ccircle cx='120' cy='75' r='3' fill='%2303170e' stroke='%2334d399' stroke-width='1.2' stroke-opacity='0.4'/%3E%3Ccircle cx='30' cy='60' r='3.5' fill='%2303170e' stroke='%23eab308' stroke-width='1.5' stroke-opacity='0.5'/%3E%3Ccircle cx='65' cy='105' r='3' fill='%2303170e' stroke='%2334d399' stroke-width='1.2' stroke-opacity='0.4'/%3E%3Ccircle cx='100' cy='85' r='3.5' fill='%2303170e' stroke='%23eab308' stroke-width='1.5' stroke-opacity='0.5'/%3E%3Ccircle cx='55' cy='115' r='2.5' fill='%2303170e' stroke='%23eab308' stroke-width='1' stroke-opacity='0.4'/%3E%3Ctext x='84' y='55' fill='rgba(255,255,255,0.2)' font-size='6.5' font-family='monospace' font-weight='bold'%3ECLK%3C/text%3E%3Ctext x='8' y='75' fill='rgba(234,179,8,0.25)' font-size='6.5' font-family='monospace' font-weight='bold'%3EBUS[8]%3C/text%3E%3Ctext x='125' y='55' fill='rgba(255,255,255,0.2)' font-size='6.5' font-family='monospace' font-weight='bold'%3ETP2%3C/text%3E%3Ctext x='115' y='150' fill='rgba(234,179,8,0.25)' font-size='6.5' font-family='monospace' font-weight='bold'%3EVCC%3C/text%3E%3C/svg%3E") !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-hud-bar {
-  border-bottom-color: #166534 !important;
+  border-bottom: 2px solid #166534 !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-hud-btn,
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-hud-icon-btn {
   background: linear-gradient(180deg, #093321 0%, #052115 100%) !important;
-  border-color: #15803d !important;
-  color: #86efac !important;
+  border: 1.5px solid #ca8a04 !important;
+  color: #fef08a !important;
   box-shadow: 0 4px 0 #02140c !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-hud-btn:hover,
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-hud-icon-btn:hover {
-  border-color: #4ade80 !important;
-  color: #bbf7d0 !important;
-  box-shadow: 0 6px 0 #02140c, 0 0 14px rgba(74, 222, 128, 0.3) !important;
+  border-color: #fde047 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 0 #02140c, 0 0 14px rgba(234, 179, 8, 0.4) !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .title-hero-heading {
-  color: #86efac !important;
-  text-shadow: 0 0 24px rgba(34, 197, 94, 0.5) !important;
+  color: #4ade80 !important;
+  text-shadow: 0 0 24px rgba(34, 197, 94, 0.65), 0 0 2px #ffffff !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .title-hero-subheading {
-  color: #eab308 !important;
+  color: #facc15 !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .title-hero-chip {
-  background: linear-gradient(135deg, #16a34a 0%, #ca8a04 100%) !important;
-  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.35) !important;
+  background: linear-gradient(135deg, #15803d 0%, #a16207 100%) !important;
+  border: 1.5px solid #eab308 !important;
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.35) !important;
+  color: #fef08a !important;
 }
 
+/* PCB Surface-Mount IC Package Cards */
 .bitmaster-arena[data-theme="green-motherboard"] .title-player-card,
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-suggested-card,
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-topic-card-btn,
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-stage-card,
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-level-card,
-.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-rank-card {
-  background: linear-gradient(180deg, #0a3524 0%, #062619 100%) !important;
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-rank-card,
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-challenge-card {
+  background: linear-gradient(180deg, #072a1c 0%, #03180f 100%) !important;
   border: 2px solid #166534 !important;
-  box-shadow: 0 5px 0 #02140c !important;
+  box-shadow: inset 0 2px 0 #ca8a04, inset 0 0 0 1px rgba(234, 179, 8, 0.2), 0 5px 0 #010c06, 0 10px 25px rgba(0, 0, 0, 0.7) !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-topic-card-btn:hover,
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-stage-card:hover,
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-level-card:hover {
-  border-color: #4ade80 !important;
-  box-shadow: 0 8px 0 #02140c, 0 0 16px rgba(74, 222, 128, 0.25) !important;
+  border-color: #34d399 !important;
+  box-shadow: inset 0 2px 0 #facc15, 0 8px 0 #010c06, 0 0 20px rgba(34, 197, 94, 0.35) !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .topic-card-hero-box {
+  background: #02120a !important;
+  border: 1.5px solid #d4af37 !important;
+  color: #fde047 !important;
+  box-shadow: 0 0 12px rgba(234, 179, 8, 0.35) !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .topic-card-stars-pill {
+  background: rgba(234, 179, 8, 0.12) !important;
+  border: 1px solid #ca8a04 !important;
+  color: #fde047 !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .topic-card-name,
@@ -7160,13 +7264,7 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .front-topics-eyebrow {
-  color: #eab308 !important;
-}
-
-.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-challenge-card {
-  background: linear-gradient(180deg, #082d1e 0%, #041d13 100%) !important;
-  border: 2.5px solid #166534 !important;
-  box-shadow: 0 6px 0 #02140c !important;
+  color: #facc15 !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .challenge-prompt {
@@ -7175,49 +7273,64 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 
 .bitmaster-arena[data-theme="green-motherboard"] .challenge-display {
   color: #4ade80 !important;
-  text-shadow: 0 0 16px rgba(74, 222, 128, 0.5) !important;
+  text-shadow: 0 0 18px rgba(74, 222, 128, 0.7), 0 0 2px #ffffff !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .challenge-hint {
-  color: #ca8a04 !important;
+  color: #facc15 !important;
 }
 
+/* PCB Solder Test-Pad Push Buttons */
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-tile-btn,
 .bitmaster-arena[data-theme="green-motherboard"] .keypad-btn,
-.bitmaster-arena[data-theme="green-motherboard"] .switch-toggle-btn {
-  background: #093321 !important;
-  border: 2px solid #15803d !important;
-  color: #dcfce7 !important;
+.bitmaster-arena[data-theme="green-motherboard"] .switch-toggle-btn,
+.bitmaster-arena[data-theme="green-motherboard"] .control-btn {
+  background: linear-gradient(180deg, #093321 0%, #052115 100%) !important;
+  border: 2px solid #ca8a04 !important;
+  color: #fef08a !important;
   box-shadow: 0 4px 0 #02140c !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-tile-btn:hover,
 .bitmaster-arena[data-theme="green-motherboard"] .keypad-btn:hover,
-.bitmaster-arena[data-theme="green-motherboard"] .switch-toggle-btn:hover {
-  border-color: #4ade80 !important;
+.bitmaster-arena[data-theme="green-motherboard"] .switch-toggle-btn:hover,
+.bitmaster-arena[data-theme="green-motherboard"] .control-btn:hover {
+  border-color: #fde047 !important;
   color: #ffffff !important;
+  box-shadow: 0 6px 0 #02140c, 0 0 16px rgba(234, 179, 8, 0.45) !important;
 }
 
+/* Active Logic Signal (Green LED Illumination) */
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-tile-btn.correct,
 .bitmaster-arena[data-theme="green-motherboard"] .switch-toggle-btn.active,
 .bitmaster-arena[data-theme="green-motherboard"] .bitcross-cell.active {
-  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
-  color: #022c15 !important;
+  background: linear-gradient(180deg, #22c55e 0%, #15803d 100%) !important;
+  color: #021a0c !important;
   border-color: #86efac !important;
   font-weight: 900 !important;
-  box-shadow: 0 4px 0 #0f5127, 0 0 12px rgba(34, 197, 94, 0.4) !important;
+  box-shadow: 0 4px 0 #052e16, 0 0 18px rgba(34, 197, 94, 0.85) !important;
 }
 
+.bitmaster-arena[data-theme="green-motherboard"] .challenge-swap-btn,
+.bitmaster-arena[data-theme="green-motherboard"] .game-swap-btn,
 .bitmaster-arena[data-theme="green-motherboard"] .game-skip-btn {
-  background: rgba(34, 197, 94, 0.15) !important;
-  border-color: rgba(34, 197, 94, 0.4) !important;
-  color: #4ade80 !important;
+  background: rgba(234, 179, 8, 0.15) !important;
+  border: 1.5px solid #ca8a04 !important;
+  color: #fef08a !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .challenge-swap-btn:hover,
+.bitmaster-arena[data-theme="green-motherboard"] .game-swap-btn:hover {
+  background: rgba(234, 179, 8, 0.3) !important;
+  border-color: #fde047 !important;
+  color: #ffffff !important;
 }
 
 .bitmaster-arena[data-theme="green-motherboard"] .bitmaster-modal-dialog {
   background: #062719 !important;
-  border: 2px solid #166534 !important;
-  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.8) !important;
+  border: 2px solid #ca8a04 !important;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.9), inset 0 2px 0 #eab308 !important;
 }
 
 /* =========================================================================

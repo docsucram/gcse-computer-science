@@ -5348,19 +5348,21 @@
     const totalSwaps = Number(bitmasterState.upgrades?.questionSwaps || bitmasterState.upgrades?.questionSkips) || 0;
     const remaining = Number(bitmasterState.swapsRemainingThisRound) || 0;
 
-    swapBtn.style.display = 'inline-flex';
     if (totalSwaps <= 0) {
+      swapBtn.style.display = 'none';
       swapBtn.classList.add('is-depleted');
-      swapBtn.setAttribute('title', 'Unlock Question Swaps in the Star Store ⭐');
       if (swapText) swapText.textContent = 'Swap (0)';
-    } else if (remaining > 0) {
-      swapBtn.classList.remove('is-depleted');
-      swapBtn.setAttribute('title', `Swap this question for a fresh one (${remaining} left this round)`);
-      if (swapText) swapText.textContent = `Swap (${remaining})`;
     } else {
-      swapBtn.classList.add('is-depleted');
-      swapBtn.setAttribute('title', 'All swaps used for this round');
-      if (swapText) swapText.textContent = 'Swap (0)';
+      swapBtn.style.display = 'inline-flex';
+      if (remaining > 0) {
+        swapBtn.classList.remove('is-depleted');
+        swapBtn.setAttribute('title', `Swap this question for a fresh one (${remaining} left this round)`);
+        if (swapText) swapText.textContent = `Swap (${remaining})`;
+      } else {
+        swapBtn.classList.add('is-depleted');
+        swapBtn.setAttribute('title', 'All swaps used for this round');
+        if (swapText) swapText.textContent = 'Swap (0)';
+      }
     }
   }
   const updateBitmasterSkipButton = updateBitmasterSwapButton;
