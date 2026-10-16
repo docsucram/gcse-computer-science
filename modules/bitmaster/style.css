@@ -1777,6 +1777,43 @@ body.bitmaster-app-body {
   color: #94a3b8;
 }
 
+.game-skip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1.5px solid rgba(59, 130, 246, 0.35);
+  color: #60a5fa;
+  font-family: var(--font-sans, system-ui);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.game-skip-btn:hover:not(:disabled):not(.is-depleted) {
+  background: rgba(59, 130, 246, 0.3);
+  border-color: #3b82f6;
+  color: #93c5fd;
+  transform: translateY(-1px);
+}
+
+.game-skip-btn:active:not(:disabled):not(.is-depleted) {
+  transform: translateY(1px);
+}
+
+.game-skip-btn.is-depleted {
+  opacity: 0.5;
+  background: rgba(100, 116, 139, 0.1);
+  border-color: rgba(100, 116, 139, 0.25);
+  color: #94a3b8;
+  cursor: pointer;
+  transform: none;
+}
+
 .game-progress-track {
   height: 8px;
   background: #0d121f;
@@ -5572,6 +5609,133 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
 }
 
+.star-vault-wallets {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0 0 16px;
+  flex-wrap: wrap;
+}
+
+.vault-wallet-sep {
+  color: #475569;
+}
+
+.star-vault-upgrade-tag {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.star-upgrades-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.star-upgrade-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #131b2e;
+  border: 2px solid #28354f;
+  transition: all 0.15s ease;
+}
+
+.upgrade-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1.5px solid rgba(59, 130, 246, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.upgrade-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.upgrade-card-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.upgrade-card-desc {
+  font-size: 11px;
+  color: #94a3b8;
+  line-height: 1.35;
+  margin: 2px 0 4px;
+}
+
+.upgrade-card-meta {
+  font-size: 11.5px;
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.upgrade-buy-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 7px 12px;
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  border: 1.5px solid #3b82f6;
+  border-radius: 10px;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #1e3a8a;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.upgrade-buy-btn:hover:not(:disabled):not(.is-disabled) {
+  background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 0 #1e3a8a, 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+.upgrade-buy-btn:active:not(:disabled):not(.is-disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #1e3a8a;
+}
+
+.upgrade-buy-btn:disabled,
+.upgrade-buy-btn.is-disabled {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #64748b !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.upgrade-cost-badge {
+  font-size: 12px;
+  color: #fbbf24;
+}
+
 .star-vault-section-title {
   display: flex;
   align-items: center;
@@ -5653,6 +5817,24 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   background: #1a1424;
   border: 1.5px solid #f59e0b;
   box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+}
+
+.theme-preview-gameboy {
+  background: #8bac0f;
+  border: 1.5px solid #0f380f;
+  box-shadow: 0 0 8px rgba(15, 56, 15, 0.4);
+}
+
+.theme-preview-motherboard {
+  background: #051f15;
+  border: 1.5px solid #22c55e;
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.35);
+}
+
+.theme-preview-amber {
+  background: #0a0804;
+  border: 1.5px solid #ffb000;
+  box-shadow: 0 0 8px rgba(255, 176, 0, 0.35);
 }
 
 .theme-preview-dots {
@@ -6578,4 +6760,515 @@ body.bitmaster-standalone-mode .bitmaster-arena {
 .bitmaster-standalone-mode .header-topics-btn {
   display: none !important;
 }
+
+/* =========================================================================
+   THEME 3: RETRO GAME BOY (DMG 4-Shade Olive LCD)
+   ========================================================================= */
+.bitmaster-arena[data-theme="retro-gameboy"] {
+  background: #8bac0f !important;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(155, 188, 15, 0.45) 0%, transparent 65%),
+    linear-gradient(rgba(15, 56, 15, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 56, 15, 0.06) 1px, transparent 1px) !important;
+  border-color: #0f380f !important;
+  box-shadow: 0 14px 44px rgba(15, 56, 15, 0.4), inset 0 2px 0 rgba(155, 188, 15, 0.8) !important;
+  color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"]:fullscreen,
+.bitmaster-arena[data-theme="retro-gameboy"].is-fullscreen {
+  background: #85a40e !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-hud-bar {
+  border-bottom-color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-hud-btn,
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-hud-icon-btn,
+.bitmaster-arena[data-theme="retro-gameboy"] .hud-stat-pill {
+  background: #9bbc0f !important;
+  border-color: #0f380f !important;
+  color: #0f380f !important;
+  box-shadow: 0 3px 0 #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-hud-btn:hover,
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-hud-icon-btn:hover {
+  background: #8bac0f !important;
+  border-color: #0f380f !important;
+  color: #0f380f !important;
+  box-shadow: 0 4px 0 #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .title-hero-heading {
+  color: #0f380f !important;
+  text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .title-hero-subheading,
+.bitmaster-arena[data-theme="retro-gameboy"] .front-topics-eyebrow {
+  color: #306230 !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .title-hero-chip {
+  background: #306230 !important;
+  border-color: #0f380f !important;
+  color: #9bbc0f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .title-player-card,
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-suggested-card,
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-topic-card-btn,
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-stage-card,
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-level-card,
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-rank-card,
+.bitmaster-arena[data-theme="retro-gameboy"] .stage-section-header {
+  background: #9bbc0f !important;
+  border: 2.5px solid #0f380f !important;
+  box-shadow: 0 5px 0 #0f380f !important;
+  color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-topic-card-btn:hover,
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-stage-card:hover,
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-level-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 0 #0f380f !important;
+  border-color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-name,
+.bitmaster-arena[data-theme="retro-gameboy"] .stage-card-title,
+.bitmaster-arena[data-theme="retro-gameboy"] .level-card-name,
+.bitmaster-arena[data-theme="retro-gameboy"] .rank-card-title,
+.bitmaster-arena[data-theme="retro-gameboy"] .title-stat-value,
+.bitmaster-arena[data-theme="retro-gameboy"] .front-topics-title {
+  color: #0f380f !important;
+  text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .stage-card-desc,
+.bitmaster-arena[data-theme="retro-gameboy"] .level-card-desc,
+.bitmaster-arena[data-theme="retro-gameboy"] .rank-card-meta,
+.bitmaster-arena[data-theme="retro-gameboy"] .rank-xp-label,
+.bitmaster-arena[data-theme="retro-gameboy"] .title-stat-label,
+.bitmaster-arena[data-theme="retro-gameboy"] .topic-card-desc {
+  color: #306230 !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-topic-tab-btn {
+  background: #8bac0f !important;
+  border-color: #0f380f !important;
+  color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-topic-tab-btn.active {
+  background: #0f380f !important;
+  color: #9bbc0f !important;
+  border-color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .badge.badge-paper1 {
+  background: #306230 !important;
+  color: #9bbc0f !important;
+  border-color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .game-timer,
+.bitmaster-arena[data-theme="retro-gameboy"] .game-counter {
+  color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .game-progress-track {
+  background: #8bac0f !important;
+  border-color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .game-progress-fill {
+  background: #0f380f !important;
+  box-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-challenge-card {
+  background: #9bbc0f !important;
+  border: 2.5px solid #0f380f !important;
+  box-shadow: 0 5px 0 #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .challenge-prompt,
+.bitmaster-arena[data-theme="retro-gameboy"] .challenge-hint {
+  color: #306230 !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .challenge-display {
+  color: #0f380f !important;
+  text-shadow: none !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-tile-btn,
+.bitmaster-arena[data-theme="retro-gameboy"] .keypad-btn,
+.bitmaster-arena[data-theme="retro-gameboy"] .switch-toggle-btn {
+  background: #8bac0f !important;
+  border: 2px solid #0f380f !important;
+  color: #0f380f !important;
+  box-shadow: 0 4px 0 #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-tile-btn:hover,
+.bitmaster-arena[data-theme="retro-gameboy"] .keypad-btn:hover,
+.bitmaster-arena[data-theme="retro-gameboy"] .switch-toggle-btn:hover {
+  background: #9bbc0f !important;
+  color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-tile-btn.correct,
+.bitmaster-arena[data-theme="retro-gameboy"] .switch-toggle-btn.active,
+.bitmaster-arena[data-theme="retro-gameboy"] .bitcross-cell.active {
+  background: #0f380f !important;
+  color: #9bbc0f !important;
+  border-color: #0f380f !important;
+  box-shadow: 0 4px 0 #306230 !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bm-bit-rect {
+  border-color: #0f380f !important;
+  background: #9bbc0f !important;
+  color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bm-bit-rect.is-target {
+  background: #0f380f !important;
+  color: #9bbc0f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bm-weight-lbl,
+.bitmaster-arena[data-theme="retro-gameboy"] .bm-bit-num {
+  color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .game-skip-btn {
+  background: #8bac0f !important;
+  border-color: #0f380f !important;
+  color: #0f380f !important;
+  box-shadow: 0 2px 0 #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .bitmaster-modal-dialog {
+  background: #9bbc0f !important;
+  border: 2.5px solid #0f380f !important;
+  color: #0f380f !important;
+  box-shadow: 0 10px 0 #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .star-theme-card,
+.bitmaster-arena[data-theme="retro-gameboy"] .star-upgrade-card {
+  background: #8bac0f !important;
+  border-color: #0f380f !important;
+  color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .star-theme-card.active {
+  background: #0f380f !important;
+  color: #9bbc0f !important;
+  border-color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .star-theme-card.active .theme-card-name,
+.bitmaster-arena[data-theme="retro-gameboy"] .star-theme-card.active .theme-card-desc {
+  color: #9bbc0f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .theme-card-name,
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-card-title,
+.bitmaster-arena[data-theme="retro-gameboy"] .modal-dialog-title {
+  color: #0f380f !important;
+}
+
+.bitmaster-arena[data-theme="retro-gameboy"] .theme-card-desc,
+.bitmaster-arena[data-theme="retro-gameboy"] .upgrade-card-desc,
+.bitmaster-arena[data-theme="retro-gameboy"] .star-rules-details {
+  color: #306230 !important;
+}
+
+/* =========================================================================
+   THEME 4: GREEN MOTHERBOARD (Emerald PCB & Gold Logic Traces)
+   ========================================================================= */
+.bitmaster-arena[data-theme="green-motherboard"] {
+  background: #051f15 !important;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.16) 0%, transparent 65%),
+    radial-gradient(circle at 80% 100%, rgba(234, 179, 8, 0.12) 0%, transparent 60%),
+    linear-gradient(rgba(34, 197, 94, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(34, 197, 94, 0.05) 1px, transparent 1px) !important;
+  border-color: #166534 !important;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(74, 222, 128, 0.15) !important;
+  color: #dcfce7 !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"]:fullscreen,
+.bitmaster-arena[data-theme="green-motherboard"].is-fullscreen {
+  background: #03170f !important;
+  background-image: radial-gradient(circle at 50% 0%, rgba(34, 197, 94, 0.2) 0%, transparent 70%) !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-hud-bar {
+  border-bottom-color: #166534 !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-hud-btn,
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-hud-icon-btn {
+  background: linear-gradient(180deg, #093321 0%, #052115 100%) !important;
+  border-color: #15803d !important;
+  color: #86efac !important;
+  box-shadow: 0 4px 0 #02140c !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-hud-btn:hover,
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-hud-icon-btn:hover {
+  border-color: #4ade80 !important;
+  color: #bbf7d0 !important;
+  box-shadow: 0 6px 0 #02140c, 0 0 14px rgba(74, 222, 128, 0.3) !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .title-hero-heading {
+  color: #86efac !important;
+  text-shadow: 0 0 24px rgba(34, 197, 94, 0.5) !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .title-hero-subheading {
+  color: #eab308 !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .title-hero-chip {
+  background: linear-gradient(135deg, #16a34a 0%, #ca8a04 100%) !important;
+  box-shadow: 0 8px 24px rgba(34, 197, 94, 0.35) !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .title-player-card,
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-suggested-card,
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-topic-card-btn,
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-stage-card,
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-level-card,
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-rank-card {
+  background: linear-gradient(180deg, #0a3524 0%, #062619 100%) !important;
+  border: 2px solid #166534 !important;
+  box-shadow: 0 5px 0 #02140c !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-topic-card-btn:hover,
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-stage-card:hover,
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-level-card:hover {
+  border-color: #4ade80 !important;
+  box-shadow: 0 8px 0 #02140c, 0 0 16px rgba(74, 222, 128, 0.25) !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .topic-card-name,
+.bitmaster-arena[data-theme="green-motherboard"] .stage-card-title,
+.bitmaster-arena[data-theme="green-motherboard"] .level-card-name,
+.bitmaster-arena[data-theme="green-motherboard"] .front-topics-title {
+  color: #f0fdf4 !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .front-topics-eyebrow {
+  color: #eab308 !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-challenge-card {
+  background: linear-gradient(180deg, #082d1e 0%, #041d13 100%) !important;
+  border: 2.5px solid #166534 !important;
+  box-shadow: 0 6px 0 #02140c !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .challenge-prompt {
+  color: #86efac !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .challenge-display {
+  color: #4ade80 !important;
+  text-shadow: 0 0 16px rgba(74, 222, 128, 0.5) !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .challenge-hint {
+  color: #ca8a04 !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-tile-btn,
+.bitmaster-arena[data-theme="green-motherboard"] .keypad-btn,
+.bitmaster-arena[data-theme="green-motherboard"] .switch-toggle-btn {
+  background: #093321 !important;
+  border: 2px solid #15803d !important;
+  color: #dcfce7 !important;
+  box-shadow: 0 4px 0 #02140c !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-tile-btn:hover,
+.bitmaster-arena[data-theme="green-motherboard"] .keypad-btn:hover,
+.bitmaster-arena[data-theme="green-motherboard"] .switch-toggle-btn:hover {
+  border-color: #4ade80 !important;
+  color: #ffffff !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-tile-btn.correct,
+.bitmaster-arena[data-theme="green-motherboard"] .switch-toggle-btn.active,
+.bitmaster-arena[data-theme="green-motherboard"] .bitcross-cell.active {
+  background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
+  color: #022c15 !important;
+  border-color: #86efac !important;
+  font-weight: 900 !important;
+  box-shadow: 0 4px 0 #0f5127, 0 0 12px rgba(34, 197, 94, 0.4) !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .game-skip-btn {
+  background: rgba(34, 197, 94, 0.15) !important;
+  border-color: rgba(34, 197, 94, 0.4) !important;
+  color: #4ade80 !important;
+}
+
+.bitmaster-arena[data-theme="green-motherboard"] .bitmaster-modal-dialog {
+  background: #062719 !important;
+  border: 2px solid #166534 !important;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* =========================================================================
+   THEME 5: AMBER TERMINAL (Vintage 1980s Monochrome Phosphor CRT)
+   ========================================================================= */
+.bitmaster-arena[data-theme="amber-terminal"] {
+  background: #0a0804 !important;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(255, 176, 0, 0.16) 0%, transparent 65%),
+    radial-gradient(circle at 80% 100%, rgba(217, 119, 6, 0.12) 0%, transparent 60%),
+    linear-gradient(rgba(255, 176, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 176, 0, 0.03) 1px, transparent 1px) !important;
+  border-color: #78350f !important;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.9), inset 0 1px 0 rgba(255, 176, 0, 0.2) !important;
+  color: #fef3c7 !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"]:fullscreen,
+.bitmaster-arena[data-theme="amber-terminal"].is-fullscreen {
+  background: #060502 !important;
+  background-image: radial-gradient(circle at 50% 0%, rgba(255, 176, 0, 0.2) 0%, transparent 70%) !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-hud-bar {
+  border-bottom-color: #78350f !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-hud-btn,
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-hud-icon-btn {
+  background: linear-gradient(180deg, #1c1509 0%, #110d05 100%) !important;
+  border-color: #92400e !important;
+  color: #fde68a !important;
+  box-shadow: 0 4px 0 #000000 !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-hud-btn:hover,
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-hud-icon-btn:hover {
+  border-color: #ffb000 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 0 #000000, 0 0 14px rgba(255, 176, 0, 0.35) !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .title-hero-heading {
+  color: #ffb000 !important;
+  text-shadow: 0 0 24px rgba(255, 176, 0, 0.6) !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .title-hero-subheading {
+  color: #f59e0b !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .title-hero-chip {
+  background: linear-gradient(135deg, #d97706 0%, #78350f 100%) !important;
+  box-shadow: 0 8px 24px rgba(255, 176, 0, 0.35) !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .title-player-card,
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-suggested-card,
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-topic-card-btn,
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-stage-card,
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-level-card,
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-rank-card {
+  background: linear-gradient(180deg, #181207 0%, #100c05 100%) !important;
+  border: 2px solid #78350f !important;
+  box-shadow: 0 5px 0 #000000 !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-topic-card-btn:hover,
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-stage-card:hover,
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-level-card:hover {
+  border-color: #ffb000 !important;
+  box-shadow: 0 8px 0 #000000, 0 0 16px rgba(255, 176, 0, 0.3) !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .topic-card-name,
+.bitmaster-arena[data-theme="amber-terminal"] .stage-card-title,
+.bitmaster-arena[data-theme="amber-terminal"] .level-card-name,
+.bitmaster-arena[data-theme="amber-terminal"] .front-topics-title {
+  color: #ffedd5 !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .front-topics-eyebrow {
+  color: #ffb000 !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-challenge-card {
+  background: linear-gradient(180deg, #150f06 0%, #0c0903 100%) !important;
+  border: 2.5px solid #78350f !important;
+  box-shadow: 0 6px 0 #000000 !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .challenge-prompt {
+  color: #fbbf24 !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .challenge-display {
+  color: #ffb000 !important;
+  text-shadow: 0 0 18px rgba(255, 176, 0, 0.6) !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .challenge-hint {
+  color: #d97706 !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-tile-btn,
+.bitmaster-arena[data-theme="amber-terminal"] .keypad-btn,
+.bitmaster-arena[data-theme="amber-terminal"] .switch-toggle-btn {
+  background: #1c1509 !important;
+  border: 2px solid #92400e !important;
+  color: #fef3c7 !important;
+  box-shadow: 0 4px 0 #000000 !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-tile-btn:hover,
+.bitmaster-arena[data-theme="amber-terminal"] .keypad-btn:hover,
+.bitmaster-arena[data-theme="amber-terminal"] .switch-toggle-btn:hover {
+  border-color: #ffb000 !important;
+  color: #ffffff !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-tile-btn.correct,
+.bitmaster-arena[data-theme="amber-terminal"] .switch-toggle-btn.active,
+.bitmaster-arena[data-theme="amber-terminal"] .bitcross-cell.active {
+  background: #ffb000 !important;
+  color: #0a0804 !important;
+  border-color: #fde68a !important;
+  font-weight: 900 !important;
+  box-shadow: 0 4px 0 #78350f, 0 0 16px rgba(255, 176, 0, 0.5) !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .game-skip-btn {
+  background: rgba(255, 176, 0, 0.15) !important;
+  border-color: rgba(255, 176, 0, 0.4) !important;
+  color: #ffb000 !important;
+}
+
+.bitmaster-arena[data-theme="amber-terminal"] .bitmaster-modal-dialog {
+  background: #120e06 !important;
+  border: 2px solid #78350f !important;
+  box-shadow: 0 14px 44px rgba(0, 0, 0, 0.9) !important;
+}
+
 

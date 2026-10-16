@@ -841,6 +841,9 @@
     mistakesThisRound: 0,
     correctThisRound: 0,
     currentQuestionMistakes: 0,
+    upgrades: { questionSkips: 0 },
+    starsSpent: 0,
+    skipsRemainingThisRound: 0,
     startTime: null,
     timerInterval: null,
     elapsedSeconds: 0,
@@ -900,6 +903,11 @@
         bitmasterState.arcadeXp = Number(data.arcadeXp) || 0;
         bitmasterState.arcadeRecords = data.arcadeRecords || { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 };
         if (!bitmasterState.arcadeRecords.bitcross) bitmasterState.arcadeRecords.bitcross = {};
+        bitmasterState.upgrades = data.upgrades || { questionSkips: 0 };
+        if (typeof bitmasterState.upgrades.questionSkips !== 'number') {
+          bitmasterState.upgrades.questionSkips = 0;
+        }
+        bitmasterState.starsSpent = Number(data.starsSpent) || 0;
         const m1 = migrateLegacyLevelKeys(bitmasterState.stars);
         const m2 = migrateLegacyLevelKeys(bitmasterState.levelRecords);
         let totalXp = bitmasterState.arcadeXp;
@@ -918,6 +926,8 @@
           bitmasterState.levelRecords = {};
           bitmasterState.arcadeXp = 0;
           bitmasterState.arcadeRecords = { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 };
+          bitmasterState.upgrades = { questionSkips: 0 };
+          bitmasterState.starsSpent = 0;
           migrateLegacyLevelKeys(bitmasterState.stars);
           let migXp = 0;
           Object.entries(bitmasterState.stars).forEach(([k, s]) => {
@@ -954,7 +964,9 @@
         stars: bitmasterState.stars,
         levelRecords: bitmasterState.levelRecords,
         arcadeXp: bitmasterState.arcadeXp || 0,
-        arcadeRecords: bitmasterState.arcadeRecords || { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 }
+        arcadeRecords: bitmasterState.arcadeRecords || { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 },
+        upgrades: bitmasterState.upgrades || { questionSkips: 0 },
+        starsSpent: Number(bitmasterState.starsSpent) || 0
       }));
     } catch (e) {
       console.warn("Could not write BitMaster save:", e);
@@ -963,6 +975,21 @@
 
   function calculateBitmasterStars() {
     return Object.values(bitmasterState.stars).reduce((sum, val) => sum + (Number(val) || 0), 0);
+  }
+
+  const SKIP_UPGRADE_COSTS = [8, 16, 24, 36, 50, 70, 95];
+  function getSkipUpgradeCost(currentSkips) {
+    const count = Number(currentSkips) || 0;
+    if (count < SKIP_UPGRADE_COSTS.length) {
+      return SKIP_UPGRADE_COSTS[count];
+    }
+    return 100 + (count - SKIP_UPGRADE_COSTS.length + 1) * 30;
+  }
+
+  function getAvailableBitmasterStars() {
+    const total = calculateBitmasterStars();
+    const spent = Number(bitmasterState.starsSpent) || 0;
+    return Math.max(0, total - spent);
   }
 
   function getRankForXp(xp) {
@@ -4895,6 +4922,9 @@
     bitmasterState.sprintTimeLeft = 60;
     bitmasterState.totalQuestions = isSprint ? 999 : 10;
     bitmasterState.keypadBuffer = "";
+    const totalSkips = Number(bitmasterState.upgrades?.questionSkips) || 0;
+    bitmasterState.skipsRemainingThisRound = totalSkips;
+    updateBitmasterSkipButton();
 
     const timerEl = document.getElementById('bitmasterTimerDisplay');
     const counterEl = document.getElementById('bitmasterQuestionCounter');
@@ -5270,7 +5300,14 @@
   }
 
   function applyBitmasterTheme(themeId, save = true) {
-    const validThemes = ['cyber-neon', 'natural-breeze', 'sunset-horizon'];
+    const validThemes = [
+      'cyber-neon',
+      'natural-breeze',
+      'sunset-horizon',
+      'retro-gameboy',
+      'green-motherboard',
+      'amber-terminal'
+    ];
     const chosenTheme = validThemes.includes(themeId) ? themeId : 'cyber-neon';
 
     const arena = document.getElementById('bitmasterArena');
@@ -5298,12 +5335,119 @@
     });
   }
 
+  function updateBitmasterSkipButton() {
+    const skipBtn = document.getElementById('bitmasterSkipBtn');
+    const skipText = document.getElementById('bitmasterSkipBtnText');
+    if (!skipBtn) return;
+
+    const totalSkips = Number(bitmasterState.upgrades?.questionSkips) || 0;
+    const remaining = Number(bitmasterState.skipsRemainingThisRound) || 0;
+
+    skipBtn.style.display = 'inline-flex';
+    if (totalSkips <= 0) {
+      skipBtn.classList.add('is-depleted');
+      skipBtn.setAttribute('title', 'Unlock Question Skips in the ⭐ Star Store');
+      if (skipText) skipText.textContent = 'Skip (0)';
+    } else if (remaining > 0) {
+      skipBtn.classList.remove('is-depleted');
+      skipBtn.setAttribute('title', `Skip this question (${remaining} left this round)`);
+      if (skipText) skipText.textContent = `Skip (${remaining})`;
+    } else {
+      skipBtn.classList.add('is-depleted');
+      skipBtn.setAttribute('title', 'All skips used for this round');
+      if (skipText) skipText.textContent = 'Skip (0)';
+    }
+  }
+
+  function handleBitmasterSkipQuestion() {
+    const totalSkips = Number(bitmasterState.upgrades?.questionSkips) || 0;
+    if (totalSkips <= 0) {
+      playSynthSound('tap');
+      showBitmasterToast('Unlock Question Skips in the ⭐ Star Store!', '⭐', 2800);
+      return;
+    }
+
+    if (Number(bitmasterState.skipsRemainingThisRound) <= 0) {
+      playSynthSound('tap');
+      showBitmasterToast('No skips remaining for this round!', '⚠️', 2000);
+      return;
+    }
+
+    bitmasterState.skipsRemainingThisRound--;
+    bitmasterState.correctThisRound++;
+    updateBitmasterSkipButton();
+
+    playSynthSound('correct');
+    const rem = bitmasterState.skipsRemainingThisRound;
+    showBitmasterToast(`Question Skipped! (${rem} skip${rem === 1 ? '' : 's'} remaining)`, '⏭️', 1600);
+
+    setTimeout(() => {
+      loadNextBitmasterQuestion();
+    }, 180);
+  }
+
+  function renderBitmasterStarVault() {
+    const tallyEl = document.getElementById('bitmasterVaultStarsTally');
+    const availableEl = document.getElementById('bitmasterVaultStarsAvailable');
+    const skipsCountEl = document.getElementById('bitmasterCurrentSkipsCount');
+    const buyBtn = document.getElementById('bitmasterBuySkipBtn');
+    const costBadge = document.getElementById('bitmasterSkipCostBadge');
+
+    const totalStars = calculateBitmasterStars();
+    const availableStars = getAvailableBitmasterStars();
+    const currentSkips = Number(bitmasterState.upgrades?.questionSkips) || 0;
+    const nextCost = getSkipUpgradeCost(currentSkips);
+
+    if (tallyEl) tallyEl.textContent = totalStars;
+    if (availableEl) availableEl.textContent = availableStars;
+
+    if (skipsCountEl) {
+      skipsCountEl.textContent = currentSkips === 1 
+        ? '1 skip per round' 
+        : `${currentSkips} skips per round`;
+    }
+
+    if (buyBtn && costBadge) {
+      costBadge.textContent = `⭐ ${nextCost}`;
+      if (availableStars >= nextCost) {
+        buyBtn.disabled = false;
+        buyBtn.classList.remove('is-disabled');
+        buyBtn.title = `Unlock +1 Question Skip for ${nextCost} ⭐ (You have ${availableStars} ⭐ to spend)`;
+      } else {
+        buyBtn.disabled = true;
+        buyBtn.classList.add('is-disabled');
+        buyBtn.title = `Need ${nextCost} ⭐ to unlock (You have ${availableStars} ⭐ to spend)`;
+      }
+    }
+  }
+
+  function buyQuestionSkipUpgrade() {
+    const currentSkips = Number(bitmasterState.upgrades?.questionSkips) || 0;
+    const cost = getSkipUpgradeCost(currentSkips);
+    const available = getAvailableBitmasterStars();
+
+    if (available < cost) {
+      playSynthSound('incorrect');
+      showBitmasterToast(`Not enough stars! Need ${cost} ⭐, but you have ${available} ⭐ to spend.`, '⭐', 3000);
+      return;
+    }
+
+    bitmasterState.starsSpent = (Number(bitmasterState.starsSpent) || 0) + cost;
+    if (!bitmasterState.upgrades) bitmasterState.upgrades = {};
+    bitmasterState.upgrades.questionSkips = currentSkips + 1;
+
+    saveBitmasterProgress();
+    playSynthSound('star');
+    showBitmasterToast(`⭐ Upgrade Unlocked! You now get ${bitmasterState.upgrades.questionSkips} skip${bitmasterState.upgrades.questionSkips === 1 ? '' : 's'} per round!`, '🎉', 3500);
+
+    renderBitmasterStarVault();
+    updateBitmasterSkipButton();
+    updateBitmasterHUD();
+  }
+
   function showBitmasterStarVaultModal() {
     const modal = document.getElementById('bitmasterModalStarVault');
-    const tallyEl = document.getElementById('bitmasterVaultStarsTally');
-    if (tallyEl) {
-      tallyEl.textContent = calculateBitmasterStars();
-    }
+    renderBitmasterStarVault();
     const currentTheme = localStorage.getItem('bitmaster_theme') || 'cyber-neon';
     applyBitmasterTheme(currentTheme, false);
 
@@ -7484,6 +7628,36 @@
       starVaultModal.addEventListener('click', (e) => {
         if (e.target === starVaultModal) {
           hideBitmasterStarVaultModal();
+        }
+      });
+    }
+
+    // Question Skip Upgrade Button inside Star Store
+    const buySkipBtn = document.getElementById('bitmasterBuySkipBtn');
+    if (buySkipBtn) {
+      buySkipBtn.addEventListener('click', () => {
+        buyQuestionSkipUpgrade();
+      });
+    }
+
+    // In-Game Skip Question Button
+    const skipBtn = document.getElementById('bitmasterSkipBtn');
+    if (skipBtn) {
+      skipBtn.addEventListener('click', () => {
+        handleBitmasterSkipQuestion();
+      });
+    }
+
+    // Title Screen Stars Pill opens Star Vault
+    const titleStarsPill = document.getElementById('bitmasterTitleStarsPill');
+    if (titleStarsPill) {
+      titleStarsPill.addEventListener('click', () => {
+        showBitmasterStarVaultModal();
+      });
+      titleStarsPill.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          showBitmasterStarVaultModal();
         }
       });
     }
