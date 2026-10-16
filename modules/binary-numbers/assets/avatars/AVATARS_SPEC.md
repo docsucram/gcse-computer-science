@@ -11,17 +11,17 @@ The progression ladder spans 12 ranks across the 11 syllabus stages plus the Gra
 | Tier | Rank Name | Min XP | Syllabus Stage Equivalent | Character Archetype |
 |:---:|:---|:---:|:---|:---|
 | **01** | **Logic Novice** | 0 | Stage 1 (Bits & Place Values) | Friendly white CPU companion bot with cute blue LED eyes, holding a tiny screwdriver. |
-| **02** | **Nibble Operator** | 450 | Stage 2 (4-Bit Binary) | Streetwise cyberpunk script hacker in dark hoodie with `>_` terminal visor and laptop. |
-| **03** | **Binary Specialist** | 1,000 | Stage 3–4 (8-Bit Conversions) | Sleek stealth cyber-operative in form-fitting matrix suit with cascading `0101` code and holo-tablet. |
-| **04** | **Byte Engineer** | 1,650 | Stage 5 (Binary Addition) | Heavy mech-suit power engineer with neon cyan holographic cube cores, oversized cyber wrench, and toolkit. |
-| **05** | **Signed Sentinel** | 2,350 | Stage 9 (Signed Integers & Inversion) | Quantum phase ninja wrapped in inverted dark/light chromatic split aura, representing negative sign flipping. |
-| **06** | **Silicon Shifter** | 3,100 | Stage 8 (Binary Shifts & Overclocking) | Overclocked neon speedster surrounded by motion-blurred data packets and glowing bus conduits. |
-| **07** | **ALU Vanguard** | 3,900 | Stage 7–8 (ALU Arithmetic & Logic) | Fast dual-blade cyber-duelist with twin laser circuit wires representing parallel logic pathways. |
-| **08** | **Hex Sorcerer** | 4,750 | Stage 6 (Hexadecimal Foundations) | Hooded techno-mage with robotic silver beard and circuit robes, summoning floating glowing hexagonal runes (`Σ`, `0x`). |
-| **09** | **Hex Archon** | 5,650 | Stage 7 (Hex Conversions & Geometry) | Regal high-tech construct architect in crystalline hexagonal energy armor with floating geometry shields. |
-| **10** | **Data Architect** | 6,600 | Stage 10–11 (Mainframe Data & Storage) | Sovereign mainframe commander seated amidst circular multi-layered holographic control spheres and waveform rings. |
-| **11** | **Grand BitMaster** | 7,800 | Stage 12 (Gauntlet & Speed Blitz) | Ascended silicon champion in radiant gold-and-cyan cyber plate, wielding a floating CPU core matrix crown. |
-| **12** | **Supreme Silicon Legend** | 9,500 | Max Mastery / All Gauntlets Cleared | Transcendent digital deity / singularity entity woven of pure golden light, fiber-optic threads, and binary constellations. |
+| **02** | **Nibble Operator** | 4,000 | Stage 2 (4-Bit Binary) | Streetwise cyberpunk script hacker in dark hoodie with `>_` terminal visor and laptop. |
+| **03** | **Binary Specialist** | 10,000 | Stage 3–4 (8-Bit Conversions) | Sleek stealth cyber-operative in form-fitting matrix suit with cascading `0101` code and holo-tablet. |
+| **04** | **Byte Engineer** | 18,000 | Stage 5 (Binary Addition) | Heavy mech-suit power engineer with neon cyan holographic cube cores, oversized cyber wrench, and toolkit. |
+| **05** | **Signed Sentinel** | 28,000 | Stage 9 (Signed Integers & Inversion) | Cybernetic guardian with literal glowing `+` and `−` polarity symbols on his chestplate and a radiant energy shield. |
+| **06** | **Silicon Shifter** | 40,000 | Stage 8 (Binary Shifts & Overclocking) | Overclocked cybernetic speedster surrounded by swirling blue and orange shift portals and motion-blurred data packets. |
+| **07** | **ALU Vanguard** | 54,000 | Stage 7–8 (ALU Arithmetic & Logic) | Fast dual-blade cyber-duelist with twin laser circuit wires representing parallel arithmetic logic pathways. |
+| **08** | **Hex Adept** | 70,000 | Stage 6 (Hexadecimal Foundations) | Hooded techno-adept with robotic silver beard and circuit robes, summoning floating glowing hexagonal runes (`0x`, `A-F`). |
+| **09** | **Hex Archon** | 88,000 | Stage 7 (Hex Conversions & Geometry) | Regal high-tech construct architect in crystalline hexagonal energy armor with floating geometry shields. |
+| **10** | **Data Architect** | 108,000 | Stage 10–11 (Mainframe Data & Storage) | Sovereign mainframe commander seated amidst circular multi-layered holographic control spheres and waveform rings. |
+| **11** | **Grand BitMaster** | 130,000 | Stage 12 (Gauntlet & Speed Blitz) | Ascended silicon champion in radiant gold-and-cyan cyber plate, wielding a floating CPU core matrix crown. |
+| **12** | **Supreme Silicon Legend** | 155,000 | Max Mastery / All Gauntlets Cleared | Transcendent digital deity / singularity entity woven of pure golden light, fiber-optic threads, and binary constellations. |
 
 ---
 
@@ -48,7 +48,7 @@ modules/binary-numbers/assets/avatars/
 ├── avatar_tier05_signed_sentinel.jpeg
 ├── avatar_tier06_silicon_shifter.jpeg
 ├── avatar_tier07_alu_vanguard.jpeg
-├── avatar_tier08_hex_sorcerer.jpeg
+├── avatar_tier08_hex_adept.jpeg
 ├── avatar_tier09_hex_archon.jpeg
 ├── avatar_tier10_data_architect.jpeg
 ├── avatar_tier11_grand_bitmaster.jpeg
@@ -86,29 +86,29 @@ Sleek 2D game avatar portrait of a high-tech female stealth operative wearing a 
 Sleek 2D game avatar portrait of a rugged sci-fi male engineer with a short neat beard and high-tech headset. Wearing heavy dark industrial exosuit power armor with glowing neon cyan holographic cube emblems on the chest and shoulder plate. Holding a large glowing futuristic cyan energy wrench over his shoulder. Heavy machinery specialist, powerhouse engineer, clean digital illustration, centered portrait.
 ```
 
-### Prompt 05: Hex Sorcerer (`avatar_tier05_hex_sorcerer.png`)
+### Prompt 05: Signed Sentinel (`avatar_tier05_signed_sentinel.jpeg`)
 ```text
-Sleek 2D game avatar portrait of an elder cybernetic techno-wizard wearing dark futuristic hooded robes with glowing circuit-board patterns. Trimmed silver cybernetic beard, calm wise glowing eyes beneath the cowl. Both hands raised forward, conjuring floating glowing neon cyan and violet holographic hexagonal glyphs inscribed with mathematical and hex code symbols '0x' and 'Σ'. Mysterious, powerful techno-mage, centered portrait.
+Sleek 2D game avatar portrait of a heavy digital sentinel in cybernetic titanium armor. The character features literal glowing '+' and '−' polarity symbols illuminated across his chestplate and wields a radiant translucent energy shield pulsating with polarity waves. High-contrast cyan and violet rim lighting, cyber visor, sleek futuristic guardian, isolated on solid dark navy background, centered bust portrait.
 ```
 
-### Prompt 06: Hex Archon (`avatar_tier06_hex_archon.png`)
+### Prompt 06: Silicon Shifter (`avatar_tier06_silicon_shifter.jpeg`)
 ```text
-Sleek 2D game avatar portrait of an elite digital architect in crystalline hexagonal armored vestments. Geometric floating polygonal glass facets orbit around the head, gleaming with purple and cyan refraction. High-tech crown-like visor with interlocking hex prisms. Majestic, structural mastermind, clean vibrant sci-fi illustration, dark navy background.
+Sleek 2D game avatar portrait of a high-speed cybernetic speedster flanked by swirling blue and orange shift portals. Trailing neon velocity streaks and glowing binary shift arrows orbiting around the flight helmet. Dynamic kinetic posture, electric energy crackling between the gauntlets. Extreme speed, electric energy, clean digital game art, centered square framing.
 ```
 
-### Prompt 07: ALU Vanguard (`avatar_tier07_alu_vanguard.png`)
+### Prompt 07: ALU Vanguard (`avatar_tier07_alu_vanguard.jpeg`)
 ```text
 Sleek 2D game avatar portrait of an agile cyber-blade specialist. Wearing a sleek lightweight exo-suit with dual energy-filament blades humming with electrical current. Glowing orange and cyan circuit traces run down the arms, symbolizing arithmetic and logic gates. Dynamic combat pose, focused intense gaze through a razor-thin visor. High-octane digital art, centered avatar framing.
 ```
 
-### Prompt 08: Signed Sentinel (`avatar_tier08_signed_sentinel.png`)
+### Prompt 08: Hex Adept (`avatar_tier08_hex_adept.jpeg`)
 ```text
-Sleek 2D game avatar portrait of a shadowy digital phantom ninja. The character's design is divided down the middle by a glowing quantum phase inversion: one side clean cyan light, the other deep inverted magenta shadow with glowing glitch artifacts, symbolizing signed binary sign bits and inversion. Glowing dual-tone eyes, stealth cyber cowl. High contrast, sleek and mysterious.
+Sleek 2D game avatar portrait of an elder cybernetic techno-adept wearing dark futuristic hooded robes with glowing circuit-board patterns. Trimmed silver cybernetic beard, calm wise glowing eyes beneath the cowl. Both hands raised forward, conjuring floating glowing neon cyan and violet holographic hexagonal glyphs inscribed with hexadecimal code symbols '0x' and 'A-F'. Mysterious, powerful techno-mage, centered portrait.
 ```
 
-### Prompt 09: Silicon Shifter (`avatar_tier09_silicon_shifter.png`)
+### Prompt 09: Hex Archon (`avatar_tier09_hex_archon.jpeg`)
 ```text
-Sleek 2D game avatar portrait of a hyper-speed overclocked courier. Wearing an aerodynamic streamlined cybernetic flight helmet with trailing neon cyan velocity trails and shift arrows. Glowing bus conduits pulsed with liquid light. Kinetic energy sparks radiating from the shoulders. Extreme speed, electric energy, clean digital game art.
+Sleek 2D game avatar portrait of an elite digital architect in crystalline hexagonal armored vestments. Geometric floating polygonal glass facets orbit around the head, gleaming with purple and cyan refraction. High-tech crown-like visor with interlocking hex prisms. Majestic, structural mastermind, clean vibrant sci-fi illustration, dark navy background.
 ```
 
 ### Prompt 10: Data Architect (`avatar_tier10_data_architect.png`)

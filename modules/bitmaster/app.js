@@ -680,11 +680,11 @@
     { minXp: 4000, title: "Nibble Operator", svgIcon: BITMASTER_STAGE_ICONS[2], avatarKey: "avatar_tier02_nibble_operator" },
     { minXp: 10000, title: "Binary Specialist", svgIcon: BITMASTER_STAGE_ICONS[3], avatarKey: "avatar_tier03_binary_specialist" },
     { minXp: 18000, title: "Byte Engineer", svgIcon: BITMASTER_STAGE_ICONS[4], avatarKey: "avatar_tier04_byte_engineer" },
-    { minXp: 28000, title: "Hex Sorcerer", svgIcon: BITMASTER_STAGE_ICONS[5], avatarKey: "avatar_tier08_hex_sorcerer" },
-    { minXp: 40000, title: "Hex Archon", svgIcon: BITMASTER_STAGE_ICONS[6], avatarKey: "avatar_tier09_hex_archon" },
+    { minXp: 28000, title: "Signed Sentinel", svgIcon: BITMASTER_STAGE_ICONS[11], avatarKey: "avatar_tier05_signed_sentinel" },
+    { minXp: 40000, title: "Silicon Shifter", svgIcon: BITMASTER_STAGE_ICONS[10], avatarKey: "avatar_tier06_silicon_shifter" },
     { minXp: 54000, title: "ALU Vanguard", svgIcon: BITMASTER_STAGE_ICONS[8], avatarKey: "avatar_tier07_alu_vanguard" },
-    { minXp: 70000, title: "Silicon Shifter", svgIcon: BITMASTER_STAGE_ICONS[10], avatarKey: "avatar_tier06_silicon_shifter" },
-    { minXp: 88000, title: "Signed Sentinel", svgIcon: BITMASTER_STAGE_ICONS[11], avatarKey: "avatar_tier05_signed_sentinel" },
+    { minXp: 70000, title: "Hex Adept", svgIcon: BITMASTER_STAGE_ICONS[5], avatarKey: "avatar_tier08_hex_adept" },
+    { minXp: 88000, title: "Hex Archon", svgIcon: BITMASTER_STAGE_ICONS[6], avatarKey: "avatar_tier09_hex_archon" },
     { minXp: 108000, title: "Data Architect", svgIcon: BITMASTER_STAGE_ICONS[15], avatarKey: "avatar_tier10_data_architect" },
     { minXp: 130000, title: "Grand BitMaster", svgIcon: BITMASTER_STAGE_ICONS[21], avatarKey: "avatar_tier11_grand_bitmaster" },
     { minXp: 155000, title: "Supreme Silicon Legend", svgIcon: BITMASTER_STAGE_ICONS[21], avatarKey: "avatar_tier12_supreme_silicon_legend" }
@@ -727,10 +727,15 @@
   };
 
   const AVATAR_KEY_ALIASES = {
+    avatar_tier05_signed_sentinel: ['avatar_tier05_signed_sentinel', 'avatar_tier08_signed_sentinel', 'avatar_tier08_complement_sentinel', 'avatar_tier08_polarity_phantom', 'avatar_tier08_twos_complement_master'],
+    avatar_tier06_silicon_shifter: ['avatar_tier06_silicon_shifter', 'avatar_tier09_silicon_shifter'],
     avatar_tier07_alu_vanguard: ['avatar_tier07_alu_vanguard', 'avatar_tier07_alu_striker', 'avatar_tier07_alu_circuitist', 'avatar_tier07_logic_vanguard'],
     avatar_tier07_alu_circuitist: ['avatar_tier07_alu_vanguard', 'avatar_tier07_alu_striker', 'avatar_tier07_alu_circuitist', 'avatar_tier07_logic_vanguard'],
-    avatar_tier08_signed_sentinel: ['avatar_tier08_signed_sentinel', 'avatar_tier08_complement_sentinel', 'avatar_tier08_polarity_phantom', 'avatar_tier08_twos_complement_master'],
-    avatar_tier08_twos_complement_master: ['avatar_tier08_signed_sentinel', 'avatar_tier08_complement_sentinel', 'avatar_tier08_polarity_phantom', 'avatar_tier08_twos_complement_master']
+    avatar_tier08_hex_adept: ['avatar_tier08_hex_adept', 'avatar_tier08_hex_sorcerer', 'avatar_tier05_hex_sorcerer'],
+    avatar_tier08_hex_sorcerer: ['avatar_tier08_hex_adept', 'avatar_tier08_hex_sorcerer', 'avatar_tier05_hex_sorcerer'],
+    avatar_tier09_hex_archon: ['avatar_tier09_hex_archon', 'avatar_tier06_hex_archon'],
+    avatar_tier08_signed_sentinel: ['avatar_tier05_signed_sentinel', 'avatar_tier08_signed_sentinel', 'avatar_tier08_complement_sentinel', 'avatar_tier08_polarity_phantom', 'avatar_tier08_twos_complement_master'],
+    avatar_tier08_twos_complement_master: ['avatar_tier05_signed_sentinel', 'avatar_tier08_signed_sentinel', 'avatar_tier08_complement_sentinel', 'avatar_tier08_polarity_phantom', 'avatar_tier08_twos_complement_master']
   };
 
   function getBitmasterAvatarHTML(rank, extraClass = '') {
@@ -8110,11 +8115,11 @@
     "Comfortable manipulating 4-bit nibbles and place values (8, 4, 2, 1).",
     "Rapid mental conversion across binary powers and byte halves.",
     "Fluent in full 8-bit byte structures and powers of 2 up to 128.",
-    "Effortless conversion between binary nibbles and hexadecimal digits.",
-    "Master of 2-digit hex bytes, address spaces, and color codes.",
-    "Master of binary addition, carry bits, and arithmetic circuits.",
-    "Flawless arithmetic shifts, division, and multiplication by powers of 2.",
-    "Guardian of sign bits and Two's Complement negative representations.",
+    "Signed Sentinel with literal + and − polarity symbols glowing on his chest and an energy shield.",
+    "Silicon Shifter channeling data overclocking through swirling blue and orange shift portals.",
+    "ALU Vanguard wielding dual logic conduits for lightning-fast arithmetic and binary addition.",
+    "Hex Adept mastering swift conversion between 4-bit binary nibbles and hexadecimal digits.",
+    "Hex Archon commander of 2-digit hex bytes, address spaces, and geometric data structures.",
     "Master of computing storage capacities, file sizes, and sound metrics.",
     "Elite architect capable of conquering any mixed exam challenge.",
     "The apex of computing hardware and binary mastery."
