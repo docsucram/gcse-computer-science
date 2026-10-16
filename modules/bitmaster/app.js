@@ -498,9 +498,10 @@
       svgIcon: BITMASTER_STAGE_ICONS[10],
       color: "#ec4899",
       levels: [
-        { id: 9, name: "Interactive Shift Flip", mode: "math_shift_flip", desc: "Flip the shifted bits underneath in the result row & submit!" },
-        { id: 10, name: "Logical Left Shifts", mode: "mc_shift_left", desc: "Left Shifts (Multiply by 2, 4, 8) with MSB overflow check" },
-        { id: 11, name: "Logical Right Shifts", mode: "mc_shift_right", desc: "Right Shifts (Divide by 2, 4 with Truncation)" }
+        { id: 9, name: "Logical Left Shifts", mode: "mc_shift_left", desc: "Left Shifts (Multiply by 2, 4, 8) with MSB overflow check" },
+        { id: 10, name: "Logical Right Shifts", mode: "mc_shift_right", desc: "Right Shifts (Divide by 2, 4 with Truncation)" },
+        { id: 11, name: "Interactive Shift Flip", mode: "math_shift_flip", desc: "Flip the shifted bits underneath in the result row & submit!" },
+        { id: 12, name: "Shift Arithmetic Effect", mode: "mc_shift_arithmetic_effect", desc: "Multiplication/division factors (×2, ×4, ×8) and integer truncation effects" }
       ]
     },
 
@@ -825,6 +826,7 @@
   const bitmasterState = {
     xp: 0,
     arcadeXp: 0,
+    arcadeRecords: { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 },
     roundStartXp: 0,
     stars: {}, // key: "s{stageId}_l{levelId}" -> number (1-3)
     levelRecords: {}, // key: "s{stageId}_l{levelId}" -> { best10Q, stars10Q, bestSprint, solvedSprint, medalSprint }
@@ -858,7 +860,7 @@
     's7_l1': 's7_l13', 's7_l2': 's7_l14', 's7_l3': 's7_l15', 's7_l4': 's7_l16',
     // Topic 3
     's9_l1': 's9_l5', 's9_l2': 's9_l6', 's9_l3': 's9_l7', 's9_l4': 's9_l8',
-    's10_l1': 's10_l9', 's10_l2': 's10_l10', 's10_l3': 's10_l11',
+    's10_l1': 's10_l11', 's10_l2': 's10_l9', 's10_l3': 's10_l10',
     // Topic 4
     's12_l1': 's12_l5', 's12_l2': 's12_l6', 's12_l3': 's12_l7', 's12_l4': 's12_l8', 's12_l5': 's12_l9',
     's13_l1': 's13_l10', 's13_l2': 's13_l11', 's13_l3': 's13_l12', 's13_l4': 's13_l13', 's13_l5': 's13_l14', 's13_l6': 's13_l15', 's13_l7': 's13_l16',
@@ -896,6 +898,8 @@
         bitmasterState.stars = data.stars || {};
         bitmasterState.levelRecords = data.levelRecords || {};
         bitmasterState.arcadeXp = Number(data.arcadeXp) || 0;
+        bitmasterState.arcadeRecords = data.arcadeRecords || { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 };
+        if (!bitmasterState.arcadeRecords.bitcross) bitmasterState.arcadeRecords.bitcross = {};
         const m1 = migrateLegacyLevelKeys(bitmasterState.stars);
         const m2 = migrateLegacyLevelKeys(bitmasterState.levelRecords);
         let totalXp = bitmasterState.arcadeXp;
@@ -913,6 +917,7 @@
           bitmasterState.stars = data.stars || {};
           bitmasterState.levelRecords = {};
           bitmasterState.arcadeXp = 0;
+          bitmasterState.arcadeRecords = { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 };
           migrateLegacyLevelKeys(bitmasterState.stars);
           let migXp = 0;
           Object.entries(bitmasterState.stars).forEach(([k, s]) => {
@@ -948,7 +953,8 @@
         xp: bitmasterState.xp,
         stars: bitmasterState.stars,
         levelRecords: bitmasterState.levelRecords,
-        arcadeXp: bitmasterState.arcadeXp || 0
+        arcadeXp: bitmasterState.arcadeXp || 0,
+        arcadeRecords: bitmasterState.arcadeRecords || { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 }
       }));
     } catch (e) {
       console.warn("Could not write BitMaster save:", e);
@@ -1649,10 +1655,66 @@
     return Array.from(distractors).filter(d => String(d) !== correctStr).slice(0, 3);
   }
 
-  function createBitmasterQuestion() {
+  function getLevelTimeTargets(questionType, mode) {
+    const targets = {
+      max3StarTime: 60,
+      sprintGold: 15,
+      sprintSilver: 10,
+      sprintBronze: 6
+    };
+
+    if (!mode) return targets;
+
+    // 180s for two-row interactive Two's Complement ALU subtraction grid
+    if (mode === 'math_sub_twos_comp_grid') {
+      return {
+        max3StarTime: 180,
+        sprintGold: 4,
+        sprintSilver: 3,
+        sprintBronze: 2
+      };
+    }
+
+    // 120s for full 8-bit addition / subtraction / shift / borrow grids
+    if (mode === 'math_add_8bit' || mode === 'math_sub_no_borrow_8bit' || mode === 'math_shift_flip' || mode === 'math_sub_with_borrows_4bit') {
+      return {
+        max3StarTime: 120,
+        sprintGold: 7,
+        sprintSilver: 5,
+        sprintBronze: 3
+      };
+    }
+
+    // 90s for 8-bit keypad typing, 8-bit switch toggling, and multi-step sound/image calculations
+    if (
+      mode === 'units_sound_calc' ||
+      mode === 'units_image_calc' ||
+      mode === 'units_transmission' ||
+      mode === 'switches_byte_assisted' ||
+      mode === 'switches_byte_unassisted' ||
+      mode === 'keypad_byte_bin2den' ||
+      mode === 'keypad_hex_byte_to_den' ||
+      mode === 'keypad_den_to_hex' ||
+      mode === 'keypad_twos_comp_byte' ||
+      mode === 'twos_comp_byte_mastery' ||
+      mode === 'hex_byte_flip_assisted' ||
+      mode === 'hex_byte_flip_unassisted'
+    ) {
+      return {
+        max3StarTime: 90,
+        sprintGold: 10,
+        sprintSilver: 7,
+        sprintBronze: 4
+      };
+    }
+
+    return targets;
+  }
+
+  function createBitmasterQuestion(modeOverride = null) {
     const stage = BITMASTER_STAGES.find(s => s.id === bitmasterState.activeStage);
-    const level = stage.levels.find(l => l.id === bitmasterState.activeLevel);
-    const effectiveMode = level.mode;
+    const level = stage && stage.levels ? stage.levels.find(l => l.id === bitmasterState.activeLevel) : null;
+    const effectiveMode = modeOverride || (level ? level.mode : 'mc_nibble_bin2den_assisted');
 
     const fmtBin = (val, len) => val.toString(2).padStart(len, '0').split('').join(' ');
 
@@ -2504,11 +2566,12 @@
       const binB = b.toString(2).padStart(8, '0');
       return {
         type: 'mc',
-        prompt: `In an 8-bit unsigned register, does adding ${a} + ${b} trigger an OVERFLOW ERROR?`,
-        display: `${a} + ${b} = ${sum}`,
-        hint: `Maximum value an 8-bit unsigned register can hold is 255 (2⁸ − 1). Current sum: ${sum}`,
-        correctAnswer: isOverflow ? "Yes (Sum > 255)" : "No (Sum ≤ 255)",
-        options: ["Yes (Sum > 255)", "No (Sum ≤ 255)"]
+        prompt: `In an 8-bit unsigned register, does this addition trigger an OVERFLOW ERROR?`,
+        display: `${a} + ${b}\n(${binA.slice(0, 4)} ${binA.slice(4)} + ${binB.slice(0, 4)} ${binB.slice(4)})`,
+        isQuestionDisplay: true,
+        hint: `Maximum value an 8-bit unsigned register can hold is 255 (2⁸ − 1). Mentally add the values or check if a 9th carry bit is generated from Bit 7.`,
+        correctAnswer: isOverflow ? "Yes (Overflow > 255)" : "No (Valid ≤ 255)",
+        options: ["Yes (Overflow > 255)", "No (Valid ≤ 255)"]
       };
     }
 
@@ -3124,43 +3187,94 @@
 
     // Unsigned Underflow Quiz
     if (effectiveMode === 'math_sub_underflow_quiz') {
-      const qPool = [
-        {
-          prompt: "What happens if an 8-bit unsigned CPU register attempts to compute 5 − 12 without signed representation?",
-          display: "5 − 12 (Unsigned)",
-          hint: "Unsigned integers can only hold non-negative values from 0 up to 255",
-          correctAnswer: "Underflow Error (Cannot represent negative values)",
-          options: [
-            "Underflow Error (Cannot represent negative values)",
-            "The CPU converts automatically to decimal",
-            "Result wraps to 0 without error",
-            "Overflow trap to 255"
-          ]
-        },
-        {
-          prompt: "CPU Arithmetic Logic Unit",
-          display: "Why do CPU ALUs use Two's Complement for subtraction?",
-          isQuestionDisplay: true,
-          hint: "Reusing the existing binary addition circuit saves millions of transistors",
-          correctAnswer: "It allows subtraction using the exact same adder circuit: A + (−B)",
-          options: [
-            "It allows subtraction using the exact same adder circuit: A + (−B)",
-            "Column borrowing is too fast for the clock speed",
-            "Borrowing creates duplicate zeros",
-            "Two's complement requires double the memory"
-          ]
+      const isCalc = Math.random() < 0.65;
+      if (isCalc) {
+        const a = Math.floor(Math.random() * 200);
+        const isUnderflow = Math.random() < 0.5;
+        let b;
+        if (isUnderflow) {
+          b = a + Math.floor(Math.random() * 60) + 1; // b > a
+        } else {
+          b = Math.floor(Math.random() * (a + 1)); // b <= a
         }
-      ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
-      return {
-        type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
-      };
+
+        const correct = isUnderflow 
+          ? "Underflow Error (Cannot store negative in unsigned register)" 
+          : `Valid Result (${a - b}) — No Underflow`;
+        const distractors = isUnderflow
+          ? [
+              `Result wraps to +${(256 + (a - b)) & 255} without error`,
+              `CPU automatically converts to signed decimal`,
+              `Overflow error (exceeds 255)`
+            ]
+          : [
+              "Underflow Error (Cannot store in unsigned register)",
+              "Overflow Error (Exceeds 255)",
+              "Borrow Flag triggers fatal CPU halt"
+            ];
+        return {
+          type: 'mc',
+          prompt: "Unsigned 8-Bit Subtraction: Does this operation cause an error?",
+          display: `${a} − ${b} (Unsigned Register)`,
+          hint: isUnderflow 
+            ? "Unsigned registers only represent 0 to 255. Subtracting a larger number produces a negative result, causing an underflow." 
+            : "Since the first number is greater than or equal to the second, the result fits safely in 0..255.",
+          correctAnswer: correct,
+          options: shuffleArray([correct, ...distractors])
+        };
+      } else {
+        const qPool = [
+          {
+            prompt: "CPU Arithmetic Logic Unit",
+            display: "Why do CPU ALUs use Two's Complement for subtraction?",
+            isQuestionDisplay: true,
+            hint: "Reusing the existing binary addition circuit saves millions of transistors",
+            correctAnswer: "It allows subtraction using the exact same adder circuit: A + (−B)",
+            options: [
+              "It allows subtraction using the exact same adder circuit: A + (−B)",
+              "Column borrowing is too fast for the clock speed",
+              "Borrowing creates duplicate zeros",
+              "Two's complement requires double the memory"
+            ]
+          },
+          {
+            prompt: "Unsigned Register Boundaries",
+            display: "What is the result of attempting 0 − 1 in an unsigned 8-bit register?",
+            isQuestionDisplay: true,
+            hint: "Negative numbers require signed representation such as Two's Complement.",
+            correctAnswer: "Underflow Error (cannot represent −1 without sign bit)",
+            options: [
+              "Underflow Error (cannot represent −1 without sign bit)",
+              "Correctly stores −1 in standard binary",
+              "Stores 0 and ignores the minus",
+              "The CPU resets to BIOS factory settings"
+            ]
+          },
+          {
+            prompt: "Unsigned Underflow Prevention",
+            display: "How do modern processors prevent unsigned underflow when computing A − B?",
+            isQuestionDisplay: true,
+            hint: "Processors check status flags and switch to signed arithmetic types.",
+            correctAnswer: "By checking status register flags (Carry/Borrow) or using signed types",
+            options: [
+              "By checking status register flags (Carry/Borrow) or using signed types",
+              "By rounding all negative numbers up to zero",
+              "By discarding the rightmost 4 bits",
+              "By halting the hardware clock"
+            ]
+          }
+        ];
+        const selected = qPool[Math.floor(Math.random() * qPool.length)];
+        return {
+          type: 'mc',
+          prompt: selected.prompt,
+          display: selected.display,
+          isQuestionDisplay: selected.isQuestionDisplay,
+          hint: selected.hint,
+          correctAnswer: selected.correctAnswer,
+          options: shuffleArray(selected.options)
+        };
+      }
     }
 
     // Hardware Subtraction Prep: Invert +B and add 1 to make -B
@@ -3212,85 +3326,193 @@
 
     // Hardware Subtraction Rule: Drop final carry out
     if (effectiveMode === 'math_sub_drop_carry_quiz') {
-      const qPool = [
-        {
-          prompt: "Hardware Subtraction Rules",
-          display: "What happens to the 9th carry bit out of the MSB in A + (−B)?",
+      const isCalc = Math.random() < 0.65;
+      if (isCalc) {
+        const aValues = [15, 20, 28, 35, 42, 55, 64, 80, 95, 110];
+        const bValues = [5, 8, 12, 14, 18, 25, 30, 45, 50];
+        const a = aValues[Math.floor(Math.random() * aValues.length)];
+        const b = bValues.filter(v => v < a)[Math.floor(Math.random() * bValues.filter(v => v < a).length)] || 6;
+        const diff = a - b;
+
+        return {
+          type: 'mc',
+          prompt: "Hardware Subtraction: End-Around Carry",
+          display: `${a} + (${-b}) in Two's Complement generates a 9th carry bit. What does the CPU do with it?`,
           isQuestionDisplay: true,
-          hint: "When computing 15 + (-6), an end-around carry is generated into the 9th bit",
+          hint: `In Two's Complement hardware subtraction A + (-B), when A ≥ B, the 9th carry bit out of the MSB is always discarded. The 8-bit result (${diff}) is correct.`,
           correctAnswer: "It is discarded / ignored (the 8-bit result is correct)",
-          options: [
+          options: shuffleArray([
             "It is discarded / ignored (the 8-bit result is correct)",
-            "It triggers a fatal CPU crash",
-            "It must be added back into the LSB",
-            "It inverts the sign bit"
-          ]
-        },
-        {
-          prompt: "Hardware Subtraction Rules",
-          display: "Why is an MSB carry out NOT an overflow in Two's Complement?",
-          isQuestionDisplay: true,
-          hint: "Adding opposite-signed numbers can never exceed the 8-bit signed range (-128 to +127)",
-          correctAnswer: "Adding opposite-signed numbers can never exceed the 8-bit signed range",
-          options: [
-            "Adding opposite-signed numbers can never exceed the 8-bit signed range",
-            "The CPU ALU has infinite bits",
-            "Two's complement ignores all arithmetic",
-            "Carry bits only apply to multiplication"
-          ]
-        }
-      ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
-      return {
-        type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
-      };
+            "It triggers a fatal CPU overflow crash",
+            "It must be added back into the least significant bit (LSB)",
+            "It inverts the MSB sign bit to negative"
+          ])
+        };
+      } else {
+        const qPool = [
+          {
+            prompt: "Hardware Subtraction Rules",
+            display: "Why is an MSB carry out NOT an overflow in Two's Complement subtraction?",
+            isQuestionDisplay: true,
+            hint: "Adding opposite-signed numbers can never exceed the 8-bit signed range (-128 to +127)",
+            correctAnswer: "Adding opposite-signed numbers can never exceed the 8-bit signed range",
+            options: [
+              "Adding opposite-signed numbers can never exceed the 8-bit signed range",
+              "The CPU ALU has infinite bits",
+              "Two's complement ignores all arithmetic",
+              "Carry bits only apply to multiplication"
+            ]
+          },
+          {
+            prompt: "Hardware Subtraction Mechanics",
+            display: "When computing A − B via A + (−B), what does an end-around carry (carry out of MSB) indicate?",
+            isQuestionDisplay: true,
+            hint: "A carry out occurs when A ≥ B.",
+            correctAnswer: "The result is positive or zero (A ≥ B) and the 9th bit is discarded",
+            options: [
+              "The result is positive or zero (A ≥ B) and the 9th bit is discarded",
+              "An impossible arithmetic calculation occurred",
+              "The result is negative and needs +1 added",
+              "The ALU registers have burnt out"
+            ]
+          }
+        ];
+        const selected = qPool[Math.floor(Math.random() * qPool.length)];
+        return {
+          type: 'mc',
+          prompt: selected.prompt,
+          display: selected.display,
+          isQuestionDisplay: selected.isQuestionDisplay,
+          hint: selected.hint,
+          correctAnswer: selected.correctAnswer,
+          options: shuffleArray(selected.options)
+        };
+      }
     }
 
     // Signed Overflow Traps Quiz
     if (effectiveMode === 'math_sub_signed_overflow_quiz') {
-      const qPool = [
-        {
-          prompt: "Signed Overflow Rules",
-          display: "When does an 8-bit Signed Overflow error occur?",
-          isQuestionDisplay: true,
-          hint: "Look at the sign of the two operands vs the sign of the result",
-          correctAnswer: "When adding two positives produces a negative (or two negatives produce a positive)",
-          options: [
-            "When adding two positives produces a negative (or two negatives produce a positive)",
-            "Whenever any carry occurs in the LSB",
-            "Whenever zero is the answer",
-            "When subtracting a smaller number from a larger number"
-          ]
-        },
-        {
-          prompt: "Signed Overflow Calculation",
-          display: "+70 + +70 = −116 ?",
-          hint: "70 + 70 = 140, which exceeds the maximum positive 8-bit signed limit of +127",
-          correctAnswer: "Signed Overflow (+140 > +127, MSB flipped to negative)",
-          options: [
-            "Signed Overflow (+140 > +127, MSB flipped to negative)",
-            "Underflow Error",
-            "Parity Mismatch",
-            "No error occurred"
-          ]
+      const isCalc = Math.random() < 0.70;
+      if (isCalc) {
+        const scenario = Math.floor(Math.random() * 4);
+        let a, b, rawSum, wrapped, isOverflow, displayStr;
+
+        if (scenario === 0) {
+          // pos + pos > 127
+          a = Math.floor(Math.random() * 30) + 65; // 65..94
+          b = Math.floor(Math.random() * 30) + (128 - a); // sum 128..150
+          rawSum = a + b;
+          wrapped = rawSum - 256;
+          isOverflow = true;
+          displayStr = `+${a} + +${b} = ${wrapped}`;
+        } else if (scenario === 1) {
+          // pos + pos <= 127
+          a = Math.floor(Math.random() * 35) + 20; // 20..54
+          b = Math.floor(Math.random() * (127 - a - 10)) + 5;
+          rawSum = a + b;
+          isOverflow = false;
+          displayStr = `+${a} + +${b} = +${rawSum}`;
+        } else if (scenario === 2) {
+          // neg + neg < -128
+          const magA = Math.floor(Math.random() * 30) + 65; // -65..-94
+          const magB = Math.floor(Math.random() * 30) + (129 - magA); // sum -129..-150
+          a = -magA;
+          b = -magB;
+          rawSum = a + b;
+          wrapped = 256 + rawSum;
+          isOverflow = true;
+          displayStr = `${a} + (${b}) = +${wrapped}`;
+        } else {
+          // pos + neg (safe)
+          a = Math.floor(Math.random() * 60) + 30;
+          b = -(Math.floor(Math.random() * 60) + 15);
+          rawSum = a + b;
+          isOverflow = false;
+          displayStr = `+${a} + (${b}) = ${rawSum >= 0 ? '+' : ''}${rawSum}`;
         }
-      ];
-      const selected = qPool[Math.floor(Math.random() * qPool.length)];
-      return {
-        type: 'mc',
-        prompt: selected.prompt,
-        display: selected.display,
-        isQuestionDisplay: selected.isQuestionDisplay,
-        hint: selected.hint,
-        correctAnswer: selected.correctAnswer,
-        options: shuffleArray(selected.options)
-      };
+
+        const correctAnswer = isOverflow
+          ? (scenario === 0
+              ? `Signed Overflow (+${rawSum} > +127, sign flipped to negative)`
+              : `Signed Overflow (${rawSum} < −128, sign flipped to positive)`)
+          : "Valid Result (No Signed Overflow)";
+
+        const distractors = isOverflow
+          ? [
+              "Valid Result (No Signed Overflow)",
+              "Unsigned Underflow Error",
+              "Parity Bit Mismatch"
+            ]
+          : [
+              "Signed Overflow (sign bit corrupted)",
+              "Unsigned Overflow Error",
+              "CPU Range Fault"
+            ];
+
+        return {
+          type: 'mc',
+          prompt: "Signed Binary Arithmetic: Does this 8-bit addition cause a Signed Overflow?",
+          display: displayStr,
+          isQuestionDisplay: true,
+          hint: isOverflow
+            ? "Signed 8-bit range is −128 to +127. Adding two operands of the same sign produced an answer with the opposite sign!"
+            : "Adding numbers within −128..+127 where the sign does not flip unexpectedly is a valid signed result.",
+          correctAnswer: correctAnswer,
+          options: shuffleArray([correctAnswer, ...distractors])
+        };
+      } else {
+        const qPool = [
+          {
+            prompt: "Signed Overflow Rules",
+            display: "When does an 8-bit Signed Overflow error occur?",
+            isQuestionDisplay: true,
+            hint: "Look at the sign of the two operands vs the sign of the result",
+            correctAnswer: "When adding two positives produces a negative (or two negatives produce a positive)",
+            options: [
+              "When adding two positives produces a negative (or two negatives produce a positive)",
+              "Whenever any carry occurs in the LSB",
+              "Whenever zero is the answer",
+              "When subtracting a smaller number from a larger number"
+            ]
+          },
+          {
+            prompt: "Signed Number Range Limits",
+            display: "What are the minimum and maximum values for an 8-bit Two's Complement number?",
+            isQuestionDisplay: true,
+            hint: "The most negative is −2⁷ and the most positive is 2⁷ − 1.",
+            correctAnswer: "−128 to +127",
+            options: [
+              "−128 to +127",
+              "−127 to +128",
+              "0 to 255",
+              "−256 to +255"
+            ]
+          },
+          {
+            prompt: "Opposite Sign Arithmetic",
+            display: "Can adding a positive number and a negative number cause a signed overflow?",
+            isQuestionDisplay: true,
+            hint: "e.g. (+100) + (-50) = +50. The magnitude always decreases.",
+            correctAnswer: "No, opposite signs can never exceed the 8-bit signed range",
+            options: [
+              "No, opposite signs can never exceed the 8-bit signed range",
+              "Yes, whenever the answer is odd",
+              "Yes, if both numbers are greater than 64",
+              "Only on 64-bit architectures"
+            ]
+          }
+        ];
+        const selected = qPool[Math.floor(Math.random() * qPool.length)];
+        return {
+          type: 'mc',
+          prompt: selected.prompt,
+          display: selected.display,
+          isQuestionDisplay: selected.isQuestionDisplay,
+          hint: selected.hint,
+          correctAnswer: selected.correctAnswer,
+          options: shuffleArray(selected.options)
+        };
+      }
     }
 
     // =========================================================================
@@ -3341,6 +3563,75 @@
         correctAnswer: resultBin,
         options: options.map(String)
       };
+    }
+
+    // Level 12: Shift Arithmetic Effect (Exam staple: multiplication, division, truncation)
+    if (effectiveMode === 'mc_shift_arithmetic_effect') {
+      const qKind = Math.floor(Math.random() * 3);
+      if (qKind === 0) {
+        const places = [1, 2, 3, 4][Math.floor(Math.random() * 4)];
+        const factor = Math.pow(2, places);
+        const correct = `Multiplied by ${factor} (×${factor})`;
+        const distractors = [
+          `Multiplied by ${places * 2} (×${places * 2})`,
+          `Divided by ${factor} (÷${factor})`,
+          `Increased by ${places} (+${places})`,
+          `Multiplied by ${places} (×${places})`
+        ].filter(d => d !== correct).slice(0, 3);
+        return {
+          type: 'mc',
+          prompt: "Logical Shift Arithmetic Effect",
+          display: `A binary register is logically shifted LEFT by ${places} place${places > 1 ? 's' : ''}. What is the arithmetic effect?`,
+          isQuestionDisplay: true,
+          hint: `Each left shift multiplies the value by 2 (2ⁿ where n is the number of places).`,
+          correctAnswer: correct,
+          options: shuffleArray([correct, ...distractors])
+        };
+      } else if (qKind === 1) {
+        const places = [1, 2, 3][Math.floor(Math.random() * 3)];
+        const divisor = Math.pow(2, places);
+        const correct = `Divided by ${divisor} (÷${divisor}) with integer truncation`;
+        const distractors = [
+          `Divided by ${places * 2} (÷${places * 2})`,
+          `Multiplied by ${divisor} (×${divisor})`,
+          `Decreased by ${places} (−${places})`,
+          `Divided by ${places} (÷${places})`
+        ].filter(d => d !== correct).slice(0, 3);
+        return {
+          type: 'mc',
+          prompt: "Logical Shift Arithmetic Effect",
+          display: `A binary register is logically shifted RIGHT by ${places} place${places > 1 ? 's' : ''}. What is the arithmetic effect?`,
+          isQuestionDisplay: true,
+          hint: `Each right shift divides the value by 2 (dividing by 2ⁿ with any fractional remainder truncated).`,
+          correctAnswer: correct,
+          options: shuffleArray([correct, ...distractors])
+        };
+      } else {
+        const denValues = [15, 19, 23, 27, 35, 43, 51, 57];
+        const val = denValues[Math.floor(Math.random() * denValues.length)];
+        const places = [1, 2, 3][Math.floor(Math.random() * 3)];
+        const divisor = Math.pow(2, places);
+        const truncated = Math.floor(val / divisor);
+        const floatVal = (val / divisor).toFixed(places === 1 ? 1 : 2);
+        const binVal = val.toString(2).padStart(8, '0');
+        const correct = String(truncated);
+        const distractors = new Set([
+          String(floatVal),
+          String(Math.ceil(val / divisor)),
+          String(Math.max(0, truncated - 1)),
+          String(truncated + 2)
+        ]);
+        distractors.delete(correct);
+        return {
+          type: 'mc',
+          prompt: "Logical Right Shift Truncation",
+          display: `Register 0b${binVal} (${val} denary) shifted RIGHT by ${places} place${places > 1 ? 's' : ''} = ?`,
+          isQuestionDisplay: true,
+          hint: `Divide ${val} by ${divisor} (${val} ÷ ${divisor} = ${floatVal}). Discard the fractional decimal part (integer truncation).`,
+          correctAnswer: correct,
+          options: shuffleArray([correct, ...Array.from(distractors).slice(0, 3)])
+        };
+      }
     }
 
     // =========================================================================
@@ -3760,11 +4051,11 @@
       };
     }
 
-    // Level 3: Character Encoding Sizes (ASCII vs Unicode)
+    // Level 3: Character Encoding Sizes & ASCII Offsets
     if (effectiveMode === 'units_text_chars') {
       const charCounts = [4, 5, 6, 8, 10, 12, 14, 15, 16, 20, 25];
       const n = charCounts[Math.floor(Math.random() * charCounts.length)];
-      const qKind = Math.floor(Math.random() * 5);
+      const qKind = Math.floor(Math.random() * 7);
 
       if (qKind === 0) {
         // How many bytes to store N ASCII characters?
@@ -3806,6 +4097,69 @@
           options: opts
         };
       } else if (qKind === 3) {
+        // GCSE Exam Question: ASCII Letter Offset in Denary
+        const isUpper = Math.random() < 0.5;
+        const baseChar = isUpper ? 'A' : 'a';
+        const baseCode = isUpper ? 65 : 97;
+        const offset = Math.floor(Math.random() * 6) + 1; // 1 to 6
+        const targetChar = String.fromCharCode(baseCode + offset);
+        const targetCode = baseCode + offset;
+
+        if (Math.random() < 0.5) {
+          // Given baseChar code, find targetChar code
+          const ansStr = String(targetCode);
+          const dists = [String(targetCode - 1), String(targetCode + 1), String(targetCode + 2)];
+          return {
+            type: 'mc',
+            prompt: "ASCII Character Offsets",
+            display: `The ASCII code for '${baseChar}' is ${baseCode}. What is the denary ASCII code for '${targetChar}'?`,
+            isQuestionDisplay: true,
+            hint: `Count the alphabetical distance from '${baseChar}' to '${targetChar}' and add it to ${baseCode}.`,
+            correctAnswer: ansStr,
+            options: shuffleArray([ansStr, ...dists])
+          };
+        } else {
+          // Given baseChar and targetCode, find targetChar
+          const distChars = [
+            String.fromCharCode(baseCode + offset - 1),
+            String.fromCharCode(baseCode + offset + 1),
+            String.fromCharCode(baseCode + offset + 2)
+          ];
+          return {
+            type: 'mc',
+            prompt: "ASCII Character Offsets",
+            display: `The ASCII code for '${baseChar}' is ${baseCode}. Which character has the ASCII code ${targetCode}?`,
+            isQuestionDisplay: true,
+            hint: `Subtract ${baseCode} from ${targetCode} to find how many letters after '${baseChar}' it is.`,
+            correctAnswer: `'${targetChar}'`,
+            options: shuffleArray([`'${targetChar}'`, ...distChars.map(c => `'${c}'`)])
+          };
+        }
+      } else if (qKind === 4) {
+        // GCSE Exam Question: ASCII Character in Binary
+        const isUpper = Math.random() < 0.5;
+        const baseChar = isUpper ? 'A' : 'a';
+        const baseCode = isUpper ? 65 : 97;
+        const baseBin = baseCode.toString(2).padStart(8, '0');
+        const offset = Math.floor(Math.random() * 5) + 1; // 1 to 5
+        const targetChar = String.fromCharCode(baseCode + offset);
+        const targetCode = baseCode + offset;
+        const ansBin = targetCode.toString(2).padStart(8, '0');
+        const distBins = [
+          (targetCode - 1).toString(2).padStart(8, '0'),
+          (targetCode + 1).toString(2).padStart(8, '0'),
+          (targetCode + 2).toString(2).padStart(8, '0')
+        ];
+        return {
+          type: 'mc',
+          prompt: "ASCII Binary Representation",
+          display: `Given that '${baseChar}' is ${baseBin} (${baseCode}), what is the 8-bit binary representation of '${targetChar}'?`,
+          isQuestionDisplay: true,
+          hint: `Find the denary value for '${targetChar}' (${baseChar} + alphabetical offset) and convert the sum to binary.`,
+          correctAnswer: ansBin,
+          options: shuffleArray([ansBin, ...distBins])
+        };
+      } else if (qKind === 5) {
         // Comparison question (2 options)
         return {
           type: 'mc',
@@ -4404,14 +4758,14 @@
           {
             prompt: "Protocol Efficiency",
             display: "If a 1,000-byte packet has 100 bytes of headers, what percentage is payload efficiency?",
-            ans: "90% (900 bytes payload ÷ 1,000 bytes total)",
+            ans: "90%",
             opts: [
-              "90% (900 bytes payload ÷ 1,000 bytes total)",
+              "90%",
               "10%",
               "80%",
-              "99%"
+              "85%"
             ],
-            hint: "Payload = 1,000 − 100 = 900 bytes. Efficiency = (900 ÷ 1,000) × 100% = 90%."
+            hint: "Formula: Efficiency = (Payload ÷ Total Packet Size) × 100%."
           }
         ];
         const item = conceptPool[Math.floor(Math.random() * conceptPool.length)];
@@ -4428,56 +4782,62 @@
     }
 
     // =========================================================================
-    // STAGE 11: THE MASTER GAUNTLET (CHAMPIONSHIP BLITZ)
+    // TOPIC 6: THE MASTER GAUNTLET (CHAMPIONSHIP CIRCUITS)
     // =========================================================================
-    if (effectiveMode === 'blitz_conversions' || effectiveMode === 'blitz_maths' || effectiveMode === 'blitz_signed_hex') {
-      const rnd = Math.random();
-      if (rnd < 0.33) {
-        const val = Math.floor(Math.random() * 256);
-        const binStr = fmtBin(val, 8);
-        const dists = generateDistractors(val, 0, 255, 'denary');
-        return {
-          type: 'mc',
-          prompt: "Gauntlet Blitz: Convert Binary to Denary:",
-          display: binStr,
-          hint: "Sum active place values",
-          correctAnswer: String(val),
-          options: shuffleArray([val, ...dists]).map(String)
-        };
-      } else if (rnd < 0.66) {
-        const val = Math.floor(Math.random() * 256);
-        const hex = '0x' + val.toString(16).toUpperCase().padStart(2, '0');
-        const dists = generateDistractors(val, 0, 255, 'denary');
-        return {
-          type: 'mc',
-          prompt: `Gauntlet Blitz: Convert Hex ${hex} to Denary:`,
-          display: hex,
-          hint: "High nibble × 16 + Low nibble",
-          correctAnswer: String(val),
-          options: shuffleArray([val, ...dists]).map(String)
-        };
-      } else {
-        const a = Math.floor(Math.random() * 60) + 10;
-        const b = Math.floor(Math.random() * 60) + 10;
-        const sum = a + b;
-        const bitsA = a.toString(2).padStart(8, '0').split('').map(Number);
-        const bitsB = b.toString(2).padStart(8, '0').split('').map(Number);
-        const binSum = (sum & 255).toString(2).padStart(8, '0');
-        return {
-          type: 'math_grid',
-          numBits: 8,
-          placeValues: [128, 64, 32, 16, 8, 4, 2, 1],
-          operator: '+',
-          valA: a,
-          valB: b,
-          bitsA: bitsA,
-          bitsB: bitsB,
-          correctAnswer: binSum,
-          prompt: `Gauntlet Blitz: Calculate Binary Sum:`,
-          display: `${a} + ${b}`,
-          hint: "Add the binary columns and flip result bits to submit"
-        };
-      }
+    // Stage 19: Conversions Circuit (Topics 1 - 2)
+    if (effectiveMode === 'blitz_conversions') {
+      const modesT1T2 = [
+        'mc_nibble_bin2den_unassisted', 'keypad_nibble_bin2den',
+        'mc_byte_bin2den_unassisted', 'keypad_byte_bin2den',
+        'switches_nibble_unassisted', 'switches_byte_unassisted',
+        'hex_nibble_flip_unassisted', 'hex_byte_flip_unassisted',
+        'mc_hex_nibble_to_den_unassisted', 'keypad_hex_nibble_to_den',
+        'mc_hex_byte_unassisted', 'keypad_hex_byte_to_den',
+        'mc_den_to_hex', 'keypad_den_to_hex',
+        'hex_mixed_bin', 'hex_mixed_den', 'hex_tri_mixed'
+      ];
+      const pickedMode = modesT1T2[Math.floor(Math.random() * modesT1T2.length)];
+      const q = createBitmasterQuestion(pickedMode);
+      q.prompt = `[Conversions Blitz] ${q.prompt || 'Convert:'}`;
+      return q;
+    }
+
+    // Stage 20: Arithmetic & ALU Circuit (Topics 3 - 4)
+    if (effectiveMode === 'blitz_maths') {
+      const modesT3T4 = [
+        'math_add_simple', 'math_add_8bit', 'math_add_overflow_detect',
+        'math_sub_no_borrow_4bit', 'math_sub_no_borrow_8bit', 'math_sub_with_borrows_4bit', 'math_sub_underflow_quiz',
+        'mc_shift_left', 'mc_shift_right', 'math_shift_flip', 'mc_shift_arithmetic_effect',
+        'twos_comp_sign_nibble', 'twos_comp_sign_byte', 'twos_comp_sign_rapid', 'mc_twos_comp_sign',
+        'twos_comp_negate_4bit_odd', 'twos_comp_negate_8bit_odd', 'twos_comp_negate_8bit_even', 'twos_comp_neg_to_pos',
+        'mc_twos_comp_nibble_unassisted', 'keypad_twos_comp_nibble',
+        'mc_twos_comp_byte_unassisted', 'keypad_twos_comp_byte',
+        'sub_twos_comp_negate', 'math_sub_drop_carry_quiz', 'math_sub_signed_overflow_quiz'
+      ];
+      const pickedMode = modesT3T4[Math.floor(Math.random() * modesT3T4.length)];
+      const q = createBitmasterQuestion(pickedMode);
+      q.prompt = `[Arithmetic Blitz] ${q.prompt || 'Calculate:'}`;
+      return q;
+    }
+
+    // Stage 21: BitMaster Championship (Topics 1 - 5)
+    if (effectiveMode === 'blitz_signed_hex') {
+      const modesAll = [
+        // Topic 1
+        'mc_nibble_bin2den_unassisted', 'mc_byte_bin2den_unassisted', 'keypad_byte_bin2den', 'switches_byte_unassisted',
+        // Topic 2
+        'hex_byte_flip_unassisted', 'mc_hex_byte_unassisted', 'mc_den_to_hex', 'hex_mixed_bin', 'hex_mixed_den', 'hex_tri_mixed',
+        // Topic 3
+        'math_add_8bit', 'math_add_overflow_detect', 'math_sub_with_borrows_4bit', 'math_sub_underflow_quiz', 'mc_shift_left', 'mc_shift_right', 'mc_shift_arithmetic_effect',
+        // Topic 4
+        'twos_comp_sign_rapid', 'twos_comp_negate_8bit_even', 'mc_twos_comp_byte_unassisted', 'keypad_twos_comp_byte', 'math_sub_signed_overflow_quiz',
+        // Topic 5
+        'units_fundamental', 'units_prefixes_kib', 'units_text_chars', 'units_conversions', 'units_sound_calc', 'units_image_calc', 'units_mb_vs_mb', 'units_transmission'
+      ];
+      const pickedMode = modesAll[Math.floor(Math.random() * modesAll.length)];
+      const q = createBitmasterQuestion(pickedMode);
+      q.prompt = `[Championship Blitz] ${q.prompt || 'Solve:'}`;
+      return q;
     }
 
     // Fallback
@@ -5697,6 +6057,9 @@
     const stageId = bitmasterState.activeStage;
     const levelId = bitmasterState.activeLevel;
     const stage = BITMASTER_STAGES.find(s => s.id === stageId);
+    const level = stage ? stage.levels.find(l => l.id === levelId) : null;
+    const effectiveMode = level ? level.mode : '';
+    const timeTargets = getLevelTimeTargets(level ? level.type : '', effectiveMode);
     const saveKey = `s${stageId}_l${levelId}`;
     const record = bitmasterState.levelRecords[saveKey] || {
       best10Q: 0,
@@ -5719,29 +6082,26 @@
       const accuracyBonus = Math.round(correct * 30 * accuracy);
       roundScore = (correct * 100) + accuracyBonus;
 
-      if (correct >= 15) {
+      if (correct >= timeTargets.sprintGold) {
         sprintMedal = 'gold';
-        starsEarned = 3;
-      } else if (correct >= 10) {
+      } else if (correct >= timeTargets.sprintSilver) {
         sprintMedal = 'silver';
-        starsEarned = 2;
-      } else if (correct >= 6) {
+      } else if (correct >= timeTargets.sprintBronze) {
         sprintMedal = 'bronze';
-        starsEarned = 1;
       } else {
         sprintMedal = 'none';
-        starsEarned = 0;
       }
+      starsEarned = 0; // Sprints award Medals and XP, not Stars!
     } else {
       const correct = bitmasterState.correctThisRound;
       const mistakes = bitmasterState.mistakesThisRound;
       const elapsed = bitmasterState.elapsedSeconds;
       const flawlessBonus = (mistakes === 0 && correct === 10) ? 300 : 0;
-      const speedBonus = Math.max(0, (60 - elapsed) * 10);
+      const speedBonus = Math.max(0, (timeTargets.max3StarTime - elapsed) * 10);
       const mistakePenalty = mistakes * 50;
       roundScore = Math.max(0, (correct * 100) + flawlessBonus + speedBonus - mistakePenalty);
 
-      if (mistakes === 0 && elapsed <= 60 && correct === 10) {
+      if (mistakes === 0 && elapsed <= timeTargets.max3StarTime && correct === 10) {
         starsEarned = 3;
       } else if (mistakes <= 2 && correct >= 8) {
         starsEarned = 2;
@@ -5830,32 +6190,32 @@
     if (accEl) accEl.textContent = `${accuracy}%`;
 
     if (isSprint) {
-      if (starsEarned === 3) {
+      if (sprintMedal === 'gold') {
         if (badgeEl) badgeEl.textContent = '🥇';
         if (titleEl) titleEl.textContent = 'Gold Medal Sprint!';
-        if (starsEl) starsEl.textContent = '⭐⭐⭐';
+        if (starsEl) starsEl.innerHTML = '<span class="sprint-summary-medal gold">🥇 GOLD MEDAL</span>';
         fireConfetti();
         setTimeout(fireConfetti, 280);
         playSynthSound('perfect10');
         if (tipEl) tipEl.innerHTML = `🏆 <strong>Legendary Pace!</strong> You solved ${bitmasterState.correctThisRound} problems in 60s! 🥇 Gold Medal achieved! (Score: ${roundScore} pts)`;
-      } else if (starsEarned === 2) {
+      } else if (sprintMedal === 'silver') {
         if (badgeEl) badgeEl.textContent = '🥈';
         if (titleEl) titleEl.textContent = 'Silver Medal Sprint!';
-        if (starsEl) starsEl.textContent = '⭐⭐☆';
+        if (starsEl) starsEl.innerHTML = '<span class="sprint-summary-medal silver">🥈 SILVER MEDAL</span>';
         playSynthSound('victory');
-        if (tipEl) tipEl.innerHTML = `🥈 <strong>Silver Medal!</strong> ${bitmasterState.correctThisRound} solved. To reach Gold: solve 15+ in 60s! (Score: ${roundScore} pts)`;
-      } else if (starsEarned === 1) {
+        if (tipEl) tipEl.innerHTML = `🥈 <strong>Silver Medal!</strong> ${bitmasterState.correctThisRound} solved. To reach Gold: solve ${timeTargets.sprintGold}+ in 60s! (Score: ${roundScore} pts)`;
+      } else if (sprintMedal === 'bronze') {
         if (badgeEl) badgeEl.textContent = '🥉';
         if (titleEl) titleEl.textContent = 'Bronze Medal Sprint!';
-        if (starsEl) starsEl.textContent = '⭐☆☆';
+        if (starsEl) starsEl.innerHTML = '<span class="sprint-summary-medal bronze">🥉 BRONZE MEDAL</span>';
         playSynthSound('victory');
-        if (tipEl) tipEl.innerHTML = `🥉 <strong>Bronze Medal!</strong> ${bitmasterState.correctThisRound} solved. To reach Silver: solve 10+ in 60s! (Score: ${roundScore} pts)`;
+        if (tipEl) tipEl.innerHTML = `🥉 <strong>Bronze Medal!</strong> ${bitmasterState.correctThisRound} solved. To reach Silver: solve ${timeTargets.sprintSilver}+ in 60s! (Score: ${roundScore} pts)`;
       } else {
         if (badgeEl) badgeEl.textContent = '⏱️';
         if (titleEl) titleEl.textContent = 'Sprint Finished';
-        if (starsEl) starsEl.textContent = '☆☆☆';
+        if (starsEl) starsEl.innerHTML = '<span class="sprint-summary-medal none">⏱️ Sprint Completed</span>';
         playSynthSound('wrong');
-        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn Bronze:</strong> Solve at least 6 problems before the 60s timer expires. Keep training!`;
+        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn Bronze:</strong> Solve at least ${timeTargets.sprintBronze} problems before the 60s timer expires. Keep training!`;
       }
       if (subtextEl) {
         subtextEl.textContent = `60s Speed Sprint • Score: ${roundScore} pts • ${bitmasterState.correctThisRound} Solved • ${bitmasterState.mistakesThisRound} mistakes` + (isNewRecord ? ' • 🏆 NEW BEST!' : '');
@@ -5872,13 +6232,13 @@
         if (badgeEl) badgeEl.textContent = '👑';
         if (titleEl) titleEl.textContent = 'Flawless Precision!';
         if (starsEl) starsEl.textContent = '⭐⭐⭐';
-        if (tipEl) tipEl.innerHTML = `🏆 <strong>Flawless 10/10 Mastery!</strong> Cleared in ${bitmasterState.elapsedSeconds}s with 0 mistakes. Score: ${roundScore} pts!`;
+        if (tipEl) tipEl.innerHTML = `🏆 <strong>Flawless 10/10 Mastery!</strong> Cleared in ${bitmasterState.elapsedSeconds}s with 0 mistakes (&le; ${timeTargets.max3StarTime}s target). Score: ${roundScore} pts!`;
       } else if (starsEarned === 2) {
         if (badgeEl) badgeEl.textContent = '🌟';
         if (titleEl) titleEl.textContent = 'Stage Mastered!';
         if (starsEl) starsEl.textContent = '⭐⭐☆';
         playSynthSound('victory');
-        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn 3 Stars:</strong> Complete all 10 with 0 mistakes in &le; 60s (you made ${bitmasterState.mistakesThisRound} mistake${bitmasterState.mistakesThisRound > 1 ? 's' : ''}). Score: ${roundScore} pts.`;
+        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn 3 Stars:</strong> Complete all 10 with 0 mistakes in &le; ${timeTargets.max3StarTime}s (you made ${bitmasterState.mistakesThisRound} mistake${bitmasterState.mistakesThisRound > 1 ? 's' : ''}, took ${bitmasterState.elapsedSeconds}s). Score: ${roundScore} pts.`;
       } else if (starsEarned === 1) {
         if (badgeEl) badgeEl.textContent = '💡';
         if (titleEl) titleEl.textContent = 'Trial Passed';
@@ -6401,9 +6761,20 @@
     bitcrossState.isSolved = true;
     stopBitcrossTimer();
 
-    // Reward XP based on size
+    // Reward XP based on size: 150 / 300 / 500 on first clear of that grid size, +25 repeat trickle
     const xpRewards = { 3: 150, 4: 300, 5: 500 };
-    const earnedXp = xpRewards[bitcrossState.size] || 300;
+    const size = bitcrossState.size;
+    if (!bitmasterState.arcadeRecords) bitmasterState.arcadeRecords = { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 };
+    if (!bitmasterState.arcadeRecords.bitcross) bitmasterState.arcadeRecords.bitcross = {};
+
+    const isFirstClear = !bitmasterState.arcadeRecords.bitcross[size];
+    let earnedXp = 0;
+    if (isFirstClear) {
+      earnedXp = xpRewards[size] || 300;
+      bitmasterState.arcadeRecords.bitcross[size] = true;
+    } else {
+      earnedXp = 25;
+    }
     bitmasterState.arcadeXp = (bitmasterState.arcadeXp || 0) + earnedXp;
     saveBitmasterProgress();
     updateBitmasterHUD();
@@ -6426,7 +6797,7 @@
       if (sizeEl) sizeEl.textContent = `${bitcrossState.size}×${bitcrossState.size}`;
       if (timeEl) timeEl.textContent = formatBitcrossTime(bitcrossState.elapsedSeconds);
       if (flipsEl) flipsEl.textContent = `${bitcrossState.flips}`;
-      if (xpEl) xpEl.textContent = `+${earnedXp} XP`;
+      if (xpEl) xpEl.textContent = isFirstClear ? `+${earnedXp} XP (First Clear!)` : `+${earnedXp} XP (Practice)`;
       if (subtextEl) subtextEl.textContent = `Flawless deduction! All ${bitcrossState.size * 2} place-value sums verified!`;
       if (modal) modal.style.display = 'flex';
     }, 600);
@@ -6928,10 +7299,24 @@
     stopBitpopEngine();
 
     // Architecture XP Reward formula:
-    const xpReward = Math.max(35, Math.round(bitpopState.score / 20) + (bitpopState.poppedCount * 5));
+    const roundXp = Math.max(35, Math.round(bitpopState.score / 20) + (bitpopState.poppedCount * 5));
+    if (!bitmasterState.arcadeRecords) bitmasterState.arcadeRecords = { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 };
+    const prevBestXp = Number(bitmasterState.arcadeRecords.bitpopBestXp) || 0;
+    const prevBestScore = Number(bitmasterState.arcadeRecords.bitpopBestScore) || 0;
+
+    let earnedXp = 0;
+    const isNewHigh = roundXp > prevBestXp;
+    if (isNewHigh) {
+      earnedXp = roundXp - prevBestXp;
+      bitmasterState.arcadeRecords.bitpopBestXp = roundXp;
+      bitmasterState.arcadeRecords.bitpopBestScore = Math.max(prevBestScore, bitpopState.score);
+    } else {
+      earnedXp = 15; // Practice repeat trickle
+      bitmasterState.arcadeRecords.bitpopBestScore = Math.max(prevBestScore, bitpopState.score);
+    }
 
     // Award XP
-    bitmasterState.arcadeXp = (bitmasterState.arcadeXp || 0) + xpReward;
+    bitmasterState.arcadeXp = (bitmasterState.arcadeXp || 0) + earnedXp;
     saveBitmasterProgress();
     updateBitmasterHUD();
 
@@ -6950,7 +7335,7 @@
     if (finalScoreEl) finalScoreEl.textContent = bitpopState.score.toLocaleString();
     if (finalPoppedEl) finalPoppedEl.textContent = String(bitpopState.poppedCount);
     if (finalComboEl) finalComboEl.textContent = `${bitpopState.maxCombo.toFixed(1)}× 🔥`;
-    if (finalXpEl) finalXpEl.textContent = `+${xpReward} XP`;
+    if (finalXpEl) finalXpEl.textContent = isNewHigh ? `+${earnedXp} XP (New Best!)` : `+${earnedXp} XP (Practice)`;
 
     if (modal) modal.style.display = 'flex';
   }
@@ -6963,6 +7348,7 @@
   }
 
   window.finishBitmasterRound = finishBitmasterRound;
+  window.getLevelTimeTargets = getLevelTimeTargets;
   window.startBitmasterRound = startBitmasterRound;
   window.loadNextBitmasterQuestion = loadNextBitmasterQuestion;
   window.createBitmasterQuestion = createBitmasterQuestion;
@@ -7272,6 +7658,7 @@
         localStorage.removeItem('bitmaster_last_notified_rank');
         bitmasterState.xp = 0;
         bitmasterState.arcadeXp = 0;
+        bitmasterState.arcadeRecords = { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 };
         bitmasterState.stars = {};
         bitmasterState.levelRecords = {};
         saveBitmasterProgress();

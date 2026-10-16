@@ -6523,6 +6523,39 @@ body.bitmaster-standalone-mode .bitmaster-arena {
   border-color: #4a3464 !important;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85) !important;
 }
-
-
-
+/* Sprint Victory Summary Badges */
+.sprint-summary-medal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 800;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.sprint-summary-medal.gold {
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.22);
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
+}
+.sprint-summary-medal.silver {
+  color: #f1f5f9;
+  background: rgba(148, 163, 184, 0.22);
+  border: 1px solid rgba(148, 163, 184, 0.6);
+  box-shadow: 0 0 14px rgba(148, 163, 184, 0.35);
+}
+.sprint-summary-medal.bronze {
+  color: #fb923c;
+  background: rgba(249, 115, 22, 0.22);
+  border: 1px solid rgba(249, 115, 22, 0.6);
+  box-shadow: 0 0 14px rgba(249, 115, 22, 0.35);
+}
+.sprint-summary-medal.none {
+  color: #94a3b8;
+  background: rgba(100, 116, 139, 0.15);
+  border: 1px solid rgba(100, 116, 139, 0.3);
+}
