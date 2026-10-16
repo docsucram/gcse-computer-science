@@ -841,9 +841,9 @@
     mistakesThisRound: 0,
     correctThisRound: 0,
     currentQuestionMistakes: 0,
-    upgrades: { questionSkips: 0 },
+    upgrades: { questionSwaps: 0 },
     starsSpent: 0,
-    skipsRemainingThisRound: 0,
+    swapsRemainingThisRound: 0,
     startTime: null,
     timerInterval: null,
     elapsedSeconds: 0,
@@ -903,9 +903,9 @@
         bitmasterState.arcadeXp = Number(data.arcadeXp) || 0;
         bitmasterState.arcadeRecords = data.arcadeRecords || { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 };
         if (!bitmasterState.arcadeRecords.bitcross) bitmasterState.arcadeRecords.bitcross = {};
-        bitmasterState.upgrades = data.upgrades || { questionSkips: 0 };
-        if (typeof bitmasterState.upgrades.questionSkips !== 'number') {
-          bitmasterState.upgrades.questionSkips = 0;
+        bitmasterState.upgrades = data.upgrades || {};
+        if (typeof bitmasterState.upgrades.questionSwaps !== 'number') {
+          bitmasterState.upgrades.questionSwaps = Number(bitmasterState.upgrades.questionSkips) || 0;
         }
         bitmasterState.starsSpent = Number(data.starsSpent) || 0;
         const m1 = migrateLegacyLevelKeys(bitmasterState.stars);
@@ -926,7 +926,7 @@
           bitmasterState.levelRecords = {};
           bitmasterState.arcadeXp = 0;
           bitmasterState.arcadeRecords = { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 };
-          bitmasterState.upgrades = { questionSkips: 0 };
+          bitmasterState.upgrades = { questionSwaps: 0 };
           bitmasterState.starsSpent = 0;
           migrateLegacyLevelKeys(bitmasterState.stars);
           let migXp = 0;
@@ -965,7 +965,7 @@
         levelRecords: bitmasterState.levelRecords,
         arcadeXp: bitmasterState.arcadeXp || 0,
         arcadeRecords: bitmasterState.arcadeRecords || { bitcross: {}, bitpopBestScore: 0, bitpopBestXp: 0 },
-        upgrades: bitmasterState.upgrades || { questionSkips: 0 },
+        upgrades: bitmasterState.upgrades || { questionSwaps: 0 },
         starsSpent: Number(bitmasterState.starsSpent) || 0
       }));
     } catch (e) {
@@ -977,14 +977,15 @@
     return Object.values(bitmasterState.stars).reduce((sum, val) => sum + (Number(val) || 0), 0);
   }
 
-  const SKIP_UPGRADE_COSTS = [8, 16, 24, 36, 50, 70, 95];
-  function getSkipUpgradeCost(currentSkips) {
-    const count = Number(currentSkips) || 0;
-    if (count < SKIP_UPGRADE_COSTS.length) {
-      return SKIP_UPGRADE_COSTS[count];
+  const SWAP_UPGRADE_COSTS = [8, 16, 24, 36, 50, 70, 95];
+  function getSwapUpgradeCost(currentSwaps) {
+    const count = Number(currentSwaps) || 0;
+    if (count < SWAP_UPGRADE_COSTS.length) {
+      return SWAP_UPGRADE_COSTS[count];
     }
-    return 100 + (count - SKIP_UPGRADE_COSTS.length + 1) * 30;
+    return 100 + (count - SWAP_UPGRADE_COSTS.length + 1) * 30;
   }
+  const getSkipUpgradeCost = getSwapUpgradeCost;
 
   function getAvailableBitmasterStars() {
     const total = calculateBitmasterStars();
@@ -2016,7 +2017,7 @@
         prompt: "Convert 4-Bit Binary to Denary (Unassisted):",
         display: binBits.join(' '),
         displayHTML: displayHTML,
-        hint: "Mental calculation (8 • 4 • 2 • 1)",
+        hint: "Mental calculation: sum active bits",
         correctAnswer: String(val),
         options: shuffleArray([val, ...dists]).map(String)
       };
@@ -2074,7 +2075,7 @@
         prompt: "Convert 8-Bit Binary to Denary (Unassisted):",
         display: `${binBits.slice(0, 4).join('')} ${binBits.slice(4).join('')}`,
         displayHTML: displayHTML,
-        hint: "Mental calculation (128 down to 1)",
+        hint: "Mental calculation: sum active bits across the byte",
         correctAnswer: String(val),
         options: shuffleArray([val, ...dists]).map(String)
       };
@@ -4922,9 +4923,9 @@
     bitmasterState.sprintTimeLeft = 60;
     bitmasterState.totalQuestions = isSprint ? 999 : 10;
     bitmasterState.keypadBuffer = "";
-    const totalSkips = Number(bitmasterState.upgrades?.questionSkips) || 0;
-    bitmasterState.skipsRemainingThisRound = totalSkips;
-    updateBitmasterSkipButton();
+    const totalSwaps = Number(bitmasterState.upgrades?.questionSwaps || bitmasterState.upgrades?.questionSkips) || 0;
+    bitmasterState.swapsRemainingThisRound = totalSwaps;
+    updateBitmasterSwapButton();
 
     const timerEl = document.getElementById('bitmasterTimerDisplay');
     const counterEl = document.getElementById('bitmasterQuestionCounter');
@@ -5056,6 +5057,10 @@
       barEl.style.width = `${(bitmasterState.currentQuestionIndex / bitmasterState.totalQuestions) * 100}%`;
     }
 
+    renderCurrentQuestionCard();
+  }
+
+  function renderCurrentQuestionCard() {
     const challengeCard = document.getElementById('bitmasterChallengeCard');
     if (challengeCard) {
       challengeCard.style.display = bitmasterState.currentQuestion.type === 'hex_nibbles' ? 'none' : 'block';
@@ -5335,76 +5340,81 @@
     });
   }
 
-  function updateBitmasterSkipButton() {
-    const skipBtn = document.getElementById('bitmasterSkipBtn');
-    const skipText = document.getElementById('bitmasterSkipBtnText');
-    if (!skipBtn) return;
+  function updateBitmasterSwapButton() {
+    const swapBtn = document.getElementById('bitmasterSwapBtn') || document.getElementById('bitmasterSkipBtn');
+    const swapText = document.getElementById('bitmasterSwapBtnText') || document.getElementById('bitmasterSkipBtnText');
+    if (!swapBtn) return;
 
-    const totalSkips = Number(bitmasterState.upgrades?.questionSkips) || 0;
-    const remaining = Number(bitmasterState.skipsRemainingThisRound) || 0;
+    const totalSwaps = Number(bitmasterState.upgrades?.questionSwaps || bitmasterState.upgrades?.questionSkips) || 0;
+    const remaining = Number(bitmasterState.swapsRemainingThisRound) || 0;
 
-    skipBtn.style.display = 'inline-flex';
-    if (totalSkips <= 0) {
-      skipBtn.classList.add('is-depleted');
-      skipBtn.setAttribute('title', 'Unlock Question Skips in the ⭐ Star Store');
-      if (skipText) skipText.textContent = 'Skip (0)';
+    swapBtn.style.display = 'inline-flex';
+    if (totalSwaps <= 0) {
+      swapBtn.classList.add('is-depleted');
+      swapBtn.setAttribute('title', 'Unlock Question Swaps in the Star Store ⭐');
+      if (swapText) swapText.textContent = 'Swap (0)';
     } else if (remaining > 0) {
-      skipBtn.classList.remove('is-depleted');
-      skipBtn.setAttribute('title', `Skip this question (${remaining} left this round)`);
-      if (skipText) skipText.textContent = `Skip (${remaining})`;
+      swapBtn.classList.remove('is-depleted');
+      swapBtn.setAttribute('title', `Swap this question for a fresh one (${remaining} left this round)`);
+      if (swapText) swapText.textContent = `Swap (${remaining})`;
     } else {
-      skipBtn.classList.add('is-depleted');
-      skipBtn.setAttribute('title', 'All skips used for this round');
-      if (skipText) skipText.textContent = 'Skip (0)';
+      swapBtn.classList.add('is-depleted');
+      swapBtn.setAttribute('title', 'All swaps used for this round');
+      if (swapText) swapText.textContent = 'Swap (0)';
     }
   }
+  const updateBitmasterSkipButton = updateBitmasterSwapButton;
 
-  function handleBitmasterSkipQuestion() {
-    const totalSkips = Number(bitmasterState.upgrades?.questionSkips) || 0;
-    if (totalSkips <= 0) {
+  function handleBitmasterSwapQuestion() {
+    const totalSwaps = Number(bitmasterState.upgrades?.questionSwaps || bitmasterState.upgrades?.questionSkips) || 0;
+    if (totalSwaps <= 0) {
       playSynthSound('tap');
-      showBitmasterToast('Unlock Question Skips in the ⭐ Star Store!', '⭐', 2800);
+      showBitmasterToast('Unlock Question Swaps in the Star Store ⭐', '⭐', 2800);
       return;
     }
 
-    if (Number(bitmasterState.skipsRemainingThisRound) <= 0) {
+    if (Number(bitmasterState.swapsRemainingThisRound) <= 0) {
       playSynthSound('tap');
-      showBitmasterToast('No skips remaining for this round!', '⚠️', 2000);
+      showBitmasterToast('No swaps remaining for this round!', '⚠️', 2000);
       return;
     }
 
-    bitmasterState.skipsRemainingThisRound--;
-    bitmasterState.correctThisRound++;
-    updateBitmasterSkipButton();
+    bitmasterState.swapsRemainingThisRound--;
+    updateBitmasterSwapButton();
 
-    playSynthSound('correct');
-    const rem = bitmasterState.skipsRemainingThisRound;
-    showBitmasterToast(`Question Skipped! (${rem} skip${rem === 1 ? '' : 's'} remaining)`, '⏭️', 1600);
+    playSynthSound('tap');
+    const rem = bitmasterState.swapsRemainingThisRound;
+    showBitmasterToast(`Question Swapped! (${rem} swap${rem === 1 ? '' : 's'} remaining)`, '🔄', 1600);
 
-    setTimeout(() => {
-      loadNextBitmasterQuestion();
-    }, 180);
+    // Pass on current question: generate fresh replacement in place without penalty
+    bitmasterState.currentQuestion = createBitmasterQuestion();
+    bitmasterState.switchBits = [0, 0, 0, 0, 0, 0, 0, 0];
+    bitmasterState.keypadBuffer = "";
+    bitmasterState.currentQuestionMistakes = 0;
+
+    renderCurrentQuestionCard();
   }
+  const handleBitmasterSkipQuestion = handleBitmasterSwapQuestion;
 
   function renderBitmasterStarVault() {
     const tallyEl = document.getElementById('bitmasterVaultStarsTally');
     const availableEl = document.getElementById('bitmasterVaultStarsAvailable');
-    const skipsCountEl = document.getElementById('bitmasterCurrentSkipsCount');
-    const buyBtn = document.getElementById('bitmasterBuySkipBtn');
-    const costBadge = document.getElementById('bitmasterSkipCostBadge');
+    const swapsCountEl = document.getElementById('bitmasterCurrentSwapsCount') || document.getElementById('bitmasterCurrentSkipsCount');
+    const buyBtn = document.getElementById('bitmasterBuySwapBtn') || document.getElementById('bitmasterBuySkipBtn');
+    const costBadge = document.getElementById('bitmasterSwapCostBadge') || document.getElementById('bitmasterSkipCostBadge');
 
     const totalStars = calculateBitmasterStars();
     const availableStars = getAvailableBitmasterStars();
-    const currentSkips = Number(bitmasterState.upgrades?.questionSkips) || 0;
-    const nextCost = getSkipUpgradeCost(currentSkips);
+    const currentSwaps = Number(bitmasterState.upgrades?.questionSwaps || bitmasterState.upgrades?.questionSkips) || 0;
+    const nextCost = getSwapUpgradeCost(currentSwaps);
 
     if (tallyEl) tallyEl.textContent = totalStars;
     if (availableEl) availableEl.textContent = availableStars;
 
-    if (skipsCountEl) {
-      skipsCountEl.textContent = currentSkips === 1 
-        ? '1 skip per round' 
-        : `${currentSkips} skips per round`;
+    if (swapsCountEl) {
+      swapsCountEl.textContent = currentSwaps === 1 
+        ? '1 swap per round' 
+        : `${currentSwaps} swaps per round`;
     }
 
     if (buyBtn && costBadge) {
@@ -5412,7 +5422,7 @@
       if (availableStars >= nextCost) {
         buyBtn.disabled = false;
         buyBtn.classList.remove('is-disabled');
-        buyBtn.title = `Unlock +1 Question Skip for ${nextCost} ⭐ (You have ${availableStars} ⭐ to spend)`;
+        buyBtn.title = `Unlock +1 Question Swap for ${nextCost} ⭐ (You have ${availableStars} ⭐ to spend)`;
       } else {
         buyBtn.disabled = true;
         buyBtn.classList.add('is-disabled');
@@ -5421,9 +5431,9 @@
     }
   }
 
-  function buyQuestionSkipUpgrade() {
-    const currentSkips = Number(bitmasterState.upgrades?.questionSkips) || 0;
-    const cost = getSkipUpgradeCost(currentSkips);
+  function buyQuestionSwapUpgrade() {
+    const currentSwaps = Number(bitmasterState.upgrades?.questionSwaps || bitmasterState.upgrades?.questionSkips) || 0;
+    const cost = getSwapUpgradeCost(currentSwaps);
     const available = getAvailableBitmasterStars();
 
     if (available < cost) {
@@ -5434,16 +5444,18 @@
 
     bitmasterState.starsSpent = (Number(bitmasterState.starsSpent) || 0) + cost;
     if (!bitmasterState.upgrades) bitmasterState.upgrades = {};
-    bitmasterState.upgrades.questionSkips = currentSkips + 1;
+    bitmasterState.upgrades.questionSwaps = currentSwaps + 1;
+    bitmasterState.upgrades.questionSkips = bitmasterState.upgrades.questionSwaps;
 
     saveBitmasterProgress();
     playSynthSound('star');
-    showBitmasterToast(`⭐ Upgrade Unlocked! You now get ${bitmasterState.upgrades.questionSkips} skip${bitmasterState.upgrades.questionSkips === 1 ? '' : 's'} per round!`, '🎉', 3500);
+    showBitmasterToast(`⭐ Upgrade Unlocked! You now get ${bitmasterState.upgrades.questionSwaps} swap${bitmasterState.upgrades.questionSwaps === 1 ? '' : 's'} per round!`, '🎉', 3500);
 
     renderBitmasterStarVault();
-    updateBitmasterSkipButton();
+    updateBitmasterSwapButton();
     updateBitmasterHUD();
   }
+  const buyQuestionSkipUpgrade = buyQuestionSwapUpgrade;
 
   function showBitmasterStarVaultModal() {
     const modal = document.getElementById('bitmasterModalStarVault');
@@ -6352,36 +6364,39 @@
     const accuracy = totalAttempted > 0 ? Math.round((bitmasterState.correctThisRound / totalAttempted) * 100) : 0;
     if (accEl) accEl.textContent = `${accuracy}%`;
 
+    const stageName = stage ? (stage.shortTitle || stage.title) : `Stage ${stageId}`;
+    const levelName = level ? level.name : `Level ${levelId}`;
+
     if (isSprint) {
       if (sprintMedal === 'gold') {
         if (badgeEl) badgeEl.textContent = '🥇';
-        if (titleEl) titleEl.textContent = 'Gold Medal Sprint!';
+        if (titleEl) titleEl.textContent = `Level ${levelId}: Gold Medal!`;
         if (starsEl) starsEl.innerHTML = '<span class="sprint-summary-medal gold">🥇 GOLD MEDAL</span>';
         fireConfetti();
         setTimeout(fireConfetti, 280);
         playSynthSound('perfect10');
-        if (tipEl) tipEl.innerHTML = `🏆 <strong>Legendary Pace!</strong> You solved ${bitmasterState.correctThisRound} problems in 60s! 🥇 Gold Medal achieved! (Score: ${roundScore} pts)`;
+        if (tipEl) tipEl.innerHTML = `🏆 <strong>Legendary Pace!</strong> You solved ${bitmasterState.correctThisRound} problems in 60s! 🥇 Gold Medal achieved! (Score: ${roundScore.toLocaleString()} pts)`;
       } else if (sprintMedal === 'silver') {
         if (badgeEl) badgeEl.textContent = '🥈';
-        if (titleEl) titleEl.textContent = 'Silver Medal Sprint!';
+        if (titleEl) titleEl.textContent = `Level ${levelId}: Silver Medal!`;
         if (starsEl) starsEl.innerHTML = '<span class="sprint-summary-medal silver">🥈 SILVER MEDAL</span>';
         playSynthSound('victory');
-        if (tipEl) tipEl.innerHTML = `🥈 <strong>Silver Medal!</strong> ${bitmasterState.correctThisRound} solved. To reach Gold: solve ${timeTargets.sprintGold}+ in 60s! (Score: ${roundScore} pts)`;
+        if (tipEl) tipEl.innerHTML = `🥈 <strong>Silver Medal!</strong> ${bitmasterState.correctThisRound} solved. To reach Gold: solve ${timeTargets.sprintGold}+ in 60s! (Score: ${roundScore.toLocaleString()} pts)`;
       } else if (sprintMedal === 'bronze') {
         if (badgeEl) badgeEl.textContent = '🥉';
-        if (titleEl) titleEl.textContent = 'Bronze Medal Sprint!';
+        if (titleEl) titleEl.textContent = `Level ${levelId}: Bronze Medal!`;
         if (starsEl) starsEl.innerHTML = '<span class="sprint-summary-medal bronze">🥉 BRONZE MEDAL</span>';
         playSynthSound('victory');
-        if (tipEl) tipEl.innerHTML = `🥉 <strong>Bronze Medal!</strong> ${bitmasterState.correctThisRound} solved. To reach Silver: solve ${timeTargets.sprintSilver}+ in 60s! (Score: ${roundScore} pts)`;
+        if (tipEl) tipEl.innerHTML = `🥉 <strong>Bronze Medal!</strong> ${bitmasterState.correctThisRound} solved. To reach Silver: solve ${timeTargets.sprintSilver}+ in 60s! (Score: ${roundScore.toLocaleString()} pts)`;
       } else {
         if (badgeEl) badgeEl.textContent = '⏱️';
-        if (titleEl) titleEl.textContent = 'Sprint Finished';
+        if (titleEl) titleEl.textContent = `Level ${levelId} Sprint Finished`;
         if (starsEl) starsEl.innerHTML = '<span class="sprint-summary-medal none">⏱️ Sprint Completed</span>';
         playSynthSound('wrong');
         if (tipEl) tipEl.innerHTML = `💡 <strong>To earn Bronze:</strong> Solve at least ${timeTargets.sprintBronze} problems before the 60s timer expires. Keep training!`;
       }
       if (subtextEl) {
-        subtextEl.textContent = `60s Speed Sprint • Score: ${roundScore} pts • ${bitmasterState.correctThisRound} Solved • ${bitmasterState.mistakesThisRound} mistakes` + (isNewRecord ? ' • 🏆 NEW BEST!' : '');
+        subtextEl.innerHTML = `<strong>${stageName}</strong> &bull; Level ${levelId}: ${levelName}<br><span style="font-size: 0.9em; opacity: 0.9;">60s Speed Sprint &bull; Score: ${roundScore.toLocaleString()} pts &bull; ${bitmasterState.correctThisRound} Solved &bull; ${bitmasterState.mistakesThisRound} mistakes` + (isNewRecord ? ' &bull; 🏆 NEW BEST!' : '') + '</span>';
       }
     } else {
       const isFlawlessZeroMistakes = (bitmasterState.mistakesThisRound === 0 && bitmasterState.correctThisRound === 10);
@@ -6393,30 +6408,30 @@
 
       if (starsEarned === 3) {
         if (badgeEl) badgeEl.textContent = '👑';
-        if (titleEl) titleEl.textContent = 'Flawless Precision!';
+        if (titleEl) titleEl.textContent = `Level ${levelId} Mastered!`;
         if (starsEl) starsEl.textContent = '⭐⭐⭐';
-        if (tipEl) tipEl.innerHTML = `🏆 <strong>Flawless 10/10 Mastery!</strong> Cleared in ${bitmasterState.elapsedSeconds}s with 0 mistakes (&le; ${timeTargets.max3StarTime}s target). Score: ${roundScore} pts!`;
+        if (tipEl) tipEl.innerHTML = `🏆 <strong>Flawless 10/10 Mastery!</strong> Cleared in ${bitmasterState.elapsedSeconds}s with 0 mistakes (&le; ${timeTargets.max3StarTime}s target). Score: ${roundScore.toLocaleString()} pts!`;
       } else if (starsEarned === 2) {
         if (badgeEl) badgeEl.textContent = '🌟';
-        if (titleEl) titleEl.textContent = 'Stage Mastered!';
+        if (titleEl) titleEl.textContent = `Level ${levelId} Cleared!`;
         if (starsEl) starsEl.textContent = '⭐⭐☆';
         playSynthSound('victory');
-        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn 3 Stars:</strong> Complete all 10 with 0 mistakes in &le; ${timeTargets.max3StarTime}s (you made ${bitmasterState.mistakesThisRound} mistake${bitmasterState.mistakesThisRound > 1 ? 's' : ''}, took ${bitmasterState.elapsedSeconds}s). Score: ${roundScore} pts.`;
+        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn 3 Stars:</strong> Complete all 10 with 0 mistakes in &le; ${timeTargets.max3StarTime}s (you made ${bitmasterState.mistakesThisRound} mistake${bitmasterState.mistakesThisRound > 1 ? 's' : ''}, took ${bitmasterState.elapsedSeconds}s). Score: ${roundScore.toLocaleString()} pts.`;
       } else if (starsEarned === 1) {
         if (badgeEl) badgeEl.textContent = '💡';
-        if (titleEl) titleEl.textContent = 'Trial Passed';
+        if (titleEl) titleEl.textContent = `Level ${levelId} Passed`;
         if (starsEl) starsEl.textContent = '⭐☆☆';
         playSynthSound('victory');
-        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn 2 Stars:</strong> Complete with &le; 2 mistakes (you made ${bitmasterState.mistakesThisRound} mistakes). Score: ${roundScore} pts.`;
+        if (tipEl) tipEl.innerHTML = `💡 <strong>To earn 2 Stars:</strong> Complete with &le; 2 mistakes (you made ${bitmasterState.mistakesThisRound} mistakes). Score: ${roundScore.toLocaleString()} pts.`;
       } else {
         if (badgeEl) badgeEl.textContent = '🔄';
-        if (titleEl) titleEl.textContent = 'Trial Incomplete';
+        if (titleEl) titleEl.textContent = `Level ${levelId} Incomplete`;
         if (starsEl) starsEl.textContent = '☆☆☆';
         playSynthSound('wrong');
-        if (tipEl) tipEl.innerHTML = `💡 <strong>To pass this level:</strong> Complete with &le; 5 mistakes (you made ${bitmasterState.mistakesThisRound} mistakes). Score: ${roundScore} pts.`;
+        if (tipEl) tipEl.innerHTML = `💡 <strong>To pass this level:</strong> Complete with &le; 5 mistakes (you made ${bitmasterState.mistakesThisRound} mistakes). Score: ${roundScore.toLocaleString()} pts.`;
       }
       if (subtextEl) {
-        subtextEl.textContent = `10 Questions • Score: ${roundScore} pts • ${bitmasterState.correctThisRound}/10 Correct • ${bitmasterState.elapsedSeconds}s` + (isNewRecord ? ' • 🏆 NEW BEST!' : '');
+        subtextEl.innerHTML = `<strong>${stageName}</strong> &bull; Level ${levelId}: ${levelName}<br><span style="font-size: 0.9em; opacity: 0.9;">10 Questions &bull; Score: ${roundScore.toLocaleString()} pts &bull; ${bitmasterState.correctThisRound}/10 Correct &bull; ${bitmasterState.elapsedSeconds}s` + (isNewRecord ? ' &bull; 🏆 NEW BEST!' : '') + '</span>';
       }
     }
 
@@ -7632,19 +7647,19 @@
       });
     }
 
-    // Question Skip Upgrade Button inside Star Store
-    const buySkipBtn = document.getElementById('bitmasterBuySkipBtn');
-    if (buySkipBtn) {
-      buySkipBtn.addEventListener('click', () => {
-        buyQuestionSkipUpgrade();
+    // Question Swap Upgrade Button inside Star Store
+    const buySwapBtn = document.getElementById('bitmasterBuySwapBtn') || document.getElementById('bitmasterBuySkipBtn');
+    if (buySwapBtn) {
+      buySwapBtn.addEventListener('click', () => {
+        buyQuestionSwapUpgrade();
       });
     }
 
-    // In-Game Skip Question Button
-    const skipBtn = document.getElementById('bitmasterSkipBtn');
-    if (skipBtn) {
-      skipBtn.addEventListener('click', () => {
-        handleBitmasterSkipQuestion();
+    // In-Game Swap Question Button
+    const swapBtn = document.getElementById('bitmasterSwapBtn') || document.getElementById('bitmasterSkipBtn');
+    if (swapBtn) {
+      swapBtn.addEventListener('click', () => {
+        handleBitmasterSwapQuestion();
       });
     }
 

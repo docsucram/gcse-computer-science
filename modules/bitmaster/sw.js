@@ -1,15 +1,15 @@
-const CACHE_NAME = 'bitmaster-v2.8.4';
+const CACHE_NAME = 'bitmaster-v2.8.5';
 const STATIC_ASSETS = [
   './',
   './style.css',
-  './style.css?v=2.8.4',
+  './style.css?v=2.8.5',
   './app.js',
-  './app.js?v=2.8.4',
+  './app.js?v=2.8.5',
   './manifest.json',
   '../../shared/styles.css',
-  '../../shared/styles.css?v=2.8.4',
+  '../../shared/styles.css?v=2.8.5',
   '../../shared/nav.js',
-  '../../shared/nav.js?v=2.8.4',
+  '../../shared/nav.js?v=2.8.5',
   '../../favicon.svg',
   './apple-touch-icon.png',
   './icon-192.png',
