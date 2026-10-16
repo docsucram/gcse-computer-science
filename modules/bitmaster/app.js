@@ -363,10 +363,10 @@
       svgIcon: BITMASTER_STAGE_ICONS[2],
       color: "#10b981",
       levels: [
-        { id: 1, name: "Byte Weights", mode: "place_val_byte_what", desc: "Identify place values across 8-bit positions (128 down to 1)" },
-        { id: 2, name: "Byte Missing (?)", mode: "place_val_byte_missing", desc: "Find the missing place value marked with '?' in an 8-bit byte" },
-        { id: 3, name: "Byte Blind (?)", mode: "place_val_byte_all_blank", desc: "All bit boxes blank with a single '?' — identify the 8-bit column weight" },
-        { id: 4, name: "Reverse Bit Finder", mode: "place_val_byte_reverse_which_bit", desc: "Given a byte weight (128..1), select the matching bit: Bit 7 down to Bit 0" }
+        { id: 5, name: "Byte Weights", mode: "place_val_byte_what", desc: "Identify place values across 8-bit positions (128 down to 1)" },
+        { id: 6, name: "Byte Missing (?)", mode: "place_val_byte_missing", desc: "Find the missing place value marked with '?' in an 8-bit byte" },
+        { id: 7, name: "Byte Blind (?)", mode: "place_val_byte_all_blank", desc: "All bit boxes blank with a single '?' — identify the 8-bit column weight" },
+        { id: 8, name: "Reverse Bit Finder", mode: "place_val_byte_reverse_which_bit", desc: "Given a byte weight (128..1), select the matching bit: Bit 7 down to Bit 0" }
       ]
     },
     {
@@ -378,10 +378,10 @@
       svgIcon: BITMASTER_STAGE_ICONS[3],
       color: "#0ea5e9",
       levels: [
-        { id: 1, name: "4-Bit Nibble (Assisted)", mode: "switches_nibble_assisted", desc: "Toggle 4-bit switches (8 • 4 • 2 • 1) for values 0 to 15 with live sum helper" },
-        { id: 2, name: "4-Bit Nibble (Unassisted)", mode: "switches_nibble_unassisted", desc: "Toggle 4-bit switches without the current total — mental summation!" },
-        { id: 3, name: "8-Bit Byte (Assisted)", mode: "switches_byte_assisted", desc: "Toggle 8-bit switches (128..1) for values 0 to 255 with live sum helper" },
-        { id: 4, name: "8-Bit Byte (Unassisted)", mode: "switches_byte_unassisted", desc: "Toggle 8-bit switches without the current total — true exam practice!" }
+        { id: 9, name: "4-Bit Nibble (Assisted)", mode: "switches_nibble_assisted", desc: "Toggle 4-bit switches (8 • 4 • 2 • 1) for values 0 to 15 with live sum helper" },
+        { id: 10, name: "4-Bit Nibble (Unassisted)", mode: "switches_nibble_unassisted", desc: "Toggle 4-bit switches without the current total — mental summation!" },
+        { id: 11, name: "8-Bit Byte (Assisted)", mode: "switches_byte_assisted", desc: "Toggle 8-bit switches (128..1) for values 0 to 255 with live sum helper" },
+        { id: 12, name: "8-Bit Byte (Unassisted)", mode: "switches_byte_unassisted", desc: "Toggle 8-bit switches without the current total — true exam practice!" }
       ]
     },
     {
@@ -393,13 +393,13 @@
       svgIcon: BITMASTER_STAGE_ICONS[4],
       color: "#8b5cf6",
       levels: [
-        { id: 1, name: "4-Bit Nibble (Assisted)", mode: "mc_nibble_bin2den_assisted", desc: "4-Bit Binary to Denary with weights (8 • 4 • 2 • 1) displayed above bits" },
-        { id: 2, name: "4-Bit Nibble (Unassisted)", mode: "mc_nibble_bin2den_unassisted", desc: "4-Bit Binary to Denary with place values removed (Mental conversion)" },
-        { id: 3, name: "4-Bit Nibble (Keypad Challenge)", mode: "keypad_nibble_bin2den", desc: "4-Bit Binary to Denary: type exact value on the numpad" },
-        { id: 4, name: "8-Bit Byte (Assisted)", mode: "mc_byte_bin2den_assisted", desc: "8-Bit Binary to Denary with weights (128..1) displayed above bits" },
-        { id: 5, name: "8-Bit Byte (Unassisted)", mode: "mc_byte_bin2den_unassisted", desc: "Full 8-Bit Binary to Denary without scaffolding (Mental conversion)" },
-        { id: 6, name: "8-Bit Byte (Keypad Challenge)", mode: "keypad_byte_bin2den", desc: "Full 8-Bit Binary to Denary: type exact value on the numpad" },
-        { id: 7, name: "Mixed Bi-Directional", mode: "mixed_bin_den", desc: "Rapid mix of Binary → Denary and Denary → Binary!" }
+        { id: 13, name: "4-Bit Nibble (Assisted)", mode: "mc_nibble_bin2den_assisted", desc: "4-Bit Binary to Denary with weights (8 • 4 • 2 • 1) displayed above bits" },
+        { id: 14, name: "4-Bit Nibble (Unassisted)", mode: "mc_nibble_bin2den_unassisted", desc: "4-Bit Binary to Denary with place values removed (Mental conversion)" },
+        { id: 15, name: "4-Bit Nibble (Keypad Challenge)", mode: "keypad_nibble_bin2den", desc: "4-Bit Binary to Denary: type exact value on the numpad" },
+        { id: 16, name: "8-Bit Byte (Assisted)", mode: "mc_byte_bin2den_assisted", desc: "8-Bit Binary to Denary with weights (128..1) displayed above bits" },
+        { id: 17, name: "8-Bit Byte (Unassisted)", mode: "mc_byte_bin2den_unassisted", desc: "Full 8-Bit Binary to Denary without scaffolding (Mental conversion)" },
+        { id: 18, name: "8-Bit Byte (Keypad Challenge)", mode: "keypad_byte_bin2den", desc: "Full 8-Bit Binary to Denary: type exact value on the numpad" },
+        { id: 19, name: "Mixed Bi-Directional", mode: "mixed_bin_den", desc: "Rapid mix of Binary → Denary and Denary → Binary!" }
       ]
     },
 
@@ -430,14 +430,14 @@
       svgIcon: BITMASTER_STAGE_ICONS[6],
       color: "#f59e0b",
       levels: [
-        { id: 1, name: "1-Digit Hex to Denary (Assisted)", mode: "mc_hex_nibble_to_den_assisted", desc: "Convert 0x0 to 0xF directly to Denary (0 to 15) with helper" },
-        { id: 2, name: "1-Digit Hex to Denary (Unassisted)", mode: "mc_hex_nibble_to_den_unassisted", desc: "Convert 0x0 to 0xF directly to Denary (pure mental recall)" },
-        { id: 3, name: "1-Digit Hex to Denary (Keypad)", mode: "keypad_hex_nibble_to_den", desc: "Convert 0x0 to 0xF directly: type exact Denary value on numpad" },
-        { id: 4, name: "2-Digit Hex to Denary (Assisted)", mode: "mc_hex_byte_assisted", desc: "Convert 0x00 to 0xFF to Denary with (16 × High + Low) helper" },
-        { id: 5, name: "2-Digit Hex to Denary (Unassisted)", mode: "mc_hex_byte_unassisted", desc: "Convert 0x00 to 0xFF to Denary without assistance" },
-        { id: 6, name: "2-Digit Hex to Denary (Keypad)", mode: "keypad_hex_byte_to_den", desc: "Convert 0x00 to 0xFF to Denary: type exact number on numpad" },
-        { id: 7, name: "Denary to Hex", mode: "mc_den_to_hex", desc: "Convert Denary numbers back into Hexadecimal (e.g. 171 → 0xAB)" },
-        { id: 8, name: "Denary to Hex (Hexpad)", mode: "keypad_den_to_hex", desc: "Convert Denary numbers to Hex: type exact 2-digit hex on hexpad" }
+        { id: 5, name: "1-Digit Hex to Denary (Assisted)", mode: "mc_hex_nibble_to_den_assisted", desc: "Convert 0x0 to 0xF directly to Denary (0 to 15) with helper" },
+        { id: 6, name: "1-Digit Hex to Denary (Unassisted)", mode: "mc_hex_nibble_to_den_unassisted", desc: "Convert 0x0 to 0xF directly to Denary (pure mental recall)" },
+        { id: 7, name: "1-Digit Hex to Denary (Keypad)", mode: "keypad_hex_nibble_to_den", desc: "Convert 0x0 to 0xF directly: type exact Denary value on numpad" },
+        { id: 8, name: "2-Digit Hex to Denary (Assisted)", mode: "mc_hex_byte_assisted", desc: "Convert 0x00 to 0xFF to Denary with (16 × High + Low) helper" },
+        { id: 9, name: "2-Digit Hex to Denary (Unassisted)", mode: "mc_hex_byte_unassisted", desc: "Convert 0x00 to 0xFF to Denary without assistance" },
+        { id: 10, name: "2-Digit Hex to Denary (Keypad)", mode: "keypad_hex_byte_to_den", desc: "Convert 0x00 to 0xFF to Denary: type exact number on numpad" },
+        { id: 11, name: "Denary to Hex", mode: "mc_den_to_hex", desc: "Convert Denary numbers back into Hexadecimal (e.g. 171 → 0xAB)" },
+        { id: 12, name: "Denary to Hex (Hexpad)", mode: "keypad_den_to_hex", desc: "Convert Denary numbers to Hex: type exact 2-digit hex on hexpad" }
       ]
     },
     {
@@ -449,10 +449,10 @@
       svgIcon: BITMASTER_STAGE_ICONS[7],
       color: "#a855f7",
       levels: [
-        { id: 1, name: "Hex ↔ Binary", mode: "hex_mixed_bin", desc: "Bi-directional Hex & Binary conversions (with 0x)" },
-        { id: 2, name: "Hex ↔ Denary", mode: "hex_mixed_den", desc: "Bi-directional Hex & Denary conversions (with 0x)" },
-        { id: 3, name: "Hex ↔ Denary (Keypad)", mode: "keypad_hex_mixed_den", desc: "Bi-directional Hex & Denary conversions: type exact values on keypad" },
-        { id: 4, name: "Tri-Directional Blitz", mode: "hex_tri_mixed", desc: "Master Blitz: Hex ↔ Binary ↔ Denary all mixed together!" }
+        { id: 13, name: "Hex ↔ Binary", mode: "hex_mixed_bin", desc: "Bi-directional Hex & Binary conversions (with 0x)" },
+        { id: 14, name: "Hex ↔ Denary", mode: "hex_mixed_den", desc: "Bi-directional Hex & Denary conversions (with 0x)" },
+        { id: 15, name: "Hex ↔ Denary (Keypad)", mode: "keypad_hex_mixed_den", desc: "Bi-directional Hex & Denary conversions: type exact values on keypad" },
+        { id: 16, name: "Tri-Directional Blitz", mode: "hex_tri_mixed", desc: "Master Blitz: Hex ↔ Binary ↔ Denary all mixed together!" }
       ]
     },
 
@@ -483,10 +483,10 @@
       svgIcon: BITMASTER_STAGE_ICONS[9],
       color: "#ef4444",
       levels: [
-        { id: 1, name: "Starter Subtraction (No Borrows)", mode: "math_sub_no_borrow_4bit", desc: "4-Bit Column Subtraction with No Borrows (1−0=1, 1−1=0, 0−0=0)" },
-        { id: 2, name: "8-Bit Subtraction (No Borrows)", mode: "math_sub_no_borrow_8bit", desc: "Full 8-Bit Column Subtraction with No Borrows across all 8 columns" },
-        { id: 3, name: "Column Subtraction with Borrows", mode: "math_sub_with_borrows_4bit", desc: "4-Bit Column Subtraction where 0−1 borrows 1 from the next higher column" },
-        { id: 4, name: "Unsigned Underflow / Subtraction Trap", mode: "math_sub_underflow_quiz", desc: "Understand why computers cannot represent A < B in unsigned registers without sign bits" }
+        { id: 5, name: "Starter Subtraction (No Borrows)", mode: "math_sub_no_borrow_4bit", desc: "4-Bit Column Subtraction with No Borrows (1−0=1, 1−1=0, 0−0=0)" },
+        { id: 6, name: "8-Bit Subtraction (No Borrows)", mode: "math_sub_no_borrow_8bit", desc: "Full 8-Bit Column Subtraction with No Borrows across all 8 columns" },
+        { id: 7, name: "Column Subtraction with Borrows", mode: "math_sub_with_borrows_4bit", desc: "4-Bit Column Subtraction where 0−1 borrows 1 from the next higher column" },
+        { id: 8, name: "Unsigned Underflow / Subtraction Trap", mode: "math_sub_underflow_quiz", desc: "Understand why computers cannot represent A < B in unsigned registers without sign bits" }
       ]
     },
     {
@@ -498,9 +498,9 @@
       svgIcon: BITMASTER_STAGE_ICONS[10],
       color: "#ec4899",
       levels: [
-        { id: 1, name: "Interactive Shift Flip", mode: "math_shift_flip", desc: "Flip the shifted bits underneath in the result row & submit!" },
-        { id: 2, name: "Logical Left Shifts", mode: "mc_shift_left", desc: "Left Shifts (Multiply by 2, 4, 8) with MSB overflow check" },
-        { id: 3, name: "Logical Right Shifts", mode: "mc_shift_right", desc: "Right Shifts (Divide by 2, 4 with Truncation)" }
+        { id: 9, name: "Interactive Shift Flip", mode: "math_shift_flip", desc: "Flip the shifted bits underneath in the result row & submit!" },
+        { id: 10, name: "Logical Left Shifts", mode: "mc_shift_left", desc: "Left Shifts (Multiply by 2, 4, 8) with MSB overflow check" },
+        { id: 11, name: "Logical Right Shifts", mode: "mc_shift_right", desc: "Right Shifts (Divide by 2, 4 with Truncation)" }
       ]
     },
 
@@ -531,11 +531,11 @@
       svgIcon: BITMASTER_STAGE_ICONS[12],
       color: "#14b8a6",
       levels: [
-        { id: 1, name: "4-Bit Negation (Odd Numbers)", mode: "twos_comp_negate_4bit_odd", desc: "Convert +X to −X (LSB ends in 1): Invert bits directly above switches and add 1" },
-        { id: 2, name: "8-Bit Negation (Odd Numbers)", mode: "twos_comp_negate_8bit_odd", desc: "Convert +X to −X (LSB ends in 1): 8-bit byte with positive bits aligned directly above" },
-        { id: 3, name: "8-Bit Negation (Even Numbers / Carries)", mode: "twos_comp_negate_8bit_even", desc: "Convert +X to −X (LSB ends in 0): Invert and ripple carries on +1!" },
-        { id: 4, name: "Negation Mastery (Unassisted)", mode: "twos_comp_negate_mastery", desc: "Mixed 4-bit and 8-bit positive to negative without the current total display" },
-        { id: 5, name: "Negative to Positive (−X ➔ +X)", mode: "twos_comp_neg_to_pos", desc: "Convert −X back to +X using the exact same Two's Complement rule: Invert & +1!" }
+        { id: 5, name: "4-Bit Negation (Odd Numbers)", mode: "twos_comp_negate_4bit_odd", desc: "Convert +X to −X (LSB ends in 1): Invert bits directly above switches and add 1" },
+        { id: 6, name: "8-Bit Negation (Odd Numbers)", mode: "twos_comp_negate_8bit_odd", desc: "Convert +X to −X (LSB ends in 1): 8-bit byte with positive bits aligned directly above" },
+        { id: 7, name: "8-Bit Negation (Even Numbers / Carries)", mode: "twos_comp_negate_8bit_even", desc: "Convert +X to −X (LSB ends in 0): Invert and ripple carries on +1!" },
+        { id: 8, name: "Negation Mastery (Unassisted)", mode: "twos_comp_negate_mastery", desc: "Mixed 4-bit and 8-bit positive to negative without the current total display" },
+        { id: 9, name: "Negative to Positive (−X ➔ +X)", mode: "twos_comp_neg_to_pos", desc: "Convert −X back to +X using the exact same Two's Complement rule: Invert & +1!" }
       ]
     },
     {
@@ -547,13 +547,13 @@
       svgIcon: BITMASTER_STAGE_ICONS[13],
       color: "#3b82f6",
       levels: [
-        { id: 1, name: "4-Bit to Denary (Assisted)", mode: "mc_twos_comp_nibble_assisted", desc: "4-Bit Two's Comp to Denary with weights (−8 • 4 • 2 • 1) displayed above bits" },
-        { id: 2, name: "4-Bit to Denary (Unassisted)", mode: "mc_twos_comp_nibble_unassisted", desc: "4-Bit Two's Comp to Denary with weights hidden (Mental calculation)" },
-        { id: 3, name: "4-Bit to Denary (Signed Keypad)", mode: "keypad_twos_comp_nibble", desc: "4-Bit Two's Comp: type exact signed Denary with ± on keypad" },
-        { id: 4, name: "8-Bit to Denary (Assisted)", mode: "mc_twos_comp_byte_assisted", desc: "8-Bit Two's Comp to Denary with weights (−128..1) displayed above bits" },
-        { id: 5, name: "8-Bit to Denary (Unassisted)", mode: "mc_twos_comp_byte_unassisted", desc: "8-Bit Two's Comp to Denary with weights hidden (Mental calculation)" },
-        { id: 6, name: "8-Bit to Denary (Signed Keypad)", mode: "keypad_twos_comp_byte", desc: "8-Bit Two's Comp: type exact signed Denary with ± on keypad" },
-        { id: 7, name: "Two's Complement Mastery", mode: "twos_comp_byte_mastery", desc: "Full 8-Bit Two's Complement mastery: mixed mental evaluation & switchboard construction!" }
+        { id: 10, name: "4-Bit to Denary (Assisted)", mode: "mc_twos_comp_nibble_assisted", desc: "4-Bit Two's Comp to Denary with weights (−8 • 4 • 2 • 1) displayed above bits" },
+        { id: 11, name: "4-Bit to Denary (Unassisted)", mode: "mc_twos_comp_nibble_unassisted", desc: "4-Bit Two's Comp to Denary with weights hidden (Mental calculation)" },
+        { id: 12, name: "4-Bit to Denary (Signed Keypad)", mode: "keypad_twos_comp_nibble", desc: "4-Bit Two's Comp: type exact signed Denary with ± on keypad" },
+        { id: 13, name: "8-Bit to Denary (Assisted)", mode: "mc_twos_comp_byte_assisted", desc: "8-Bit Two's Comp to Denary with weights (−128..1) displayed above bits" },
+        { id: 14, name: "8-Bit to Denary (Unassisted)", mode: "mc_twos_comp_byte_unassisted", desc: "8-Bit Two's Comp to Denary with weights hidden (Mental calculation)" },
+        { id: 15, name: "8-Bit to Denary (Signed Keypad)", mode: "keypad_twos_comp_byte", desc: "8-Bit Two's Comp: type exact signed Denary with ± on keypad" },
+        { id: 16, name: "Two's Complement Mastery", mode: "twos_comp_byte_mastery", desc: "Full 8-Bit Two's Complement mastery: mixed mental evaluation & switchboard construction!" }
       ]
     },
     {
@@ -565,10 +565,10 @@
       svgIcon: BITMASTER_STAGE_ICONS[14],
       color: "#0284c7",
       levels: [
-        { id: 1, name: "Two's Comp Negation Prep", mode: "sub_twos_comp_negate", desc: "Write (−B) in Two's Complement to prepare for hardware adder execution" },
-        { id: 2, name: "Hardware Subtraction Grid", mode: "math_sub_twos_comp_grid", desc: "Write (−B) in Row B, then add Row A + Row B into the Result row" },
-        { id: 3, name: "Ignore Final Carry Out", mode: "math_sub_drop_carry_quiz", desc: "Understand why the 9th carry bit out of the MSB is discarded in Two's Complement subtraction" },
-        { id: 4, name: "Signed Overflow Traps", mode: "math_sub_signed_overflow_quiz", desc: "Recognize when adding two numbers with identical signs produces an impossible sign flip" }
+        { id: 17, name: "Two's Comp Negation Prep", mode: "sub_twos_comp_negate", desc: "Write (−B) in Two's Complement to prepare for hardware adder execution" },
+        { id: 18, name: "Hardware Subtraction Grid", mode: "math_sub_twos_comp_grid", desc: "Write (−B) in Row B, then add Row A + Row B into the Result row" },
+        { id: 19, name: "Ignore Final Carry Out", mode: "math_sub_drop_carry_quiz", desc: "Understand why the 9th carry bit out of the MSB is discarded in Two's Complement subtraction" },
+        { id: 20, name: "Signed Overflow Traps", mode: "math_sub_signed_overflow_quiz", desc: "Recognize when adding two numbers with identical signs produces an impossible sign flip" }
       ]
     },
 
@@ -598,9 +598,9 @@
       svgIcon: BITMASTER_STAGE_ICONS[16],
       color: "#059669",
       levels: [
-        { id: 1, name: "Step-Up Conversions (÷1,000)", mode: "units_conversions_up", desc: "Convert small units into larger units: Bytes ➔ KB, KB ➔ MB, MB ➔ GB" },
-        { id: 2, name: "Step-Down Conversions (×1,000)", mode: "units_conversions_down", desc: "Convert large storage units into smaller units: TB ➔ GB, GB ➔ MB, MB ➔ KB" },
-        { id: 3, name: "Mixed Multi-Step Conversions", mode: "units_conversions", desc: "Jump across multiple decimal tiers (e.g. Gigabytes directly to Kilobytes or Bytes)" }
+        { id: 4, name: "Step-Up Conversions (÷1,000)", mode: "units_conversions_up", desc: "Convert small units into larger units: Bytes ➔ KB, KB ➔ MB, MB ➔ GB" },
+        { id: 5, name: "Step-Down Conversions (×1,000)", mode: "units_conversions_down", desc: "Convert large storage units into smaller units: TB ➔ GB, GB ➔ MB, MB ➔ KB" },
+        { id: 6, name: "Mixed Multi-Step Conversions", mode: "units_conversions", desc: "Jump across multiple decimal tiers (e.g. Gigabytes directly to Kilobytes or Bytes)" }
       ]
     },
     {
@@ -612,9 +612,9 @@
       svgIcon: BITMASTER_STAGE_ICONS[17],
       color: "#047857",
       levels: [
-        { id: 1, name: "Sound File Size Formula", mode: "units_sound_calc", desc: "Sample rate (Hz) × Bit depth (bits) × Duration (s) × Channels" },
-        { id: 2, name: "Bitmap Image File Size", mode: "units_image_calc", desc: "Width × Height × Colour Depth (bits) converted into Bytes / KB" },
-        { id: 3, name: "Storage Partition Capacity", mode: "units_capacity", desc: "Calculate how many sound, video, or image files fit in a drive" }
+        { id: 7, name: "Sound File Size Formula", mode: "units_sound_calc", desc: "Sample rate (Hz) × Bit depth (bits) × Duration (s) × Channels" },
+        { id: 8, name: "Bitmap Image File Size", mode: "units_image_calc", desc: "Width × Height × Colour Depth (bits) converted into Bytes / KB" },
+        { id: 9, name: "Storage Partition Capacity", mode: "units_capacity", desc: "Calculate how many sound, video, or image files fit in a drive" }
       ]
     },
     {
@@ -626,9 +626,9 @@
       svgIcon: BITMASTER_STAGE_ICONS[18],
       color: "#065f46",
       levels: [
-        { id: 1, name: "Megabits (Mb) vs Megabytes (MB)", mode: "units_mb_vs_mb", desc: "Master the factor of 8 distinction between transfer rate and file storage" },
-        { id: 2, name: "Broadband Download Times", mode: "units_transmission", desc: "Calculate download times: File Size (bits) ÷ Network Speed (bps)" },
-        { id: 3, name: "Payload & Protocol Overhead", mode: "units_payload_overhead", desc: "Calculate effective transfer speeds accounting for packet headers and latency" }
+        { id: 10, name: "Megabits (Mb) vs Megabytes (MB)", mode: "units_mb_vs_mb", desc: "Master the factor of 8 distinction between transfer rate and file storage" },
+        { id: 11, name: "Broadband Download Times", mode: "units_transmission", desc: "Calculate download times: File Size (bits) ÷ Network Speed (bps)" },
+        { id: 12, name: "Payload & Protocol Overhead", mode: "units_payload_overhead", desc: "Calculate effective transfer speeds accounting for packet headers and latency" }
       ]
     },
 
@@ -656,7 +656,7 @@
       svgIcon: BITMASTER_STAGE_ICONS[20],
       color: "#f59e0b",
       levels: [
-        { id: 1, name: "Arithmetic Blitz", mode: "blitz_maths", desc: "Binary column arithmetic, subtraction, shifts and signed Two's Complement" }
+        { id: 2, name: "Arithmetic Blitz", mode: "blitz_maths", desc: "Binary column arithmetic, subtraction, shifts and signed Two's Complement" }
       ]
     },
     {
@@ -668,7 +668,7 @@
       svgIcon: BITMASTER_STAGE_ICONS[21],
       color: "#d97706",
       levels: [
-        { id: 1, name: "Grand Championship Gauntlet", mode: "blitz_signed_hex", desc: "Comprehensive championship mix across all 6 topics of GCSE computer architecture!" }
+        { id: 3, name: "Grand Championship Gauntlet", mode: "blitz_signed_hex", desc: "Comprehensive championship mix across all 6 topics of GCSE computer architecture!" }
       ]
     }
   ];
@@ -848,6 +848,46 @@
   };
   window.bitmasterState = bitmasterState;
 
+  const LEGACY_LEVEL_KEY_MAP = {
+    // Topic 1
+    's2_l1': 's2_l5', 's2_l2': 's2_l6', 's2_l3': 's2_l7', 's2_l4': 's2_l8',
+    's3_l1': 's3_l9', 's3_l2': 's3_l10', 's3_l3': 's3_l11', 's3_l4': 's3_l12',
+    's4_l1': 's4_l13', 's4_l2': 's4_l14', 's4_l3': 's4_l15', 's4_l4': 's4_l16', 's4_l5': 's4_l17', 's4_l6': 's4_l18', 's4_l7': 's4_l19',
+    // Topic 2
+    's6_l1': 's6_l5', 's6_l2': 's6_l6', 's6_l3': 's6_l7', 's6_l4': 's6_l8', 's6_l5': 's6_l9', 's6_l6': 's6_l10', 's6_l7': 's6_l11', 's6_l8': 's6_l12',
+    's7_l1': 's7_l13', 's7_l2': 's7_l14', 's7_l3': 's7_l15', 's7_l4': 's7_l16',
+    // Topic 3
+    's9_l1': 's9_l5', 's9_l2': 's9_l6', 's9_l3': 's9_l7', 's9_l4': 's9_l8',
+    's10_l1': 's10_l9', 's10_l2': 's10_l10', 's10_l3': 's10_l11',
+    // Topic 4
+    's12_l1': 's12_l5', 's12_l2': 's12_l6', 's12_l3': 's12_l7', 's12_l4': 's12_l8', 's12_l5': 's12_l9',
+    's13_l1': 's13_l10', 's13_l2': 's13_l11', 's13_l3': 's13_l12', 's13_l4': 's13_l13', 's13_l5': 's13_l14', 's13_l6': 's13_l15', 's13_l7': 's13_l16',
+    's14_l1': 's14_l17', 's14_l2': 's14_l18', 's14_l3': 's14_l19', 's14_l4': 's14_l20',
+    // Topic 5
+    's16_l1': 's16_l4', 's16_l2': 's16_l5', 's16_l3': 's16_l6',
+    's17_l1': 's17_l7', 's17_l2': 's17_l8', 's17_l3': 's17_l9',
+    's18_l1': 's18_l10', 's18_l2': 's18_l11', 's18_l3': 's18_l12',
+    // Topic 6
+    's20_l1': 's20_l2',
+    's21_l1': 's21_l3'
+  };
+
+  function migrateLegacyLevelKeys(targetObj) {
+    if (!targetObj || typeof targetObj !== 'object') return false;
+    let didMigrate = false;
+    Object.keys(targetObj).forEach(oldKey => {
+      const newKey = LEGACY_LEVEL_KEY_MAP[oldKey];
+      if (newKey) {
+        if (!targetObj[newKey]) {
+          targetObj[newKey] = targetObj[oldKey];
+        }
+        delete targetObj[oldKey];
+        didMigrate = true;
+      }
+    });
+    return didMigrate;
+  }
+
   function loadBitmasterSave() {
     try {
       const savedV2 = localStorage.getItem('bitmaster_save_v2');
@@ -856,11 +896,16 @@
         bitmasterState.stars = data.stars || {};
         bitmasterState.levelRecords = data.levelRecords || {};
         bitmasterState.arcadeXp = Number(data.arcadeXp) || 0;
+        const m1 = migrateLegacyLevelKeys(bitmasterState.stars);
+        const m2 = migrateLegacyLevelKeys(bitmasterState.levelRecords);
         let totalXp = bitmasterState.arcadeXp;
         Object.values(bitmasterState.levelRecords).forEach(rec => {
           totalXp += (Number(rec.best10Q) || 0) + (Number(rec.bestSprint) || 0);
         });
         bitmasterState.xp = totalXp;
+        if (m1 || m2) {
+          saveBitmasterProgress();
+        }
       } else {
         const savedV1 = localStorage.getItem('bitmaster_save_v1');
         if (savedV1) {
@@ -868,6 +913,7 @@
           bitmasterState.stars = data.stars || {};
           bitmasterState.levelRecords = {};
           bitmasterState.arcadeXp = 0;
+          migrateLegacyLevelKeys(bitmasterState.stars);
           let migXp = 0;
           Object.entries(bitmasterState.stars).forEach(([k, s]) => {
             const starVal = Number(s) || 0;
@@ -882,6 +928,7 @@
             migXp += estScore;
           });
           bitmasterState.xp = Math.max(migXp, Number(data.xp) || 0);
+          saveBitmasterProgress();
         }
       }
     } catch (e) {
@@ -1014,6 +1061,11 @@
 
     const backBtn = document.getElementById('bitmasterHudBackBtn');
     const backText = document.getElementById('bitmasterHudBackText');
+    const restartBtn = document.getElementById('bitmasterHudRestartBtn');
+
+    if (restartBtn) {
+      restartBtn.style.display = (screenName === 'game') ? 'inline-flex' : 'none';
+    }
 
     if (screenName === 'title') {
       if (screens.title) {
@@ -4512,8 +4564,8 @@
     const badgeEl = document.getElementById('bitmasterActiveStageBadge');
     if (badgeEl) {
       badgeEl.textContent = isSprint 
-        ? `Stage ${bitmasterState.activeStage} • Lvl ${bitmasterState.activeLevel} • 60s Sprint`
-        : `Stage ${bitmasterState.activeStage} • Lvl ${bitmasterState.activeLevel} • 10 Questions`;
+        ? `Stage ${bitmasterState.activeStage} • Level ${bitmasterState.activeLevel} • 60s Sprint`
+        : `Stage ${bitmasterState.activeStage} • Level ${bitmasterState.activeLevel} • 10 Questions`;
     }
 
     showBitmasterScreen('game');
@@ -5973,15 +6025,17 @@
     const nextLvlBtn = document.getElementById('bitmasterSummaryNextLevelBtn');
 
     if (nextLvlBtn) {
-      const stageLevelCount = stage ? stage.levels.length : 4;
       const stageIdx = BITMASTER_STAGES.findIndex(s => s.id === bitmasterState.activeStage);
+      const stage = (stageIdx !== -1) ? BITMASTER_STAGES[stageIdx] : null;
+      const currentLvlIdx = stage ? stage.levels.findIndex(l => l.id === bitmasterState.activeLevel) : -1;
 
       if (starsEarned >= 1) {
-        if (bitmasterState.activeLevel < stageLevelCount) {
+        if (stage && currentLvlIdx !== -1 && currentLvlIdx + 1 < stage.levels.length) {
+          const nextLevel = stage.levels[currentLvlIdx + 1];
           nextLvlBtn.style.display = 'inline-flex';
-          nextLvlBtn.textContent = `Next Level (Level ${bitmasterState.activeLevel + 1}) \u2192`;
+          nextLvlBtn.textContent = `Next Level (Level ${nextLevel.id}) \u2192`;
           nextLvlBtn.onclick = () => {
-            bitmasterState.activeLevel++;
+            bitmasterState.activeLevel = nextLevel.id;
             playSynthSound('tap');
             startBitmasterRound();
           };
@@ -5990,14 +6044,15 @@
           const isNewTopic = stage && nextStage.topicId !== stage.topicId;
           const nextTopic = BITMASTER_TOPICS.find(t => t.id === nextStage.topicId);
           nextLvlBtn.style.display = 'inline-flex';
+          const nextLvlId = nextStage.levels[0] ? nextStage.levels[0].id : 1;
           if (isNewTopic && nextTopic) {
-            nextLvlBtn.textContent = `Next Topic: ${nextTopic.shortName || nextTopic.name} \u2192`;
+            nextLvlBtn.textContent = `Next Topic: ${nextTopic.shortName || nextTopic.name} (Lvl ${nextLvlId}) \u2192`;
           } else {
-            nextLvlBtn.textContent = `Next Stage: ${nextStage.shortTitle || `Stage ${nextStage.id}`} \u2192`;
+            nextLvlBtn.textContent = `Next Stage: ${nextStage.shortTitle || `Stage ${nextStage.id}`} (Lvl ${nextLvlId}) \u2192`;
           }
           nextLvlBtn.onclick = () => {
             bitmasterState.activeStage = nextStage.id;
-            bitmasterState.activeLevel = 1;
+            bitmasterState.activeLevel = nextLvlId;
             bitmasterState.selectedTopicFilter = String(nextStage.topicId);
             playSynthSound('tap');
             startBitmasterRound();
@@ -7255,6 +7310,16 @@
     const hudBackBtn = document.getElementById('bitmasterHudBackBtn');
     if (hudBackBtn) {
       hudBackBtn.addEventListener('click', goBackBitmaster);
+    }
+
+    // HUD Top Restart Button
+    const hudRestartBtn = document.getElementById('bitmasterHudRestartBtn');
+    if (hudRestartBtn && !hudRestartBtn.dataset.bmBound) {
+      hudRestartBtn.dataset.bmBound = 'true';
+      hudRestartBtn.addEventListener('click', () => {
+        playSynthSound('tap');
+        startBitmasterRound();
+      });
     }
 
     // Bottom Back Buttons on Stages & Levels Screens
