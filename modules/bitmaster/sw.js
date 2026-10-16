@@ -1,7 +1,6 @@
-const CACHE_NAME = 'bitmaster-v2.8.1';
+const CACHE_NAME = 'bitmaster-v2.8.2';
 const STATIC_ASSETS = [
   './',
-  './index.html',
   './style.css',
   './style.css?v=2.8.1',
   './app.js',
@@ -12,16 +11,41 @@ const STATIC_ASSETS = [
   '../../shared/nav.js',
   '../../shared/nav.js?v=2.8.1',
   '../../favicon.svg',
-  './apple-touch-icon.png'
+  './apple-touch-icon.png',
+  './icon-192.png',
+  './icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS).catch((err) => {
-        console.warn('BitMaster SW: Some assets failed to pre-cache', err);
-      });
-    }).then(() => self.skipWaiting())
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+
+      // 1. Pre-fetch and cache the canonical HTML document for both './' and './index.html'
+      try {
+        const htmlResp = await fetch('./', { cache: 'no-cache' });
+        if (htmlResp && htmlResp.status === 200) {
+          await cache.put('./', htmlResp.clone());
+          await cache.put('./index.html', htmlResp.clone());
+        }
+      } catch (err) {
+        console.warn('BitMaster SW: Failed to pre-cache main HTML document:', err);
+      }
+
+      // 2. Cache remaining static subresources safely without failing the whole installation
+      await Promise.allSettled(
+        STATIC_ASSETS.filter((url) => url !== './').map(async (url) => {
+          try {
+            const resp = await fetch(url);
+            if (resp && resp.status === 200) {
+              await cache.put(url, resp);
+            }
+          } catch (e) {
+            console.warn('BitMaster SW: Could not pre-cache asset:', url, e);
+          }
+        })
+      );
+    })().then(() => self.skipWaiting())
   );
 });
 
@@ -40,41 +64,86 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
+  // Only handle standard GET requests
   if (event.request.method !== 'GET') return;
 
   const url = new URL(event.request.url);
-
-  // Skip cross-origin non-http(s) or analytics if any
   if (!url.protocol.startsWith('http')) return;
 
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Fetch fresh copy in background to update cache (stale-while-revalidate)
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
+  // 1. Navigation requests (Page load / PWA launch / cold start)
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(CACHE_NAME);
+
+        // Try cache first for instant launch and offline support
+        const cached =
+          (await cache.match('./')) ||
+          (await cache.match('./index.html')) ||
+          (await cache.match(event.request));
+
+        if (cached) {
+          // Revalidate in background when online to update cached assets
+          fetch('./', { cache: 'no-cache' })
+            .then((fresh) => {
+              if (fresh && fresh.status === 200) {
+                cache.put('./', fresh.clone());
+                cache.put('./index.html', fresh.clone());
+              }
+            })
+            .catch(() => {});
+          return cached;
+        }
+
+        // Not in cache: fetch from network
+        try {
+          const netResp = await fetch(event.request);
+          if (netResp && netResp.status === 200) {
+            cache.put('./', netResp.clone());
+            cache.put('./index.html', netResp.clone());
           }
-        }).catch(() => {/* offline fallback */});
-        return cachedResponse;
+          return netResp;
+        } catch (err) {
+          // Fallback if offline
+          const fallback = (await cache.match('./')) || (await cache.match('./index.html'));
+          if (fallback) return fallback;
+          return new Response(
+            '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>BitMaster Offline</title></head><body style="background:#070b14;color:#f8fafc;font-family:sans-serif;text-align:center;padding:40px 20px;"><h2>BitMaster is currently offline</h2><p>Please connect to the internet to load the app for the first time.</p></body></html>',
+            { headers: { 'Content-Type': 'text/html; charset=utf-8' }, status: 503 }
+          );
+        }
+      })()
+    );
+    return;
+  }
+
+  // 2. Subresources (CSS, JS, Fonts, Images)
+  event.respondWith(
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(event.request);
+
+      if (cached) {
+        // Stale-while-revalidate in background
+        fetch(event.request)
+          .then((fresh) => {
+            if (fresh && fresh.status === 200 && (fresh.type === 'basic' || fresh.type === 'cors')) {
+              cache.put(event.request, fresh);
+            }
+          })
+          .catch(() => {});
+        return cached;
       }
 
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || (networkResponse.type !== 'basic' && networkResponse.type !== 'cors')) {
-          return networkResponse;
+      try {
+        const netResp = await fetch(event.request);
+        if (netResp && netResp.status === 200 && (netResp.type === 'basic' || netResp.type === 'cors')) {
+          cache.put(event.request, netResp.clone());
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
-        return networkResponse;
-      }).catch(() => {
-        // Offline navigation fallback
-        if (event.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
-    })
+        return netResp;
+      } catch (err) {
+        return new Response('', { status: 408, statusText: 'Offline Asset Unavailable' });
+      }
+    })()
   );
 });

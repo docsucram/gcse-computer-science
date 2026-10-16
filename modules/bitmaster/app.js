@@ -8104,9 +8104,13 @@
     // Register Service Worker for offline play & PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch((err) => {
-          console.warn('BitMaster SW registration failed:', err);
-        });
+        navigator.serviceWorker.register('./sw.js', { scope: './' })
+          .then((reg) => {
+            if (reg) reg.update();
+          })
+          .catch((err) => {
+            console.warn('BitMaster SW registration failed:', err);
+          });
       });
     }
   }
